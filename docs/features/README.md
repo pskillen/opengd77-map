@@ -11,6 +11,6 @@ Agent skills for documentation and execution tracking:
 
 | Topic | Tool file | Docs | Status |
 | --- | --- | --- | --- |
-| Channel map | `opengd77-channel-map.html` | [channel-map/](channel-map/) | In progress — see `feat/channel-map` branch |
+| Map | `opengd77-channel-map.html` | [map/](map/) | Shipped on `feat/channel-map` |
 
 Add a row when a new tool or feature folder is created.
