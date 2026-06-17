@@ -6,6 +6,10 @@ OpenGD77 CPS exports include latitude/longitude on channels and zone membership 
 
 The primary goal is to help you **set up OpenGD77 codeplugs** — spot missing coordinates, see which repeaters sit near each other, and check whether zone boundaries match the geography you intend.
 
+## Development
+
+See [`AGENTS.md`](AGENTS.md) for agent/editor conventions. Local CPS exports for testing go in `sample-exports/` (gitignored).
+
 ## Status
 
 The channel map tool is on a feature branch; see branches for the latest work.

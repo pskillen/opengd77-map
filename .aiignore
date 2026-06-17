@@ -1,0 +1,7 @@
+# Same patterns as .cursorignore — local exports and scratch
+sample-exports/
+fixtures/
+local/
+tmp/
+
+.git/

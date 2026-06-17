@@ -1,0 +1,25 @@
+# Local CPS exports used for manual testing (keep your codeplug private)
+sample-exports/*
+!sample-exports/README.md
+fixtures/
+local/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE (local overrides only — repo keeps .cursor/ rules)
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temp
+*.log
+tmp/

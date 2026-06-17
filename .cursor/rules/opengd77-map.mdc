@@ -1,0 +1,22 @@
+---
+description: Conventions when editing opengd77-map browser tools
+globs: "**/*.{html,js,css,md}"
+alwaysApply: false
+---
+
+# opengd77-map edits
+
+Read [`AGENTS.md`](../AGENTS.md) first.
+
+## Channel map (`opengd77-channel-map.html`)
+
+- Single-page tool: inline CSS/JS is fine; Leaflet from CDN is the current pattern.
+- Parse OpenGD77 CSV by **column header name**, not index.
+- Zone hulls use the same coordinate filters as channel markers (`Use Location`, skip `0,0`).
+- A channel may appear in multiple zones — each zone hull includes shared members independently.
+- Mapbox tokens: `localStorage` only; never commit tokens or require a server.
+
+## Scope
+
+- No build toolchain unless explicitly requested.
+- Do not add committed sample codeplugs; use gitignored `sample-exports/` for local CSVs.
