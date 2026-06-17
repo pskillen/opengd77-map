@@ -14,8 +14,9 @@ This repo is intentionally small: static HTML/JS pages, no build step, no backen
 |------|------|
 | `README.md` | User-facing overview and usage |
 | `AGENTS.md` | This file — agent workflow |
-| `opengd77-channel-map.html` | Channel + zone map viewer (on feature branches as added) |
-| `docs/features/` | Contributor feature docs and progress logs |
+| `opengd77-channel-map.html` | Channel + zone map viewer |
+| `docs/features/map/` | Channel map contributor docs — [README](docs/features/map/README.md) |
+| `docs/features/` | Feature doc index and progress logs |
 | `.cursor/rules/` | File-scoped editor rules |
 | `.cursor/skills/` | Agent skills — git workflow, progress tracking, feature docs |
 

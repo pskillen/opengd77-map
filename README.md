@@ -10,9 +10,32 @@ The primary goal is to help you **set up OpenGD77 codeplugs** — spot missing c
 
 See [`AGENTS.md`](AGENTS.md) for agent/editor conventions. Local CPS exports for testing go in `sample-exports/` (gitignored).
 
-## Status
+## Channel map
 
-The channel map tool is on a feature branch; see branches for the latest work.
+`opengd77-channel-map.html` — single-page map viewer for CPS `Channels.csv` and `Zones.csv` exports.
+
+### Use
+
+1. Open the HTML file in a browser (double-click or drag into Chrome/Firefox/Edge).
+2. Load `Channels.csv` from an OpenGD77 CPS export via the file picker or drag-and-drop.
+3. Optionally load `Zones.csv` from the same export (after channels). Each zone gets a coloured convex hull around its geolocated members; channels in multiple zones contribute to each hull.
+4. Markers show channels with valid coordinates. Popups include name, mode, frequencies, and DMR contact/TG list.
+
+No server or API key required — default tiles are OpenStreetMap.
+
+### Zones
+
+Zone member names are matched to **Channel Name** in `Channels.csv`. Hull points respect the same filters as markers (**Use Location**, **Skip 0,0**, etc.). Overlapping hulls are expected when zones share repeaters.
+
+### Optional Mapbox
+
+Paste a [Mapbox access token](https://account.mapbox.com/access-tokens/) in the sidebar to use Mapbox streets or satellite tiles. The token is stored in **browser localStorage only**.
+
+### Notes
+
+- Parses OpenGD77 CSV column headers (not column positions).
+- Requires network access for map tiles (CDN + tile server), not for CSV parsing.
+- `file://` works in modern browsers; if a CDN is blocked, serve the folder with any static file server (`python -m http.server`).
 
 ## Licence
 
