@@ -7,9 +7,9 @@
 
 ## Overall status
 
-**Status:** In progress (Ticket B pending merge)
+**Status:** Complete (Ticket C pending merge)
 
-**Branch:** `19/paddy/mantine-app-shell`
+**Branch:** `20/paddy/channel-map-port`
 
 ---
 
@@ -39,8 +39,8 @@
 
 ## Ticket B — Mantine design system (#19)
 
-**Status:** Complete (pending merge)
-**PR:** https://github.com/pskillen/opengd77-map/pull/24
+**Status:** Complete
+**PR:** https://github.com/pskillen/opengd77-map/pull/24 (merged)
 
 **Delivered**
 
@@ -60,14 +60,30 @@
 
 ## Ticket C — port channel map; retire static tools (#20)
 
-**Status:** Not started
+**Status:** Complete (pending merge)
+**PR:** https://github.com/pskillen/opengd77-map/pull/25
 
-**Prerequisite:** Ticket B merged to `main`
+**Delivered**
+
+- `chore(channel-map): add leaflet and react-leaflet dependencies` — `aa4fb13`
+- `feat(channel-map): port typed CSV parsing helpers with tests` — `fbc5040`
+- `feat(channel-map): port geometry and filter helpers with tests` — `a7062e4`
+- `feat(channel-map): port channel map to react-leaflet component` — `514324f`
+- `feat(channel-map): wire channel map into /map route` — `de6ff96`
+- `feat(channel-map): retire legacy static tools and update docs` — `79d5822`
+
+**Verify**
+
+- `npm run lint && npm run format:check && npm run test && npm run build` — all pass
+- `npm run dev` — `/#/map` loads channel map with sidebar and Leaflet map
+- Load sample `Channels.csv` / `Zones.csv` from `sample-exports/` — markers, hulls, filters, stats
+- Mapbox token save/clear persists in `localStorage`
+- `site/` and `tools/` deleted; README and feature docs point at SPA routes
+- **Safe to publish a GitHub release after merge** — production will include the ported map
 
 ---
 
 ## Next
 
-- Merge PR #24 (Ticket B)
-- After merge, begin Ticket C (#20) on a new branch from `main`
-- **Do not publish a GitHub release until Ticket C is merged**
+- Open PR for Ticket C (#20), merge to `main`
+- Publish a full GitHub release to deploy GitHub Pages with the channel map

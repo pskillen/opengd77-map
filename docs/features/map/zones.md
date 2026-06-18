@@ -12,13 +12,13 @@ Documents zone CSV parsing, member resolution against plotted channels, hull geo
 
 | Symbol / region | File | Role |
 | --- | --- | --- |
-| `parseZonesCsv` | `tools/channel-map/channel-map.js` | Parse zone rows and `Channel1`…`ChannelN` columns |
-| `zoneGeolocatedPoints` | same | Resolve members → lat/lon with skip reasons |
-| `uniqueLatLon` | same | Dedupe sites to 5 decimal places |
+| `parseZonesCsv` | `src/lib/csv.ts` | Parse zone rows and `Channel1`…`ChannelN` columns |
+| `zoneGeolocatedPoints` | `src/lib/channels.ts` | Resolve members → lat/lon with skip reasons |
+| `uniqueLatLon` | `src/lib/geo.ts` | Dedupe sites to 5 decimal places |
 | `convexHullLatLon` | same | Andrew's monotone chain on `[lat, lon]` |
 | `zoneColor` | same | Distinct hue per zone index |
-| `renderZoneHulls` | same | Leaflet polygon / polyline / circle layers |
-| `loadZonesFile` | same | Requires channels loaded first |
+| Zone hull rendering | `src/components/ChannelMap/ChannelMap.tsx` | react-leaflet polygon / polyline / circle layers |
+| Zones file load | `ChannelMap.tsx` | Requires channels loaded first |
 
 ## Inputs — `Zones.csv`
 

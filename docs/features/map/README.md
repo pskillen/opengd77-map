@@ -2,7 +2,7 @@
 
 OpenGD77 CPS stores latitude and longitude on each channel and lists zone membership in a separate export, but the desktop CPS gives no geographic overview. The map tool loads those CSVs in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended when building a codeplug.
 
-Implementation lives under [`tools/channel-map/`](../../../tools/channel-map/) — `index.html` plus `channel-map.js`. No application bundler; GitHub Pages publishes when a full GitHub release is published (see [build docs](../../build/README.md)). All parsing and rendering run client-side; CSV files never leave the machine.
+Implementation lives in the SPA under `src/components/ChannelMap/` (react-leaflet UI) and `src/lib/` (CSV parsing, filters, geometry). GitHub Pages publishes when a full GitHub release is published (see [build docs](../../build/README.md)). All parsing and rendering run client-side; CSV files never leave the machine.
 
 ## Implementation status
 
@@ -21,6 +21,7 @@ Implementation lives under [`tools/channel-map/`](../../../tools/channel-map/) �
 | --- | --- |
 | [channels.md](channels.md) | `Channels.csv` parsing, markers, filters, popups, labelling |
 | [zones.md](zones.md) | `Zones.csv` parsing, hull geometry, colours, multi-zone overlap |
+| [troubleshooting.md](troubleshooting.md) | Console warnings — app vs browser extensions |
 
 User-facing quick start remains in the [repository README](../../../README.md).
 
@@ -69,8 +70,9 @@ Load order matters: **`Channels.csv` first**, then optional **`Zones.csv`**. Zon
 
 | Resource | URL |
 | --- | --- |
-| Tool (source) | [`tools/channel-map/`](../../../tools/channel-map/) |
-| Live (deployed) | [channel map](https://pskillen.github.io/opengd77-map/tools/channel-map/) |
+| Component (source) | [`src/components/ChannelMap/`](../../../src/components/ChannelMap/) |
+| Lib (source) | [`src/lib/`](../../../src/lib/) |
+| Live (deployed) | [channel map](https://pskillen.github.io/opengd77-map/#/map) |
 | Build / deploy | [docs/build/README.md](../../build/README.md) |
 | Local test CSVs | [`sample-exports/`](../../../sample-exports/) (gitignored) |
 | Agent guide | [`AGENTS.md`](../../../AGENTS.md) |

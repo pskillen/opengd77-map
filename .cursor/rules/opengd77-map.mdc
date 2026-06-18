@@ -16,8 +16,9 @@ Read [`AGENTS.md`](../../AGENTS.md) first. For git, plans, and docs see [`.curso
 
 ## Channel map
 
-- Legacy static tool: `tools/channel-map/` (retired when SPA port lands).
-- SPA component: `src/` (Ticket C of SPA migration).
+- UI: `src/components/ChannelMap/ChannelMap.tsx`
+- Parsing and geometry: `src/lib/csv.ts`, `src/lib/channels.ts`, `src/lib/geo.ts`
+- Route: `/#/map` via `src/routes/Map.tsx`
 - Parse OpenGD77 CSV by **column header name**, not index.
 - Zone hulls use the same coordinate filters as channel markers (`Use Location`, skip `0,0`).
 - A channel may appear in multiple zones — each zone hull includes shared members independently.

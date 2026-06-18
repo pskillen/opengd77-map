@@ -6,7 +6,7 @@ Instructions for AI agents working in this repository.
 
 **Browser tools for OpenGD77 codeplug geography** — visualise CPS export data on a map so operators can plan channels, coordinates, and zones more easily than in the desktop CPS alone.
 
-This repo is a **Vite + React + TypeScript SPA** at the repo root, deployed to **GitHub Pages** when a full GitHub release is published (not a pre-release) (see [`docs/build/README.md`](docs/build/README.md)). Legacy static HTML under `site/` and `tools/` is being retired during the SPA migration (see [`docs/build/spa/`](docs/build/spa/)).
+This repo is a **Vite + React + TypeScript SPA** at the repo root, deployed to **GitHub Pages** when a full GitHub release is published (not a pre-release) (see [`docs/build/README.md`](docs/build/README.md)).
 
 ## Repository layout
 
@@ -16,8 +16,9 @@ This repo is a **Vite + React + TypeScript SPA** at the repo root, deployed to *
 | `AGENTS.md` | This file — agent workflow |
 | `index.html` | Vite entry HTML |
 | `src/` | React app — routes, components, lib |
+| `src/components/ChannelMap/` | Channel map UI (react-leaflet) |
+| `src/lib/` | CSV parsing, filters, geometry helpers |
 | `package.json`, `vite.config.ts`, `tsconfig.json` | SPA build and tooling |
-| `site/`, `tools/` | **Legacy** static tools — retired in SPA migration Ticket C |
 | `docs/build/` | Build and deploy documentation |
 | `docs/build/spa/` | SPA migration progress and outstanding logs |
 | `docs/features/map/` | Channel map contributor docs — [README](docs/features/map/README.md) |
@@ -41,7 +42,7 @@ Do not commit operator codeplug exports unless the user explicitly asks. Use `sa
 3. **Preserve CPS quirks** — channel names are case-sensitive foreign keys across files.
 4. **Minimize scope** — one feature per PR; match existing UI patterns in the SPA.
 5. **Privacy** — Mapbox tokens belong in browser `localStorage` only, never in the repo.
-6. **Deploy** — merge to `main` for source; publish to GitHub Pages by publishing a full GitHub release (see `docs/build/README.md`). **Do not cut a release until the SPA migration cutover is complete** if the map is not yet ported.
+6. **Deploy** — merge to `main` for source; publish to GitHub Pages by publishing a full GitHub release (see `docs/build/README.md`).
 
 ## Git workflow
 

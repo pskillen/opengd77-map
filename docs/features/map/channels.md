@@ -12,13 +12,13 @@ Documents parsing, filtering, grouping, and rendering of OpenGD77 channel rows. 
 
 | Symbol / region | File | Role |
 | --- | --- | --- |
-| `COL` | `tools/channel-map/channel-map.js` | Header names for channel columns |
+| `COL` (header names) | `src/lib/csv.ts` | Header names for channel columns |
 | `parseCsv` | same | RFC-style CSV parser (quoted fields, BOM strip) |
 | `parseChannelsCsv` | same | Build channel objects from rows |
-| `applyFilters` | same | Plot vs skip by coordinates and `Use Location` |
+| `applyFilters` | `src/lib/channels.ts` | Plot vs skip by coordinates and `Use Location` |
 | `groupByCoords` | same | Optional merge at identical lat/lon |
-| `renderMarkers` | same | Leaflet `divIcon` markers + popups |
-| `refreshMap` | same | Rebuild index, markers, then zone hulls |
+| Marker rendering | `src/components/ChannelMap/ChannelMap.tsx` | react-leaflet `divIcon` markers + popups |
+| Map refresh | `ChannelMap.tsx` (useMemo) | Rebuild index, markers, then zone hulls |
 
 ## Inputs — `Channels.csv`
 
@@ -127,7 +127,7 @@ Channel CSV content is **not** persisted — reload the file after a page refres
 ## Manual verify
 
 1. Copy `Channels.csv` from an OpenGD77 export into `sample-exports/`.
-2. Open `tools/channel-map/index.html` in a browser (or the [live site](https://pskillen.github.io/opengd77-map/tools/channel-map/)).
+2. Run `npm run dev` and open `http://localhost:5173/opengd77-map/#/map` (or the [live site](https://pskillen.github.io/opengd77-map/#/map)).
 3. Load `Channels.csv` via dropzone or file picker.
 4. Confirm markers appear for known repeaters; open popups for frequency/contact fields.
 5. Toggle **Skip 0,0** and **Use Location** — skipped list and marker count should update.

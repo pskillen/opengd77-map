@@ -10,7 +10,7 @@ How the opengd77-map **Vite + React SPA** reaches **GitHub Pages**. The build ru
 | CI workflow | Shipped | `.github/workflows/pages.yml` — Node setup + `npm run build` |
 | Release-triggered deploy | Shipped | Publish full GitHub release → GitHub Actions → Pages |
 | Build version footer | Shipped | Vite `define` injects `BUILD_ENV` / `BUILD_VERSION`; `BuildFooter` component |
-| Legacy static tools | Retiring | `site/` + `tools/` remain until SPA migration Ticket C |
+| Legacy static tools | Retired (Ticket C) | SPA-only; `site/` and `tools/` removed |
 | Merge-to-main auto deploy | Not used | Releases are explicit via published GitHub releases only |
 
 ## Documentation map
@@ -41,7 +41,6 @@ How the opengd77-map **Vite + React SPA** reaches **GitHub Pages**. The build ru
 | `src/` | React app source |
 | `vite.config.ts` | Vite config — `base`, `define` for build info |
 | `dist/` | Build output (gitignored; uploaded to Pages) |
-| `site/`, `tools/` | **Legacy** static tools — retired in SPA migration Ticket C |
 | `.github/workflows/pages.yml` | Release-triggered deploy workflow |
 | `docs/`, `.cursor/`, `AGENTS.md` | **Not** published — contributor/agent material only |
 
@@ -112,7 +111,6 @@ Monitor the **Actions** tab for the “Deploy GitHub Pages” workflow. When it 
 | Preview production build | `npm run preview` |
 | Lint / format / test | `npm run lint`, `npm run format:check`, `npm run test` |
 | Simulate prod footer | `BUILD_ENV=prod BUILD_VERSION=v1.2.3 npm run build && npm run preview` |
-| Legacy static tools | `site/` and `tools/` still openable until Ticket C cutover |
 
 Use CSV fixtures from gitignored `sample-exports/`.
 
@@ -121,14 +119,13 @@ Use CSV fixtures from gitignored `sample-exports/`.
 1. Open `https://pskillen.github.io/opengd77-map/`.
 2. Confirm muted footer shows `prod · <semver>` matching the release tag.
 3. Navigate to the channel map route (`/#/map`).
-4. Load sample `Channels.csv` / `Zones.csv`; confirm markers and zone hulls render (after Ticket C port).
+4. Load sample `Channels.csv` / `Zones.csv`; confirm markers and zone hulls render.
 
 ## Known gaps
 
 - No staging environment — publishing a release updates production Pages.
 - No cache-busting beyond Vite content hashes in `dist/assets/`.
 - Workflow does not run on PRs or tag pushes (published-release-only).
-- **SPA migration in progress** — do not publish a release until Ticket C (channel map port + legacy cutover) is merged, or production will lose the map.
 
 ## Cross-links
 

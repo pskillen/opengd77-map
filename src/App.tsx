@@ -17,7 +17,7 @@ function App() {
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
-      padding="md"
+      padding={location.pathname === '/map' ? 0 : 'md'}
     >
       <AppShell.Header>
         <Group h="100%" px="md">
