@@ -21,7 +21,7 @@ Gives geographic context when working with Maidenhead locators (channel CRUD dis
 
 Maximum locator precision — finer detail unlocks as you zoom in.
 
-| Option | Max precision | Zoom &lt; 8 | Zoom 8–11 | Zoom ≥ 12 |
+| Option | Max precision | Zoom &lt; 9 | Zoom 9–13 | Zoom ≥ 14 |
 | --- | --- | --- | --- | --- |
 | Off | `off` | none | none | none |
 | Up to 4 characters | `4` | 4-char | 4-char | 4-char |
@@ -35,7 +35,7 @@ Lines are cumulative (coarser grids stay visible). Labels show only the finest a
 ## Behaviour
 
 - Viewport-scoped: lines and labels recompute on pan/zoom (`moveend` / `zoomend`).
-- Setting value is **maximum resolution**; actual detail is the finest level allowed at the current zoom (thresholds: 6-char at zoom **8+**, 8-char at zoom **12+** when max permits).
+- Setting value is **maximum resolution**; actual detail is the finest level allowed at the current zoom (thresholds: 6-char at zoom **9+**, 8-char at zoom **14+** when max permits).
 - Rendered below zone hulls and channel markers.
 - Subtle stroke/label styling so markers remain primary.
 - Applies to all `CodeplugMap` embeds and the Maidenhead converter `MapLocationPicker`.
@@ -44,8 +44,8 @@ Lines are cumulative (coarser grids stay visible). Labels show only the finest a
 
 1. `/settings` → **4-character grid** → open `/#/channels` with geolocated channels.
 2. Confirm ~2° × 1° lines and 4-char labels (e.g. `IO85` over Glasgow).
-3. Set **Up to 6 characters** → zoom out shows 4-char only; zoom to 8+ for 6-char lines/labels.
-4. Set **Up to 8 characters** → zoom to 12+ for 8-char detail.
+3. Set **Up to 6 characters** → zoom out shows 4-char only; zoom to 9+ for 6-char lines/labels.
+4. Set **Up to 8 characters** → zoom to 14+ for 8-char detail.
 5. Pan/zoom → grid updates; setting persists after reload.
 6. **Off** → no grid overlay.
 
