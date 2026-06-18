@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { channelFieldDefaults, type Channel } from '../models/codeplug.ts';
-import { channelHasLocation, channelOptionLabel, filterChannelOptions } from './channelLookup.ts';
+import { channelHasLocation, channelOptionLabel, filterChannelOptions, resolveChannelOptionId } from './channelLookup.ts';
 
 function makeChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
   return {
@@ -39,5 +39,20 @@ describe('channelLookup', () => {
     expect(channelHasLocation(withLoc)).toBe(true);
     expect(channelHasLocation(withoutLoc)).toBe(false);
     expect(channelHasLocation(zeroLoc)).toBe(false);
+  });
+
+  it('resolves channel id from autocomplete label after Mantine sets display value', () => {
+    const options = [
+      { value: 'ch-1', label: 'GB3HI' },
+      { value: 'ch-2', label: 'NoLoc Rpt (GB0NL)' },
+    ];
+    expect(resolveChannelOptionId('GB3HI', options)).toBe('ch-1');
+    expect(resolveChannelOptionId('ch-1', options)).toBe('ch-1');
+    expect(resolveChannelOptionId('partial', options)).toBeNull();
+    expect(
+      resolveChannelOptionId('GB3HI', [], [
+        makeChannel({ id: 'ch-1', name: 'GB3HI', callsign: 'GB3HI' }),
+      ]),
+    ).toBe('ch-1');
   });
 });

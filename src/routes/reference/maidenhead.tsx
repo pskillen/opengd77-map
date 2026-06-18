@@ -21,6 +21,7 @@ import {
   channelHasLocation,
   channelOptionLabel,
   filterChannelOptions,
+  resolveChannelOptionId,
 } from '../../lib/channelLookup.ts';
 import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maidenhead.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
@@ -164,12 +165,15 @@ export default function MaidenheadConverter() {
 
   const handleChannelSearchChange = (value: string) => {
     setChannelSearch(value);
-    setSelectedChannelId(null);
+    const channelId = resolveChannelOptionId(value, channelOptions, codeplug.channels);
+    setSelectedChannelId(channelId);
   };
 
   const handleChannelOptionSubmit = (value: string) => {
-    setSelectedChannelId(value);
-    const ch = channelById.get(value);
+    const channelId =
+      resolveChannelOptionId(value, channelOptions, codeplug.channels) ?? value;
+    setSelectedChannelId(channelId);
+    const ch = channelById.get(channelId);
     if (ch) setChannelSearch(channelOptionLabel(ch));
   };
 
@@ -282,6 +286,7 @@ export default function MaidenheadConverter() {
                   data={channelOptions}
                   rightSection={channelOptionsLoading ? <Loader size={18} /> : null}
                   filter={({ options }) => options}
+                  comboboxProps={{ zIndex: 1000 }}
                 />
                 <Button
                   onClick={handleApplyChannelLocation}

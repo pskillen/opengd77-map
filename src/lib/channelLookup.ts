@@ -28,3 +28,16 @@ export function filterChannelOptions(
     .slice(0, 25)
     .map((ch) => ({ value: ch.id, label: channelOptionLabel(ch) }));
 }
+
+/** Match Autocomplete display value (label) or option value (id) to a channel id. */
+export function resolveChannelOptionId(
+  value: string,
+  options: { value: string; label: string }[],
+  channels?: Channel[],
+): string | null {
+  const fromOptions = options.find((o) => o.label === value || o.value === value);
+  if (fromOptions) return fromOptions.value;
+  if (!channels) return null;
+  const fromChannel = channels.find((ch) => channelOptionLabel(ch) === value || ch.id === value);
+  return fromChannel?.id ?? null;
+}
