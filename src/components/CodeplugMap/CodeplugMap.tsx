@@ -1,17 +1,3 @@
-import {
-  Alert,
-  Button,
-  Checkbox,
-  Collapse,
-  Fieldset,
-  Group,
-  PasswordInput,
-  Select,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
 import L from 'leaflet';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -38,16 +24,16 @@ import {
 } from '../../lib/channels.ts';
 import { convexHullLatLon, zoneColor, type LatLon } from '../../lib/geo.ts';
 import { collectMapPoints, computeMapView } from '../../lib/mapView.ts';
-import type { Channel } from '../../models/codeplug.ts';
-import type { Zone } from '../../models/codeplug.ts';
-import { useCodeplug } from '../../state/codeplugStore.tsx';
+import type { Channel, Zone } from '../../models/codeplug.ts';
 import { useDocumentLayoutReady } from '../../hooks/useDocumentLayoutReady.ts';
-import './ChannelMap.css';
+import { useMapSettings } from '../../hooks/useMapSettings.ts';
+import MapControls from './MapControls.tsx';
+import './CodeplugMap.css';
 
-const STORAGE_KEY_TOKEN = 'mm9pdy-codeplug-tool.channel-map.mapboxToken';
-const STORAGE_KEY_TILE = 'mm9pdy-codeplug-tool.channel-map.tileProvider';
-
-type TileProvider = 'osm' | 'mapbox' | 'mapbox-sat';
+const DEFAULT_FILTER_OPTS: FilterOptions = {
+  requireUseLocation: true,
+  skipZero: true,
+};
 
 function modeLabel(mode: Channel['mode']): string {
   if (mode === 'digital') return 'Digital';
@@ -74,44 +60,15 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function channelDivIcon(color: string, label: string, merged: boolean): L.DivIcon {
+function channelDivIcon(color: string, label: string, merged: boolean, highlighted: boolean): L.DivIcon {
   return L.divIcon({
     className: 'channel-marker-wrap',
     html: `<div class="channel-marker">
-      <div class="channel-marker-dot${merged ? ' merged' : ''}" style="background:${color}"></div>
+      <div class="channel-marker-dot${merged ? ' merged' : ''}${highlighted ? ' highlighted' : ''}" style="background:${color}"></div>
       <div class="channel-marker-label">${escapeHtml(label)}</div>
     </div>`,
     iconAnchor: [0, 0],
   });
-}
-
-function tileLayerConfig(
-  provider: TileProvider,
-  token: string,
-): { url: string; attribution: string; maxZoom: number; tileSize?: number; zoomOffset?: number } {
-  if (provider === 'mapbox' || provider === 'mapbox-sat') {
-    if (!token) {
-      return {
-        url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-        maxZoom: 19,
-      };
-    }
-    const style = provider === 'mapbox-sat' ? 'mapbox/satellite-v9' : 'mapbox/streets-v12';
-    return {
-      url: `https://api.mapbox.com/styles/v1/${style}/tiles/{z}/{x}/{y}?access_token=${token}`,
-      attribution:
-        '&copy; <a href="https://www.mapbox.com/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-      maxZoom: 20,
-      tileSize: 512,
-      zoomOffset: -1,
-    };
-  }
-  return {
-    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 19,
-  };
 }
 
 function ChannelPopup({ group }: { group: Channel[] }) {
@@ -226,40 +183,43 @@ function MapResizeFix() {
   return null;
 }
 
-export default function ChannelMap() {
+export interface CodeplugMapProps {
+  channels: Channel[];
+  zones?: Zone[];
+  allChannels?: Channel[];
+  height?: number | string;
+  showControls?: boolean;
+  defaultFullChannelName?: boolean;
+  defaultShowZones?: boolean;
+  highlightChannelId?: string;
+}
+
+export default function CodeplugMap({
+  channels,
+  zones = [],
+  allChannels,
+  height = 400,
+  showControls = true,
+  defaultFullChannelName = false,
+  defaultShowZones = true,
+  highlightChannelId,
+}: CodeplugMapProps) {
   const mapLayoutReady = useDocumentLayoutReady();
-  const { codeplug } = useCodeplug();
-  const channels = codeplug.channels;
-  const zones = codeplug.zones;
+  const { tileProvider, mapboxToken, tileConfig } = useMapSettings();
+  const [fullChannelName, setFullChannelName] = useState(defaultFullChannelName);
+  const [showZoneHulls, setShowZoneHulls] = useState(defaultShowZones);
 
-  const [requireUseLocation, setRequireUseLocation] = useState(true);
-  const [skipZero, setSkipZero] = useState(true);
-  const [dedupeCoords, setDedupeCoords] = useState(true);
-  const [fullChannelName, setFullChannelName] = useState(false);
-  const [showZoneHulls, setShowZoneHulls] = useState(true);
-  const [tileProvider, setTileProvider] = useState<TileProvider>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY_TILE);
-    return saved === 'mapbox' || saved === 'mapbox-sat' ? saved : 'osm';
-  });
-  const [mapboxToken, setMapboxToken] = useState(
-    () => localStorage.getItem(STORAGE_KEY_TOKEN) ?? '',
-  );
-  const [skippedOpen, { toggle: toggleSkipped }] = useDisclosure(false);
-  const [zonesOpen, { toggle: toggleZones }] = useDisclosure(false);
+  const channelPool = allChannels ?? channels;
+  const filterOpts = DEFAULT_FILTER_OPTS;
 
-  const filterOpts: FilterOptions = useMemo(
-    () => ({ requireUseLocation, skipZero }),
-    [requireUseLocation, skipZero],
-  );
-
-  const { plotted, skipped } = useMemo(
+  const { plotted } = useMemo(
     () => applyFilters(channels, filterOpts),
     [channels, filterOpts],
   );
 
   const plottedById = useMemo(() => buildChannelById(plotted), [plotted]);
 
-  const groups = useMemo(() => groupByCoords(plotted, dedupeCoords), [plotted, dedupeCoords]);
+  const groups = useMemo(() => groupByCoords(plotted, true), [plotted]);
 
   const zoneHulls: ZoneHullData[] = useMemo(() => {
     if (!zones.length || !showZoneHulls || !plottedById.size) return [];
@@ -268,7 +228,7 @@ export default function ChannelMap() {
       const { points, missing } = zoneGeolocatedPoints(
         zone,
         plottedById,
-        channels,
+        channelPool,
         filterOpts,
       );
       const colors = zoneColor(index);
@@ -321,184 +281,22 @@ export default function ChannelMap() {
         hull,
       };
     });
-  }, [zones, showZoneHulls, plottedById, channels, filterOpts]);
+  }, [zones, showZoneHulls, plottedById, channelPool, filterOpts]);
 
-  const tileConfig = useMemo(() => {
-    const needsMapbox = tileProvider === 'mapbox' || tileProvider === 'mapbox-sat';
-    const token = mapboxToken.trim();
-    if (needsMapbox && !token) {
-      return { config: tileLayerConfig('osm', ''), fallback: true };
-    }
-    return { config: tileLayerConfig(tileProvider, token), fallback: false };
-  }, [tileProvider, mapboxToken]);
-
-  const saveToken = () => {
-    const t = mapboxToken.trim();
-    if (t) localStorage.setItem(STORAGE_KEY_TOKEN, t);
-    localStorage.setItem(STORAGE_KEY_TILE, tileProvider);
-  };
-
-  const clearToken = () => {
-    localStorage.removeItem(STORAGE_KEY_TOKEN);
-    setMapboxToken('');
-  };
-
-  const handleTileProviderChange = (value: string | null) => {
-    if (!value) return;
-    const provider = value as TileProvider;
-    setTileProvider(provider);
-    localStorage.setItem(STORAGE_KEY_TILE, provider);
-  };
-
-  const statsText =
-    channels.length === 0
-      ? 'No file loaded.'
-      : [
-          `${plotted.length} channels plotted`,
-          `(${groups.length} markers)`,
-          `· ${channels.length} total in file`,
-          `· ${skipped.length} skipped`,
-          zones.length ? `· ${zones.length} zones` : '',
-        ]
-          .filter(Boolean)
-          .join(' ');
-
-  const displayedSkipped = skipped.slice(0, 200);
+  const mapStyle = typeof height === 'number' ? { height: `${height}px` } : { height };
 
   return (
-    <div className="channel-map">
-      <aside className="channel-map-sidebar">
-        <Title order={3}>Channel map</Title>
+    <div className="codeplug-map-wrap">
+      {showControls ? (
+        <MapControls
+          fullChannelName={fullChannelName}
+          onFullChannelNameChange={setFullChannelName}
+          showZones={showZoneHulls}
+          onShowZonesChange={setShowZoneHulls}
+        />
+      ) : null}
 
-        {tileConfig.fallback ? (
-          <Alert color="yellow">
-            Mapbox selected but no token set. Using OpenStreetMap instead.
-          </Alert>
-        ) : null}
-
-        <Fieldset legend="Filters">
-          <Stack gap="xs">
-            <Checkbox
-              label={
-                <>
-                  Only <code>Use Location = Yes</code>
-                </>
-              }
-              checked={requireUseLocation}
-              onChange={(e) => setRequireUseLocation(e.currentTarget.checked)}
-            />
-            <Checkbox
-              label="Skip 0,0 coordinates"
-              checked={skipZero}
-              onChange={(e) => setSkipZero(e.currentTarget.checked)}
-            />
-            <Checkbox
-              label="Merge markers at same lat/lon"
-              checked={dedupeCoords}
-              onChange={(e) => setDedupeCoords(e.currentTarget.checked)}
-            />
-            <Checkbox
-              label="Label with full channel name (default: first word)"
-              checked={fullChannelName}
-              onChange={(e) => setFullChannelName(e.currentTarget.checked)}
-            />
-            <Checkbox
-              label="Draw zone convex hulls"
-              checked={showZoneHulls}
-              onChange={(e) => setShowZoneHulls(e.currentTarget.checked)}
-            />
-          </Stack>
-        </Fieldset>
-
-        <Fieldset legend="Map tiles (optional)">
-          <Stack gap="xs">
-            <Select
-              label="Provider"
-              data={[
-                { value: 'osm', label: 'OpenStreetMap (default, no key)' },
-                { value: 'mapbox', label: 'Mapbox streets' },
-                { value: 'mapbox-sat', label: 'Mapbox satellite' },
-              ]}
-              value={tileProvider}
-              onChange={handleTileProviderChange}
-            />
-            <PasswordInput
-              label="Mapbox access token"
-              placeholder="pk.… (saved in localStorage)"
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.currentTarget.value)}
-              autoComplete="off"
-            />
-            <Group grow>
-              <Button variant="default" onClick={saveToken}>
-                Save token
-              </Button>
-              <Button variant="default" onClick={clearToken}>
-                Clear
-              </Button>
-            </Group>
-          </Stack>
-        </Fieldset>
-
-        <div className="channel-map-legend">
-          <span className="analogue">FM</span>
-          <span className="digital">DMR</span>
-          <span className="other">Other</span>
-        </div>
-
-        <Text size="sm" c="dimmed">
-          {statsText.split(/(\d+)/).map((part, i) =>
-            /^\d+$/.test(part) ? (
-              <Text key={i} span fw={600} c="inherit">
-                {part}
-              </Text>
-            ) : (
-              part
-            ),
-          )}
-        </Text>
-
-        {skipped.length > 0 ? (
-          <>
-            <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }} onClick={toggleSkipped}>
-              Skipped channels {skippedOpen ? '▾' : '▸'}
-            </Text>
-            <Collapse expanded={skippedOpen}>
-              <ul className="channel-map-skipped">
-                {displayedSkipped.map((s) => (
-                  <li key={`${s.name}-${s.reason}`}>
-                    {s.name} — {s.reason}
-                  </li>
-                ))}
-                {skipped.length > 200 ? <li>… and {skipped.length - 200} more</li> : null}
-              </ul>
-            </Collapse>
-          </>
-        ) : null}
-
-        {zones.length > 0 ? (
-          <>
-            <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }} onClick={toggleZones}>
-              Zones {zonesOpen ? '▾' : '▸'}
-            </Text>
-            <Collapse expanded={zonesOpen}>
-              <ul className="channel-map-zones">
-                {zoneHulls.map((zh) => (
-                  <li
-                    key={zh.zone.id}
-                    className={zh.missing.length || zh.geometry === 'none' ? 'warn' : 'ok'}
-                  >
-                    {zh.zone.name} — {zh.shapeNote}
-                    {zh.missing.length ? `, ${zh.missing.length} skipped` : ''}
-                  </li>
-                ))}
-              </ul>
-            </Collapse>
-          </>
-        ) : null}
-      </aside>
-
-      <div className="channel-map-map">
+      <div className="codeplug-map" style={mapStyle}>
         {mapLayoutReady ? (
           <MapContainer center={[56.5, -4.0]} zoom={6} style={{ height: '100%', width: '100%' }}>
             <MapResizeFix />
@@ -596,12 +394,15 @@ export default function ChannelMap() {
               const color = markerColor(merged ? dominantMode(group) : ch.mode);
               const label = markerLabel(group, fullChannelName);
               const position: LatLon = [ch.location!.lat, ch.location!.lon];
+              const highlighted =
+                highlightChannelId != null &&
+                group.some((c) => c.id === highlightChannelId);
 
               return (
                 <Marker
                   key={`${ch.id}-${position[0]}-${position[1]}`}
                   position={position}
-                  icon={channelDivIcon(color, label, merged)}
+                  icon={channelDivIcon(color, label, merged, highlighted)}
                 >
                   <Popup>
                     <ChannelPopup group={group} />
@@ -610,7 +411,7 @@ export default function ChannelMap() {
               );
             })}
 
-            {groups.length > 0 ? (
+            {groups.length > 0 || (showZoneHulls && zoneHulls.some((zh) => zh.geometry !== 'none')) ? (
               <FitMapBounds groups={groups} zoneHulls={zoneHulls} showZoneHulls={showZoneHulls} />
             ) : null}
           </MapContainer>

@@ -2,7 +2,7 @@ import { Alert, Box, Button, Group, Stack, Text } from '@mantine/core';
 import { useCallback, useRef, useState } from 'react';
 import { collectFilesFromDataTransfer, importFiles } from '../../lib/import/index.ts';
 import type { ImportResult } from '../../lib/import/types.ts';
-import '../ChannelMap/ChannelMap.css';
+import './ImportDropzone.css';
 
 function formatImportSummary(
   recognised: string[],
@@ -96,7 +96,7 @@ export default function ImportDropzone({
       ) : null}
 
       <Box
-        className={`channel-map-dropzone${dragover ? ' dragover' : ''}`}
+        className={`import-dropzone${dragover ? ' dragover' : ''}`}
         tabIndex={0}
         onClick={() => filesInputRef.current?.click()}
         onDragEnter={(e) => {
