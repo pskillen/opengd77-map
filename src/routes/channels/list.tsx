@@ -1,11 +1,11 @@
 import { Stack, Text } from '@mantine/core';
-import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
-import EntityTable from '../components/report/EntityTable.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
-import { applyFilters } from '../lib/channels.ts';
-import { sortByName } from '../lib/reportLookup.ts';
-import type { Channel } from '../models/codeplug.ts';
-import { useCodeplug } from '../state/codeplugStore.tsx';
+import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
+import EntityTable from '../../components/report/EntityTable.tsx';
+import ReportPage from '../../components/report/ReportPage.tsx';
+import { applyFilters } from '../../lib/channels.ts';
+import { sortByName } from '../../lib/reportLookup.ts';
+import type { Channel } from '../../models/codeplug.ts';
+import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 function modeLabel(mode: Channel['mode']): string {
   if (mode === 'digital') return 'Digital';

@@ -1,17 +1,17 @@
 import { Anchor, Group, Stack, Text, Title } from '@mantine/core';
 import { Link, useParams } from 'react-router-dom';
-import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
-import DetailSections, { DetailLinkList } from '../components/report/DetailSections.tsx';
-import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
+import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
+import DetailSections, { DetailLinkList } from '../../components/report/DetailSections.tsx';
+import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
+import ReportPage from '../../components/report/ReportPage.tsx';
 import {
   externalChannelLinks,
   findContactByName,
   findEntityById,
   findRxGroupListByName,
   zonesContainingChannel,
-} from '../lib/reportLookup.ts';
-import { useCodeplug } from '../state/codeplugStore.tsx';
+} from '../../lib/reportLookup.ts';
+import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 function modeLabel(mode: string): string {
   if (mode === 'digital') return 'Digital';

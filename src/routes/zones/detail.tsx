@@ -1,13 +1,13 @@
 import { Anchor, Stack, Title } from '@mantine/core';
 import { Link, useParams } from 'react-router-dom';
-import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
-import EntityTable from '../components/report/EntityTable.tsx';
-import DetailSections from '../components/report/DetailSections.tsx';
-import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
-import { channelsForZone, findEntityById } from '../lib/reportLookup.ts';
-import type { Channel } from '../models/codeplug.ts';
-import { useCodeplug } from '../state/codeplugStore.tsx';
+import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
+import EntityTable from '../../components/report/EntityTable.tsx';
+import DetailSections from '../../components/report/DetailSections.tsx';
+import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
+import ReportPage from '../../components/report/ReportPage.tsx';
+import { channelsForZone, findEntityById } from '../../lib/reportLookup.ts';
+import type { Channel } from '../../models/codeplug.ts';
+import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 function modeLabel(mode: Channel['mode']): string {
   if (mode === 'digital') return 'Digital';
