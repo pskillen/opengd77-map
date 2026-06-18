@@ -1,7 +1,9 @@
-import { Group, NumberInput, SegmentedControl, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Group, NumberInput, SegmentedControl, Stack, Text, TextInput, Title } from '@mantine/core';
 import { useCallback, useMemo, useState } from 'react';
 import MapLocationPicker from '../../components/MapLocationPicker/MapLocationPicker.tsx';
 import ReportPage from '../../components/report/ReportPage.tsx';
+import { useMapSettings } from '../../hooks/useMapSettings.ts';
+import { GeocodeError, geocodeQuery, type GeocodeProvider } from '../../lib/geocode.ts';
 import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maidenhead.ts';
 
 type LocatorPrecision = 4 | 6 | 8 | 10;
@@ -13,16 +15,31 @@ const PRECISION_OPTIONS: { value: string; label: string }[] = [
   { value: '10', label: '10 (cell)' },
 ];
 
+const GEOCODE_PROVIDER_OPTIONS: { value: GeocodeProvider; label: string }[] = [
+  { value: 'mapbox', label: 'Mapbox' },
+  { value: 'photon', label: 'Photon (OSM)' },
+];
+
 function parseCoord(value: string | number): number | null {
   const n = typeof value === 'number' ? value : parseFloat(value);
   return Number.isFinite(n) ? n : null;
 }
 
 export default function MaidenheadConverter() {
+  const { mapboxToken } = useMapSettings();
   const [locator, setLocator] = useState('');
   const [lat, setLat] = useState<string | number>('');
   const [lon, setLon] = useState<string | number>('');
   const [precision, setPrecision] = useState<LocatorPrecision>(6);
+  const [addressQuery, setAddressQuery] = useState('');
+  const [geocodeProvider, setGeocodeProvider] = useState<GeocodeProvider>(
+    mapboxToken.trim() ? 'mapbox' : 'photon',
+  );
+  const [geocodeLoading, setGeocodeLoading] = useState(false);
+  const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const [geocodeLabel, setGeocodeLabel] = useState<string | null>(null);
+
+  const hasMapboxToken = mapboxToken.trim().length > 0;
 
   const locatorError = useMemo(() => {
     if (!locator.trim()) return null;
@@ -85,6 +102,28 @@ export default function MaidenheadConverter() {
     applyCoords(latN, lonN);
   };
 
+  const handleGeocode = async () => {
+    setGeocodeError(null);
+    setGeocodeLabel(null);
+    setGeocodeLoading(true);
+    try {
+      const result = await geocodeQuery(addressQuery, {
+        mapboxToken,
+        provider: geocodeProvider,
+      });
+      if (!result) {
+        setGeocodeError('No results found');
+        return;
+      }
+      applyCoords(result.lat, result.lon);
+      setGeocodeLabel(result.label);
+    } catch (err) {
+      setGeocodeError(err instanceof GeocodeError ? err.message : 'Geocoding failed');
+    } finally {
+      setGeocodeLoading(false);
+    }
+  };
+
   return (
     <ReportPage title="Maidenhead converter">
       <Stack gap="lg">
@@ -128,6 +167,47 @@ export default function MaidenheadConverter() {
               max={180}
             />
           </Group>
+        </Stack>
+
+        <Stack gap="sm">
+          <Title order={4}>Address lookup</Title>
+          <Text size="sm" c="dimmed">
+            {hasMapboxToken
+              ? 'Geocode an address or postcode. Choose Mapbox or Photon (OpenStreetMap).'
+              : 'Using Photon (OpenStreetMap). Set a Mapbox token in Settings for Mapbox geocoding.'}
+          </Text>
+          <SegmentedControl
+            value={geocodeProvider}
+            onChange={(value) => setGeocodeProvider(value as GeocodeProvider)}
+            data={GEOCODE_PROVIDER_OPTIONS}
+          />
+          <Group align="flex-end" grow>
+            <TextInput
+              label="Address or postcode"
+              placeholder="e.g. G1 1XQ, Glasgow"
+              value={addressQuery}
+              onChange={(e) => setAddressQuery(e.currentTarget.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  void handleGeocode();
+                }
+              }}
+            />
+            <Button onClick={() => void handleGeocode()} loading={geocodeLoading} style={{ flexShrink: 0 }}>
+              Look up
+            </Button>
+          </Group>
+          {geocodeError ? (
+            <Text size="sm" c="red">
+              {geocodeError}
+            </Text>
+          ) : null}
+          {geocodeLabel ? (
+            <Text size="sm" c="dimmed">
+              {geocodeLabel}
+            </Text>
+          ) : null}
         </Stack>
 
         <Stack gap="sm">
