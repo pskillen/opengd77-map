@@ -27,3 +27,4 @@ tmp/
 # Node / Vite build output
 node_modules/
 dist/
+*.tsbuildinfo
