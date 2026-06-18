@@ -1,5 +1,6 @@
 export const STORAGE_KEY_TOKEN = 'mm9pdy-codeplug-tool.channel-map.mapboxToken';
 export const STORAGE_KEY_TILE = 'mm9pdy-codeplug-tool.channel-map.tileProvider';
+export const STORAGE_KEY_MAIDENHEAD_GRID = 'mm9pdy-codeplug-tool.channel-map.maidenheadGrid';
 
 export type TileProvider = 'osm' | 'mapbox' | 'mapbox-sat';
 
