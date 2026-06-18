@@ -12,8 +12,8 @@ Import was hard-wired to OpenGD77 CSV inside the channel map. This refactor intr
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Internal models | Shipped | [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) |
-| OpenGD77 adapter | Shipped | Channels.csv + Zones.csv |
+| Internal models | Shipped | [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) — schema v2 |
+| OpenGD77 adapter | Shipped | Channels, Zones, Contacts, TG_Lists ([#38](https://github.com/pskillen/codeplug-tool/issues/38)) |
 | Format registry | Shipped | OpenGD77 only; room for more brands |
 | Multi-file + directory import UI | Shipped | [`ImportDropzone`](../../../src/components/ImportDropzone/ImportDropzone.tsx) on home |
 | Name → id resolution | Shipped | Store reducer + [`src/lib/codeplug.ts`](../../../src/lib/codeplug.ts) |
@@ -26,8 +26,9 @@ Import was hard-wired to OpenGD77 CSV inside the channel map. This refactor intr
 | --- | --- |
 | [data-model/README.md](../data-model/README.md) | Entity definitions (canonical) |
 | [opengd77.md](opengd77.md) | OpenGD77 CSV columns, classification, skip/error behaviour |
-| [genericise-import-progress.md](genericise-import-progress.md) | Execution log |
-| [genericise-import-outstanding.md](genericise-import-outstanding.md) | Discovered debt |
+| [opengd77-progress.md](opengd77-progress.md) | #38 execution log |
+| [opengd77-outstanding.md](opengd77-outstanding.md) | #38 discovered debt |
+| [export/README.md](../export/README.md) | CPS export |
 | [persistence/README.md](../persistence/README.md) | LocalStorage envelope |
 | [codeplug-project/README.md](../codeplug-project/README.md) | Project wrapper + CRUD |
 
@@ -37,7 +38,7 @@ Import was hard-wired to OpenGD77 CSV inside the channel map. This refactor intr
 flowchart TD
   UI["ImportDropzone (home)"] --> importFiles
   importFiles --> Adapter["opengd77 adapter"]
-  Adapter --> Raw["channels? + ParsedZone[]?"]
+  Adapter --> Raw["channels, zones, contacts, talkGroups, rxGroupLists"]
   Raw --> Store["codeplugStore — active project"]
   Store --> Resolve["resolveZoneMembers"]
   Resolve --> Codeplug["Codeplug"]
@@ -57,8 +58,8 @@ flowchart TD
 ## Import UI behaviour
 
 - **Drop target:** accepts multiple `.csv` files or a whole folder (`webkitdirectory` + `webkitGetAsEntry` for folder drops).
-- **Recognised:** `Channels.csv` and `Zones.csv` (by filename or header signature).
-- **Skipped:** unknown CSVs (e.g. `Contacts.csv`) — listed, not errors.
+- **Recognised:** `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`
+- **Skipped:** `DTMF.csv`, `APRS.csv`, other unknown CSVs
 - **Errors:** parse failures (missing required columns, empty file).
 - **Clear all (map):** empties the **active** project's codeplug; project record kept.
 - Home import creates a **new** codeplug project and opens the map.

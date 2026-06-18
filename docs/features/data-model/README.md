@@ -2,11 +2,11 @@
 
 Canonical reference for the vendor-neutral **codeplug** models used across tools. Import and export docs describe ETL at the format boundary; this document describes **what the models are**.
 
-**Tracking:** [codeplug-tool#7](https://github.com/pskillen/codeplug-tool/issues/7)
+**Tracking:** [codeplug-tool#7](https://github.com/pskillen/codeplug-tool/issues/7) · OpenGD77 population [#38](https://github.com/pskillen/codeplug-tool/issues/38)
 
 ## Overview
 
-A **codeplug** is the in-memory working set for one CPS layout: channels, zones, and (later) talk groups, TG/RX-group lists, and contacts. Tools consume these models — not raw CSV.
+A **codeplug** is the in-memory working set for one CPS layout: channels, zones, talk groups, RX group lists, and contacts. Tools consume these models — not raw CSV.
 
 For **switchable, named containers** that hold one codeplug each (multi-project workflow), see [codeplug-project/](../codeplug-project/).
 
@@ -15,22 +15,24 @@ erDiagram
   Codeplug ||--o{ Channel : contains
   Codeplug ||--o{ Zone : contains
   Codeplug ||--o{ TalkGroup : contains
-  Codeplug ||--o{ TgList : contains
+  Codeplug ||--o{ RxGroupList : contains
   Codeplug ||--o{ Contact : contains
   Zone }o--o{ Channel : "memberChannelIds"
 ```
 
-**Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts)
+At the **vendor boundary**, `Channel.contactName` and `Channel.rxGroupListName` reference Contacts.csv / TG_Lists.csv **by name** (not internal id). `RxGroupList.sourceMemberNames` lists member names from Contacts.csv (group talk groups and/or private contacts).
+
+**Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **2**
 
 ## Design principles
 
 | Principle | Detail |
 | --- | --- |
-| **Stable internal ids** | Every entity has `id: string` (`crypto.randomUUID()` via `newId()`). Relationships reference ids, not names. |
-| **Vendor names are display fields** | `Channel.name`, `Zone.name`, etc. are preserved for UI and export round-trip but are **not** internal foreign keys. |
-| **Name matching at import only** | OpenGD77 zone members arrive as channel **names**. `buildNameToChannelId` / `resolveZoneMembers` in [`src/lib/codeplug.ts`](../../../src/lib/codeplug.ts) resolve names → ids once at the store boundary (case-sensitive, first-wins). |
-| **JSON-serialisable** | Plain data objects for persistence ([#9](https://github.com/pskillen/codeplug-tool/issues/9)) and future YAML export. |
-| **Schema versioned** | `CodeplugMeta.schemaVersion` (`CODEPLUG_SCHEMA_VERSION = 1`) gates deserialisation. |
+| **Stable internal ids** | Every entity has `id: string` (`crypto.randomUUID()` via `newId()`). Zone→channel uses resolved ids. |
+| **Vendor names are display fields** | `Channel.name`, `Zone.name`, etc. are preserved for UI and export round-trip but are **not** internal foreign keys (except name-based wire fields below). |
+| **Name matching at import only** | Zone members resolve channel **names** → ids via `resolveZoneMembers`. RX group list members stay as `sourceMemberNames` for export. |
+| **JSON-serialisable** | Plain data objects for persistence and export. |
+| **Schema versioned** | `CODEPLUG_SCHEMA_VERSION = 2`; v1 codeplugs migrate on load. |
 
 ## Entities
 
@@ -40,53 +42,74 @@ erDiagram
 | --- | --- | --- |
 | `channels` | `Channel[]` | |
 | `zones` | `Zone[]` | |
-| `talkGroups` | `TalkGroup[]` | Stub — empty on OpenGD77 import today |
-| `tgLists` | `TgList[]` | Stub |
-| `contacts` | `Contact[]` | Stub |
+| `talkGroups` | `TalkGroup[]` | From Contacts.csv where `ID Type=Group` |
+| `rxGroupLists` | `RxGroupList[]` | From `TG_Lists.csv` |
+| `contacts` | `Contact[]` | From Contacts.csv where `ID Type=Private` |
 | `meta` | `CodeplugMeta` | Import metadata |
 
 ### `Channel`
 
-| Field | Type | Internal / vendor |
+| Field | Type | Notes |
 | --- | --- | --- |
-| `id` | `string` | **Internal** — stable relationship key |
-| `name` | `string` | Vendor/display (OpenGD77 `Channel Name`) |
+| `id` | `string` | Internal |
+| `name` | `string` | OpenGD77 `Channel Name` |
 | `callsign` | `string` | Derived — first word of `name` |
-| `mode` | `'analogue' \| 'digital' \| 'other'` | Normalised from `Channel Type` |
-| `rxFrequency` | `string` | Vendor |
-| `txFrequency` | `string` | Vendor |
-| `contactName` | `string` | Vendor (`Contact`) |
-| `rxGroupListName` | `string` | Vendor (`TG List`) |
-| `location` | `GeoPoint \| null` | `{ lat, lon }` or null |
-| `useLocation` | `boolean` | Vendor (`Use Location = Yes`) |
-| `number` | `string` | Vendor (`Channel Number`) |
+| `mode` | `'analogue' \| 'digital' \| 'other'` | From `Channel Type` |
+| `rxFrequency`, `txFrequency` | `string` | |
+| `contactName` | `string` | Vendor `Contact` name |
+| `rxGroupListName` | `string` | Vendor `TG List` — RX group list name |
+| `location` | `GeoPoint \| null` | |
+| `useLocation` | `boolean` | |
+| `number` | `string` | |
+| `bandwidthKHz`, `colourCode`, `timeslot`, `dmrId` | `string` | DMR/FM extras |
+| `rxTone`, `txTone`, `squelch`, `power`, `rxOnly` | `string` | |
+| `aprsConfigName` | `string` | OpenGD77 `APRS` column |
+| `voxEnabled` | `boolean` | From `VOX` |
+| `transmitTimeout` | `string` | From `TOT` |
+| `scanSkip` | `boolean` | From `All Skip` |
+| `vendorExtras` | `Record<string, string>` | Remaining OpenGD77-only columns |
 
 ### `Zone`
 
-| Field | Type | Internal / vendor |
+| Field | Type | Notes |
 | --- | --- | --- |
-| `id` | `string` | **Internal** |
-| `name` | `string` | Vendor (`Zone Name`) |
-| `memberChannelIds` | `string[]` | **Internal** — resolved channel ids |
-| `sourceMemberNames` | `string[]` | Vendor wire names from `Channel1`…`Channel80`; kept for re-resolution, unresolved reporting, and export ([#8](https://github.com/pskillen/codeplug-tool/issues/8)) |
+| `id` | `string` | Internal |
+| `name` | `string` | |
+| `memberChannelIds` | `string[]` | Resolved channel ids |
+| `sourceMemberNames` | `string[]` | `Channel1`…`Channel80` wire names |
 
-**Why `sourceMemberNames`?** Vendor exports only carry names. When channels are re-imported (new ids), zones re-resolve `sourceMemberNames` → `memberChannelIds` in the store reducer so memberships stay correct.
+### `TalkGroup`
 
-### Stubs (typed, not populated yet)
+DMR group call ID from Contacts.csv (`ID Type=Group`).
 
-| Entity | Fields | Future use |
-| --- | --- | --- |
-| `TalkGroup` | `id`, `name`, `number` | DMR talk groups |
-| `TgList` | `id`, `name`, `memberContactNames` | RX group lists |
-| `Contact` | `id`, `name`, `number` | DMR contacts |
+| Field | Type |
+| --- | --- |
+| `id`, `name`, `number`, `timeslotOverride` | |
+
+### `Contact`
+
+DMR private call from Contacts.csv (`ID Type=Private`).
+
+| Field | Type |
+| --- | --- |
+| `id`, `name`, `number`, `timeslotOverride` | |
+
+### `RxGroupList`
+
+Named RX group list from `TG_Lists.csv`. Members are **vendor names** (may be talk groups or private contacts). Many-to-many at the vendor boundary: one list has many members; one name can appear on many lists.
+
+| Field | Type |
+| --- | --- |
+| `id`, `name` | |
+| `sourceMemberNames` | `string[]` — `Contact1`…`Contact32` |
 
 ### `CodeplugMeta`
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` on load |
-| `importedAt` | `string \| null` | ISO timestamp of last successful import |
-| `sourceFiles` | `string[]` | Recognised filenames from import |
+| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (2) after migration |
+| `importedAt` | `string \| null` | |
+| `sourceFiles` | `string[]` | |
 
 ## Relationship resolution
 
@@ -97,20 +120,9 @@ flowchart LR
   Resolve --> Zone["Zone.memberChannelIds"]
 ```
 
-Only [`src/lib/codeplug.ts`](../../../src/lib/codeplug.ts) and the [`codeplugStore`](../../../src/state/codeplugStore.tsx) reducer perform name→id matching. Map tools look up channels by **id**.
-
-## Planned extensions
-
-### Nested zones ([#33](https://github.com/pskillen/codeplug-tool/issues/33))
-
-Future `Zone.memberZoneIds: string[]` will allow zones to contain other zones (acyclic DAG). Effective channel membership will be computed by flattening child zones and de-duplicating by channel id. **Not importable** from flat vendor exports; **denormalised to flat channel lists on export** ([#8](https://github.com/pskillen/codeplug-tool/issues/8)).
-
-### Multi-project codeplugs ([#31](https://github.com/pskillen/codeplug-tool/issues/31))
-
-**Implemented (nascent)** — multiple codeplug projects with an active-project switcher; persistence stores the project set ([#9](https://github.com/pskillen/codeplug-tool/issues/9)). See [codeplug-project/](../codeplug-project/). UI polish (rename, duplicate, new-empty) remains in #31.
-
 ## Related
 
 - [Import (ETL)](../import/README.md)
+- [Export](../export/README.md)
 - [Map — channels](../map/channels.md)
 - [Map — zones](../map/zones.md)
