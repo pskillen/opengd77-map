@@ -11,7 +11,7 @@ description: >-
 
 ## Overview
 
-This repo is a **small monorepo**: static HTML/JS tools under `tools/`, no application bundler, deployed to **GitHub Pages** when a **full GitHub release is published** (not a pre-release). One issue, one branch, one PR — no cross-repo coordination.
+This repo is a **single Vite + React + TypeScript SPA** at the repo root (features live under `src/`), deployed to **GitHub Pages** when a **full GitHub release is published** (not a pre-release). One issue, one branch, one PR — no cross-repo coordination.
 
 Workflow: plan → issue (when non-trivial) → branch → commit → PR → merge to `main` → publish a GitHub release to publish Pages.
 
@@ -28,7 +28,7 @@ For larger initiatives, pair with [progress-tracking](../progress-tracking/SKILL
 **Features and multi-commit work:** create one GitHub issue in `pskillen/opengd77-map` with:
 
 - Problem and intended outcome
-- Which tool(s) are affected (`tools/<name>/`)
+- Which part of the SPA is affected (e.g. a route/component under `src/`)
 - Link to a Cursor plan if one exists
 - For non-trivial scope: links to `docs/features/<topic>/` progress files
 
