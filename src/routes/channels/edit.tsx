@@ -9,16 +9,17 @@ import {
   TextInput,
   Title,
 } from '@mantine/core';
-import { useState, type FormEvent } from 'react';
+import { useState, useMemo, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ReportPage from '../../components/report/ReportPage.tsx';
 import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
+import { BandPillsForFrequencies } from '../../components/crud/BandPill.tsx';
+import ChannelModeSegmentedControl from '../../components/crud/ChannelModeSegmentedControl.tsx';
 import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maidenhead.ts';
 import { hasValidationErrors, validateChannel } from '../../lib/validation/channel.ts';
 import {
   channelFieldDefaults,
-  mapChannelMode,
   type Channel,
   type ChannelMode,
 } from '../../models/codeplug.ts';
@@ -218,6 +219,39 @@ export default function ChannelEdit() {
     }));
   };
 
+  const clearPosition = () => {
+    setValues((prev) => ({
+      ...prev,
+      lat: '',
+      lon: '',
+      locator: '',
+      useLocation: false,
+    }));
+  };
+
+  const mapPreviewChannels = useMemo((): Channel[] => {
+    const lat = parseFloat(values.lat);
+    const lon = parseFloat(values.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return [];
+
+    return [
+      {
+        ...channelFieldDefaults(),
+        id: existing?.id ?? '__preview__',
+        name: values.name.trim() || 'New channel',
+        callsign: existing?.callsign ?? '',
+        mode: values.mode,
+        number: values.number,
+        rxFrequency: values.rxFrequency,
+        txFrequency: values.txFrequency,
+        location: { lat, lon },
+        useLocation: true,
+        hideFromMap: false,
+        vendorExtras: {},
+      },
+    ];
+  }, [values.lat, values.lon, values.name, values.mode, values.number, values.rxFrequency, values.txFrequency, existing]);
+
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setFormError(null);
@@ -269,16 +303,7 @@ export default function ChannelEdit() {
               value={values.name}
               onChange={(e) => set('name', e.currentTarget.value)}
             />
-            <Select
-              label="Mode"
-              data={[
-                { value: 'digital', label: 'Digital' },
-                { value: 'analogue', label: 'Analogue' },
-                { value: 'other', label: 'Other' },
-              ]}
-              value={values.mode}
-              onChange={(v) => set('mode', mapChannelMode(v ?? 'digital'))}
-            />
+            <ChannelModeSegmentedControl value={values.mode} onChange={(mode) => set('mode', mode)} />
             <TextInput
               label="Channel number"
               value={values.number}
@@ -305,6 +330,10 @@ export default function ChannelEdit() {
                 Offset: {formatOffsetMhz(offset)}
               </Text>
             ) : null}
+            <BandPillsForFrequencies
+              rxFrequency={values.rxFrequency}
+              txFrequency={values.txFrequency}
+            />
             <TextInput
               label="Bandwidth (kHz)"
               value={values.bandwidthKHz}
@@ -428,14 +457,20 @@ export default function ChannelEdit() {
               checked={values.hideFromMap}
               onChange={(e) => set('hideFromMap', e.currentTarget.checked)}
             />
-            <Text size="xs" c="dimmed">
-              Click the map to set coordinates.
-            </Text>
+            <Group justify="space-between" align="flex-end">
+              <Text size="xs" c="dimmed">
+                Click the map to set coordinates.
+              </Text>
+              <Button type="button" variant="subtle" size="compact-sm" onClick={clearPosition}>
+                Clear position
+              </Button>
+            </Group>
             <CodeplugMap
-              channels={[]}
+              channels={mapPreviewChannels}
               height={240}
               compactMode
-              showControls
+              showControls={false}
+              defaultShowZones={false}
               onLocationPick={applyCoords}
             />
           </Stack>
