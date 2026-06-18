@@ -67,6 +67,7 @@ At the **vendor boundary**, `Channel.contactName` and `Channel.rxGroupListName` 
 | `voxEnabled` | `boolean` | From `VOX` |
 | `transmitTimeout` | `string` | From `TOT` |
 | `scanSkip` | `boolean` | From `All Skip` |
+| `hideFromMap` | `boolean` | Internal only — exclude from map plots |
 | `vendorExtras` | `Record<string, string>` | Remaining OpenGD77-only columns |
 
 ### `Zone`

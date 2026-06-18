@@ -10,6 +10,7 @@ import {
   TileLayer,
   Tooltip,
   useMap,
+  useMapEvents,
 } from 'react-leaflet';
 import {
   applyFilters,
@@ -60,7 +61,12 @@ function escapeHtml(s: string): string {
     .replace(/"/g, '&quot;');
 }
 
-function channelDivIcon(color: string, label: string, merged: boolean, highlighted: boolean): L.DivIcon {
+function channelDivIcon(
+  color: string,
+  label: string,
+  merged: boolean,
+  highlighted: boolean,
+): L.DivIcon {
   return L.divIcon({
     className: 'channel-marker-wrap',
     html: `<div class="channel-marker">
@@ -80,9 +86,7 @@ function ChannelPopup({ group }: { group: Channel[] }) {
       <strong>{title}</strong>
       {group.map((ch) => {
         const freq =
-          ch.rxFrequency && ch.txFrequency
-            ? `${ch.rxFrequency} / ${ch.txFrequency} MHz`
-            : '';
+          ch.rxFrequency && ch.txFrequency ? `${ch.rxFrequency} / ${ch.txFrequency} MHz` : '';
         const dmr =
           ch.mode === 'digital'
             ? [
@@ -183,6 +187,15 @@ function MapResizeFix() {
   return null;
 }
 
+function MapClickHandler({ onPick }: { onPick: (lat: number, lon: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onPick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
 export interface CodeplugMapProps {
   channels: Channel[];
   zones?: Zone[];
@@ -192,6 +205,8 @@ export interface CodeplugMapProps {
   defaultFullChannelName?: boolean;
   defaultShowZones?: boolean;
   highlightChannelId?: string;
+  compactMode?: boolean;
+  onLocationPick?: (lat: number, lon: number) => void;
 }
 
 export default function CodeplugMap({
@@ -203,6 +218,8 @@ export default function CodeplugMap({
   defaultFullChannelName = false,
   defaultShowZones = true,
   highlightChannelId,
+  compactMode = false,
+  onLocationPick,
 }: CodeplugMapProps) {
   const mapLayoutReady = useDocumentLayoutReady();
   const { tileProvider, mapboxToken, tileConfig } = useMapSettings();
@@ -212,10 +229,7 @@ export default function CodeplugMap({
   const channelPool = allChannels ?? channels;
   const filterOpts = DEFAULT_FILTER_OPTS;
 
-  const { plotted } = useMemo(
-    () => applyFilters(channels, filterOpts),
-    [channels, filterOpts],
-  );
+  const { plotted } = useMemo(() => applyFilters(channels, filterOpts), [channels, filterOpts]);
 
   const plottedById = useMemo(() => buildChannelById(plotted), [plotted]);
 
@@ -225,12 +239,7 @@ export default function CodeplugMap({
     if (!zones.length || !showZoneHulls || !plottedById.size) return [];
 
     return zones.map((zone, index) => {
-      const { points, missing } = zoneGeolocatedPoints(
-        zone,
-        plottedById,
-        channelPool,
-        filterOpts,
-      );
+      const { points, missing } = zoneGeolocatedPoints(zone, plottedById, channelPool, filterOpts);
       const colors = zoneColor(index);
 
       if (points.length === 0) {
@@ -293,6 +302,7 @@ export default function CodeplugMap({
           onFullChannelNameChange={setFullChannelName}
           showZones={showZoneHulls}
           onShowZonesChange={setShowZoneHulls}
+          compactMode={compactMode}
         />
       ) : null}
 
@@ -300,6 +310,7 @@ export default function CodeplugMap({
         {mapLayoutReady ? (
           <MapContainer center={[56.5, -4.0]} zoom={6} style={{ height: '100%', width: '100%' }}>
             <MapResizeFix />
+            {onLocationPick ? <MapClickHandler onPick={onLocationPick} /> : null}
             <TileLayer
               key={`${tileProvider}-${mapboxToken}`}
               url={tileConfig.config.url}
@@ -395,8 +406,7 @@ export default function CodeplugMap({
               const label = markerLabel(group, fullChannelName);
               const position: LatLon = [ch.location!.lat, ch.location!.lon];
               const highlighted =
-                highlightChannelId != null &&
-                group.some((c) => c.id === highlightChannelId);
+                highlightChannelId != null && group.some((c) => c.id === highlightChannelId);
 
               return (
                 <Marker
@@ -411,7 +421,8 @@ export default function CodeplugMap({
               );
             })}
 
-            {groups.length > 0 || (showZoneHulls && zoneHulls.some((zh) => zh.geometry !== 'none')) ? (
+            {groups.length > 0 ||
+            (showZoneHulls && zoneHulls.some((zh) => zh.geometry !== 'none')) ? (
               <FitMapBounds groups={groups} zoneHulls={zoneHulls} showZoneHulls={showZoneHulls} />
             ) : null}
           </MapContainer>

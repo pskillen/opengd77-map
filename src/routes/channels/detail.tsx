@@ -1,17 +1,23 @@
-import { Anchor, Group, Stack, Text, Title } from '@mantine/core';
-import { Link, useParams } from 'react-router-dom';
-import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
-import DetailSections, { DetailLinkList } from '../components/report/DetailSections.tsx';
-import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
+import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
+import ConfirmDeleteModal from '../../components/crud/ConfirmDeleteModal.tsx';
+import { BandPillForChannel } from '../../components/crud/BandPill.tsx';
+import DetailSections, { DetailLinkList } from '../../components/report/DetailSections.tsx';
+import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
+import ReportPage from '../../components/report/ReportPage.tsx';
 import {
   externalChannelLinks,
   findContactByName,
   findEntityById,
   findRxGroupListByName,
   zonesContainingChannel,
-} from '../lib/reportLookup.ts';
-import { useCodeplug } from '../state/codeplugStore.tsx';
+} from '../../lib/reportLookup.ts';
+import { useCodeplug } from '../../state/codeplugStore.tsx';
+import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
+import { formatFrequencyMhz } from '../../lib/formatFrequency.ts';
+import { coordsToLocator } from '../../lib/maidenhead.ts';
 
 function modeLabel(mode: string): string {
   if (mode === 'digital') return 'Digital';
@@ -26,7 +32,9 @@ function formatLocation(lat: number | undefined, lon: number | undefined): strin
 
 export default function ChannelDetail() {
   const { id } = useParams<{ id: string }>();
-  const { codeplug } = useCodeplug();
+  const navigate = useNavigate();
+  const { codeplug, deleteChannel } = useCodeplug();
+  const [deleteOpen, { open: openDelete, close: closeDelete }] = useDisclosure(false);
   const channel = id ? findEntityById(codeplug.channels, id) : null;
 
   if (!channel) {
@@ -52,6 +60,12 @@ export default function ChannelDetail() {
     value,
   }));
 
+  const offset = frequencyOffsetMhz(channel.rxFrequency, channel.txFrequency);
+  const locator =
+    channel.location && channel.useLocation
+      ? coordsToLocator(channel.location.lat, channel.location.lon, 6)
+      : '';
+
   const sections = [
     {
       title: 'Identity',
@@ -59,14 +73,19 @@ export default function ChannelDetail() {
         { label: 'Name', value: channel.name },
         { label: 'Callsign', value: channel.callsign },
         { label: 'Mode', value: modeLabel(channel.mode) },
+        { label: 'Band', value: <BandPillForChannel channel={channel} /> },
         { label: 'Channel number', value: channel.number },
       ],
     },
     {
       title: 'RF',
       fields: [
-        { label: 'RX frequency', value: channel.rxFrequency ? `${channel.rxFrequency} MHz` : '' },
-        { label: 'TX frequency', value: channel.txFrequency ? `${channel.txFrequency} MHz` : '' },
+        { label: 'RX frequency', value: channel.rxFrequency ? formatFrequencyMhz(channel.rxFrequency) : '' },
+        { label: 'TX frequency', value: channel.txFrequency ? formatFrequencyMhz(channel.txFrequency) : '' },
+        {
+          label: 'Offset',
+          value: offset !== null ? formatOffsetMhz(offset) : '',
+        },
         { label: 'Bandwidth', value: channel.bandwidthKHz ? `${channel.bandwidthKHz} kHz` : '' },
         { label: 'Power', value: channel.power },
         { label: 'RX tone', value: channel.rxTone },
@@ -124,7 +143,9 @@ export default function ChannelDetail() {
           label: 'Coordinates',
           value: formatLocation(channel.location?.lat, channel.location?.lon),
         },
+        { label: 'Maidenhead', value: locator },
         { label: 'Use Location', value: channel.useLocation ? 'Yes' : 'No' },
+        { label: 'Hide from map', value: channel.hideFromMap ? 'Yes' : 'No' },
       ],
     },
     {
@@ -147,13 +168,34 @@ export default function ChannelDetail() {
   ];
 
   const externalLinks = externalChannelLinks(channel.callsign);
+  const memberZones = zonesContainingChannel(channel.id, codeplug.zones);
+  const zoneWarning =
+    memberZones.length > 0
+      ? `This channel is a member of ${memberZones.length} zone(s): ${memberZones.map((z) => z.name).join(', ')}.`
+      : undefined;
+
+  const confirmDelete = () => {
+    deleteChannel(channel.id);
+    closeDelete();
+    navigate('/channels');
+  };
 
   return (
     <ReportPage title={channel.name}>
       <Stack gap="lg">
-        <Anchor component={Link} to="/channels" size="sm">
-          ← Channels
-        </Anchor>
+        <Group justify="space-between">
+          <Anchor component={Link} to="/channels" size="sm">
+            ← Channels
+          </Anchor>
+          <Group gap="sm">
+            <Button component={Link} to={`/channels/${channel.id}/edit`} variant="light" size="sm">
+              Edit
+            </Button>
+            <Button color="red" variant="light" size="sm" onClick={openDelete}>
+              Delete
+            </Button>
+          </Group>
+        </Group>
 
         <DetailSections sections={sections} />
 
@@ -180,9 +222,20 @@ export default function ChannelDetail() {
             zones={codeplug.zones}
             allChannels={codeplug.channels}
             highlightChannelId={channel.id}
+            compactMode
+            defaultShowZones={false}
           />
         </Stack>
       </Stack>
+
+      <ConfirmDeleteModal
+        opened={deleteOpen}
+        onClose={closeDelete}
+        onConfirm={confirmDelete}
+        title="Delete channel"
+        entityName={channel.name}
+        warning={zoneWarning}
+      />
     </ReportPage>
   );
 }

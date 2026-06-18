@@ -28,6 +28,7 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     voxEnabled: false,
     transmitTimeout: '',
     scanSkip: false,
+    hideFromMap: false,
     vendorExtras: {},
   };
 }
@@ -60,6 +61,8 @@ export interface Channel {
   voxEnabled: boolean;
   transmitTimeout: string;
   scanSkip: boolean;
+  /** Internal only — exclude from map hulls/plots when true. */
+  hideFromMap: boolean;
   /** OpenGD77-only columns keyed by canonical CSV header name. */
   vendorExtras: Record<string, string>;
 }

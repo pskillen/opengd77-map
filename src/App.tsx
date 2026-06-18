@@ -6,10 +6,12 @@ import BuildFooter from './components/BuildFooter.tsx';
 import Home from './routes/Home.tsx';
 import Export from './routes/Export.tsx';
 import Summary from './routes/Summary.tsx';
-import ChannelsList from './routes/ChannelsList.tsx';
-import ChannelDetail from './routes/ChannelDetail.tsx';
-import ZonesList from './routes/ZonesList.tsx';
-import ZoneDetail from './routes/ZoneDetail.tsx';
+import ChannelsList from './routes/channels/list.tsx';
+import ChannelDetail from './routes/channels/detail.tsx';
+import ChannelEdit from './routes/channels/edit.tsx';
+import ZonesList from './routes/zones/list.tsx';
+import ZoneDetail from './routes/zones/detail.tsx';
+import ZoneEdit from './routes/zones/edit.tsx';
 import TalkGroupsList from './routes/TalkGroupsList.tsx';
 import TalkGroupDetail from './routes/TalkGroupDetail.tsx';
 import ContactsList from './routes/ContactsList.tsx';
@@ -94,8 +96,12 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/summary" element={<Summary />} />
           <Route path="/channels" element={<ChannelsList />} />
+          <Route path="/channels/new" element={<ChannelEdit />} />
+          <Route path="/channels/:id/edit" element={<ChannelEdit />} />
           <Route path="/channels/:id" element={<ChannelDetail />} />
           <Route path="/zones" element={<ZonesList />} />
+          <Route path="/zones/new" element={<ZoneEdit />} />
+          <Route path="/zones/:id/edit" element={<ZoneEdit />} />
           <Route path="/zones/:id" element={<ZoneDetail />} />
           <Route path="/talk-groups" element={<TalkGroupsList />} />
           <Route path="/talk-groups/:id" element={<TalkGroupDetail />} />

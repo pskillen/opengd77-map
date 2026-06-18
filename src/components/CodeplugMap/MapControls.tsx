@@ -6,6 +6,7 @@ export interface MapControlsProps {
   onFullChannelNameChange: (value: boolean) => void;
   showZones: boolean;
   onShowZonesChange: (value: boolean) => void;
+  compactMode?: boolean;
 }
 
 export default function MapControls({
@@ -13,19 +14,24 @@ export default function MapControls({
   onFullChannelNameChange,
   showZones,
   onShowZonesChange,
+  compactMode = false,
 }: MapControlsProps) {
   return (
     <Group gap="md" wrap="wrap" align="center">
-      <Checkbox
-        label="Label with full channel name"
-        checked={fullChannelName}
-        onChange={(e) => onFullChannelNameChange(e.currentTarget.checked)}
-      />
-      <Checkbox
-        label="Draw zones"
-        checked={showZones}
-        onChange={(e) => onShowZonesChange(e.currentTarget.checked)}
-      />
+      {!compactMode ? (
+        <>
+          <Checkbox
+            label="Label with full channel name"
+            checked={fullChannelName}
+            onChange={(e) => onFullChannelNameChange(e.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Draw zones"
+            checked={showZones}
+            onChange={(e) => onShowZonesChange(e.currentTarget.checked)}
+          />
+        </>
+      ) : null}
       <ActionIcon
         component={Link}
         to="/settings"

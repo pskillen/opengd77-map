@@ -9,13 +9,20 @@ import {
   type ReactNode,
 } from 'react';
 import { buildNameToChannelId, resolveZoneMembers } from '../lib/codeplug.ts';
+import {
+  addChannel as addChannelMutation,
+  addZone as addZoneMutation,
+  deleteChannel as deleteChannelMutation,
+  deleteZone as deleteZoneMutation,
+  setZoneMembers as setZoneMembersMutation,
+  updateChannel as updateChannelMutation,
+  updateZone as updateZoneMutation,
+  type ChannelInput,
+  type ZoneInput,
+} from '../lib/codeplugMutations.ts';
 import type { ImportResult } from '../lib/import/types.ts';
 import { emptyCodeplug, newId, type Codeplug, type Zone } from '../models/codeplug.ts';
-import {
-  defaultProjectName,
-  newProject,
-  type CodeplugProject,
-} from '../models/codeplugProject.ts';
+import { defaultProjectName, newProject, type CodeplugProject } from '../models/codeplugProject.ts';
 import {
   clearProjectsStorage,
   loadProjectsFromStorage,
@@ -29,7 +36,14 @@ type ProjectsAction =
   | { type: 'APPLY_IMPORT'; result: ImportResult }
   | { type: 'SET_ACTIVE_PROJECT'; id: string }
   | { type: 'DELETE_PROJECT'; id: string }
-  | { type: 'CLEAR' };
+  | { type: 'CLEAR' }
+  | { type: 'ADD_CHANNEL'; input: ChannelInput }
+  | { type: 'UPDATE_CHANNEL'; channelId: string; patch: Partial<ChannelInput> }
+  | { type: 'DELETE_CHANNEL'; channelId: string }
+  | { type: 'ADD_ZONE'; input: ZoneInput }
+  | { type: 'UPDATE_ZONE'; zoneId: string; patch: Partial<ZoneInput> }
+  | { type: 'DELETE_ZONE'; zoneId: string }
+  | { type: 'SET_ZONE_MEMBERS'; zoneId: string; memberChannelIds: string[] };
 
 function applyImportToCodeplug(codeplug: Codeplug, result: ImportResult): Codeplug {
   const channels = result.channels ?? codeplug.channels;
@@ -105,6 +119,24 @@ function importNewProjectState(
   };
 }
 
+function updateActiveCodeplug(
+  state: ProjectsState,
+  updater: (codeplug: Codeplug) => Codeplug,
+): ProjectsState {
+  if (!state.activeProjectId) return state;
+  const activeId = state.activeProjectId;
+  return {
+    ...state,
+    projects: state.projects.map((project) => {
+      if (project.id !== activeId) return project;
+      return touchProject({
+        ...project,
+        codeplug: updater(project.codeplug),
+      });
+    }),
+  };
+}
+
 function projectsReducer(state: ProjectsState, action: ProjectsAction): ProjectsState {
   switch (action.type) {
     case 'IMPORT_NEW_PROJECT':
@@ -153,6 +185,33 @@ function projectsReducer(state: ProjectsState, action: ProjectsAction): Projects
       };
     }
 
+    case 'ADD_CHANNEL':
+      return updateActiveCodeplug(state, (cp) => addChannelMutation(cp, action.input));
+
+    case 'UPDATE_CHANNEL':
+      return updateActiveCodeplug(state, (cp) =>
+        updateChannelMutation(cp, action.channelId, action.patch),
+      );
+
+    case 'DELETE_CHANNEL':
+      return updateActiveCodeplug(state, (cp) => deleteChannelMutation(cp, action.channelId));
+
+    case 'ADD_ZONE':
+      return updateActiveCodeplug(state, (cp) => addZoneMutation(cp, action.input));
+
+    case 'UPDATE_ZONE':
+      return updateActiveCodeplug(state, (cp) =>
+        updateZoneMutation(cp, action.zoneId, action.patch),
+      );
+
+    case 'DELETE_ZONE':
+      return updateActiveCodeplug(state, (cp) => deleteZoneMutation(cp, action.zoneId));
+
+    case 'SET_ZONE_MEMBERS':
+      return updateActiveCodeplug(state, (cp) =>
+        setZoneMembersMutation(cp, action.zoneId, action.memberChannelIds),
+      );
+
     default:
       return state;
   }
@@ -171,6 +230,13 @@ interface CodeplugContextValue {
   codeplug: Codeplug;
   applyImport: (result: ImportResult) => void;
   clear: () => void;
+  addChannel: (input: ChannelInput) => void;
+  updateChannel: (channelId: string, patch: Partial<ChannelInput>) => void;
+  deleteChannel: (channelId: string) => void;
+  addZone: (input: ZoneInput) => void;
+  updateZone: (zoneId: string, patch: Partial<ZoneInput>) => void;
+  deleteZone: (zoneId: string) => void;
+  setZoneMembers: (zoneId: string, memberChannelIds: string[]) => void;
   persistenceError: string | null;
   clearPersistenceError: () => void;
 }
@@ -214,13 +280,10 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     setPersistenceError(null);
   }, []);
 
-  const applyImport = useCallback(
-    (result: ImportResult) => {
-      setPersistenceError(null);
-      dispatch({ type: 'APPLY_IMPORT', result });
-    },
-    [],
-  );
+  const applyImport = useCallback((result: ImportResult) => {
+    setPersistenceError(null);
+    dispatch({ type: 'APPLY_IMPORT', result });
+  }, []);
 
   const clear = useCallback(() => {
     setPersistenceError(null);
@@ -250,6 +313,41 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'DELETE_PROJECT', id });
   }, []);
 
+  const addChannel = useCallback((input: ChannelInput) => {
+    setPersistenceError(null);
+    dispatch({ type: 'ADD_CHANNEL', input });
+  }, []);
+
+  const updateChannel = useCallback((channelId: string, patch: Partial<ChannelInput>) => {
+    setPersistenceError(null);
+    dispatch({ type: 'UPDATE_CHANNEL', channelId, patch });
+  }, []);
+
+  const deleteChannel = useCallback((channelId: string) => {
+    setPersistenceError(null);
+    dispatch({ type: 'DELETE_CHANNEL', channelId });
+  }, []);
+
+  const addZone = useCallback((input: ZoneInput) => {
+    setPersistenceError(null);
+    dispatch({ type: 'ADD_ZONE', input });
+  }, []);
+
+  const updateZone = useCallback((zoneId: string, patch: Partial<ZoneInput>) => {
+    setPersistenceError(null);
+    dispatch({ type: 'UPDATE_ZONE', zoneId, patch });
+  }, []);
+
+  const deleteZone = useCallback((zoneId: string) => {
+    setPersistenceError(null);
+    dispatch({ type: 'DELETE_ZONE', zoneId });
+  }, []);
+
+  const setZoneMembers = useCallback((zoneId: string, memberChannelIds: string[]) => {
+    setPersistenceError(null);
+    dispatch({ type: 'SET_ZONE_MEMBERS', zoneId, memberChannelIds });
+  }, []);
+
   const current = activeProject(projectsState);
   const codeplug = current?.codeplug ?? emptyCodeplug();
 
@@ -258,10 +356,30 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
       codeplug,
       applyImport,
       clear,
+      addChannel,
+      updateChannel,
+      deleteChannel,
+      addZone,
+      updateZone,
+      deleteZone,
+      setZoneMembers,
       persistenceError,
       clearPersistenceError,
     }),
-    [codeplug, applyImport, clear, persistenceError, clearPersistenceError],
+    [
+      codeplug,
+      applyImport,
+      clear,
+      addChannel,
+      updateChannel,
+      deleteChannel,
+      addZone,
+      updateZone,
+      deleteZone,
+      setZoneMembers,
+      persistenceError,
+      clearPersistenceError,
+    ],
   );
 
   const projectsValue = useMemo(

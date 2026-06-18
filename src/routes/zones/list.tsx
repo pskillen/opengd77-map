@@ -1,9 +1,10 @@
-import { Stack } from '@mantine/core';
-import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
-import EntityTable from '../components/report/EntityTable.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
-import { sortByName, unresolvedZoneMemberCount } from '../lib/reportLookup.ts';
-import { useCodeplug } from '../state/codeplugStore.tsx';
+import { Button, Group, Stack } from '@mantine/core';
+import { Link } from 'react-router-dom';
+import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
+import EntityTable from '../../components/report/EntityTable.tsx';
+import ReportPage from '../../components/report/ReportPage.tsx';
+import { sortByName } from '../../lib/reportLookup.ts';
+import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 export default function ZonesList() {
   const { codeplug } = useCodeplug();
@@ -13,6 +14,12 @@ export default function ZonesList() {
   return (
     <ReportPage title="Zones">
       <Stack gap="lg">
+        <Group justify="flex-end">
+          <Button component={Link} to="/zones/new">
+            New zone
+          </Button>
+        </Group>
+
         <EntityTable
           rows={sorted}
           rowKey={(z) => z.id}
@@ -25,11 +32,6 @@ export default function ZonesList() {
               key: 'members',
               header: 'Members',
               render: (z) => z.memberChannelIds.length,
-            },
-            {
-              key: 'unresolved',
-              header: 'Unresolved',
-              render: (z) => unresolvedZoneMemberCount(z, channels),
             },
           ]}
         />
