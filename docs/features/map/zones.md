@@ -47,10 +47,12 @@ Duplicate member names within one zone are deduplicated while preserving first o
 
 ## UI controls
 
-| Control | Element id | Default | Effect |
+Controls are Mantine inputs bound to React state in `ChannelMap.tsx` (no DOM ids).
+
+| Control label | State | Default | Effect |
 | --- | --- | --- | --- |
-| Zones file dropzone | `dropzoneZones` / `fileZones` | — | Loads `Zones.csv` after channels |
-| Draw zone convex hulls | `showZoneHulls` | on | When off, clears `zoneLayer` but keeps zone list metadata hidden logic |
+| Zones file dropzone | `zones` (via `loadZonesFile`) | — | Loads `Zones.csv` after channels |
+| Draw zone convex hulls | `showZoneHulls` | on | When off, no hull layers render; the sidebar Zones list is also empty (it is derived from the computed `zoneHulls`) |
 
 Shared coordinate filters (`requireUseLocation`, `skipZero`) apply to hull points the same way as markers — see [channels.md](channels.md).
 
@@ -74,12 +76,14 @@ Distinct sites are deduplicated with `toFixed(5)` on lat and lon.
 
 ### Hull geometry
 
-| Geolocated sites | Shape | Leaflet | Parameters |
+| Geolocated sites | Shape | react-leaflet | Parameters |
 | --- | --- | --- | --- |
-| 0 | None | — | Sidebar warning: “no geolocated members” |
-| 1 | Circle | `L.circle` | Radius **2500 m** |
-| 2 | Line | `L.polyline` | Weight 3, opacity 0.85 |
-| ≥ 3 | Convex hull | `L.polygon` | `convexHullLatLon`; fill opacity **0.18**, weight 2 |
+| 0 | None | — (geometry `none`) | Sidebar warning: “no geolocated members” |
+| 1 | Circle | `<Circle>` | Radius **2500 m**, fill opacity 0.18, weight 2 |
+| 2 | Line | `<Polyline>` | Weight 3, opacity 0.85 |
+| ≥ 3 | Convex hull | `<Polygon>` | `convexHullLatLon`; fill opacity **0.18**, weight 2 |
+
+Each zone's shape is precomputed into a `ZoneHullData` object (`geometry: 'circle' | 'line' | 'polygon' | 'none'`) in a `useMemo`, then rendered by the matching react-leaflet component.
 
 The hull algorithm sorts by longitude then latitude and runs monotone-chain convex hull in lat/lon plane. This is a **planning aid**, not RF coverage — adequate for regional repeater layouts at UK latitudes.
 
@@ -90,11 +94,11 @@ The hull algorithm sorts by longitude then latitude and runs monotone-chain conv
 - Stroke: `hsla(hue, 70%, 38%, 0.9)`
 - Fill uses stroke colour with polygon/circle `fillOpacity: 0.18`
 
-Zone layers are added to `zoneLayer` and `bringToBack()` so markers stay on top. Overlapping hulls from shared repeaters are expected and render transparently.
+Zone shapes are rendered before the channel markers in `ChannelMap.tsx`, so markers stay on top. Overlapping hulls from shared repeaters are expected and render transparently.
 
 ### Sidebar — Zones panel
 
-`<details id="zoneDetails">` opens when zones are loaded. Each zone lists:
+The sidebar **Zones** panel — a Mantine `Text` toggle plus `Collapse` (state `zonesOpen`) — appears when zones are loaded. Each zone lists:
 
 - **ok** — hull drawn; shows vertex/site counts and optional skipped member count
 - **warn** — no geolocated members, or some members skipped (still draws hull if ≥1 site)
