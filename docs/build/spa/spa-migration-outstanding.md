@@ -27,10 +27,11 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not th
 
 ## Ticket C debt
 
-- [ ] Bundle size warning (~617 kB JS) — consider code-splitting `ChannelMap` route in a follow-up
+- [ ] Bundle size warning (~617 kB JS) — code-split `ChannelMap` route in a follow-up ([#26](https://github.com/pskillen/opengd77-map/issues/26))
 - [x] `localStorage` and `ResizeObserver` mocks added in `src/test/setup.ts` for jsdom
 
 ## Documentation
 
-- [ ] Update [git-workflow skill](../../.cursor/skills/git-workflow/SKILL.md) pre-commit checks for `npm run lint/test` (deferred — skill still references static HTML smoke tests)
-- [ ] Update [version-number skill](../../.cursor/skills/version-number/SKILL.md) legacy static tools note (optional cleanup)
+- [x] Update [git-workflow skill](../../.cursor/skills/git-workflow/SKILL.md) pre-commit checks for `npm run lint/test/build` (was referencing static HTML smoke tests)
+- [x] [version-number skill](../../.cursor/skills/version-number/SKILL.md) rewritten for Vite `define`; legacy static tools note retained as historical context
+- [x] Channel map feature docs ([channels.md](../../features/map/channels.md), [zones.md](../../features/map/zones.md)) aligned with the react-leaflet port (removed `refreshMap`/`fitMapToLayers`, imperative `L.circle`/`L.polyline`/`L.polygon`, and DOM element-id references)
