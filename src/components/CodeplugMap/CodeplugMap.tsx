@@ -10,6 +10,7 @@ import {
   TileLayer,
   Tooltip,
   useMap,
+  useMapEvents,
 } from 'react-leaflet';
 import {
   applyFilters,
@@ -183,6 +184,15 @@ function MapResizeFix() {
   return null;
 }
 
+function MapClickHandler({ onPick }: { onPick: (lat: number, lon: number) => void }) {
+  useMapEvents({
+    click(e) {
+      onPick(e.latlng.lat, e.latlng.lng);
+    },
+  });
+  return null;
+}
+
 export interface CodeplugMapProps {
   channels: Channel[];
   zones?: Zone[];
@@ -192,6 +202,8 @@ export interface CodeplugMapProps {
   defaultFullChannelName?: boolean;
   defaultShowZones?: boolean;
   highlightChannelId?: string;
+  compactMode?: boolean;
+  onLocationPick?: (lat: number, lon: number) => void;
 }
 
 export default function CodeplugMap({
@@ -203,6 +215,8 @@ export default function CodeplugMap({
   defaultFullChannelName = false,
   defaultShowZones = true,
   highlightChannelId,
+  compactMode = false,
+  onLocationPick,
 }: CodeplugMapProps) {
   const mapLayoutReady = useDocumentLayoutReady();
   const { tileProvider, mapboxToken, tileConfig } = useMapSettings();
@@ -293,6 +307,7 @@ export default function CodeplugMap({
           onFullChannelNameChange={setFullChannelName}
           showZones={showZoneHulls}
           onShowZonesChange={setShowZoneHulls}
+          compactMode={compactMode}
         />
       ) : null}
 
@@ -300,6 +315,7 @@ export default function CodeplugMap({
         {mapLayoutReady ? (
           <MapContainer center={[56.5, -4.0]} zoom={6} style={{ height: '100%', width: '100%' }}>
             <MapResizeFix />
+            {onLocationPick ? <MapClickHandler onPick={onLocationPick} /> : null}
             <TileLayer
               key={`${tileProvider}-${mapboxToken}`}
               url={tileConfig.config.url}

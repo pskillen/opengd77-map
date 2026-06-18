@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import ConfirmDeleteModal from '../../components/crud/ConfirmDeleteModal.tsx';
+import { BandPillForChannel } from '../../components/crud/BandPill.tsx';
 import DetailSections, { DetailLinkList } from '../../components/report/DetailSections.tsx';
 import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
 import ReportPage from '../../components/report/ReportPage.tsx';
@@ -14,6 +15,8 @@ import {
   zonesContainingChannel,
 } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
+import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
+import { coordsToLocator } from '../../lib/maidenhead.ts';
 
 function modeLabel(mode: string): string {
   if (mode === 'digital') return 'Digital';
@@ -56,6 +59,12 @@ export default function ChannelDetail() {
     value,
   }));
 
+  const offset = frequencyOffsetMhz(channel.rxFrequency, channel.txFrequency);
+  const locator =
+    channel.location && channel.useLocation
+      ? coordsToLocator(channel.location.lat, channel.location.lon, 6)
+      : '';
+
   const sections = [
     {
       title: 'Identity',
@@ -63,6 +72,7 @@ export default function ChannelDetail() {
         { label: 'Name', value: channel.name },
         { label: 'Callsign', value: channel.callsign },
         { label: 'Mode', value: modeLabel(channel.mode) },
+        { label: 'Band', value: <BandPillForChannel channel={channel} /> },
         { label: 'Channel number', value: channel.number },
       ],
     },
@@ -71,6 +81,10 @@ export default function ChannelDetail() {
       fields: [
         { label: 'RX frequency', value: channel.rxFrequency ? `${channel.rxFrequency} MHz` : '' },
         { label: 'TX frequency', value: channel.txFrequency ? `${channel.txFrequency} MHz` : '' },
+        {
+          label: 'Offset',
+          value: offset !== null ? formatOffsetMhz(offset) : '',
+        },
         { label: 'Bandwidth', value: channel.bandwidthKHz ? `${channel.bandwidthKHz} kHz` : '' },
         { label: 'Power', value: channel.power },
         { label: 'RX tone', value: channel.rxTone },
@@ -128,7 +142,9 @@ export default function ChannelDetail() {
           label: 'Coordinates',
           value: formatLocation(channel.location?.lat, channel.location?.lon),
         },
+        { label: 'Maidenhead', value: locator },
         { label: 'Use Location', value: channel.useLocation ? 'Yes' : 'No' },
+        { label: 'Hide from map', value: channel.hideFromMap ? 'Yes' : 'No' },
       ],
     },
     {
@@ -205,6 +221,8 @@ export default function ChannelDetail() {
             zones={codeplug.zones}
             allChannels={codeplug.channels}
             highlightChannelId={channel.id}
+            compactMode
+            defaultShowZones={false}
           />
         </Stack>
       </Stack>

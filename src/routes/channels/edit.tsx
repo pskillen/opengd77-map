@@ -12,6 +12,9 @@ import {
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ReportPage from '../../components/report/ReportPage.tsx';
+import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
+import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
+import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maidenhead.ts';
 import { hasValidationErrors, validateChannel } from '../../lib/validation/channel.ts';
 import {
   channelFieldDefaults,
@@ -46,6 +49,8 @@ type ChannelFormValues = {
   lat: string;
   lon: string;
   useLocation: boolean;
+  hideFromMap: boolean;
+  locator: string;
 };
 
 function channelToForm(ch: Channel): ChannelFormValues {
@@ -73,6 +78,11 @@ function channelToForm(ch: Channel): ChannelFormValues {
     lat: ch.location?.lat != null ? String(ch.location.lat) : '',
     lon: ch.location?.lon != null ? String(ch.location.lon) : '',
     useLocation: ch.useLocation,
+    hideFromMap: ch.hideFromMap,
+    locator:
+      ch.location && ch.useLocation
+        ? coordsToLocator(ch.location.lat, ch.location.lon, 6)
+        : '',
   };
 }
 
@@ -102,6 +112,8 @@ function emptyForm(): ChannelFormValues {
     lat: '',
     lon: '',
     useLocation: defaults.useLocation,
+    hideFromMap: defaults.hideFromMap,
+    locator: '',
   };
 }
 
@@ -134,6 +146,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'ca
     scanSkip: values.scanSkip,
     location: hasCoords ? { lat, lon } : null,
     useLocation: values.useLocation,
+    hideFromMap: values.hideFromMap,
     vendorExtras: {},
   };
 }
@@ -175,6 +188,37 @@ export default function ChannelEdit() {
     { value: '', label: 'None' },
     ...codeplug.rxGroupLists.map((r) => ({ value: r.name, label: r.name })),
   ];
+
+  const offset =
+    values.rxFrequency && values.txFrequency
+      ? frequencyOffsetMhz(values.rxFrequency, values.txFrequency)
+      : null;
+
+  const applyLocator = (loc: string) => {
+    set('locator', loc);
+    if (!loc.trim()) return;
+    if (!isValidLocator(loc)) return;
+    const coords = locatorToCoords(loc);
+    if (coords) {
+      setValues((prev) => ({
+        ...prev,
+        locator: loc.toUpperCase(),
+        lat: String(coords.lat),
+        lon: String(coords.lon),
+        useLocation: true,
+      }));
+    }
+  };
+
+  const applyCoords = (lat: number, lon: number) => {
+    setValues((prev) => ({
+      ...prev,
+      lat: String(lat),
+      lon: String(lon),
+      locator: coordsToLocator(lat, lon, 6),
+      useLocation: true,
+    }));
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -235,6 +279,11 @@ export default function ChannelEdit() {
               <TextInput label="RX MHz" value={values.rxFrequency} onChange={(e) => set('rxFrequency', e.currentTarget.value)} />
               <TextInput label="TX MHz" value={values.txFrequency} onChange={(e) => set('txFrequency', e.currentTarget.value)} />
             </Group>
+            {offset !== null ? (
+              <Text size="sm" c="dimmed">
+                Offset: {formatOffsetMhz(offset)}
+              </Text>
+            ) : null}
             <TextInput label="Bandwidth (kHz)" value={values.bandwidthKHz} onChange={(e) => set('bandwidthKHz', e.currentTarget.value)} />
             <TextInput label="Power" value={values.power} onChange={(e) => set('power', e.currentTarget.value)} />
             {isAnalogue ? (
@@ -276,11 +325,54 @@ export default function ChannelEdit() {
 
           <Stack gap="sm">
             <Title order={4}>Location</Title>
+            <TextInput
+              label="Maidenhead locator"
+              value={values.locator}
+              onChange={(e) => set('locator', e.currentTarget.value)}
+              onBlur={(e) => applyLocator(e.currentTarget.value)}
+            />
             <Group grow>
-              <NumberInput label="Latitude" value={values.lat} onChange={(v) => set('lat', String(v ?? ''))} decimalScale={6} />
-              <NumberInput label="Longitude" value={values.lon} onChange={(v) => set('lon', String(v ?? ''))} decimalScale={6} />
+              <NumberInput
+                label="Latitude"
+                value={values.lat}
+                onChange={(v) => {
+                  const lat = String(v ?? '');
+                  set('lat', lat);
+                  const lon = parseFloat(values.lon);
+                  const latN = parseFloat(lat);
+                  if (Number.isFinite(latN) && Number.isFinite(lon)) {
+                    set('locator', coordsToLocator(latN, lon, 6));
+                  }
+                }}
+                decimalScale={6}
+              />
+              <NumberInput
+                label="Longitude"
+                value={values.lon}
+                onChange={(v) => {
+                  const lon = String(v ?? '');
+                  set('lon', lon);
+                  const lat = parseFloat(values.lat);
+                  const lonN = parseFloat(lon);
+                  if (Number.isFinite(lat) && Number.isFinite(lonN)) {
+                    set('locator', coordsToLocator(lat, lonN, 6));
+                  }
+                }}
+                decimalScale={6}
+              />
             </Group>
             <Checkbox label="Use Location" checked={values.useLocation} onChange={(e) => set('useLocation', e.currentTarget.checked)} />
+            <Checkbox label="Hide from map" checked={values.hideFromMap} onChange={(e) => set('hideFromMap', e.currentTarget.checked)} />
+            <Text size="xs" c="dimmed">
+              Click the map to set coordinates.
+            </Text>
+            <CodeplugMap
+              channels={[]}
+              height={240}
+              compactMode
+              showControls
+              onLocationPick={applyCoords}
+            />
           </Stack>
 
           <Stack gap="sm">
