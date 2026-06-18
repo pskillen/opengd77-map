@@ -11,7 +11,7 @@ Messages that appear in the browser devtools console while using the channel map
 
 If these persist after a hard refresh, file an issue with browser version and steps.
 
-## Browser extensions (not from opengd77-map)
+## Browser extensions (not from MM9PDY Codeplug Tool)
 
 These stack frames point at extension scripts, not files under `src/`:
 

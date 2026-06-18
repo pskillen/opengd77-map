@@ -72,7 +72,7 @@ Load order matters: **`Channels.csv` first**, then optional **`Zones.csv`**. Zon
 | --- | --- |
 | Component (source) | [`src/components/ChannelMap/`](../../../src/components/ChannelMap/) |
 | Lib (source) | [`src/lib/`](../../../src/lib/) |
-| Live (deployed) | [channel map](https://pskillen.github.io/opengd77-map/#/map) |
+| Live (deployed) | [channel map](https://pskillen.github.io/codeplug-tool/#/map) |
 | Build / deploy | [docs/build/README.md](../../build/README.md) |
 | Local test CSVs | [`sample-exports/`](../../../sample-exports/) (gitignored) |
 | Agent guide | [`AGENTS.md`](../../../AGENTS.md) |

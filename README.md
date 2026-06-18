@@ -1,8 +1,8 @@
-# opengd77-map
+# MM9PDY Codeplug Tool
 
 A browser-based companion for amateur radio **codeplug** design — a modern layer on top of the clunky, vendor-locked **CPS** (customer programming software) we all have to live with.
 
-**Live site:** [pskillen.github.io/opengd77-map](https://pskillen.github.io/opengd77-map/) (updated when a full GitHub release is published).
+**Live site:** [pskillen.github.io/codeplug-tool](https://pskillen.github.io/codeplug-tool/) (updated when a full GitHub release is published).
 
 > Currently targets **OpenGD77** radios. Support for other vendors is planned — the data model and import/export layers are being built to be vendor-agnostic.
 
@@ -46,13 +46,13 @@ Your data lives in your browser's **LocalStorage** for now — nothing is upload
 | Read-only tabular report (zones, channels, TGs) | Planned |
 | Cloud storage (Dropbox / OneDrive / Google Drive) | Planned |
 
-Planned work is tracked as [GitHub issues](https://github.com/pskillen/opengd77-map/issues) — browse the open tickets for the current backlog and design notes.
+Planned work is tracked as [GitHub issues](https://github.com/pskillen/codeplug-tool/issues) — browse the open tickets for the current backlog and design notes.
 
 ### What ships today: the channel map
 
 The map is the first feature. Load an OpenGD77 `Channels.csv` export to plot channels with valid coordinates; optionally add `Zones.csv` to draw a coloured hull around each zone's geolocated members. Default tiles are OpenStreetMap (no API key); paste a [Mapbox token](https://account.mapbox.com/access-tokens/) in the sidebar for streets/satellite tiles — the token is stored in browser LocalStorage only.
 
-Open the [live channel map](https://pskillen.github.io/opengd77-map/#/map), or run it locally (below) and go to `/#/map`. Full behaviour notes: [`docs/features/map/`](docs/features/map/README.md).
+Open the [live channel map](https://pskillen.github.io/codeplug-tool/#/map), or run it locally (below) and go to `/#/map`. Full behaviour notes: [`docs/features/map/`](docs/features/map/README.md).
 
 ## Development
 
@@ -63,7 +63,7 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:5173/opengd77-map/`. Useful scripts: `npm run lint`, `npm run format:check`, `npm run test`, `npm run build`.
+Visit `http://localhost:5173/codeplug-tool/`. Useful scripts: `npm run lint`, `npm run format:check`, `npm run test`, `npm run build`.
 
 Use local CPS exports from `sample-exports/` (gitignored) for testing — do not commit operator codeplugs.
 

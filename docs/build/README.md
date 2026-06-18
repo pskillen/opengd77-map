@@ -1,6 +1,6 @@
 # Build and deploy
 
-How the opengd77-map **Vite + React SPA** reaches **GitHub Pages**. The build runs `npm ci` and `npm run build`, producing a `dist/` folder for hosting.
+How the MM9PDY Codeplug Tool **Vite + React SPA** reaches **GitHub Pages**. The build runs `npm ci` and `npm run build`, producing a `dist/` folder for hosting.
 
 ## Implementation status
 
@@ -29,7 +29,7 @@ How the opengd77-map **Vite + React SPA** reaches **GitHub Pages**. The build ru
 | **Source tree** | What lives in git — `src/`, `index.html`, config, docs, agent files |
 | **Build artifact** | `dist/` folder CI produces per run via `npm run build` |
 | **Release** | A published (non-pre-release) GitHub release, created from a tag matching `v*` (e.g. `v1.0.0`) |
-| **Project Pages URL** | `https://pskillen.github.io/opengd77-map/` |
+| **Project Pages URL** | `https://pskillen.github.io/codeplug-tool/` |
 | **`BUILD_ENV`** | Deployment environment baked in at build time via Vite `define` (`local` or `prod`) |
 | **`BUILD_VERSION`** | Version string baked alongside `BUILD_ENV` (SemVer from release tag on Pages) |
 
@@ -52,7 +52,7 @@ flowchart LR
   WF --> BUILD[npm ci + npm run build]
   BUILD --> ART[upload-pages-artifact dist]
   ART --> DEP[deploy-pages]
-  DEP --> URL[pskillen.github.io/opengd77-map]
+  DEP --> URL[pskillen.github.io/codeplug-tool]
 ```
 
 ### Workflow steps
@@ -106,7 +106,7 @@ Monitor the **Actions** tab for the “Deploy GitHub Pages” workflow. When it 
 
 | Goal | Command / action |
 | --- | --- |
-| Dev server | `npm install` then `npm run dev` — visit `http://localhost:5173/opengd77-map/` |
+| Dev server | `npm install` then `npm run dev` — visit `http://localhost:5173/codeplug-tool/` |
 | Production build | `npm run build` — output in `dist/` |
 | Preview production build | `npm run preview` |
 | Lint / format / test | `npm run lint`, `npm run format:check`, `npm run test` |
@@ -116,7 +116,7 @@ Use CSV fixtures from gitignored `sample-exports/`.
 
 ## Manual verify (post-deploy)
 
-1. Open `https://pskillen.github.io/opengd77-map/`.
+1. Open `https://pskillen.github.io/codeplug-tool/`.
 2. Confirm muted footer shows `prod · <semver>` matching the release tag.
 3. Navigate to the channel map route (`/#/map`).
 4. Load sample `Channels.csv` / `Zones.csv`; confirm markers and zone hulls render.
@@ -131,7 +131,7 @@ Use CSV fixtures from gitignored `sample-exports/`.
 
 | Resource | URL |
 | --- | --- |
-| Live site | https://pskillen.github.io/opengd77-map/ |
+| Live site | https://pskillen.github.io/codeplug-tool/ |
 | Git workflow skill | [`.cursor/skills/git-workflow/SKILL.md`](../../.cursor/skills/git-workflow/SKILL.md) |
 | Feature docs skill | [`.cursor/skills/feature-docs/SKILL.md`](../../.cursor/skills/feature-docs/SKILL.md) |
 | SPA migration progress | [spa/spa-migration-progress.md](spa/spa-migration-progress.md) |

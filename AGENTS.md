@@ -1,4 +1,4 @@
-# Agent guide — opengd77-map
+# Agent guide — MM9PDY Codeplug Tool
 
 Instructions for AI agents working in this repository.
 
@@ -41,7 +41,7 @@ Treat vendor CSV as a lossy interchange format at the edges; the goal is to conv
 
 ## Working principles
 
-1. **SPA at repo root** — React components under `src/`; Vite bundles for GitHub Pages (`base: '/opengd77-map/'`). HashRouter for subpath routing.
+1. **SPA at repo root** — React components under `src/`; Vite bundles for GitHub Pages (`base: '/codeplug-tool/'`). HashRouter for subpath routing.
 2. **Parse by header name** — CPS CSV column order can vary; never hard-code column positions. Keep vendor specifics at the import/export edges, not in feature code.
 3. **Preserve CPS quirks** — channel names are case-sensitive foreign keys across files.
 4. **Minimize scope** — one feature per PR; match existing UI patterns in the SPA.

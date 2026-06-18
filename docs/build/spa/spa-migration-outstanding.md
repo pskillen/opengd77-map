@@ -2,7 +2,7 @@
 
 Items **skipped**, **incomplete**, or **discovered during execution** — not the plan's future phases.
 
-**Tracking:** [opengd77-map#18](https://github.com/pskillen/opengd77-map/issues/18) (epic [#21](https://github.com/pskillen/opengd77-map/issues/21))
+**Tracking:** [codeplug-tool#18](https://github.com/pskillen/codeplug-tool/issues/18) (epic [#21](https://github.com/pskillen/codeplug-tool/issues/21))
 
 ---
 
@@ -27,7 +27,7 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not th
 
 ## Ticket C debt
 
-- [ ] Bundle size warning (~617 kB JS) — code-split `ChannelMap` route in a follow-up ([#26](https://github.com/pskillen/opengd77-map/issues/26))
+- [ ] Bundle size warning (~617 kB JS) — code-split `ChannelMap` route in a follow-up ([#26](https://github.com/pskillen/codeplug-tool/issues/26))
 - [x] `localStorage` and `ResizeObserver` mocks added in `src/test/setup.ts` for jsdom
 
 ## Documentation

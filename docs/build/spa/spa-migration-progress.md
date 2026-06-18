@@ -1,6 +1,6 @@
 # SPA migration — progress
 
-**Tracking:** [opengd77-map#18](https://github.com/pskillen/opengd77-map/issues/18) (epic [#21](https://github.com/pskillen/opengd77-map/issues/21))
+**Tracking:** [codeplug-tool#18](https://github.com/pskillen/codeplug-tool/issues/18) (epic [#21](https://github.com/pskillen/codeplug-tool/issues/21))
 **Plan:** SPA migration foundation (Tickets A → B → C)
 
 ---
@@ -16,7 +16,7 @@
 ## Ticket A — scaffold SPA, tooling, routing, deploy pipeline (#18)
 
 **Status:** Complete
-**PR:** https://github.com/pskillen/opengd77-map/pull/23 (merged)
+**PR:** https://github.com/pskillen/codeplug-tool/pull/23 (merged)
 
 **Delivered**
 
@@ -29,7 +29,7 @@
 
 **Verify**
 
-- `npm install && npm run build` — produces `dist/` with `base: /opengd77-map/`
+- `npm install && npm run build` — produces `dist/` with `base: /codeplug-tool/`
 - `npm run dev` — `/#/` shows home hub; `/#/map` shows placeholder
 - `npm run lint && npm run format:check && npm run test` — all pass
 - `BUILD_ENV=prod BUILD_VERSION=v1.2.3 npm run build` — footer shows `prod · 1.2.3`
@@ -40,7 +40,7 @@
 ## Ticket B — Mantine design system (#19)
 
 **Status:** Complete
-**PR:** https://github.com/pskillen/opengd77-map/pull/24 (merged)
+**PR:** https://github.com/pskillen/codeplug-tool/pull/24 (merged)
 
 **Delivered**
 
@@ -61,7 +61,7 @@
 ## Ticket C — port channel map; retire static tools (#20)
 
 **Status:** Complete (merged)
-**PR:** https://github.com/pskillen/opengd77-map/pull/25 (merged — `a2af07c`)
+**PR:** https://github.com/pskillen/codeplug-tool/pull/25 (merged — `a2af07c`)
 
 **Delivered**
 

@@ -129,7 +129,7 @@ Channel CSV content is **not** persisted — reload the file after a page refres
 ## Manual verify
 
 1. Copy `Channels.csv` from an OpenGD77 export into `sample-exports/`.
-2. Run `npm run dev` and open `http://localhost:5173/opengd77-map/#/map` (or the [live site](https://pskillen.github.io/opengd77-map/#/map)).
+2. Run `npm run dev` and open `http://localhost:5173/codeplug-tool/#/map` (or the [live site](https://pskillen.github.io/codeplug-tool/#/map)).
 3. Load `Channels.csv` via dropzone or file picker.
 4. Confirm markers appear for known repeaters; open popups for frequency/contact fields.
 5. Toggle **Skip 0,0** and **Use Location** — skipped list and marker count should update.
