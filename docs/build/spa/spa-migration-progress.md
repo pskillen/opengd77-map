@@ -7,9 +7,9 @@
 
 ## Overall status
 
-**Status:** Complete (Ticket C pending merge)
+**Status:** Complete — all three tickets merged to `main`
 
-**Branch:** `20/paddy/channel-map-port`
+**Merge:** Ticket C landed via PR #25 (`a2af07c`); `site/` and `tools/` removed
 
 ---
 
@@ -60,8 +60,8 @@
 
 ## Ticket C — port channel map; retire static tools (#20)
 
-**Status:** Complete (pending merge)
-**PR:** https://github.com/pskillen/opengd77-map/pull/25
+**Status:** Complete (merged)
+**PR:** https://github.com/pskillen/opengd77-map/pull/25 (merged — `a2af07c`)
 
 **Delivered**
 
@@ -71,6 +71,13 @@
 - `feat(channel-map): port channel map to react-leaflet component` — `514324f`
 - `feat(channel-map): wire channel map into /map route` — `de6ff96`
 - `feat(channel-map): retire legacy static tools and update docs` — `79d5822`
+
+**Post-port fixes (same PR)**
+
+- `fix(channel-map): avoid infinite tile load on degenerate fitBounds` — `5d358ba`
+- `fix(channel-map): load Leaflet CSS at app entry` — `916ace3`
+- `fix(channel-map): defer map mount until document layout is ready` — `0f3b3cb`
+- `docs(map): document browser extension console noise` — `957b3bd`
 
 **Verify**
 
@@ -85,5 +92,6 @@
 
 ## Next
 
-- Open PR for Ticket C (#20), merge to `main`
-- Publish a full GitHub release to deploy GitHub Pages with the channel map
+- Migration complete — tickets A (#18), B (#19), C (#20) all merged via PRs #23, #24, #25
+- Publish a full GitHub release to deploy GitHub Pages with the channel map (none cut yet)
+- Follow-up: code-split the channel map route to cut initial bundle size (#26)
