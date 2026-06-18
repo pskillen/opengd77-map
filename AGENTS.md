@@ -4,9 +4,13 @@ Instructions for AI agents working in this repository.
 
 ## What this repo is
 
-**Browser tools for OpenGD77 codeplug geography** — visualise CPS export data on a map so operators can plan channels, coordinates, and zones more easily than in the desktop CPS alone.
+**A browser-based companion for amateur radio codeplug design** — a modern layer on top of clunky, vendor-locked CPS (customer programming software). It does **not** write a radio's binary codeplug; it helps operators design a codeplug *layout* (channels, zones, talk groups, TG lists, contacts) and export it in a format the vendor CPS already speaks (usually CSV), to import and flash there.
 
-This repo is a **Vite + React + TypeScript SPA** at the repo root, deployed to **GitHub Pages** when a full GitHub release is published (not a pre-release) (see [`docs/build/README.md`](docs/build/README.md)).
+Core workflows: import an existing CPS CSV export, or start a blank project; edit/visualise; export back to a vendor format; and store the working state in a native **YAML** format. State persists in browser **LocalStorage** today (cloud storage — Dropbox / OneDrive / Google Drive — is planned). The aim is cross-vendor; **OpenGD77 is the first and currently only first-class target**, and the import/export layers are being built to be vendor-agnostic.
+
+What ships today is the **channel map**; the broader backlog (genericise import, native YAML, CPS export, persistence, CRUD, reports, cloud storage) is tracked as GitHub issues. See the [README](README.md) for the user-facing overview and roadmap.
+
+This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps) at the repo root, deployed to **GitHub Pages** when a full GitHub release is published (not a pre-release) (see [`docs/build/README.md`](docs/build/README.md)).
 
 ## Repository layout
 
@@ -28,20 +32,20 @@ This repo is a **Vite + React + TypeScript SPA** at the repo root, deployed to *
 
 ## OpenGD77 CSV inputs
 
-The channel map reads standard OpenGD77 CPS exports:
+OpenGD77 is the first-class CPS target. The channel map reads standard OpenGD77 CPS exports:
 
 - **`Channels.csv`** — `Channel Name`, `Channel Type`, `Latitude`, `Longitude`, `Use Location`, frequencies, DMR contact/TG list columns (matched by header name, not column index).
 - **`Zones.csv`** — `Zone Name`, `Channel1`…`Channel80` (member names must match `Channel Name` exactly).
 
-Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
+Treat vendor CSV as a lossy interchange format at the edges; the goal is to convert it into vendor-agnostic internal models, with native **YAML** as the lossless round-trip format. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
 
 ## Working principles
 
 1. **SPA at repo root** — React components under `src/`; Vite bundles for GitHub Pages (`base: '/opengd77-map/'`). HashRouter for subpath routing.
-2. **Parse by header name** — OpenGD77 CSV column order can vary; never hard-code column positions.
+2. **Parse by header name** — CPS CSV column order can vary; never hard-code column positions. Keep vendor specifics at the import/export edges, not in feature code.
 3. **Preserve CPS quirks** — channel names are case-sensitive foreign keys across files.
 4. **Minimize scope** — one feature per PR; match existing UI patterns in the SPA.
-5. **Privacy** — Mapbox tokens belong in browser `localStorage` only, never in the repo.
+5. **Privacy** — operator data and tokens (e.g. Mapbox, future cloud OAuth) belong in browser `localStorage` only, never in the repo.
 6. **Deploy** — merge to `main` for source; publish to GitHub Pages by publishing a full GitHub release (see `docs/build/README.md`).
 
 ## Git workflow
