@@ -61,7 +61,7 @@
 ## Ticket C — port channel map; retire static tools (#20)
 
 **Status:** Complete (pending merge)
-**PR:** _(open after push)_
+**PR:** https://github.com/pskillen/opengd77-map/pull/25
 
 **Delivered**
 
