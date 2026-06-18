@@ -11,9 +11,9 @@ description: >-
 
 ## Overview
 
-This repo is a **small monorepo**: static HTML/JS tools under `tools/`, no application bundler, deployed to **GitHub Pages** on **`v*` release tags**. One issue, one branch, one PR — no cross-repo coordination.
+This repo is a **small monorepo**: static HTML/JS tools under `tools/`, no application bundler, deployed to **GitHub Pages** when a **full GitHub release is published** (not a pre-release). One issue, one branch, one PR — no cross-repo coordination.
 
-Workflow: plan → issue (when non-trivial) → branch → commit → PR → merge to `main` → tag release to publish Pages.
+Workflow: plan → issue (when non-trivial) → branch → commit → PR → merge to `main` → publish a GitHub release to publish Pages.
 
 Use the **`user-github-personal`** MCP for issues and PRs. The `gh` CLI is not available on this machine.
 
@@ -141,4 +141,4 @@ When work is ready:
 | Pre-commit | Browser smoke-test; no secrets in diff |
 | Commit | Conventional commits; atomic; Shell `working_directory` = repo root |
 | PR | One PR in this repo; link issue; describe manual test steps |
-| Deploy | Merge to `main`, then push `v*` tag → GitHub Pages |
+| Deploy | Merge to `main`, then publish a full GitHub release (tag `v*`) → GitHub Pages |

@@ -2,7 +2,7 @@
 
 OpenGD77 CPS stores latitude and longitude on each channel and lists zone membership in a separate export, but the desktop CPS gives no geographic overview. The map tool loads those CSVs in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended when building a codeplug.
 
-Implementation lives under [`tools/channel-map/`](../../../tools/channel-map/) — `index.html` plus `channel-map.js`. No application bundler; GitHub Pages publishes on `v*` tags (see [build docs](../../build/README.md)). All parsing and rendering run client-side; CSV files never leave the machine.
+Implementation lives under [`tools/channel-map/`](../../../tools/channel-map/) — `index.html` plus `channel-map.js`. No application bundler; GitHub Pages publishes when a full GitHub release is published (see [build docs](../../build/README.md)). All parsing and rendering run client-side; CSV files never leave the machine.
 
 ## Implementation status
 
@@ -13,7 +13,7 @@ Implementation lives under [`tools/channel-map/`](../../../tools/channel-map/) �
 | Map tiles | Shipped | OpenStreetMap default; optional Mapbox streets / satellite |
 | Filters & sidebar stats | Shipped | Shared coordinate rules for markers and zone hulls |
 | Contacts / TG lists map layer | Deferred | Not geographic — out of scope for this tool |
-| GitHub Pages deploy | Shipped | Tag `v*` → `.github/workflows/pages.yml` |
+| GitHub Pages deploy | Shipped | Publish GitHub release → `.github/workflows/pages.yml` |
 
 ## Documentation map
 

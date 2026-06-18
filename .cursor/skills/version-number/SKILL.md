@@ -41,7 +41,7 @@ that changes.
 | Environment | `BUILD_ENV` | `BUILD_VERSION` |
 | --- | --- | --- |
 | local | `local` | `local` |
-| prod (GitHub Pages from `v*` tag) | `prod` | SemVer from release tag, e.g. `1.2.3` (strip leading `v`) |
+| prod (GitHub Pages from published release) | `prod` | SemVer from release tag, e.g. `1.2.3` (strip leading `v`) |
 
 **Display format:** muted footer text, e.g. `prod · 1.2.3` or `local · local`.
 
@@ -132,14 +132,14 @@ Do not make build info prominent — it is for debugging, not branding.
 
 ## 3. `pages.yml` injection
 
-Extend the **Prepare site** step. Set env vars from the tag ref, `sed` the
-shared JS file, then assemble `_site/`:
+Extend the **Prepare site** step. The workflow runs on `release: types: [released]`.
+Set env vars from the release tag, `sed` the shared JS file, then assemble `_site/`:
 
 ```yaml
 - name: Prepare site
   env:
     BUILD_ENV: prod
-    BUILD_VERSION: ${{ github.ref_name }}
+    BUILD_VERSION: ${{ github.event.release.tag_name }}
   run: |
     # Strip leading v from tag (v1.2.3 → 1.2.3)
     VERSION="${BUILD_VERSION#v}"
@@ -161,8 +161,9 @@ replacement (relevant if prerelease tags are added later, e.g. `v1.2.3-rc.4`).
 
 ### Tag source
 
-Workflow triggers on `push` of tags matching `v*`. `github.ref_name` is the tag
-(e.g. `v1.0.0`). Strip `v` for display.
+Workflow triggers on a published full GitHub release (not a pre-release).
+`github.event.release.tag_name` is the release tag (e.g. `v1.0.0`). Strip `v`
+for display.
 
 ---
 
@@ -182,8 +183,8 @@ No workflow or env vars needed for local work.
 
 ```mermaid
 flowchart LR
-  subgraph deploy [Tag push v*]
-    TAG[github.ref_name] --> WF[pages.yml Prepare site]
+  subgraph deploy [Release published]
+    TAG[github.event.release.tag_name] --> WF[pages.yml Prepare site]
     WF -->|sed replace| BI[site/build-info.js]
     WF --> ART[_site artifact]
   end

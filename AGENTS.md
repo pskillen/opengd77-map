@@ -6,7 +6,7 @@ Instructions for AI agents working in this repository.
 
 **Browser tools for OpenGD77 codeplug geography** — visualise CPS export data on a map so operators can plan channels, coordinates, and zones more easily than in the desktop CPS alone.
 
-This repo is intentionally small: static HTML/JS tools, no application bundler, no backend. Each tool loads OpenGD77 CSV exports in the browser. **GitHub Pages** publishes `site/` and `tools/` when a `v*` release tag is pushed (see [`docs/build/README.md`](docs/build/README.md)).
+This repo is intentionally small: static HTML/JS tools, no application bundler, no backend. Each tool loads OpenGD77 CSV exports in the browser. **GitHub Pages** publishes `site/` and `tools/` when a full GitHub release is published (not a pre-release) (see [`docs/build/README.md`](docs/build/README.md)).
 
 ## Repository layout
 
@@ -38,7 +38,7 @@ Do not commit operator codeplug exports unless the user explicitly asks. Use `sa
 3. **Preserve CPS quirks** — channel names are case-sensitive foreign keys across files.
 4. **Minimize scope** — one tool per directory under `tools/`; match existing UI patterns in the map tool.
 5. **Privacy** — Mapbox tokens belong in browser `localStorage` only, never in the repo.
-6. **Deploy** — merge to `main` for source; publish to GitHub Pages by pushing a `v*` tag (see `docs/build/README.md`).
+6. **Deploy** — merge to `main` for source; publish to GitHub Pages by publishing a full GitHub release (see `docs/build/README.md`).
 
 ## Git workflow
 
@@ -46,7 +46,7 @@ Follow [`.cursor/skills/git-workflow/SKILL.md`](.cursor/skills/git-workflow/SKIL
 
 - Prefer **atomic conventional commits** per logical change.
 - Branch + pull request for features; `main` holds releasable source.
-- **Publish:** push a `v*` release tag to deploy GitHub Pages (not every merge to `main`).
+- **Publish:** publish a full GitHub release (not a pre-release) to deploy GitHub Pages (not every merge to `main`).
 - Use **`user-github-personal`** MCP for issues and PRs (not `gh` CLI).
 - Do not commit `.env`, secrets, or personal `sample-exports/`.
 

@@ -6,7 +6,7 @@ OpenGD77 CPS exports include latitude/longitude on channels and zone membership 
 
 The primary goal is to help you **set up OpenGD77 codeplugs** — spot missing coordinates, see which repeaters sit near each other, and check whether zone boundaries match the geography you intend.
 
-**Live site:** [pskillen.github.io/opengd77-map](https://pskillen.github.io/opengd77-map/) (updated when a `v*` release tag is pushed).
+**Live site:** [pskillen.github.io/opengd77-map](https://pskillen.github.io/opengd77-map/) (updated when a full GitHub release is published).
 
 ## Development
 
