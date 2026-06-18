@@ -82,7 +82,11 @@ describe('dominantType', () => {
   });
 
   it('returns Analogue when digital is minority', () => {
-    const group = [ch({ name: 'A', type: 'Digital' }), ch({ name: 'B', type: 'Analogue' }), ch({ name: 'C', type: 'Analogue' })];
+    const group = [
+      ch({ name: 'A', type: 'Digital' }),
+      ch({ name: 'B', type: 'Analogue' }),
+      ch({ name: 'C', type: 'Analogue' }),
+    ];
     expect(dominantType(group)).toBe('Analogue');
   });
 });

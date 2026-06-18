@@ -85,8 +85,7 @@ function tileLayerConfig(
     if (!token) {
       return {
         url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
         maxZoom: 19,
       };
     }
@@ -186,13 +185,7 @@ function FitMapBounds({
   return null;
 }
 
-function Dropzone({
-  label,
-  onFile,
-}: {
-  label: React.ReactNode;
-  onFile: (file: File) => void;
-}) {
+function Dropzone({ label, onFile }: { label: React.ReactNode; onFile: (file: File) => void }) {
   const [dragover, setDragover] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -269,10 +262,7 @@ export default function ChannelMap() {
 
   const channelIndex = useMemo(() => buildChannelIndex(plotted), [plotted]);
 
-  const groups = useMemo(
-    () => groupByCoords(plotted, dedupeCoords),
-    [plotted, dedupeCoords],
-  );
+  const groups = useMemo(() => groupByCoords(plotted, dedupeCoords), [plotted, dedupeCoords]);
 
   const zoneHulls: ZoneHullData[] = useMemo(() => {
     if (!zones.length || !showZoneHulls || !channelIndex.size) return [];
@@ -422,7 +412,9 @@ export default function ChannelMap() {
         ) : null}
 
         {tileConfig.fallback ? (
-          <Alert color="yellow">Mapbox selected but no token set. Using OpenStreetMap instead.</Alert>
+          <Alert color="yellow">
+            Mapbox selected but no token set. Using OpenStreetMap instead.
+          </Alert>
         ) : null}
 
         <Dropzone
@@ -527,12 +519,7 @@ export default function ChannelMap() {
 
         {skipped.length > 0 ? (
           <>
-            <Text
-              size="sm"
-              c="dimmed"
-              style={{ cursor: 'pointer' }}
-              onClick={toggleSkipped}
-            >
+            <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }} onClick={toggleSkipped}>
               Skipped channels {skippedOpen ? '▾' : '▸'}
             </Text>
             <Collapse expanded={skippedOpen}>
@@ -542,9 +529,7 @@ export default function ChannelMap() {
                     {s.name} — {s.reason}
                   </li>
                 ))}
-                {skipped.length > 200 ? (
-                  <li>… and {skipped.length - 200} more</li>
-                ) : null}
+                {skipped.length > 200 ? <li>… and {skipped.length - 200} more</li> : null}
               </ul>
             </Collapse>
           </>
@@ -552,12 +537,7 @@ export default function ChannelMap() {
 
         {zones.length > 0 ? (
           <>
-            <Text
-              size="sm"
-              c="dimmed"
-              style={{ cursor: 'pointer' }}
-              onClick={toggleZones}
-            >
+            <Text size="sm" c="dimmed" style={{ cursor: 'pointer' }} onClick={toggleZones}>
               Zones {zonesOpen ? '▾' : '▸'}
             </Text>
             <Collapse expanded={zonesOpen}>
