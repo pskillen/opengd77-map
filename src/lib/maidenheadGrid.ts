@@ -1,6 +1,9 @@
 import { coordsToLocator } from './maidenhead.ts';
 
-export type MaidenheadGridMode = 'off' | '4' | '6';
+/** User setting: maximum locator precision to allow (progressive by zoom). */
+export type MaidenheadGridMode = 'off' | '4' | '6' | '8';
+
+export type GridPrecision = 4 | 6 | 8;
 
 export interface MapBounds {
   south: number;
@@ -11,31 +14,55 @@ export interface MapBounds {
 
 export interface GridLine {
   positions: [number, number][];
-  level: '4' | '6';
+  level: GridPrecision;
 }
 
 export interface GridLabel {
   position: [number, number];
   text: string;
-  level: '4' | '6';
+  level: GridPrecision;
 }
 
 const LON_STEP_4 = 2;
 const LAT_STEP_4 = 1;
 const LON_STEP_6 = 2 / 24;
 const LAT_STEP_6 = 1 / 24;
+const LON_STEP_8 = 2 / 240;
+const LAT_STEP_8 = 1 / 240;
 const ORIGIN_LON = -180;
 const ORIGIN_LAT = -90;
 
 const DEFAULT_BUFFER_DEG = 0.5;
 
-/** Fine 6-char lines and labels only render at this Leaflet zoom or above. */
-export const MIN_ZOOM_FOR_6_DETAIL = 9;
+/** Finest 6-char lines/labels appear at this Leaflet zoom or above (when max ≥ 6). */
+export const MIN_ZOOM_FOR_6_DETAIL = 8;
 
-function show6CharDetail(mode: MaidenheadGridMode, zoom: number | undefined): boolean {
-  if (mode !== '6') return false;
-  if (zoom == null) return true;
-  return zoom >= MIN_ZOOM_FOR_6_DETAIL;
+/** Finest 8-char lines/labels appear at this Leaflet zoom or above (when max = 8). */
+export const MIN_ZOOM_FOR_8_DETAIL = 12;
+
+const LEVEL_STEPS: Record<GridPrecision, { lon: number; lat: number }> = {
+  4: { lon: LON_STEP_4, lat: LAT_STEP_4 },
+  6: { lon: LON_STEP_6, lat: LAT_STEP_6 },
+  8: { lon: LON_STEP_8, lat: LAT_STEP_8 },
+};
+
+function maxPrecision(mode: MaidenheadGridMode): GridPrecision | null {
+  if (mode === 'off') return null;
+  return Number(mode) as GridPrecision;
+}
+
+/** Finest grid precision to render for the current max setting and zoom. */
+export function activeGridDetail(
+  maxMode: MaidenheadGridMode,
+  zoom: number | undefined,
+): GridPrecision | null {
+  const max = maxPrecision(maxMode);
+  if (max == null) return null;
+  if (zoom == null) return max;
+
+  if (max >= 8 && zoom >= MIN_ZOOM_FOR_8_DETAIL) return 8;
+  if (max >= 6 && zoom >= MIN_ZOOM_FOR_6_DETAIL) return 6;
+  return 4;
 }
 
 function padBounds(bounds: MapBounds, bufferDeg: number): MapBounds {
@@ -74,7 +101,7 @@ function horizontalLine(lat: number, bounds: MapBounds): GridLine['positions'] {
 function addLevelLines(
   lines: GridLine[],
   bounds: MapBounds,
-  level: '4' | '6',
+  level: GridPrecision,
   lonStep: number,
   latStep: number,
 ): void {
@@ -88,20 +115,20 @@ function addLevelLines(
 
 export function computeGridLines(
   bounds: MapBounds,
-  mode: MaidenheadGridMode,
+  maxMode: MaidenheadGridMode,
   bufferDeg = DEFAULT_BUFFER_DEG,
   zoom?: number,
 ): GridLine[] {
-  if (mode === 'off') return [];
+  const active = activeGridDetail(maxMode, zoom);
+  if (active == null) return [];
 
   const padded = padBounds(bounds, bufferDeg);
   const lines: GridLine[] = [];
 
-  if (mode === '4' || mode === '6') {
-    addLevelLines(lines, padded, '4', LON_STEP_4, LAT_STEP_4);
-  }
-  if (show6CharDetail(mode, zoom)) {
-    addLevelLines(lines, padded, '6', LON_STEP_6, LAT_STEP_6);
+  for (const level of [4, 6, 8] as const) {
+    if (level > active) break;
+    const { lon, lat } = LEVEL_STEPS[level];
+    addLevelLines(lines, padded, level, lon, lat);
   }
 
   return lines;
@@ -136,34 +163,24 @@ function forEachCellCentre(
 
 export function computeGridLabels(
   bounds: MapBounds,
-  mode: MaidenheadGridMode,
+  maxMode: MaidenheadGridMode,
   bufferDeg = DEFAULT_BUFFER_DEG,
   zoom?: number,
 ): GridLabel[] {
-  if (mode === 'off') return [];
+  const active = activeGridDetail(maxMode, zoom);
+  if (active == null) return [];
 
   const padded = padBounds(bounds, bufferDeg);
   const labels: GridLabel[] = [];
+  const { lon, lat } = LEVEL_STEPS[active];
 
-  if (mode === '4') {
-    forEachCellCentre(padded, LON_STEP_4, LAT_STEP_4, (lat, lon) => {
-      labels.push({
-        position: [lat, lon],
-        text: coordsToLocator(lat, lon, 4),
-        level: '4',
-      });
+  forEachCellCentre(padded, lon, lat, (centreLat, centreLon) => {
+    labels.push({
+      position: [centreLat, centreLon],
+      text: coordsToLocator(centreLat, centreLon, active),
+      level: active,
     });
-  }
-
-  if (show6CharDetail(mode, zoom)) {
-    forEachCellCentre(padded, LON_STEP_6, LAT_STEP_6, (lat, lon) => {
-      labels.push({
-        position: [lat, lon],
-        text: coordsToLocator(lat, lon, 6),
-        level: '6',
-      });
-    });
-  }
+  });
 
   return labels;
 }

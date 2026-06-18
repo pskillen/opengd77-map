@@ -8,8 +8,9 @@ import {
 } from '../../lib/maidenheadGrid.ts';
 
 const LINE_STYLE = {
-  '4': { color: '#666', weight: 1.5, opacity: 0.35 },
-  '6': { color: '#888', weight: 1, opacity: 0.2 },
+  4: { color: '#666', weight: 1.5, opacity: 0.35 },
+  6: { color: '#888', weight: 1, opacity: 0.2 },
+  8: { color: '#999', weight: 0.75, opacity: 0.15 },
 } as const;
 
 function boundsFromLeaflet(bounds: L.LatLngBounds) {

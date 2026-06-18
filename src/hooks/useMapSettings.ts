@@ -10,7 +10,7 @@ import {
 
 function readMaidenheadGridMode(): MaidenheadGridMode {
   const saved = localStorage.getItem(STORAGE_KEY_MAIDENHEAD_GRID);
-  return saved === '4' || saved === '6' ? saved : 'off';
+  return saved === '4' || saved === '6' || saved === '8' ? saved : 'off';
 }
 
 export function useMapSettings() {

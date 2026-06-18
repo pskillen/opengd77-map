@@ -68,11 +68,12 @@ export default function Settings() {
           <Title order={3}>Maidenhead grid</Title>
           <Select
             label="Grid overlay"
-            description="Draw Maidenhead locator grid lines and labels on codeplug maps."
+            description="Maximum Maidenhead resolution. Finer grid detail appears as you zoom in."
             data={[
               { value: 'off', label: 'Off (default)' },
-              { value: '4', label: '4-character grid (~2° × 1°, e.g. IO85)' },
-              { value: '6', label: '6-character grid (~5 km, e.g. IO85mm)' },
+              { value: '4', label: 'Up to 4 characters (~2° × 1°, e.g. IO85)' },
+              { value: '6', label: 'Up to 6 characters (~5 km, e.g. IO85mm)' },
+              { value: '8', label: 'Up to 8 characters (~500 m, e.g. IO85mm12)' },
             ]}
             value={maidenheadGrid}
             onChange={(value) => {

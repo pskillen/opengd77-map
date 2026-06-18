@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { coordsToLocator } from './maidenhead.ts';
-import { computeGridLabels, computeGridLines } from './maidenheadGrid.ts';
+import {
+  activeGridDetail,
+  computeGridLabels,
+  computeGridLines,
+  MIN_ZOOM_FOR_6_DETAIL,
+  MIN_ZOOM_FOR_8_DETAIL,
+} from './maidenheadGrid.ts';
 
 /** Glasgow area viewport. */
 const glasgowBounds = {
@@ -19,49 +25,51 @@ describe('maidenheadGrid', () => {
   it('draws 4-char grid lines at 2° / 1° spacing', () => {
     const lines = computeGridLines(glasgowBounds, '4', 0);
     const lons = lines.flatMap((l) => l.positions.map((p) => p[1]));
-    expect(lines.some((l) => l.level === '4')).toBe(true);
-    expect(lines.every((l) => l.level === '4')).toBe(true);
+    expect(lines.some((l) => l.level === 4)).toBe(true);
+    expect(lines.every((l) => l.level === 4)).toBe(true);
     expect(lons.some((lon) => Math.abs(lon - -6) < 0.001)).toBe(true);
     expect(lons.some((lon) => Math.abs(lon - -4) < 0.001)).toBe(true);
   });
 
-  it('adds 6-char fine lines in mode 6', () => {
-    const lines = computeGridLines(glasgowBounds, '6', 0);
-    expect(lines.some((l) => l.level === '4')).toBe(true);
-    expect(lines.some((l) => l.level === '6')).toBe(true);
-    expect(lines.filter((l) => l.level === '6').length).toBeGreaterThan(
-      lines.filter((l) => l.level === '4').length,
-    );
+  it('activeGridDetail respects max setting and zoom thresholds', () => {
+    expect(activeGridDetail('4', 6)).toBe(4);
+    expect(activeGridDetail('6', 6)).toBe(4);
+    expect(activeGridDetail('6', MIN_ZOOM_FOR_6_DETAIL)).toBe(6);
+    expect(activeGridDetail('8', 6)).toBe(4);
+    expect(activeGridDetail('8', MIN_ZOOM_FOR_6_DETAIL)).toBe(6);
+    expect(activeGridDetail('8', MIN_ZOOM_FOR_8_DETAIL)).toBe(8);
   });
 
-  it('defers 6-char lines and labels until zoom threshold', () => {
-    const linesLow = computeGridLines(glasgowBounds, '6', 0, 8);
-    const labelsLow = computeGridLabels(glasgowBounds, '6', 0, 8);
-    expect(linesLow.every((l) => l.level === '4')).toBe(true);
-    expect(labelsLow).toEqual([]);
+  it('adds finer lines progressively up to max resolution', () => {
+    const low = computeGridLines(glasgowBounds, '8', 0, 6);
+    expect(low.every((l) => l.level === 4)).toBe(true);
 
-    const linesHigh = computeGridLines(glasgowBounds, '6', 0, 10);
-    const labelsHigh = computeGridLabels(glasgowBounds, '6', 0, 10);
-    expect(linesHigh.some((l) => l.level === '6')).toBe(true);
-    expect(labelsHigh.length).toBeGreaterThan(0);
+    const mid = computeGridLines(glasgowBounds, '8', 0, MIN_ZOOM_FOR_6_DETAIL);
+    expect(mid.some((l) => l.level === 4)).toBe(true);
+    expect(mid.some((l) => l.level === 6)).toBe(true);
+    expect(mid.every((l) => l.level <= 6)).toBe(true);
+
+    const high = computeGridLines(glasgowBounds, '8', 0, MIN_ZOOM_FOR_8_DETAIL);
+    expect(high.some((l) => l.level === 8)).toBe(true);
   });
 
-  it('labels 4-char cells with IO85-style locators', () => {
-    const labels = computeGridLabels(glasgowBounds, '4', 0);
+  it('labels only the active precision level', () => {
+    const low = computeGridLabels(glasgowBounds, '8', 0, 6);
+    expect(low.every((l) => l.text.length === 4)).toBe(true);
+
+    const mid = computeGridLabels(glasgowBounds, '8', 0, MIN_ZOOM_FOR_6_DETAIL);
+    expect(mid.every((l) => l.text.length === 6)).toBe(true);
+
+    const high = computeGridLabels(glasgowBounds, '8', 0, MIN_ZOOM_FOR_8_DETAIL);
+    expect(high.every((l) => l.text.length === 8)).toBe(true);
+  });
+
+  it('labels match coordsToLocator at active precision', () => {
+    const labels = computeGridLabels(glasgowBounds, '4', 0, 6);
     expect(labels.length).toBeGreaterThan(0);
-    expect(labels.every((l) => l.text.length === 4)).toBe(true);
     expect(labels.some((l) => l.text.startsWith('IO'))).toBe(true);
     for (const label of labels) {
       expect(label.text).toBe(coordsToLocator(label.position[0], label.position[1], 4));
-    }
-  });
-
-  it('labels 6-char fine cells in mode 6', () => {
-    const labels = computeGridLabels(glasgowBounds, '6', 0, 10);
-    expect(labels.length).toBeGreaterThan(0);
-    expect(labels.every((l) => l.text.length === 6)).toBe(true);
-    for (const label of labels) {
-      expect(label.text).toBe(coordsToLocator(label.position[0], label.position[1], 6));
     }
   });
 
