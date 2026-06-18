@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { resetIdGenerator, setIdGenerator } from '../../../models/codeplug.ts';
-import { CHANNEL_HEADERS } from './columns.ts';
-import { parseChannels, parseZones } from './parse.ts';
+import { CHANNEL_HEADERS, CONTACT_HEADERS, RX_GROUP_LIST_HEADERS } from './columns.ts';
+import { parseChannels, parseContacts, parseRxGroupLists, parseZones } from './parse.ts';
 
 describe('parseChannels', () => {
   beforeEach(() => {
@@ -111,5 +111,62 @@ Test,MixedCase Name`;
 Valid,CH1
 ,,`;
     expect(parseZones(csv)).toHaveLength(1);
+  });
+});
+
+describe('parseContacts', () => {
+  beforeEach(() => {
+    let n = 0;
+    setIdGenerator(() => `c-${++n}`);
+  });
+
+  afterEach(() => {
+    resetIdGenerator();
+  });
+
+  const header = CONTACT_HEADERS.join(',');
+
+  it('splits Group rows to talkGroups and Private to contacts', () => {
+    const csv = `${header}
+Local 9,9,Group,Disabled
+Parrot 9990,9990,Private,Disabled
+Scotland TS1,2355,Group,1`;
+
+    const { contacts, talkGroups } = parseContacts(csv);
+    expect(talkGroups).toHaveLength(2);
+    expect(contacts).toHaveLength(1);
+    expect(talkGroups[0]).toMatchObject({
+      id: 'c-1',
+      name: 'Local 9',
+      number: '9',
+      timeslotOverride: 'Disabled',
+    });
+    expect(contacts[0]).toMatchObject({
+      id: 'c-2',
+      name: 'Parrot 9990',
+      number: '9990',
+    });
+  });
+
+  it('throws when required column is missing', () => {
+    expect(() => parseContacts('Contact Name,ID\nFoo,1')).toThrow('Missing column "ID Type"');
+  });
+});
+
+describe('parseRxGroupLists', () => {
+  it('extracts list members as sourceMemberNames', () => {
+    const csv = `${RX_GROUP_LIST_HEADERS.join(',')}
+Scotland,Scotland TS1,Scotland TS2,,`;
+
+    const lists = parseRxGroupLists(csv);
+    expect(lists).toHaveLength(1);
+    expect(lists[0]).toEqual({
+      name: 'Scotland',
+      sourceMemberNames: ['Scotland TS1', 'Scotland TS2'],
+    });
+  });
+
+  it('throws when TG List Name column is missing', () => {
+    expect(() => parseRxGroupLists('Name,Contact1\nFoo,Bar')).toThrow('Missing column "TG List Name"');
   });
 });

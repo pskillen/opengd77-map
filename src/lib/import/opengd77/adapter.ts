@@ -1,13 +1,22 @@
-import { parseChannels, parseZones } from './parse.ts';
+import { parseChannels, parseContacts, parseRxGroupLists, parseZones } from './parse.ts';
 
-export type OpenGd77FileKind = 'channels' | 'zones' | 'unknown';
+export type OpenGd77FileKind =
+  | 'channels'
+  | 'zones'
+  | 'contacts'
+  | 'rxGroupLists'
+  | 'unknown';
 
 export function detectKind(fileName: string, headerRow: string[]): OpenGd77FileKind {
   const lower = fileName.toLowerCase();
   if (lower.includes('channel')) return 'channels';
   if (lower.includes('zone')) return 'zones';
+  if (lower.includes('tg_list') || lower.includes('tg list')) return 'rxGroupLists';
+  if (lower.includes('contact') && !lower.includes('dtmf')) return 'contacts';
 
   const headers = headerRow.map((h) => h.trim());
+  if (headers.includes('TG List Name')) return 'rxGroupLists';
+  if (headers.includes('Contact Name') && headers.includes('ID Type')) return 'contacts';
   if (headers.includes('Channel Name') && headers.includes('Latitude')) return 'channels';
   if (headers.includes('Zone Name')) return 'zones';
   return 'unknown';
@@ -19,4 +28,6 @@ export const opengd77Adapter = {
   detectKind,
   parseChannels,
   parseZones,
+  parseContacts,
+  parseRxGroupLists,
 };

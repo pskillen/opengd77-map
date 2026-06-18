@@ -1,4 +1,4 @@
-import type { Channel } from '../../models/codeplug.ts';
+import type { Channel, Contact, TalkGroup } from '../../models/codeplug.ts';
 
 export interface ImportMessage {
   fileName: string;
@@ -11,9 +11,18 @@ export interface ParsedZone {
   memberNames: string[];
 }
 
+/** Adapter output — RX group list with vendor wire member names. */
+export interface ParsedRxGroupList {
+  name: string;
+  sourceMemberNames: string[];
+}
+
 export interface ImportResult {
   channels?: Channel[];
   zones?: ParsedZone[];
+  contacts?: Contact[];
+  talkGroups?: TalkGroup[];
+  rxGroupLists?: ParsedRxGroupList[];
   recognised: string[];
   skipped: ImportMessage[];
   errors: ImportMessage[];

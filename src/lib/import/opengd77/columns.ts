@@ -84,3 +84,30 @@ export function wireVoxEnabled(enabled: boolean): string {
 export function wireYesNo(value: boolean): string {
   return value ? 'Yes' : 'No';
 }
+
+export const CONTACT_COL = {
+  name: 'Contact Name',
+  id: 'ID',
+  idType: 'ID Type',
+  tsOverride: 'TS Override',
+} as const;
+
+export const CONTACT_HEADERS = [
+  CONTACT_COL.name,
+  CONTACT_COL.id,
+  CONTACT_COL.idType,
+  CONTACT_COL.tsOverride,
+];
+
+export const RX_GROUP_LIST_COL = {
+  name: 'TG List Name',
+} as const;
+
+export function rxGroupListMemberHeaders(count = 32): string[] {
+  return Array.from({ length: count }, (_, i) => `Contact${i + 1}`);
+}
+
+export const RX_GROUP_LIST_HEADERS = [
+  RX_GROUP_LIST_COL.name,
+  ...rxGroupListMemberHeaders(),
+];
