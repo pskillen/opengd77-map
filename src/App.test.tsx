@@ -30,6 +30,7 @@ vi.mock('react-leaflet', () => ({
       return container;
     },
   }),
+  useMapEvents: () => null,
 }));
 
 function renderApp(initialRoute = '/') {
@@ -89,6 +90,17 @@ describe('App', () => {
 
     expect(screen.getByRole('heading', { name: 'Reference' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Band plan/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Maidenhead converter/ })).toBeInTheDocument();
+  });
+
+  it('renders the maidenhead converter on /reference/maidenhead', () => {
+    seedActiveProject();
+
+    renderApp('/reference/maidenhead');
+
+    expect(screen.getByRole('heading', { name: 'Maidenhead converter' })).toBeInTheDocument();
+    expect(screen.getByLabelText('Maidenhead locator')).toBeInTheDocument();
+    expect(screen.getByLabelText('Address or postcode')).toBeInTheDocument();
   });
 
   it('renders the band plan page on /reference/band-plan', () => {

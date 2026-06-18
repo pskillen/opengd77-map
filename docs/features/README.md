@@ -19,7 +19,7 @@ Agent skills for documentation and execution tracking:
 | Map | `src/components/CodeplugMap/` | [map/](map/) | Shipped |
 | Report | `src/routes/`, `src/components/report/` | [report/](report/) | Shipped ([#6](https://github.com/pskillen/codeplug-tool/issues/6)) |
 | CRUD | `src/routes/channels/`, `src/routes/zones/`, `src/lib/codeplugMutations.ts` | [crud/](crud/) | In progress ([#11](https://github.com/pskillen/codeplug-tool/issues/11), [#12](https://github.com/pskillen/codeplug-tool/issues/12)) |
-| Maidenhead | `src/lib/maidenhead.ts` | [maidenhead.md](maidenhead.md) | Planned ([#11](https://github.com/pskillen/codeplug-tool/issues/11)) |
+| Maidenhead | `src/lib/maidenhead.ts`, `src/routes/reference/maidenhead.tsx` | [maidenhead.md](maidenhead.md) | Shipped ([#11](https://github.com/pskillen/codeplug-tool/issues/11) CRUD, [#47](https://github.com/pskillen/codeplug-tool/issues/47) converter) |
 | Reference | `src/routes/reference/` | [reference/bands.md](../reference/bands.md) | Shipped ([#44](https://github.com/pskillen/codeplug-tool/issues/44)) |
 
 ## Reference

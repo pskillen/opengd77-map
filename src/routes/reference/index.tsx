@@ -15,6 +15,12 @@ export default function ReferenceIndex() {
           label="Band plan"
           description="UK amateur band allocations, MHz ranges, and pill colours"
         />
+        <NavLink
+          component={Link}
+          to="/reference/maidenhead"
+          label="Maidenhead converter"
+          description="Convert between grid locators and WGS84 coordinates"
+        />
       </Stack>
     </ReportPage>
   );

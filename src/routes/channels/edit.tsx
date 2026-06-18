@@ -162,6 +162,29 @@ export default function ChannelEdit() {
   );
   const [formError, setFormError] = useState<string | null>(null);
 
+  const mapPreviewChannels = useMemo((): Channel[] => {
+    const lat = parseFloat(values.lat);
+    const lon = parseFloat(values.lon);
+    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return [];
+
+    return [
+      {
+        ...channelFieldDefaults(),
+        id: existing?.id ?? '__preview__',
+        name: values.name.trim() || 'New channel',
+        callsign: existing?.callsign ?? '',
+        mode: values.mode,
+        number: values.number,
+        rxFrequency: values.rxFrequency,
+        txFrequency: values.txFrequency,
+        location: { lat, lon },
+        useLocation: true,
+        hideFromMap: false,
+        vendorExtras: {},
+      },
+    ];
+  }, [values.lat, values.lon, values.name, values.mode, values.number, values.rxFrequency, values.txFrequency, existing]);
+
   if (!isNew && !existing) {
     return (
       <ReportPage title="Edit channel">
@@ -228,29 +251,6 @@ export default function ChannelEdit() {
       useLocation: false,
     }));
   };
-
-  const mapPreviewChannels = useMemo((): Channel[] => {
-    const lat = parseFloat(values.lat);
-    const lon = parseFloat(values.lon);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return [];
-
-    return [
-      {
-        ...channelFieldDefaults(),
-        id: existing?.id ?? '__preview__',
-        name: values.name.trim() || 'New channel',
-        callsign: existing?.callsign ?? '',
-        mode: values.mode,
-        number: values.number,
-        rxFrequency: values.rxFrequency,
-        txFrequency: values.txFrequency,
-        location: { lat, lon },
-        useLocation: true,
-        hideFromMap: false,
-        vendorExtras: {},
-      },
-    ];
-  }, [values.lat, values.lon, values.name, values.mode, values.number, values.rxFrequency, values.txFrequency, existing]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();

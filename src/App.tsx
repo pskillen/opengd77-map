@@ -21,6 +21,7 @@ import RxGroupListDetail from './routes/RxGroupListDetail.tsx';
 import Settings from './routes/Settings.tsx';
 import ReferenceIndex from './routes/reference/index.tsx';
 import BandPlan from './routes/reference/band-plan.tsx';
+import MaidenheadConverter from './routes/reference/maidenhead.tsx';
 import { useProjects } from './state/codeplugStore.tsx';
 
 function navActive(pathname: string, path: string): boolean {
@@ -121,6 +122,7 @@ export default function App() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/reference" element={<ReferenceIndex />} />
           <Route path="/reference/band-plan" element={<BandPlan />} />
+          <Route path="/reference/maidenhead" element={<MaidenheadConverter />} />
           <Route path="/export" element={<Export />} />
           <Route path="/map" element={<Navigate to="/channels" replace />} />
         </Routes>
