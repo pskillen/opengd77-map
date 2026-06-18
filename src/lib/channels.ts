@@ -57,6 +57,7 @@ export function applyFilters(
     else if (skipZero && ch.location.lat === 0 && ch.location.lon === 0)
       reason = '0,0 coordinates';
     else if (requireUseLocation && !ch.useLocation) reason = 'Use Location = No';
+    else if (ch.hideFromMap) reason = 'hidden from map';
     if (reason) {
       skipped.push({ name: ch.name, reason });
       continue;

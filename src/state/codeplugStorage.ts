@@ -36,6 +36,7 @@ function migrateChannel(raw: Partial<Channel>): Channel {
     mode: raw.mode ?? 'other',
     ...defaults,
     ...raw,
+    hideFromMap: raw.hideFromMap ?? false,
     vendorExtras: raw.vendorExtras ?? {},
   };
 }
