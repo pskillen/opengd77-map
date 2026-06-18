@@ -6,6 +6,7 @@ import {
   channelMatchesBandFilter,
   formatOffsetMhz,
   frequencyOffsetMhz,
+  UK_BANDS,
 } from './bands.ts';
 
 describe('bands', () => {
@@ -32,5 +33,11 @@ describe('bands', () => {
     expect(channelMatchesBandFilter('145.775', '433.612', ['70cm'])).toBe(true);
     expect(channelMatchesBandFilter('145.775', '433.612', ['2m'])).toBe(true);
     expect(channelMatchesBandFilter('145.775', '433.612', ['6m'])).toBe(false);
+  });
+
+  it('exposes notes for reference display', () => {
+    expect(UK_BANDS).toHaveLength(23);
+    expect(UK_BANDS.find((b) => b.id === '136khz')?.notes).toBe('Full only');
+    expect(UK_BANDS.find((b) => b.id === '160m')?.notes).toBeUndefined();
   });
 });

@@ -1,6 +1,6 @@
 # UK amateur radio bands
 
-Canonical reference for band labels, licence allocation MHz ranges, and UI pill colours. Implementation in `src/lib/bands.ts` must match this table.
+Canonical reference for band labels, licence allocation MHz ranges, and UI pill colours. Implementation in `src/lib/bands.ts` must match this table. In-app band plan: `/#/reference/band-plan`.
 
 **Source:** [RSGB Band Plan (effective 1 Jan 2024)](https://rsgb.services/public/bandplans/docs/240205_rsgb_band_plan_2024.pdf) — Ofcom **licence allocation** ranges, not RSGB sub-band usage segments.
 

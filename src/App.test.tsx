@@ -44,6 +44,14 @@ function renderApp(initialRoute = '/') {
   );
 }
 
+function seedActiveProject() {
+  const project = newProject('Test repeaters');
+  localStorage.setItem(
+    CODEPLUG_STORAGE_KEY,
+    serializeProjects({ activeProjectId: project.id, projects: [project] }),
+  );
+}
+
 describe('App', () => {
   it('renders the home heading and import section', () => {
     renderApp('/');
@@ -52,11 +60,7 @@ describe('App', () => {
   });
 
   it('renders the summary page on /summary', () => {
-    const project = newProject('Test repeaters');
-    localStorage.setItem(
-      CODEPLUG_STORAGE_KEY,
-      serializeProjects({ activeProjectId: project.id, projects: [project] }),
-    );
+    seedActiveProject();
 
     renderApp('/summary');
 
@@ -66,11 +70,7 @@ describe('App', () => {
   });
 
   it('shows app nav with active codeplug when a project is active', () => {
-    const project = newProject('Test repeaters');
-    localStorage.setItem(
-      CODEPLUG_STORAGE_KEY,
-      serializeProjects({ activeProjectId: project.id, projects: [project] }),
-    );
+    seedActiveProject();
 
     renderApp('/summary');
 
@@ -79,14 +79,32 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Summary' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Channels' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Reference' })).toBeInTheDocument();
+  });
+
+  it('renders the reference index on /reference', () => {
+    seedActiveProject();
+
+    renderApp('/reference');
+
+    expect(screen.getByRole('heading', { name: 'Reference' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Band plan/ })).toBeInTheDocument();
+  });
+
+  it('renders the band plan page on /reference/band-plan', () => {
+    seedActiveProject();
+
+    renderApp('/reference/band-plan');
+
+    expect(screen.getByRole('heading', { name: 'Band plan' })).toBeInTheDocument();
+    expect(screen.getByText('2 m')).toBeInTheDocument();
+    expect(
+      screen.getByText(/For programming convenience only\. Not authoritative for on-air operation/),
+    ).toBeInTheDocument();
   });
 
   it('redirects /map to /channels', () => {
-    const project = newProject('Test repeaters');
-    localStorage.setItem(
-      CODEPLUG_STORAGE_KEY,
-      serializeProjects({ activeProjectId: project.id, projects: [project] }),
-    );
+    seedActiveProject();
 
     renderApp('/map');
 

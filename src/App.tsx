@@ -19,6 +19,8 @@ import ContactDetail from './routes/ContactDetail.tsx';
 import RxGroupListsList from './routes/RxGroupListsList.tsx';
 import RxGroupListDetail from './routes/RxGroupListDetail.tsx';
 import Settings from './routes/Settings.tsx';
+import ReferenceIndex from './routes/reference/index.tsx';
+import BandPlan from './routes/reference/band-plan.tsx';
 import { useProjects } from './state/codeplugStore.tsx';
 
 function navActive(pathname: string, path: string): boolean {
@@ -82,6 +84,13 @@ export default function App() {
             <div style={{ flex: 1 }} />
             <NavLink
               component={Link}
+              to="/reference"
+              label="Reference"
+              active={navActive(location.pathname, '/reference')}
+              onClick={close}
+            />
+            <NavLink
+              component={Link}
               to="/settings"
               label="Settings"
               active={navActive(location.pathname, '/settings')}
@@ -110,6 +119,8 @@ export default function App() {
           <Route path="/rx-group-lists" element={<RxGroupListsList />} />
           <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/reference" element={<ReferenceIndex />} />
+          <Route path="/reference/band-plan" element={<BandPlan />} />
           <Route path="/export" element={<Export />} />
           <Route path="/map" element={<Navigate to="/channels" replace />} />
         </Routes>
