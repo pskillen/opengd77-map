@@ -1,5 +1,8 @@
 import { parseChannels, parseContacts, parseRxGroupLists, parseZones } from './parse.ts';
 
+/** OpenGD77 import adapter — behaviour in docs/features/import/opengd77.md;
+ *  wire format in docs/reference/opengd77/. */
+
 export type OpenGd77FileKind =
   | 'channels'
   | 'zones'

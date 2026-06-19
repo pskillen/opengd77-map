@@ -1,6 +1,9 @@
 import type { Codeplug } from '../../../models/codeplug.ts';
 import { mapModeToOpenGd77ChannelType } from '../../channelModes.ts';
 import { formatCsv } from '../csvWrite.ts';
+
+/** OpenGD77 CSV serialisers — wire format in docs/reference/opengd77/;
+ *  1701 profile limits in docs/reference/opengd77/radios/baofeng-1701.md. */
 import {
   CHANNEL_COL,
   CHANNEL_HEADERS,

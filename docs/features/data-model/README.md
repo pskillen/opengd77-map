@@ -22,12 +22,15 @@ erDiagram
 
 At the **vendor boundary**, `Channel.contactName` and `Channel.rxGroupListName` reference Contacts.csv / TG_Lists.csv **by name** (not internal id). `RxGroupList.sourceMemberNames` lists member names from Contacts.csv (group talk groups and/or private contacts).
 
+Wire-format column detail: [OpenGD77 reference](../../reference/opengd77/README.md). Radio-specific limits (zone member caps, feature availability) live in [radio profiles](../../reference/opengd77/radios/README.md) and apply at export time — not in the internal model.
+
 **Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **3**
 
 ## Design principles
 
 | Principle | Detail |
 | --- | --- |
+| **Radio-agnostic models** | Channels, zones, contacts, etc. have no radio hardware fields. Target radio constraints are applied at export (see [radio profiles](../../reference/opengd77/radios/README.md)). |
 | **Stable internal ids** | Every entity has `id: string` (`crypto.randomUUID()` via `newId()`). Zone→channel uses resolved ids. |
 | **Vendor names are display fields** | `Channel.name`, `Zone.name`, etc. are preserved for UI and export round-trip but are **not** internal foreign keys (except name-based wire fields below). |
 | **Name matching at import only** | Zone members resolve channel **names** → ids via `resolveZoneMembers`. RX group list members stay as `sourceMemberNames` for export. |
@@ -123,6 +126,8 @@ flowchart LR
 
 ## Related
 
+- [OpenGD77 wire reference](../../reference/opengd77/README.md)
+- [OpenGD77 radio profiles](../../reference/opengd77/radios/README.md)
 - [Import (ETL)](../import/README.md)
 - [Export](../export/README.md)
 - [Map — channels](../map/channels.md)

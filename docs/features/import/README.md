@@ -25,7 +25,7 @@ Import was hard-wired to OpenGD77 CSV inside the channel map. This refactor intr
 | Doc | Contents |
 | --- | --- |
 | [data-model/README.md](../data-model/README.md) | Entity definitions (canonical) |
-| [opengd77.md](opengd77.md) | OpenGD77 CSV columns, classification, skip/error behaviour |
+| [opengd77.md](opengd77.md) | OpenGD77 adapter behaviour; columns in [reference/opengd77/](../../reference/opengd77/README.md) |
 | [opengd77-progress.md](opengd77-progress.md) | #38 execution log |
 | [opengd77-outstanding.md](opengd77-outstanding.md) | #38 discovered debt |
 | [export/README.md](../export/README.md) | CPS export |

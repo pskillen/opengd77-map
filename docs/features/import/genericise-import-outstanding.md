@@ -12,7 +12,7 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not fu
 
 ## Import
 
-- [ ] Parse Contacts.csv, TG lists, talk groups when models are populated beyond stubs
+- [x] Parse Contacts.csv, TG lists, talk groups ([#38](https://github.com/pskillen/codeplug-tool/issues/38)) — shipped in `src/lib/import/opengd77/parse.ts`
 
 ## Store
 

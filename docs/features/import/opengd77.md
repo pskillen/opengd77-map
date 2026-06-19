@@ -1,10 +1,22 @@
 # OpenGD77 CSV import
 
-Deep dive for the first CPS adapter. Entity shapes live in the [data model](../data-model/README.md).
+Adapter behaviour for the first CPS import target. **Column semantics and conversion rules** live in the authoritative [OpenGD77 reference](../../reference/opengd77/README.md); **radio limits** in [radio profiles](../../reference/opengd77/radios/README.md).
+
+Entity shapes: [data model](../data-model/README.md).
+
+## Adapter
+
+| Item | Location |
+| --- | --- |
+| Adapter | [`src/lib/import/opengd77/adapter.ts`](../../../src/lib/import/opengd77/adapter.ts) |
+| Parsers | [`parse.ts`](../../../src/lib/import/opengd77/parse.ts) |
+| Headers | [`columns.ts`](../../../src/lib/import/opengd77/columns.ts) |
+
+Today's adapter is calibrated to the [Baofeng 1701 profile](../../reference/opengd77/radios/baofeng-1701.md) (80 zone members, 32 TG list members).
 
 ## Classification
 
-`detectKind(fileName, headerRow)` in [`src/lib/import/opengd77/adapter.ts`](../../../src/lib/import/opengd77/adapter.ts):
+`detectKind(fileName, headerRow)`:
 
 | Signal | Result |
 | --- | --- |
@@ -18,84 +30,41 @@ Deep dive for the first CPS adapter. Entity shapes live in the [data model](../d
 | Headers include `Zone Name` | `zones` |
 | Otherwise | `unknown` → skipped |
 
-Typical export filenames: `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`. `DTMF.csv` and `APRS.csv` remain **skipped** (header-only on export inside ZIP).
+Typical filenames: `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`. `DTMF.csv` and `APRS.csv` are **skipped** on import.
 
-## Channels.csv
+## Parse flow
 
-Parsed by `parseChannels` in [`src/lib/import/opengd77/parse.ts`](../../../src/lib/import/opengd77/parse.ts). Columns matched by **header name**, not index. Canonical headers in [`columns.ts`](../../../src/lib/import/opengd77/columns.ts).
+| File kind | Parser | Model output |
+| --- | --- | --- |
+| `channels` | `parseChannels` | `Channel[]` |
+| `zones` | `parseZones` | `ParsedZone[]` → resolved to `Zone[]` with `memberChannelIds` |
+| `contacts` | `parseContacts` | `TalkGroup[]` + `Contact[]` |
+| `rxGroupLists` | `parseRxGroupLists` | `ParsedRxGroupList[]` → `RxGroupList[]` |
 
-### Required columns
-
-| Header | Maps to |
-| --- | --- |
-| `Channel Name` | `Channel.name` |
-| `Latitude` | `location.lat` |
-| `Longitude` | `location.lon` |
-
-### Optional columns (all round-trip)
-
-| Header | Maps to |
-| --- | --- |
-| `Channel Number` | `number` |
-| `Channel Type` | `mode` — see [channel-modes mapping](../../reference/channel-modes.md): `Analogue`/`Analog` → `fm`, `Digital` → `dmr` |
-| `Rx Frequency` / `Tx Frequency` | `rxFrequency` / `txFrequency` |
-| `Bandwidth (kHz)` | `bandwidthKHz` |
-| `Colour Code` | `colourCode` |
-| `Timeslot` | `timeslot` |
-| `Contact` | `contactName` |
-| `TG List` | `rxGroupListName` |
-| `DMR ID` | `dmrId` |
-| `RX Tone` / `TX Tone` | `rxTone` / `txTone` |
-| `Squelch` | `squelch` |
-| `Power` | `power` |
-| `Rx Only` | `rxOnly` |
-| `All Skip` | `scanSkip` (`Yes` → `true`) |
-| `TOT` | `transmitTimeout` |
-| `VOX` | `voxEnabled` (`Off` → `false`) |
-| `APRS` | `aprsConfigName` |
-| `Use Location` | `useLocation` |
-| `Zone Skip`, `No Beep`, `No Eco`, `TS1_TA_Tx`, `TS2_TA_Tx ID` | `vendorExtras[header]` |
-
-## Zones.csv
-
-Unchanged — see prior behaviour. `Channel1`…`Channel80` → `sourceMemberNames`.
-
-## Contacts.csv
-
-Parsed by `parseContacts`. Split by `ID Type`:
-
-| `ID Type` | Model |
-| --- | --- |
-| `Group` | `TalkGroup` |
-| `Private` | `Contact` |
-
-| Header | Maps to |
-| --- | --- |
-| `Contact Name` | `name` |
-| `ID` | `number` |
-| `TS Override` | `timeslotOverride` |
-
-## TG_Lists.csv
-
-Parsed by `parseRxGroupLists` → `RxGroupList` with `sourceMemberNames` from `Contact1`…`Contact32`. Members are **vendor names** from Contacts.csv (talk groups and/or private contacts).
-
-## Export
-
-Serialisers in [`src/lib/export/opengd77/serialise.ts`](../../../src/lib/export/opengd77/serialise.ts). Export page at `/#/export`.
-
-`Channel Type` export is **lossy**: all analog modes (`fm`, `am`, `ssb-usb`, `ssb-lsb`) wire as `Analogue`; all digital modes (`dmr`, `ysf`, `dstar`, `m17`, `tetra`) wire as `Digital`. See [channel-modes reference](../../reference/channel-modes.md).
+Zone member names resolve to channel ids via `resolveZoneMembers` in [`codeplug.ts`](../../../src/lib/codeplug.ts) — case-sensitive, first-wins on duplicate channel names.
 
 ## Skip vs error
 
 | Outcome | When |
 | --- | --- |
 | **Skipped** | `DTMF.csv`, `APRS.csv`, other `unknown` files |
-| **Error** | Recognised file fails parse |
+| **Error** | Recognised file fails parse (missing required columns, empty CSV) |
 | **Recognised** | channels, zones, contacts, rxGroupLists |
+
+Full skip/error table: [reference hub](../../reference/opengd77/README.md#skip-vs-error).
+
+## Wire format reference
+
+| CPS file | Reference |
+| --- | --- |
+| `Channels.csv` | [channels.md](../../reference/opengd77/channels.md) |
+| `Zones.csv` | [zones.md](../../reference/opengd77/zones.md) |
+| `Contacts.csv` | [contacts.md](../../reference/opengd77/contacts.md) |
+| `TG_Lists.csv` | [tg-lists.md](../../reference/opengd77/tg-lists.md) |
+| `DTMF.csv` / `APRS.csv` | [dtmf-aprs.md](../../reference/opengd77/dtmf-aprs.md) |
 
 ## Related
 
 - [Import hub](README.md)
 - [Export hub](../export/README.md)
-- [Data model](../data-model/README.md)
 - [Progress log](opengd77-progress.md) · [Outstanding](opengd77-outstanding.md)
