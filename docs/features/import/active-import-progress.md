@@ -11,6 +11,6 @@
 
 ## In flight
 
-- [ ] `ImportIntoActivePanel` on Export page
-- [ ] System test suite + fixtures
+- [x] `ImportIntoActivePanel` on Export page
+- [x] System test suite + fixtures (`npm run test:system`)
 - [ ] Feature docs update
