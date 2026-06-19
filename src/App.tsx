@@ -14,6 +14,7 @@ import {
 import type { TablerIcon } from '@tabler/icons-react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import ActiveProjectBar from './components/ActiveProjectBar/ActiveProjectBar.tsx';
+import RequireActiveProject from './components/RequireActiveProject/RequireActiveProject.tsx';
 import BuildFooter from './components/BuildFooter.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from './lib/iconSizes.ts';
 import Home from './routes/Home.tsx';
@@ -124,27 +125,29 @@ export default function App() {
       <AppShell.Main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/summary" element={<Summary />} />
-          <Route path="/channels" element={<ChannelsList />} />
-          <Route path="/channels/new" element={<ChannelEdit />} />
-          <Route path="/channels/:id/edit" element={<ChannelEdit />} />
-          <Route path="/channels/:id" element={<ChannelDetail />} />
-          <Route path="/zones" element={<ZonesList />} />
-          <Route path="/zones/new" element={<ZoneEdit />} />
-          <Route path="/zones/:id/edit" element={<ZoneEdit />} />
-          <Route path="/zones/:id" element={<ZoneDetail />} />
-          <Route path="/talk-groups" element={<TalkGroupsList />} />
-          <Route path="/talk-groups/:id" element={<TalkGroupDetail />} />
-          <Route path="/contacts" element={<ContactsList />} />
-          <Route path="/contacts/:id" element={<ContactDetail />} />
-          <Route path="/rx-group-lists" element={<RxGroupListsList />} />
-          <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/reference" element={<ReferenceIndex />} />
           <Route path="/reference/band-plan" element={<BandPlan />} />
           <Route path="/reference/maidenhead" element={<MaidenheadConverter />} />
-          <Route path="/export" element={<Export />} />
-          <Route path="/map" element={<Navigate to="/channels" replace />} />
+          <Route element={<RequireActiveProject />}>
+            <Route path="/summary" element={<Summary />} />
+            <Route path="/channels" element={<ChannelsList />} />
+            <Route path="/channels/new" element={<ChannelEdit />} />
+            <Route path="/channels/:id/edit" element={<ChannelEdit />} />
+            <Route path="/channels/:id" element={<ChannelDetail />} />
+            <Route path="/zones" element={<ZonesList />} />
+            <Route path="/zones/new" element={<ZoneEdit />} />
+            <Route path="/zones/:id/edit" element={<ZoneEdit />} />
+            <Route path="/zones/:id" element={<ZoneDetail />} />
+            <Route path="/talk-groups" element={<TalkGroupsList />} />
+            <Route path="/talk-groups/:id" element={<TalkGroupDetail />} />
+            <Route path="/contacts" element={<ContactsList />} />
+            <Route path="/contacts/:id" element={<ContactDetail />} />
+            <Route path="/rx-group-lists" element={<RxGroupListsList />} />
+            <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
+            <Route path="/export" element={<Export />} />
+            <Route path="/map" element={<Navigate to="/channels" replace />} />
+          </Route>
         </Routes>
         <BuildFooter />
       </AppShell.Main>
