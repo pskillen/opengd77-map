@@ -1,5 +1,7 @@
 import { Button, Stack, Text } from '@mantine/core';
+import { IconCurrentLocation } from '@tabler/icons-react';
 import { useGeolocation } from '../../hooks/useGeolocation.ts';
+import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 
 export interface UseMyLocationButtonProps {
   onLocation: (lat: number, lon: number) => void;
@@ -23,6 +25,7 @@ export default function UseMyLocationButton({ onLocation, disabled }: UseMyLocat
         variant="light"
         loading={loading}
         disabled={disabled}
+        leftSection={<IconCurrentLocation size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
         onClick={() => void handleClick()}
       >
         Use my location

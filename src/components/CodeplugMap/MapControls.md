@@ -28,7 +28,7 @@ import MapControls from '../components/CodeplugMap/MapControls.tsx';
 />
 ```
 
-The cog `ActionIcon` navigates to `/settings` (tile provider and Mapbox token).
+The settings `ActionIcon` (`IconSettings` from Tabler) navigates to `/settings` (tile provider and Mapbox token).
 
 ## Behaviour
 

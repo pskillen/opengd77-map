@@ -1,5 +1,7 @@
 import { ActionIcon, Checkbox, Group } from '@mantine/core';
+import { IconSettings } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { ICON_SIZE_ACTION, ICON_STROKE } from '../../lib/iconSizes.ts';
 
 export interface MapControlsProps {
   fullChannelName: boolean;
@@ -39,7 +41,7 @@ export default function MapControls({
         aria-label="Map settings"
         title="Map settings"
       >
-        ⚙
+        <IconSettings size={ICON_SIZE_ACTION} stroke={ICON_STROKE} />
       </ActionIcon>
     </Group>
   );
