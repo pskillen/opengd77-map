@@ -35,10 +35,10 @@ const ORIGIN_LAT = -90;
 const DEFAULT_BUFFER_DEG = 0.5;
 
 /** Finest 6-char lines/labels appear at this Leaflet zoom or above (when max ≥ 6). */
-export const MIN_ZOOM_FOR_6_DETAIL = 9;
+export const MIN_ZOOM_FOR_6_DETAIL = 10;
 
 /** Finest 8-char lines/labels appear at this Leaflet zoom or above (when max = 8). */
-export const MIN_ZOOM_FOR_8_DETAIL = 14;
+export const MIN_ZOOM_FOR_8_DETAIL = 15;
 
 const LEVEL_STEPS: Record<GridPrecision, { lon: number; lat: number }> = {
   4: { lon: LON_STEP_4, lat: LAT_STEP_4 },

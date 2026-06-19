@@ -1,7 +1,7 @@
 import { MantineProvider } from '@mantine/core';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.tsx';
 import { newProject } from './models/codeplugProject.ts';
 import { CODEPLUG_STORAGE_KEY, serializeProjects } from './state/codeplugStorage.ts';
@@ -57,10 +57,50 @@ function seedActiveProject() {
 }
 
 describe('App', () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
+  });
+
   it('renders the home heading and import section', () => {
     renderApp('/');
     expect(screen.getByRole('heading', { name: 'MM9PDY Codeplug Tool' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Import codeplug' })).toBeInTheDocument();
+  });
+
+  it('shows minimal nav without an active project', () => {
+    renderApp('/');
+
+    expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Reference' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Summary' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Channels' })).not.toBeInTheDocument();
+  });
+
+  it('renders the reference index without an active project', () => {
+    renderApp('/reference');
+
+    expect(screen.getByRole('heading', { name: 'Reference' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Band plan/ })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Maidenhead converter/ })).toBeInTheDocument();
+  });
+
+  it('redirects project routes to home without an active project', () => {
+    renderApp('/channels');
+
+    expect(screen.getByRole('heading', { name: 'Import codeplug' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Channels' })).not.toBeInTheDocument();
+  });
+
+  it('redirects /map to home without an active project', () => {
+    renderApp('/map');
+
+    expect(screen.getByRole('heading', { name: 'Import codeplug' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Channels' })).not.toBeInTheDocument();
   });
 
   it('renders the summary page on /summary', () => {

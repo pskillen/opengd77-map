@@ -2,7 +2,7 @@
 
 Contributor reference for the **codeplug project** wrapper — the named, persistent, switchable container that holds one codeplug and is the unit users work with across tools.
 
-**Tracking:** [codeplug-tool#9](https://github.com/pskillen/codeplug-tool/issues/9) (persistence + nascent CRUD), [codeplug-tool#31](https://github.com/pskillen/codeplug-tool/issues/31) (UI polish)
+**Tracking:** [codeplug-tool#9](https://github.com/pskillen/codeplug-tool/issues/9) (persistence + nascent CRUD), [codeplug-tool#31](https://github.com/pskillen/codeplug-tool/issues/31) (UI polish), [codeplug-tool#76](https://github.com/pskillen/codeplug-tool/issues/76) (nav + route guards)
 
 ## Problem
 
@@ -58,8 +58,9 @@ Persistence: [persistence/README.md](../persistence/README.md) — multi-project
 | Surface | Behaviour |
 | --- | --- |
 | Home (`/`) | List codeplugs, **Import codeplug**, **Open**, **Delete** (confirm) |
-| App nav (when active) | **Active codeplug** + **Switch**; Home + Channel map links |
-| Map sidebar | Filters, tiles, stats only (no import) |
+| App nav (always) | **Home** (when no active project), **Reference**, **Settings** |
+| App nav (when active) | **Active codeplug** + **Switch**; Summary, Channels, Zones, contacts/TG lists, Export; Reference and Settings at the foot |
+| Route guards | Project-scoped routes redirect to Home when no active project — [`RequireActiveProject`](../../../src/components/RequireActiveProject/RequireActiveProject.tsx) |
 
 No **new empty project** yet — import is the only creation path ([#31](https://github.com/pskillen/codeplug-tool/issues/31)).
 
@@ -71,7 +72,9 @@ No **new empty project** yet — import is the only creation path ([#31](https:/
 | Multi-project store | Shipped | `useCodeplug` + `useProjects` |
 | LocalStorage persistence | Shipped | [persistence/](../persistence/) |
 | Landing list / import / delete | Shipped | `Home`, `ProjectList` |
-| Map active bar + switch | Shipped | `ActiveProjectBar` in app nav (visible when a codeplug is active) |
+| Active bar + project nav | Shipped | `ActiveProjectBar` + project links when a codeplug is active |
+| Always-available nav | Shipped | Home, Reference, Settings — [#76](https://github.com/pskillen/codeplug-tool/issues/76) |
+| Project route guards | Shipped | `RequireActiveProject` — [#76](https://github.com/pskillen/codeplug-tool/issues/76) |
 | New empty project | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
 | Rename / duplicate | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
 | Refined switcher / import-export UI | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |

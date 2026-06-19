@@ -6,6 +6,7 @@ import {
   IconBook,
   IconDownload,
   IconFolders,
+  IconHome,
   IconLayoutDashboard,
   IconListDetails,
   IconSettings,
@@ -14,6 +15,7 @@ import {
 import type { TablerIcon } from '@tabler/icons-react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import ActiveProjectBar from './components/ActiveProjectBar/ActiveProjectBar.tsx';
+import RequireActiveProject from './components/RequireActiveProject/RequireActiveProject.tsx';
 import BuildFooter from './components/BuildFooter.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from './lib/iconSizes.ts';
 import Home from './routes/Home.tsx';
@@ -50,7 +52,7 @@ export default function App() {
   const [opened, { toggle, close }] = useDisclosure();
   const location = useLocation();
   const { activeProjectId } = useProjects();
-  const showNav = activeProjectId != null;
+  const hasActiveProject = activeProjectId != null;
 
   const navItems: { to: string; label: string; icon: TablerIcon }[] = [
     { to: '/summary', label: 'Summary', icon: IconLayoutDashboard },
@@ -65,86 +67,93 @@ export default function App() {
   return (
     <AppShell
       header={{ height: 56 }}
-      navbar={
-        showNav
-          ? {
-              width: 260,
-              breakpoint: 'sm',
-              collapsed: { mobile: !opened },
-            }
-          : undefined
-      }
+      navbar={{
+        width: 260,
+        breakpoint: 'sm',
+        collapsed: { mobile: !opened },
+      }}
       padding="md"
     >
       <AppShell.Header>
         <Group h="100%" px="md">
-          {showNav ? (
-            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          ) : null}
+          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
           <Text fw={600}>MM9PDY Codeplug Tool</Text>
         </Group>
       </AppShell.Header>
 
-      {showNav ? (
-        <AppShell.Navbar p="md">
-          <Stack gap="md" style={{ height: '100%' }}>
-            <ActiveProjectBar />
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                component={Link}
-                to={item.to}
-                label={item.label}
-                leftSection={navIcon(item.icon)}
-                active={navActive(location.pathname, item.to)}
-                onClick={close}
-              />
-            ))}
-            <div style={{ flex: 1 }} />
+      <AppShell.Navbar p="md">
+        <Stack gap="md" style={{ height: '100%' }}>
+          {hasActiveProject ? (
+            <>
+              <ActiveProjectBar />
+              {navItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  component={Link}
+                  to={item.to}
+                  label={item.label}
+                  leftSection={navIcon(item.icon)}
+                  active={navActive(location.pathname, item.to)}
+                  onClick={close}
+                />
+              ))}
+            </>
+          ) : (
             <NavLink
               component={Link}
-              to="/reference"
-              label="Reference"
-              leftSection={navIcon(IconBook)}
-              active={navActive(location.pathname, '/reference')}
+              to="/"
+              label="Home"
+              leftSection={navIcon(IconHome)}
+              active={navActive(location.pathname, '/')}
               onClick={close}
             />
-            <NavLink
-              component={Link}
-              to="/settings"
-              label="Settings"
-              leftSection={navIcon(IconSettings)}
-              active={navActive(location.pathname, '/settings')}
-              onClick={close}
-            />
-          </Stack>
-        </AppShell.Navbar>
-      ) : null}
+          )}
+          <div style={{ flex: 1 }} />
+          <NavLink
+            component={Link}
+            to="/reference"
+            label="Reference"
+            leftSection={navIcon(IconBook)}
+            active={navActive(location.pathname, '/reference')}
+            onClick={close}
+          />
+          <NavLink
+            component={Link}
+            to="/settings"
+            label="Settings"
+            leftSection={navIcon(IconSettings)}
+            active={navActive(location.pathname, '/settings')}
+            onClick={close}
+          />
+        </Stack>
+      </AppShell.Navbar>
 
       <AppShell.Main>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/summary" element={<Summary />} />
-          <Route path="/channels" element={<ChannelsList />} />
-          <Route path="/channels/new" element={<ChannelEdit />} />
-          <Route path="/channels/:id/edit" element={<ChannelEdit />} />
-          <Route path="/channels/:id" element={<ChannelDetail />} />
-          <Route path="/zones" element={<ZonesList />} />
-          <Route path="/zones/new" element={<ZoneEdit />} />
-          <Route path="/zones/:id/edit" element={<ZoneEdit />} />
-          <Route path="/zones/:id" element={<ZoneDetail />} />
-          <Route path="/talk-groups" element={<TalkGroupsList />} />
-          <Route path="/talk-groups/:id" element={<TalkGroupDetail />} />
-          <Route path="/contacts" element={<ContactsList />} />
-          <Route path="/contacts/:id" element={<ContactDetail />} />
-          <Route path="/rx-group-lists" element={<RxGroupListsList />} />
-          <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/reference" element={<ReferenceIndex />} />
           <Route path="/reference/band-plan" element={<BandPlan />} />
           <Route path="/reference/maidenhead" element={<MaidenheadConverter />} />
-          <Route path="/export" element={<Export />} />
-          <Route path="/map" element={<Navigate to="/channels" replace />} />
+          <Route element={<RequireActiveProject />}>
+            <Route path="/summary" element={<Summary />} />
+            <Route path="/channels" element={<ChannelsList />} />
+            <Route path="/channels/new" element={<ChannelEdit />} />
+            <Route path="/channels/:id/edit" element={<ChannelEdit />} />
+            <Route path="/channels/:id" element={<ChannelDetail />} />
+            <Route path="/zones" element={<ZonesList />} />
+            <Route path="/zones/new" element={<ZoneEdit />} />
+            <Route path="/zones/:id/edit" element={<ZoneEdit />} />
+            <Route path="/zones/:id" element={<ZoneDetail />} />
+            <Route path="/talk-groups" element={<TalkGroupsList />} />
+            <Route path="/talk-groups/:id" element={<TalkGroupDetail />} />
+            <Route path="/contacts" element={<ContactsList />} />
+            <Route path="/contacts/:id" element={<ContactDetail />} />
+            <Route path="/rx-group-lists" element={<RxGroupListsList />} />
+            <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
+            <Route path="/export" element={<Export />} />
+            <Route path="/map" element={<Navigate to="/channels" replace />} />
+          </Route>
         </Routes>
         <BuildFooter />
       </AppShell.Main>
