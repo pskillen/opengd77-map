@@ -6,13 +6,13 @@ Contributor docs for shared UI conventions in the SPA.
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Icon library (`@tabler/icons-react`) | In progress | [#64](https://github.com/pskillen/codeplug-tool/issues/64) |
-| Shared size constants | In progress | `src/lib/iconSizes.ts` |
-| Display conventions | In progress | [display-conventions.md](../../reference/display-conventions.md) |
-| Shell navigation | Planned | `App.tsx`, reference index, ActiveProjectBar |
-| CRUD actions | Planned | List/detail/edit routes |
-| Import/export/workflows | Planned | ImportDropzone, Export, SummaryCard, ProjectList |
-| Map/location | Planned | MapControls, UseMyLocationButton |
+| Icon library (`@tabler/icons-react`) | Shipped | [#64](https://github.com/pskillen/codeplug-tool/issues/64) |
+| Shared size constants | Shipped | `src/lib/iconSizes.ts` |
+| Display conventions | Shipped | [display-conventions.md](../../reference/display-conventions.md) |
+| Shell navigation | Shipped | `App.tsx`, reference index, ActiveProjectBar |
+| CRUD actions | Shipped | List/detail/edit routes, ConfirmDeleteModal, ZoneMemberPicker |
+| Import/export/workflows | Shipped | ImportDropzone, Export, SummaryCard, ProjectList |
+| Map/location | Shipped | MapControls, UseMyLocationButton |
 
 ## Documentation map
 
@@ -28,7 +28,20 @@ Icons use [Tabler Icons](https://tabler.io/icons) via `@tabler/icons-react` — 
 
 Icons aid **scanning and primary actions** (nav, New/Edit/Delete, import/export). Data-dense surfaces (tables, badges, frequency text) stay text-first.
 
+### Entity icon mapping (navbar + summary cards)
+
+| Entity | Icon |
+| --- | --- |
+| Summary | `IconLayoutDashboard` |
+| Channels | `IconAntenna` |
+| Zones | `IconFolders` |
+| Talk groups | `IconUsersGroup` |
+| Contacts | `IconAddressBook` |
+| RX Group Lists | `IconListDetails` |
+| Export | `IconDownload` |
+| Reference | `IconBook` |
+| Settings | `IconSettings` |
+
 ## Related
 
 - Tracking: [codeplug-tool#64](https://github.com/pskillen/codeplug-tool/issues/64)
-- Plan: `.cursor/plans/icon_library_rollout_f91bef48.plan.md`

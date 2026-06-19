@@ -7,7 +7,7 @@
 
 ## Overall status
 
-**Status:** In progress
+**Status:** Complete (pending merge)
 
 **Branch:** `64/paddy/icon-library`
 
@@ -61,6 +61,38 @@
 
 ---
 
+## Slice 4: Import, export, and project workflows
+
+**Status:** Complete
+
+**Delivered**
+
+- ImportDropzone upload/file/folder icons
+- Export download and ZIP icons
+- SummaryCard entity icons and View all arrow
+- ProjectList Open/Delete icons
+
+---
+
+## Slice 5: Map and location
+
+**Status:** Complete
+
+**Delivered**
+
+- MapControls `IconSettings` (replaces Unicode cog)
+- UseMyLocationButton `IconCurrentLocation`
+
+---
+
+## Verify
+
+- `npm run lint && npm run test && npm run build`
+- Nav icons at 260px width; icon-only ActionIcon keeps `aria-label`
+- Primary flows: Home → Summary → Channels detail/edit; Export; map settings
+
+---
+
 ## Next
 
-- Slice 4: ImportDropzone, Export, SummaryCard, ProjectList
+- Merge PR; close #64
