@@ -14,13 +14,26 @@ import {
 } from '../lib/importMerge.ts';
 import {
   addChannel as addChannelMutation,
+  addContact as addContactMutation,
+  addRxGroupList as addRxGroupListMutation,
+  addTalkGroup as addTalkGroupMutation,
   addZone as addZoneMutation,
   deleteChannel as deleteChannelMutation,
+  deleteContact as deleteContactMutation,
+  deleteRxGroupList as deleteRxGroupListMutation,
+  deleteTalkGroup as deleteTalkGroupMutation,
   deleteZone as deleteZoneMutation,
+  setRxGroupListMembers as setRxGroupListMembersMutation,
   setZoneMembers as setZoneMembersMutation,
   updateChannel as updateChannelMutation,
+  updateContact as updateContactMutation,
+  updateRxGroupList as updateRxGroupListMutation,
+  updateTalkGroup as updateTalkGroupMutation,
   updateZone as updateZoneMutation,
   type ChannelInput,
+  type ContactInput,
+  type RxGroupListInput,
+  type TalkGroupInput,
   type ZoneInput,
 } from '../lib/codeplugMutations.ts';
 import type { ImportResult } from '../lib/import/types.ts';
@@ -46,7 +59,17 @@ type ProjectsAction =
   | { type: 'ADD_ZONE'; input: ZoneInput }
   | { type: 'UPDATE_ZONE'; zoneId: string; patch: Partial<ZoneInput> }
   | { type: 'DELETE_ZONE'; zoneId: string }
-  | { type: 'SET_ZONE_MEMBERS'; zoneId: string; memberChannelIds: string[] };
+  | { type: 'SET_ZONE_MEMBERS'; zoneId: string; memberChannelIds: string[] }
+  | { type: 'ADD_TALK_GROUP'; input: TalkGroupInput }
+  | { type: 'UPDATE_TALK_GROUP'; talkGroupId: string; patch: Partial<TalkGroupInput> }
+  | { type: 'DELETE_TALK_GROUP'; talkGroupId: string }
+  | { type: 'ADD_CONTACT'; input: ContactInput }
+  | { type: 'UPDATE_CONTACT'; contactId: string; patch: Partial<ContactInput> }
+  | { type: 'DELETE_CONTACT'; contactId: string }
+  | { type: 'ADD_RX_GROUP_LIST'; input: RxGroupListInput }
+  | { type: 'UPDATE_RX_GROUP_LIST'; rglId: string; patch: Partial<RxGroupListInput> }
+  | { type: 'DELETE_RX_GROUP_LIST'; rglId: string }
+  | { type: 'SET_RX_GROUP_LIST_MEMBERS'; rglId: string; sourceMemberNames: string[] };
 
 function applyImportToCodeplug(
   codeplug: Codeplug,
@@ -171,6 +194,44 @@ function projectsReducer(state: ProjectsState, action: ProjectsAction): Projects
         setZoneMembersMutation(cp, action.zoneId, action.memberChannelIds),
       );
 
+    case 'ADD_TALK_GROUP':
+      return updateActiveCodeplug(state, (cp) => addTalkGroupMutation(cp, action.input));
+
+    case 'UPDATE_TALK_GROUP':
+      return updateActiveCodeplug(state, (cp) =>
+        updateTalkGroupMutation(cp, action.talkGroupId, action.patch),
+      );
+
+    case 'DELETE_TALK_GROUP':
+      return updateActiveCodeplug(state, (cp) => deleteTalkGroupMutation(cp, action.talkGroupId));
+
+    case 'ADD_CONTACT':
+      return updateActiveCodeplug(state, (cp) => addContactMutation(cp, action.input));
+
+    case 'UPDATE_CONTACT':
+      return updateActiveCodeplug(state, (cp) =>
+        updateContactMutation(cp, action.contactId, action.patch),
+      );
+
+    case 'DELETE_CONTACT':
+      return updateActiveCodeplug(state, (cp) => deleteContactMutation(cp, action.contactId));
+
+    case 'ADD_RX_GROUP_LIST':
+      return updateActiveCodeplug(state, (cp) => addRxGroupListMutation(cp, action.input));
+
+    case 'UPDATE_RX_GROUP_LIST':
+      return updateActiveCodeplug(state, (cp) =>
+        updateRxGroupListMutation(cp, action.rglId, action.patch),
+      );
+
+    case 'DELETE_RX_GROUP_LIST':
+      return updateActiveCodeplug(state, (cp) => deleteRxGroupListMutation(cp, action.rglId));
+
+    case 'SET_RX_GROUP_LIST_MEMBERS':
+      return updateActiveCodeplug(state, (cp) =>
+        setRxGroupListMembersMutation(cp, action.rglId, action.sourceMemberNames),
+      );
+
     default:
       return state;
   }
@@ -196,6 +257,16 @@ interface CodeplugContextValue {
   updateZone: (zoneId: string, patch: Partial<ZoneInput>) => void;
   deleteZone: (zoneId: string) => void;
   setZoneMembers: (zoneId: string, memberChannelIds: string[]) => void;
+  addTalkGroup: (input: TalkGroupInput) => void;
+  updateTalkGroup: (talkGroupId: string, patch: Partial<TalkGroupInput>) => void;
+  deleteTalkGroup: (talkGroupId: string) => void;
+  addContact: (input: ContactInput) => void;
+  updateContact: (contactId: string, patch: Partial<ContactInput>) => void;
+  deleteContact: (contactId: string) => void;
+  addRxGroupList: (input: RxGroupListInput) => void;
+  updateRxGroupList: (rglId: string, patch: Partial<RxGroupListInput>) => void;
+  deleteRxGroupList: (rglId: string) => void;
+  setRxGroupListMembers: (rglId: string, sourceMemberNames: string[]) => void;
   persistenceError: string | null;
   clearPersistenceError: () => void;
 }
@@ -310,6 +381,56 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'SET_ZONE_MEMBERS', zoneId, memberChannelIds });
   }, []);
 
+  const addTalkGroup = useCallback((input: TalkGroupInput) => {
+    setPersistenceError(null);
+    dispatch({ type: 'ADD_TALK_GROUP', input });
+  }, []);
+
+  const updateTalkGroup = useCallback((talkGroupId: string, patch: Partial<TalkGroupInput>) => {
+    setPersistenceError(null);
+    dispatch({ type: 'UPDATE_TALK_GROUP', talkGroupId, patch });
+  }, []);
+
+  const deleteTalkGroup = useCallback((talkGroupId: string) => {
+    setPersistenceError(null);
+    dispatch({ type: 'DELETE_TALK_GROUP', talkGroupId });
+  }, []);
+
+  const addContact = useCallback((input: ContactInput) => {
+    setPersistenceError(null);
+    dispatch({ type: 'ADD_CONTACT', input });
+  }, []);
+
+  const updateContact = useCallback((contactId: string, patch: Partial<ContactInput>) => {
+    setPersistenceError(null);
+    dispatch({ type: 'UPDATE_CONTACT', contactId, patch });
+  }, []);
+
+  const deleteContact = useCallback((contactId: string) => {
+    setPersistenceError(null);
+    dispatch({ type: 'DELETE_CONTACT', contactId });
+  }, []);
+
+  const addRxGroupList = useCallback((input: RxGroupListInput) => {
+    setPersistenceError(null);
+    dispatch({ type: 'ADD_RX_GROUP_LIST', input });
+  }, []);
+
+  const updateRxGroupList = useCallback((rglId: string, patch: Partial<RxGroupListInput>) => {
+    setPersistenceError(null);
+    dispatch({ type: 'UPDATE_RX_GROUP_LIST', rglId, patch });
+  }, []);
+
+  const deleteRxGroupList = useCallback((rglId: string) => {
+    setPersistenceError(null);
+    dispatch({ type: 'DELETE_RX_GROUP_LIST', rglId });
+  }, []);
+
+  const setRxGroupListMembers = useCallback((rglId: string, sourceMemberNames: string[]) => {
+    setPersistenceError(null);
+    dispatch({ type: 'SET_RX_GROUP_LIST_MEMBERS', rglId, sourceMemberNames });
+  }, []);
+
   const current = activeProject(projectsState);
   const codeplug = current?.codeplug ?? emptyCodeplug();
 
@@ -325,6 +446,16 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
       updateZone,
       deleteZone,
       setZoneMembers,
+      addTalkGroup,
+      updateTalkGroup,
+      deleteTalkGroup,
+      addContact,
+      updateContact,
+      deleteContact,
+      addRxGroupList,
+      updateRxGroupList,
+      deleteRxGroupList,
+      setRxGroupListMembers,
       persistenceError,
       clearPersistenceError,
     }),
@@ -339,6 +470,16 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
       updateZone,
       deleteZone,
       setZoneMembers,
+      addTalkGroup,
+      updateTalkGroup,
+      deleteTalkGroup,
+      addContact,
+      updateContact,
+      deleteContact,
+      addRxGroupList,
+      updateRxGroupList,
+      deleteRxGroupList,
+      setRxGroupListMembers,
       persistenceError,
       clearPersistenceError,
     ],
