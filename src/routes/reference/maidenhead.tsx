@@ -14,6 +14,7 @@ import {
 import { useDebouncedValue } from '@mantine/hooks';
 import { useCallback, useMemo, useState } from 'react';
 import MapLocationPicker from '../../components/MapLocationPicker/MapLocationPicker.tsx';
+import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import ReportPage from '../../components/report/ReportPage.tsx';
 import { useMapSettings } from '../../hooks/useMapSettings.ts';
 import { GeocodeError, geocodeQuery, type GeocodeProvider } from '../../lib/geocode.ts';
@@ -205,6 +206,7 @@ export default function MaidenheadConverter() {
 
             <Stack gap="sm">
               <Title order={4}>Coordinates</Title>
+              <UseMyLocationButton onLocation={(latN, lonN) => applyCoords(latN, lonN)} />
               <SegmentedControl
                 value={String(precision)}
                 onChange={handlePrecisionChange}

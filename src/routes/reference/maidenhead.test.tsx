@@ -1,7 +1,7 @@
 import { MantineProvider } from '@mantine/core';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { channelFieldDefaults, type Channel } from '../../models/codeplug.ts';
 import { newProject } from '../../models/codeplugProject.ts';
 import { CODEPLUG_STORAGE_KEY, serializeProjects } from '../../state/codeplugStorage.ts';
@@ -12,6 +12,44 @@ import MaidenheadConverter from './maidenhead.tsx';
 vi.mock('../../components/MapLocationPicker/MapLocationPicker.tsx', () => ({
   default: () => <div data-testid="map-location-picker" />,
 }));
+
+const originalGeolocation = navigator.geolocation;
+const originalIsSecureContext = window.isSecureContext;
+
+function mockGeolocationSuccess(lat: number, lon: number, accuracy = 12) {
+  Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true });
+  Object.defineProperty(navigator, 'geolocation', {
+    value: {
+      getCurrentPosition: vi.fn((success: PositionCallback) => {
+        success({
+          coords: {
+            latitude: lat,
+            longitude: lon,
+            accuracy,
+            altitude: null,
+            altitudeAccuracy: null,
+            heading: null,
+            speed: null,
+          },
+          timestamp: Date.now(),
+        });
+      }),
+    },
+    configurable: true,
+  });
+}
+
+function mockGeolocationDenied() {
+  Object.defineProperty(window, 'isSecureContext', { value: true, configurable: true });
+  Object.defineProperty(navigator, 'geolocation', {
+    value: {
+      getCurrentPosition: vi.fn((_success: PositionCallback, error: PositionErrorCallback) => {
+        error({ code: 1, message: 'denied', PERMISSION_DENIED: 1 } as GeolocationPositionError);
+      }),
+    },
+    configurable: true,
+  });
+}
 
 function renderConverter(channels: Channel[] = []) {
   const project = newProject('Test');
@@ -35,6 +73,17 @@ function renderConverter(channels: Channel[] = []) {
 describe('MaidenheadConverter', () => {
   beforeEach(() => {
     localStorage.clear();
+  });
+
+  afterEach(() => {
+    Object.defineProperty(navigator, 'geolocation', {
+      value: originalGeolocation,
+      configurable: true,
+    });
+    Object.defineProperty(window, 'isSecureContext', {
+      value: originalIsSecureContext,
+      configurable: true,
+    });
   });
 
   it('shows validation error for invalid locator', () => {
@@ -77,5 +126,27 @@ describe('MaidenheadConverter', () => {
     });
 
     expect(screen.getByRole('button', { name: 'Use location' })).toBeEnabled();
+  });
+
+  it('populates coordinates when use my location succeeds', async () => {
+    mockGeolocationSuccess(55.953252, -3.188267);
+    renderConverter();
+    fireEvent.click(screen.getByRole('button', { name: 'Use my location' }));
+    await waitFor(() => {
+      expect(screen.getByLabelText('Latitude')).toHaveValue('55.953252');
+      expect(screen.getByLabelText('Longitude')).toHaveValue('-3.188267');
+    });
+  });
+
+  it('shows error when use my location permission is denied', async () => {
+    mockGeolocationDenied();
+    renderConverter();
+    fireEvent.click(screen.getByRole('button', { name: 'Use my location' }));
+    await waitFor(() => {
+      expect(screen.getByText('Location permission denied')).toBeInTheDocument();
+    });
+    const input = screen.getByLabelText('Maidenhead locator');
+    fireEvent.change(input, { target: { value: 'IO85' } });
+    expect(screen.getByLabelText('Latitude')).toHaveValue('55.5');
   });
 });
