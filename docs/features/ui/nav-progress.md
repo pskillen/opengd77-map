@@ -11,9 +11,15 @@
 | 2 AppNav + badges | Complete | `AppNav.tsx`, sidecar |
 | 3 SectionNav shell | Complete | Reference + Settings sections |
 | 4 Channels migrate | Complete | URL query + ChannelsSectionNav |
-| 5 Other sections | In progress | |
-| 6 Docs + tests + PR | Pending | |
+| 5 Other sections | Complete | Zones, import/export, DMR entity lists |
+| 6 Docs + tests + PR | Complete | App tests, display conventions, UI README |
 
-## Next
+## Verify
 
-Complete Slice 1 commit; start `AppNav` extraction.
+- `npm run lint && npm run test && npm run build`
+- `npm run dev` — desktop: primary + secondary; mobile: toolbar above content
+- Channel `?q=` filter shareable via URL; vendor format via `?format=`
+
+## PR
+
+Open with `Closes #81`.

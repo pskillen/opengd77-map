@@ -45,3 +45,18 @@ Pass icons via Mantine `leftSection` (or `rightSection` for forward arrows) and 
 ### Imports
 
 Import icons by name per file — e.g. `import { IconSettings } from '@tabler/icons-react'`. Do not barrel-re-export from a shared icons module (hurts tree-shaking).
+
+## Navigation badges
+
+Primary nav entity counts use Mantine `Badge` in `AppNav` (`src/components/AppNav/AppNav.tsx`):
+
+- `variant="outline"` and `color="gray"` — neutral totals, not notification semantics.
+- Shown in `NavLink` `rightSection` when the active codeplug has **one or more** of that entity.
+- Hidden when count is 0 or when no project is active.
+- Badged routes: Channels, Zones, Talk groups, Contacts, RX Group Lists.
+
+## Two-section navigation
+
+Desktop (`sm+`): primary column (`AppNav`, ~260px) + secondary column (`SectionNav`, ~220px). Mobile: primary in burger drawer; secondary renders as a toolbar above route content.
+
+Registry: `src/nav/sectionNavRegistry.ts` maps pathname prefixes to section components under `src/components/SectionNav/sections/`. Filter state prefers URL search params (`?q=`, channel filters, `?format=` for vendor interchange).
