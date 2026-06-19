@@ -126,6 +126,17 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Reference' })).toBeInTheDocument();
   });
 
+  it('renders the import and export page on /export', () => {
+    seedActiveProject();
+
+    renderApp('/export');
+
+    expect(screen.getByRole('heading', { name: 'Import & export' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Import', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Export', level: 2 })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Import & export' })).toBeInTheDocument();
+  });
+
   it('renders the reference index on /reference', () => {
     seedActiveProject();
 

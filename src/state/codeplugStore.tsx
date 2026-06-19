@@ -8,7 +8,10 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { buildNameToChannelId, resolveZoneMembers } from '../lib/codeplug.ts';
+import {
+  applyImportToCodeplug as mergeImportIntoCodeplug,
+  type ImportApplyMode,
+} from '../lib/importMerge.ts';
 import {
   addChannel as addChannelMutation,
   addZone as addZoneMutation,
@@ -21,7 +24,7 @@ import {
   type ZoneInput,
 } from '../lib/codeplugMutations.ts';
 import type { ImportResult } from '../lib/import/types.ts';
-import { emptyCodeplug, newId, type Codeplug, type Zone } from '../models/codeplug.ts';
+import { emptyCodeplug, type Codeplug } from '../models/codeplug.ts';
 import { defaultProjectName, newProject, type CodeplugProject } from '../models/codeplugProject.ts';
 import {
   clearProjectsStorage,
@@ -32,8 +35,8 @@ import {
 } from './codeplugStorage.ts';
 
 type ProjectsAction =
-  | { type: 'IMPORT_NEW_PROJECT'; result: ImportResult; name?: string }
-  | { type: 'APPLY_IMPORT'; result: ImportResult }
+  | { type: 'IMPORT_NEW_PROJECT'; result: ImportResult; name?: string; mode?: ImportApplyMode }
+  | { type: 'APPLY_IMPORT'; result: ImportResult; mode?: ImportApplyMode }
   | { type: 'SET_ACTIVE_PROJECT'; id: string }
   | { type: 'DELETE_PROJECT'; id: string }
   | { type: 'CLEAR' }
@@ -45,58 +48,12 @@ type ProjectsAction =
   | { type: 'DELETE_ZONE'; zoneId: string }
   | { type: 'SET_ZONE_MEMBERS'; zoneId: string; memberChannelIds: string[] };
 
-function applyImportToCodeplug(codeplug: Codeplug, result: ImportResult): Codeplug {
-  const channels = result.channels ?? codeplug.channels;
-  const nameToId = buildNameToChannelId(channels);
-
-  let zones: Zone[];
-  if (result.zones) {
-    zones = result.zones.map((parsed) => {
-      const { memberChannelIds } = resolveZoneMembers(parsed.memberNames, nameToId);
-      return {
-        id: newId(),
-        name: parsed.name,
-        sourceMemberNames: parsed.memberNames,
-        memberChannelIds,
-      };
-    });
-  } else {
-    zones = codeplug.zones.map((zone) => {
-      const { memberChannelIds } = resolveZoneMembers(zone.sourceMemberNames, nameToId);
-      return { ...zone, memberChannelIds };
-    });
-  }
-
-  const contacts = result.contacts ?? codeplug.contacts;
-  const talkGroups = result.talkGroups ?? codeplug.talkGroups;
-
-  let rxGroupLists = codeplug.rxGroupLists;
-  if (result.rxGroupLists) {
-    rxGroupLists = result.rxGroupLists.map((parsed) => ({
-      id: newId(),
-      name: parsed.name,
-      sourceMemberNames: parsed.sourceMemberNames,
-    }));
-  }
-
-  const sourceFiles = [...codeplug.meta.sourceFiles];
-  for (const fileName of result.recognised) {
-    if (!sourceFiles.includes(fileName)) sourceFiles.push(fileName);
-  }
-
-  return {
-    ...codeplug,
-    channels,
-    zones,
-    contacts,
-    talkGroups,
-    rxGroupLists,
-    meta: {
-      ...codeplug.meta,
-      importedAt: result.recognised.length ? new Date().toISOString() : codeplug.meta.importedAt,
-      sourceFiles,
-    },
-  };
+function applyImportToCodeplug(
+  codeplug: Codeplug,
+  result: ImportResult,
+  mode: ImportApplyMode = 'merge',
+): Codeplug {
+  return mergeImportIntoCodeplug(codeplug, result, mode).codeplug;
 }
 
 function touchProject(project: CodeplugProject): CodeplugProject {
@@ -107,11 +64,12 @@ function importNewProjectState(
   state: ProjectsState,
   result: ImportResult,
   name?: string,
+  mode: ImportApplyMode = 'merge',
 ): ProjectsState {
   const projectName = name ?? defaultProjectName(result.recognised);
   const project = touchProject({
     ...newProject(projectName),
-    codeplug: applyImportToCodeplug(emptyCodeplug(), result),
+    codeplug: applyImportToCodeplug(emptyCodeplug(), result, mode),
   });
   return {
     projects: [...state.projects, project],
@@ -140,11 +98,12 @@ function updateActiveCodeplug(
 function projectsReducer(state: ProjectsState, action: ProjectsAction): ProjectsState {
   switch (action.type) {
     case 'IMPORT_NEW_PROJECT':
-      return importNewProjectState(state, action.result, action.name);
+      return importNewProjectState(state, action.result, action.name, action.mode);
 
     case 'APPLY_IMPORT': {
+      const mode = action.mode ?? 'merge';
       if (!state.activeProjectId) {
-        return importNewProjectState(state, action.result);
+        return importNewProjectState(state, action.result, undefined, mode);
       }
       const activeId = state.activeProjectId;
       return {
@@ -153,7 +112,7 @@ function projectsReducer(state: ProjectsState, action: ProjectsAction): Projects
           if (project.id !== activeId) return project;
           return touchProject({
             ...project,
-            codeplug: applyImportToCodeplug(project.codeplug, action.result),
+            codeplug: applyImportToCodeplug(project.codeplug, action.result, mode),
           });
         }),
       };
@@ -228,7 +187,7 @@ function activeProject(state: ProjectsState): CodeplugProject | null {
 
 interface CodeplugContextValue {
   codeplug: Codeplug;
-  applyImport: (result: ImportResult) => void;
+  applyImport: (result: ImportResult, mode?: ImportApplyMode) => void;
   clear: () => void;
   addChannel: (input: ChannelInput) => void;
   updateChannel: (channelId: string, patch: Partial<ChannelInput>) => void;
@@ -246,7 +205,7 @@ interface ProjectsContextValue {
   activeProjectId: string | null;
   activeProject: CodeplugProject | null;
   importNewProject: (result: ImportResult, name?: string) => void;
-  applyImportToActive: (result: ImportResult) => void;
+  applyImportToActive: (result: ImportResult, mode?: ImportApplyMode) => void;
   setActiveProject: (id: string) => void;
   deleteProject: (id: string) => void;
   persistenceError: string | null;
@@ -280,9 +239,9 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     setPersistenceError(null);
   }, []);
 
-  const applyImport = useCallback((result: ImportResult) => {
+  const applyImport = useCallback((result: ImportResult, mode: ImportApplyMode = 'merge') => {
     setPersistenceError(null);
-    dispatch({ type: 'APPLY_IMPORT', result });
+    dispatch({ type: 'APPLY_IMPORT', result, mode });
   }, []);
 
   const clear = useCallback(() => {
@@ -298,10 +257,13 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'IMPORT_NEW_PROJECT', result, name });
   }, []);
 
-  const applyImportToActive = useCallback((result: ImportResult) => {
-    setPersistenceError(null);
-    dispatch({ type: 'APPLY_IMPORT', result });
-  }, []);
+  const applyImportToActive = useCallback(
+    (result: ImportResult, mode: ImportApplyMode = 'merge') => {
+      setPersistenceError(null);
+      dispatch({ type: 'APPLY_IMPORT', result, mode });
+    },
+    [],
+  );
 
   const setActiveProject = useCallback((id: string) => {
     setPersistenceError(null);

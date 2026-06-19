@@ -128,12 +128,12 @@ Channel CSV content persists via the **codeplug projects store** in LocalStorage
 ## Manual verify
 
 1. Copy `Channels.csv` from an OpenGD77 export into `sample-exports/`.
-2. Run `npm run dev` and open `http://localhost:5173/codeplug-tool/#/map` (or the [live site](https://pskillen.github.io/codeplug-tool/#/map)).
-3. Import `Channels.csv` via the import panel (drop, choose files, or choose folder).
-4. Confirm markers appear for known repeaters; open popups for frequency/contact fields.
+2. Run `npm run dev` and open `http://localhost:5173/codeplug-tool/#/channels` (or the [live site](https://pskillen.github.io/codeplug-tool/#/channels)).
+3. **Home:** import `Channels.csv` to create a new project, or **Import & export:** import into the active codeplug (merge/overwrite).
+4. Confirm markers appear on the channels map for known repeaters; open popups for frequency/contact fields.
 5. Toggle **Skip 0,0** and **Use Location** — skipped list and marker count should update.
 6. Toggle **Merge same lat/lon** — co-located FM/DMR pairs should collapse to one marker when enabled.
-7. Load `Zones.csv` (see [zones.md](zones.md)) — hulls should respect the same filters.
+7. Import `Zones.csv` via Import & export (merge) — hulls should respect the same filters (see [zones.md](zones.md)).
 
 ## Known gaps
 

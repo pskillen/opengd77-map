@@ -74,7 +74,7 @@ describe('codeplug import merge semantics', () => {
     expect(state.zones[0].sourceMemberNames).toEqual(['A', 'B']);
   });
 
-  it('re-resolves existing zones on channels-only re-import', () => {
+  it('preserves channel ids on channels-only re-import when names match', () => {
     let state = emptyCodeplug();
     state = applyImportToCodeplug(state, channelsCsvResult());
     state = applyImportToCodeplug(state, {
@@ -104,7 +104,8 @@ describe('codeplug import merge semantics', () => {
     });
 
     expect(state.zones[0].id).toBe(zoneId);
-    expect(state.zones[0].memberChannelIds).toEqual(['ch-new-a']);
+    expect(state.channels.find((c) => c.name === 'A')?.id).toBe('ch-1');
+    expect(state.zones[0].memberChannelIds).toEqual(['ch-1', 'ch-2']);
   });
 });
 

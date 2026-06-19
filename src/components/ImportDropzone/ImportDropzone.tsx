@@ -6,19 +6,7 @@ import type { ImportResult } from '../../lib/import/types.ts';
 import { ICON_SIZE_ACTION, ICON_STROKE, ICON_SIZE_NAV } from '../../lib/iconSizes.ts';
 import './ImportDropzone.css';
 
-function formatImportSummary(
-  recognised: string[],
-  skipped: { fileName: string; message: string }[],
-  errors: { fileName: string; message: string }[],
-): string | null {
-  const parts: string[] = [];
-  if (recognised.length) parts.push(`Recognised: ${recognised.join(', ')}`);
-  if (skipped.length)
-    parts.push(`Skipped: ${skipped.map((s) => `${s.fileName} (${s.message})`).join('; ')}`);
-  if (errors.length)
-    parts.push(`Errors: ${errors.map((e) => `${e.fileName}: ${e.message}`).join('; ')}`);
-  return parts.length ? parts.join(' · ') : null;
-}
+import { formatImportFileSummary } from '../../lib/importSummary.ts';
 
 export interface ImportDropzoneProps {
   onResult: (result: ImportResult) => void;
@@ -45,7 +33,7 @@ export default function ImportDropzone({
       try {
         const result = await importFiles(files);
         onResult(result);
-        setSummary(formatImportSummary(result.recognised, result.skipped, result.errors));
+        setSummary(formatImportFileSummary(result.recognised, result.skipped, result.errors));
         setError(result.errors.length ? result.errors.map((e) => e.message).join('; ') : null);
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
