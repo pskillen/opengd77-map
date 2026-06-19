@@ -10,6 +10,7 @@ import ReportPage from '../components/report/ReportPage.tsx';
 import {
   channelsWithContactName,
   findEntityById,
+  formatReferenceCount,
   rxGroupListsContainingMember,
 } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
@@ -114,6 +115,31 @@ export default function ContactDetail() {
               columns={[
                 { key: 'mode', header: 'Mode', render: (ch) => modeLabel(ch.mode) },
                 { key: 'rx', header: 'RX MHz', render: (ch) => ch.rxFrequency || '—' },
+              ]}
+            />
+          )}
+        </Stack>
+
+        <Stack gap="sm">
+          <Title order={3}>RX groups using this contact</Title>
+          {usingLists.length === 0 ? (
+            <Text size="sm" c="dimmed">
+              No RX group lists include this contact.
+            </Text>
+          ) : (
+            <EntityTable
+              rows={usingLists}
+              rowKey={(rgl) => rgl.id}
+              nameColumn={{
+                getName: (rgl) => rgl.name,
+                getPath: (rgl) => `/rx-group-lists/${rgl.id}`,
+              }}
+              columns={[
+                {
+                  key: 'members',
+                  header: 'Members',
+                  render: (rgl) => formatReferenceCount(rgl.sourceMemberNames.length),
+                },
               ]}
             />
           )}

@@ -3,13 +3,18 @@ import { IconPlus } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import EntityTable from '../components/report/EntityTable.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
-import { channelsWithTalkGroupName, sortByName } from '../lib/reportLookup.ts';
+import {
+  channelsWithTalkGroupName,
+  formatReferenceCount,
+  rxGroupListsContainingMember,
+  sortByName,
+} from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
 
 export default function TalkGroupsList() {
   const { codeplug } = useCodeplug();
-  const { channels, talkGroups } = codeplug;
+  const { channels, talkGroups, rxGroupLists } = codeplug;
   const sorted = sortByName(talkGroups);
 
   return (
@@ -38,7 +43,14 @@ export default function TalkGroupsList() {
             {
               key: 'channels',
               header: 'Channels using',
-              render: (tg) => channelsWithTalkGroupName(tg.name, channels).length,
+              render: (tg) =>
+                formatReferenceCount(channelsWithTalkGroupName(tg.name, channels).length),
+            },
+            {
+              key: 'rgl',
+              header: 'RX groups using',
+              render: (tg) =>
+                formatReferenceCount(rxGroupListsContainingMember(tg.name, rxGroupLists).length),
             },
           ]}
         />

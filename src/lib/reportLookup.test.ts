@@ -6,6 +6,7 @@ import {
   channelsWithRxGroupList,
   channelsWithTalkGroupName,
   findEntityById,
+  formatReferenceCount,
   resolveRxGroupListMembers,
   rxGroupListsContainingMember,
   sortByName,
@@ -115,5 +116,10 @@ describe('reportLookup', () => {
       'C',
     ]);
     expect(rxGroupListsContainingMember('', lists)).toEqual([]);
+  });
+
+  it('formatReferenceCount renders empty for zero', () => {
+    expect(formatReferenceCount(0)).toBe('');
+    expect(formatReferenceCount(3)).toBe('3');
   });
 });
