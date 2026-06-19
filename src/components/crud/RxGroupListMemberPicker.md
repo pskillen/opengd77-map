@@ -6,12 +6,12 @@ Multi-select RX group list membership editor. Members are vendor wire **names** 
 
 ## Props
 
-| Prop | Type | Notes |
-| --- | --- | --- |
-| `talkGroups` | `TalkGroup[]` | Group call options |
-| `contacts` | `Contact[]` | Private call options |
-| `selectedNames` | `string[]` | Ordered member names |
-| `onChange` | `(names: string[]) => void` | Updated selection |
+| Prop            | Type                        | Notes                |
+| --------------- | --------------------------- | -------------------- |
+| `talkGroups`    | `TalkGroup[]`               | Group call options   |
+| `contacts`      | `Contact[]`                 | Private call options |
+| `selectedNames` | `string[]`                  | Ordered member names |
+| `onChange`      | `(names: string[]) => void` | Updated selection    |
 
 ## Behaviour
 

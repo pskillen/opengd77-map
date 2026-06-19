@@ -41,8 +41,7 @@ export default function RxGroupListsList() {
             {
               key: 'channels',
               header: 'Channels using',
-              render: (r) =>
-                formatReferenceCount(channelsWithRxGroupList(r.name, channels).length),
+              render: (r) => formatReferenceCount(channelsWithRxGroupList(r.name, channels).length),
             },
           ]}
         />

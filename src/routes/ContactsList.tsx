@@ -43,8 +43,7 @@ export default function ContactsList() {
             {
               key: 'channels',
               header: 'Channels using',
-              render: (c) =>
-                formatReferenceCount(channelsWithContactName(c.name, channels).length),
+              render: (c) => formatReferenceCount(channelsWithContactName(c.name, channels).length),
             },
             {
               key: 'rgl',

@@ -181,7 +181,11 @@ function dedupeMemberNames(names: string[]): string[] {
   return out;
 }
 
-function propagateContactWireRename(codeplug: Codeplug, oldName: string, newName: string): Codeplug {
+function propagateContactWireRename(
+  codeplug: Codeplug,
+  oldName: string,
+  newName: string,
+): Codeplug {
   const channels = codeplug.channels.map((ch) =>
     ch.contactName === oldName ? { ...ch, contactName: newName } : ch,
   );

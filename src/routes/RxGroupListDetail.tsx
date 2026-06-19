@@ -142,7 +142,11 @@ export default function RxGroupListDetail() {
                 getPath: (ch) => `/channels/${ch.id}`,
               }}
               columns={[
-                { key: 'band', header: 'Band', render: (ch) => <BandPillForChannel channel={ch} /> },
+                {
+                  key: 'band',
+                  header: 'Band',
+                  render: (ch) => <BandPillForChannel channel={ch} />,
+                },
                 { key: 'mode', header: 'Mode', render: (ch) => <ModePill mode={ch.mode} /> },
               ]}
             />

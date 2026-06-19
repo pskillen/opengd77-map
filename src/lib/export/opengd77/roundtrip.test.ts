@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { importFiles } from '../../import/index.ts';
 import { addRxGroupList, addTalkGroup } from '../../codeplugMutations.ts';
-import { emptyCodeplug, resetIdGenerator, setIdGenerator, type Codeplug } from '../../../models/codeplug.ts';
+import {
+  emptyCodeplug,
+  resetIdGenerator,
+  setIdGenerator,
+  type Codeplug,
+} from '../../../models/codeplug.ts';
 import {
   CHANNEL_HEADERS,
   CONTACT_HEADERS,

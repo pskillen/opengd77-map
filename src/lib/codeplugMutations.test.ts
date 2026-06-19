@@ -172,9 +172,7 @@ describe('codeplugMutations', () => {
         ...emptyCodeplug(),
         talkGroups: [{ id: 'tg-1', name: 'Old TG', number: '9', timeslotOverride: '' }],
         channels: [makeChannel('ch-1', 'GB3DA', { contactName: 'Old TG' })],
-        rxGroupLists: [
-          { id: 'rgl-1', name: 'List', sourceMemberNames: ['Old TG', 'Other'] },
-        ],
+        rxGroupLists: [{ id: 'rgl-1', name: 'List', sourceMemberNames: ['Old TG', 'Other'] }],
       };
       const next = updateTalkGroup(cp, 'tg-1', { name: 'New TG' });
       expect(next.talkGroups[0].name).toBe('New TG');

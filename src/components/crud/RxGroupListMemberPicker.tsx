@@ -118,10 +118,7 @@ export default function RxGroupListMemberPicker({
 
   const selectedSet = new Set(selectedNames);
   const allOptions = useMemo(() => memberOptions(talkGroups, contacts), [talkGroups, contacts]);
-  const optionByName = useMemo(
-    () => new Map(allOptions.map((o) => [o.name, o])),
-    [allOptions],
-  );
+  const optionByName = useMemo(() => new Map(allOptions.map((o) => [o.name, o])), [allOptions]);
 
   const availableFilterLower = availableFilter.trim().toLowerCase();
   const inListFilterLower = inListFilter.trim().toLowerCase();

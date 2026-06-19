@@ -111,10 +111,7 @@ describe('reportLookup', () => {
       { id: 'r2', name: 'B', sourceMemberNames: ['Local'] },
       { id: 'r3', name: 'C', sourceMemberNames: ['Scotland', 'Local'] },
     ];
-    expect(rxGroupListsContainingMember('Scotland', lists).map((r) => r.name)).toEqual([
-      'A',
-      'C',
-    ]);
+    expect(rxGroupListsContainingMember('Scotland', lists).map((r) => r.name)).toEqual(['A', 'C']);
     expect(rxGroupListsContainingMember('', lists)).toEqual([]);
   });
 
