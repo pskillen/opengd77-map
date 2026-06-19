@@ -59,7 +59,7 @@ Persistence: [persistence/README.md](../persistence/README.md) — multi-project
 | --- | --- |
 | Home (`/`) | List codeplugs, **Import codeplug**, **Open**, **Delete** (confirm) |
 | App nav (always) | **Home** (when no active project), **Reference**, **Settings** |
-| Export (`/export`) | **Import into active codeplug** (merge/overwrite) + download CPS CSV ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
+| Export (`/export`) | **Import & export** — vendor format picker; merge/overwrite import + CPS download ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 | Route guards | Project-scoped routes redirect to Home when no active project — [`RequireActiveProject`](../../../src/components/RequireActiveProject/RequireActiveProject.tsx) |
 
 No **new empty project** yet — import is the only creation path ([#31](https://github.com/pskillen/codeplug-tool/issues/31)).

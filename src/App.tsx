@@ -3,8 +3,8 @@ import { useDisclosure } from '@mantine/hooks';
 import {
   IconAddressBook,
   IconAntenna,
+  IconArrowsLeftRight,
   IconBook,
-  IconDownload,
   IconFolders,
   IconHome,
   IconLayoutDashboard,
@@ -19,7 +19,7 @@ import RequireActiveProject from './components/RequireActiveProject/RequireActiv
 import BuildFooter from './components/BuildFooter.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from './lib/iconSizes.ts';
 import Home from './routes/Home.tsx';
-import Export from './routes/Export.tsx';
+import ImportExport from './routes/ImportExport.tsx';
 import Summary from './routes/Summary.tsx';
 import ChannelsList from './routes/channels/list.tsx';
 import ChannelDetail from './routes/channels/detail.tsx';
@@ -61,7 +61,7 @@ export default function App() {
     { to: '/talk-groups', label: 'Talk groups', icon: IconUsersGroup },
     { to: '/contacts', label: 'Contacts', icon: IconAddressBook },
     { to: '/rx-group-lists', label: 'RX Group Lists', icon: IconListDetails },
-    { to: '/export', label: 'Export', icon: IconDownload },
+    { to: '/export', label: 'Import & export', icon: IconArrowsLeftRight },
   ];
 
   return (
@@ -151,7 +151,7 @@ export default function App() {
             <Route path="/contacts/:id" element={<ContactDetail />} />
             <Route path="/rx-group-lists" element={<RxGroupListsList />} />
             <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
-            <Route path="/export" element={<Export />} />
+            <Route path="/export" element={<ImportExport />} />
             <Route path="/map" element={<Navigate to="/channels" replace />} />
           </Route>
         </Routes>

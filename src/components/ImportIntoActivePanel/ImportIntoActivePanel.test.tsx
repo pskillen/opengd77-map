@@ -2,6 +2,7 @@ import { MantineProvider } from '@mantine/core';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { vendorFormatById } from '../../lib/vendorFormats.ts';
 import ImportIntoActivePanel from './ImportIntoActivePanel.tsx';
 import { channelsOnlyBundle } from '../../test/opengd77/loadFixture.ts';
 import { newProject } from '../../models/codeplugProject.ts';
@@ -10,13 +11,15 @@ import { CodeplugProvider } from '../../state/codeplugStore.tsx';
 import { OperatorPositionProvider } from '../../state/operatorPosition.tsx';
 import { theme } from '../../theme.ts';
 
-function renderPanel() {
+const opengd77Format = vendorFormatById('opengd77');
+
+function renderPanel(vendorFormat = opengd77Format) {
   return render(
     <MantineProvider theme={theme} defaultColorScheme="dark">
       <MemoryRouter>
         <OperatorPositionProvider>
           <CodeplugProvider>
-            <ImportIntoActivePanel />
+            <ImportIntoActivePanel vendorFormat={vendorFormat} />
           </CodeplugProvider>
         </OperatorPositionProvider>
       </MemoryRouter>
@@ -46,6 +49,12 @@ describe('ImportIntoActivePanel', () => {
   afterEach(() => {
     localStorage.clear();
     vi.unstubAllGlobals();
+  });
+
+  it('shows coming soon for planned vendor formats', () => {
+    renderPanel(vendorFormatById('qdmr'));
+    expect(screen.getByText(/Import not available yet/i)).toBeInTheDocument();
+    expect(screen.queryByText('Merge')).not.toBeInTheDocument();
   });
 
   it('renders merge and overwrite mode selector', () => {

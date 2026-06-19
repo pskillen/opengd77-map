@@ -5,10 +5,15 @@ import type { ImportApplyMode, ImportMergeReport } from '../../lib/importMerge.t
 import { previewImportMerge } from '../../lib/importMerge.ts';
 import type { ImportResult } from '../../lib/import/types.ts';
 import { formatImportFileSummary, formatMergeReportLines } from '../../lib/importSummary.ts';
+import type { VendorFormatOption } from '../../lib/vendorFormats.ts';
 import { useCodeplug, useProjects } from '../../state/codeplugStore.tsx';
 import ImportDropzone from '../ImportDropzone/ImportDropzone.tsx';
 
-export default function ImportIntoActivePanel() {
+export interface ImportIntoActivePanelProps {
+  vendorFormat: VendorFormatOption;
+}
+
+export default function ImportIntoActivePanel({ vendorFormat }: ImportIntoActivePanelProps) {
   const { codeplug } = useCodeplug();
   const { applyImportToActive, persistenceError, clearPersistenceError } = useProjects();
   const [mode, setMode] = useState<ImportApplyMode>('merge');
@@ -58,6 +63,23 @@ export default function ImportIntoActivePanel() {
     [pendingReport.channels, pendingReport.zones, pendingReport.contacts, pendingReport.talkGroups, pendingReport.rxGroupLists].some(
       (s) => s.removed > 0,
     );
+
+  if (vendorFormat.importStatus !== 'shipped') {
+    return (
+      <Alert color="gray" title="Import not available yet">
+        {vendorFormat.label} import is planned
+        {vendorFormat.issue ? ` (${vendorFormat.issue})` : ''}. OpenGD77 CPS CSV is supported today.
+      </Alert>
+    );
+  }
+
+  if (vendorFormat.id !== 'opengd77') {
+    return (
+      <Alert color="gray" title="Import not available">
+        No importer is registered for {vendorFormat.label}.
+      </Alert>
+    );
+  }
 
   return (
     <Stack gap="sm">

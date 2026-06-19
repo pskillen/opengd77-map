@@ -16,11 +16,11 @@ Import was hard-wired to OpenGD77 CSV inside the channel map. This refactor intr
 | OpenGD77 adapter | Shipped | Channels, Zones, Contacts, TG_Lists ([#38](https://github.com/pskillen/codeplug-tool/issues/38)) |
 | Format registry | Shipped | OpenGD77 only; room for more brands |
 | Multi-file + directory import UI | Shipped | [`ImportDropzone`](../../../src/components/ImportDropzone/ImportDropzone.tsx) on home |
-| Active project import | Shipped | [`ImportIntoActivePanel`](../../../src/components/ImportIntoActivePanel/ImportIntoActivePanel.tsx) on Export ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
+| Active project import | Shipped | [`ImportIntoActivePanel`](../../../src/components/ImportIntoActivePanel/ImportIntoActivePanel.tsx) on Import & export ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 | Merge / overwrite modes | Shipped | [`importMerge.ts`](../../../src/lib/importMerge.ts) — idempotent merge by vendor name |
 | Name → id resolution | Shipped | Store + [`src/lib/codeplug.ts`](../../../src/lib/codeplug.ts) |
 | LocalStorage persistence | Shipped | [#9](https://github.com/pskillen/codeplug-tool/issues/9) — [persistence/](../persistence/) |
-| Multi-project import | Shipped | Home creates project; Export merges into active — [codeplug-project/](../codeplug-project/) |
+| Multi-project import | Shipped | Home creates project; Import & export merges into active — [codeplug-project/](../codeplug-project/) |
 
 ## Documentation map
 
@@ -41,7 +41,7 @@ Import was hard-wired to OpenGD77 CSV inside the channel map. This refactor intr
 ```mermaid
 flowchart TD
   HomeUI["ImportDropzone (home)"] --> importFiles
-  ExportUI["ImportIntoActivePanel (export)"] --> importFiles
+  ExportUI["ImportIntoActivePanel (import & export page)"] --> importFiles
   importFiles --> Adapter["opengd77 adapter"]
   Adapter --> Raw["ImportResult"]
   Raw --> Merge["importMerge — merge or overwrite"]
@@ -85,7 +85,7 @@ After apply, all zones' `memberChannelIds` are re-resolved from `sourceMemberNam
 ## Import UI behaviour
 
 - **Home:** `ImportDropzone` creates a **new** codeplug project (`importNewProject`).
-- **Export:** `ImportIntoActivePanel` merges into the **active** project with confirm modal (`applyImportToActive`).
+- **Import & export (`/export`):** `ImportIntoActivePanel` merges into the **active** project with confirm modal (`applyImportToActive`).
 - **Drop target:** multiple `.csv` files or a whole folder.
 - **Recognised:** `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`
 - **Skipped:** `DTMF.csv`, `APRS.csv`, other unknown CSVs
@@ -104,14 +104,14 @@ Synthetic CSV bundles: [`src/test/opengd77/bundles.ts`](../../../src/test/opengd
 ### Merge workflow
 
 1. `npm run dev` → Home → import `Channels.csv` → Summary opens with new project.
-2. Export → **Merge** → import `Zones.csv` → confirm shows zones added → zones resolve on `/zones`.
+2. Import & export → **Merge** → import `Zones.csv` → confirm shows zones added → zones resolve on `/zones`.
 3. Re-import **identical** `Channels.csv` → confirm shows all unchanged.
 4. Re-import **modified** `Channels.csv` → only changed rows updated; zone links intact.
 5. Import `Contacts.csv` / `TG_Lists.csv` alone → other entities unchanged.
 
 ### Overwrite workflow
 
-1. With a populated codeplug, Export → **Overwrite** → import smaller `Channels.csv` → confirm warns removed count.
+1. With a populated codeplug, Import & export → **Overwrite** → import smaller `Channels.csv` → confirm warns removed count.
 2. Overwrite `Zones.csv` only → channels/contacts unchanged.
 
 ### Regression
