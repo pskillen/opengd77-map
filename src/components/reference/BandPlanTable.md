@@ -10,12 +10,12 @@ Renders rows from `UK_BANDS` in [`bands.ts`](../../lib/bands.ts) — no duplicat
 
 ## Columns
 
-| Column | Source |
-| --- | --- |
-| Band | `BandPill` with `band.label` and `band.color` |
-| Range | `formatBandRangeMhz(band.minMhz, band.maxMhz)` |
-| Colour | Hex value (`band.color`) |
-| Notes | `band.notes` or em dash when absent |
+| Column | Source                                         |
+| ------ | ---------------------------------------------- |
+| Band   | `BandPill` with `band.label` and `band.color`  |
+| Range  | `formatBandRangeMhz(band.minMhz, band.maxMhz)` |
+| Colour | Hex value (`band.color`)                       |
+| Notes  | `band.notes` or em dash when absent            |
 
 ## Related
 

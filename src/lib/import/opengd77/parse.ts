@@ -1,9 +1,5 @@
 import { extractCallsign, parseCsv } from '../../csv.ts';
-import {
-  channelFieldDefaults,
-  newId,
-  type Channel,
-} from '../../../models/codeplug.ts';
+import { channelFieldDefaults, newId, type Channel } from '../../../models/codeplug.ts';
 import { mapOpenGd77ChannelType } from '../../channelModes.ts';
 import type { Contact, TalkGroup } from '../../../models/codeplug.ts';
 import type { ParsedRxGroupList, ParsedZone } from '../types.ts';
@@ -132,7 +128,9 @@ export function parseRxGroupLists(text: string): ParsedRxGroupList[] {
 
   const headers = rows[0].map((h) => h.trim());
   if (!headers.includes(RX_GROUP_LIST_COL.name)) {
-    throw new Error(`Missing column "${RX_GROUP_LIST_COL.name}". Is this an OpenGD77 TG_Lists.csv?`);
+    throw new Error(
+      `Missing column "${RX_GROUP_LIST_COL.name}". Is this an OpenGD77 TG_Lists.csv?`,
+    );
   }
 
   const idx = Object.fromEntries(headers.map((h, i) => [h, i]));

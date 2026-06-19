@@ -55,16 +55,18 @@ export default function ImportDropzone({
   return (
     <Stack gap="sm">
       <Text size="sm" c="dimmed">
-        {hint.split(/(Channels\.csv|Zones\.csv|Contacts\.csv|TG_Lists\.csv)/).map((part, i) =>
-          part === 'Channels.csv' ||
-          part === 'Zones.csv' ||
-          part === 'Contacts.csv' ||
-          part === 'TG_Lists.csv' ? (
-            <code key={i}>{part}</code>
-          ) : (
-            part
-          ),
-        )}
+        {hint
+          .split(/(Channels\.csv|Zones\.csv|Contacts\.csv|TG_Lists\.csv)/)
+          .map((part, i) =>
+            part === 'Channels.csv' ||
+            part === 'Zones.csv' ||
+            part === 'Contacts.csv' ||
+            part === 'TG_Lists.csv' ? (
+              <code key={i}>{part}</code>
+            ) : (
+              part
+            ),
+          )}
       </Text>
 
       {persistenceError ? (

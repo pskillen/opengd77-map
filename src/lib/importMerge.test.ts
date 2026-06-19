@@ -114,28 +114,33 @@ describe('importMerge', () => {
     it('preserves zone id on upsert and resolves members', () => {
       const cp = applyImportToCodeplug(
         emptyCodeplug(),
-        channelsResult([
-          channel({ id: 'ch-1', name: 'A' }),
-          channel({ id: 'ch-2', name: 'B' }),
-        ]),
+        channelsResult([channel({ id: 'ch-1', name: 'A' }), channel({ id: 'ch-2', name: 'B' })]),
         'merge',
       ).codeplug;
 
-      const withZone = applyImportToCodeplug(cp, {
-        zones: [{ name: 'North', memberNames: ['A', 'B'] }],
-        recognised: ['Zones.csv'],
-        skipped: [],
-        errors: [],
-      }, 'merge');
+      const withZone = applyImportToCodeplug(
+        cp,
+        {
+          zones: [{ name: 'North', memberNames: ['A', 'B'] }],
+          recognised: ['Zones.csv'],
+          skipped: [],
+          errors: [],
+        },
+        'merge',
+      );
 
       const zoneId = withZone.codeplug.zones[0].id;
 
-      const reimport = applyImportToCodeplug(withZone.codeplug, {
-        zones: [{ name: 'North', memberNames: ['A', 'B'] }],
-        recognised: ['Zones.csv'],
-        skipped: [],
-        errors: [],
-      }, 'merge');
+      const reimport = applyImportToCodeplug(
+        withZone.codeplug,
+        {
+          zones: [{ name: 'North', memberNames: ['A', 'B'] }],
+          recognised: ['Zones.csv'],
+          skipped: [],
+          errors: [],
+        },
+        'merge',
+      );
 
       expect(reimport.report.zones).toEqual({ added: 0, updated: 0, unchanged: 1, removed: 0 });
       expect(reimport.codeplug.zones[0].id).toBe(zoneId);
@@ -210,12 +215,16 @@ describe('importMerge', () => {
 
   describe('unresolved zone members', () => {
     it('surfaces missing channel names', () => {
-      const { report } = applyImportToCodeplug(emptyCodeplug(), {
-        zones: [{ name: 'North', memberNames: ['Missing'] }],
-        recognised: ['Zones.csv'],
-        skipped: [],
-        errors: [],
-      }, 'merge');
+      const { report } = applyImportToCodeplug(
+        emptyCodeplug(),
+        {
+          zones: [{ name: 'North', memberNames: ['Missing'] }],
+          recognised: ['Zones.csv'],
+          skipped: [],
+          errors: [],
+        },
+        'merge',
+      );
 
       expect(report.unresolvedZoneMembers).toEqual([
         { zoneName: 'North', memberNames: ['Missing'] },

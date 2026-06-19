@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { channelFieldDefaults, type Channel } from '../models/codeplug.ts';
-import { channelHasLocation, channelOptionLabel, filterChannelOptions, resolveChannelOptionId } from './channelLookup.ts';
+import {
+  channelHasLocation,
+  channelOptionLabel,
+  filterChannelOptions,
+  resolveChannelOptionId,
+} from './channelLookup.ts';
 
 function makeChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
   return {
@@ -22,9 +27,7 @@ describe('channelLookup', () => {
       makeChannel({ id: '1', name: 'GB3HI', callsign: 'GB3HI' }),
       makeChannel({ id: '2', name: 'Other', callsign: 'GB0XX' }),
     ];
-    expect(filterChannelOptions(channels, 'gb3')).toEqual([
-      { value: '1', label: 'GB3HI' },
-    ]);
+    expect(filterChannelOptions(channels, 'gb3')).toEqual([{ value: '1', label: 'GB3HI' }]);
   });
 
   it('detects channels without usable coordinates', () => {
@@ -50,9 +53,11 @@ describe('channelLookup', () => {
     expect(resolveChannelOptionId('ch-1', options)).toBe('ch-1');
     expect(resolveChannelOptionId('partial', options)).toBeNull();
     expect(
-      resolveChannelOptionId('GB3HI', [], [
-        makeChannel({ id: 'ch-1', name: 'GB3HI', callsign: 'GB3HI' }),
-      ]),
+      resolveChannelOptionId(
+        'GB3HI',
+        [],
+        [makeChannel({ id: 'ch-1', name: 'GB3HI', callsign: 'GB3HI' })],
+      ),
     ).toBe('ch-1');
   });
 });

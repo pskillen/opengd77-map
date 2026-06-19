@@ -1,4 +1,14 @@
-import { Alert, Button, Container, Group, PasswordInput, Select, Stack, Text, Title } from '@mantine/core';
+import {
+  Alert,
+  Button,
+  Container,
+  Group,
+  PasswordInput,
+  Select,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useMapSettings } from '../hooks/useMapSettings.ts';
 import type { MaidenheadGridMode } from '../lib/maidenheadGrid.ts';
 import type { TileProvider } from '../lib/mapTiles.ts';

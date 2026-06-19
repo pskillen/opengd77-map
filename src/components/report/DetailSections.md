@@ -6,17 +6,17 @@ Renders grouped read-only fields on entity detail pages. Each section has a head
 
 ## Props — `DetailSections`
 
-| Prop | Type | Notes |
-| --- | --- | --- |
+| Prop       | Type              | Notes                                   |
+| ---------- | ----------------- | --------------------------------------- |
 | `sections` | `DetailSection[]` | `{ title, fields: { label, value }[] }` |
 
 `value` may be a `ReactNode` (plain text, `Anchor` links, badges).
 
 ## Props — `DetailLinkList`
 
-| Prop | Type | Notes |
-| --- | --- | --- |
-| `title` | `string` | Section heading |
+| Prop    | Type                   | Notes                                   |
+| ------- | ---------------------- | --------------------------------------- |
+| `title` | `string`               | Section heading                         |
 | `items` | `{ id, name, path }[]` | Linked entities; `path` is a hash route |
 
 ## Usage

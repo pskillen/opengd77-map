@@ -126,9 +126,9 @@ describe('active import system workflow', () => {
 
       expect(delta.applyReport.channels.updated).toBe(1);
       expect(delta.applyReport.channels.unchanged).toBe(1);
-      expect(
-        delta.codeplugAfter.channels.find((c) => c.name === 'GB3DA DMR')?.rxFrequency,
-      ).toBe('431.0');
+      expect(delta.codeplugAfter.channels.find((c) => c.name === 'GB3DA DMR')?.rxFrequency).toBe(
+        '431.0',
+      );
     });
   });
 
@@ -261,9 +261,9 @@ describe('active import system workflow', () => {
         mode: 'merge',
       });
 
-      expect(
-        merged.codeplugAfter.channels.find((c) => c.name === 'GB3DA DMR')?.hideFromMap,
-      ).toBe(true);
+      expect(merged.codeplugAfter.channels.find((c) => c.name === 'GB3DA DMR')?.hideFromMap).toBe(
+        true,
+      );
     });
   });
 });

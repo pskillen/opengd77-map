@@ -25,9 +25,7 @@ export function channelsWithTalkGroupName(name: string, channels: Channel[]): Ch
 
 export function channelsForZone(zone: Zone, channels: Channel[]): Channel[] {
   const byId = new Map(channels.map((ch) => [ch.id, ch]));
-  return zone.memberChannelIds
-    .map((id) => byId.get(id))
-    .filter((ch): ch is Channel => ch != null);
+  return zone.memberChannelIds.map((id) => byId.get(id)).filter((ch): ch is Channel => ch != null);
 }
 
 export interface ResolvedRxMember {
@@ -83,7 +81,10 @@ export function findRxGroupListByName(name: string, lists: RxGroupList[]): RxGro
 export function externalChannelLinks(callsign: string): { label: string; url: string }[] {
   const q = encodeURIComponent(callsign);
   return [
-    { label: 'RepeaterBook', url: `https://www.repeaterbook.com/repeaters/display.php?state=&call=${q}` },
+    {
+      label: 'RepeaterBook',
+      url: `https://www.repeaterbook.com/repeaters/display.php?state=&call=${q}`,
+    },
     { label: 'RadioReference', url: `https://www.radioreference.com/db/search/?q=${q}` },
     { label: 'QRZ', url: `https://www.qrz.com/db/${q}` },
   ];

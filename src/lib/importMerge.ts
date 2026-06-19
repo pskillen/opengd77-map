@@ -298,11 +298,7 @@ function applyImportInternal(
   result: ImportResult,
   mode: ImportApplyMode,
 ): { codeplug: Codeplug; report: ImportMergeReport } {
-  const { channels, stats: channelStats } = mergeChannels(
-    codeplug.channels,
-    result.channels,
-    mode,
-  );
+  const { channels, stats: channelStats } = mergeChannels(codeplug.channels, result.channels, mode);
   const { items: contacts, stats: contactStats } = mergeContacts(
     codeplug.contacts,
     result.contacts,
@@ -319,11 +315,7 @@ function applyImportInternal(
     mode,
   );
 
-  const { zones: mergedZones, stats: zoneStats } = mergeZones(
-    codeplug.zones,
-    result.zones,
-    mode,
-  );
+  const { zones: mergedZones, stats: zoneStats } = mergeZones(codeplug.zones, result.zones, mode);
 
   const nameToId = buildNameToChannelId(channels);
   const { zones, unresolved } = resolveZones(mergedZones, nameToId);

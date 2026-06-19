@@ -19,12 +19,7 @@ export interface EntityTableProps<T> {
   columns: EntityTableColumn<T>[];
 }
 
-export default function EntityTable<T>({
-  rows,
-  rowKey,
-  nameColumn,
-  columns,
-}: EntityTableProps<T>) {
+export default function EntityTable<T>({ rows, rowKey, nameColumn, columns }: EntityTableProps<T>) {
   return (
     <ScrollArea>
       <Table striped highlightOnHover withTableBorder>

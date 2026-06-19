@@ -74,10 +74,7 @@ describe('groupByCoords', () => {
 
 describe('dominantMode', () => {
   it('returns the most frequent mode in a group', () => {
-    const group = [
-      ch({ id: '1', name: 'A', mode: 'dmr' }),
-      ch({ id: '2', name: 'B', mode: 'fm' }),
-    ];
+    const group = [ch({ id: '1', name: 'A', mode: 'dmr' }), ch({ id: '2', name: 'B', mode: 'fm' })];
     expect(dominantMode(group)).toBe('dmr');
   });
 
@@ -99,10 +96,7 @@ describe('markerLabel', () => {
   });
 
   it('appends +N for merged groups', () => {
-    const group = [
-      ch({ id: '1', name: 'GB3DA DMR' }),
-      ch({ id: '2', name: 'GB3DA FM' }),
-    ];
+    const group = [ch({ id: '1', name: 'GB3DA DMR' }), ch({ id: '2', name: 'GB3DA FM' })];
     expect(markerLabel(group, false)).toBe('GB3DA +1');
   });
 });

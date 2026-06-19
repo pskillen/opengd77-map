@@ -119,9 +119,7 @@ describe('ImportIntoActivePanel', () => {
 
     fireEvent.change(input, { target: { files: [file] } });
     await waitFor(() => {
-      expect(
-        screen.getByText(/No changes — codeplug already matches import/i),
-      ).toBeInTheDocument();
+      expect(screen.getByText(/No changes — codeplug already matches import/i)).toBeInTheDocument();
     });
   });
 

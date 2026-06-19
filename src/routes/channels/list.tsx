@@ -1,4 +1,14 @@
-import { Button, Group, MultiSelect, Select, Slider, Stack, Switch, Text, TextInput } from '@mantine/core';
+import {
+  Button,
+  Group,
+  MultiSelect,
+  Select,
+  Slider,
+  Stack,
+  Switch,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
@@ -7,7 +17,12 @@ import { BandPillForChannel } from '../../components/crud/BandPill.tsx';
 import EntityTable from '../../components/report/EntityTable.tsx';
 import ReportPage from '../../components/report/ReportPage.tsx';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
-import { applyFilters, channelHasGeolocation, DISTANCE_FILTER_MARKS_KM, filterChannelsByDistance } from '../../lib/channels.ts';
+import {
+  applyFilters,
+  channelHasGeolocation,
+  DISTANCE_FILTER_MARKS_KM,
+  filterChannelsByDistance,
+} from '../../lib/channels.ts';
 import { channelMatchesBandFilter, bandsFromFrequencies, UK_BANDS } from '../../lib/bands.ts';
 import { modeFilterOptions } from '../../lib/channelModes.ts';
 import ModePill from '../../components/crud/ModePill.tsx';
@@ -55,12 +70,7 @@ function loadVisibleColumns(): string[] {
 function distanceForChannel(channel: Channel, position: OperatorPosition): string {
   if (!channelHasGeolocation(channel)) return '—';
   return formatDistanceM(
-    haversineDistanceM(
-      position.lat,
-      position.lon,
-      channel.location!.lat,
-      channel.location!.lon,
-    ),
+    haversineDistanceM(position.lat, position.lon, channel.location!.lat, channel.location!.lon),
   );
 }
 
@@ -82,18 +92,8 @@ function sortChannels(
   }
 
   located.sort((a, b) => {
-    const da = haversineDistanceM(
-      position.lat,
-      position.lon,
-      a.location!.lat,
-      a.location!.lon,
-    );
-    const db = haversineDistanceM(
-      position.lat,
-      position.lon,
-      b.location!.lat,
-      b.location!.lon,
-    );
+    const da = haversineDistanceM(position.lat, position.lon, a.location!.lat, a.location!.lon);
+    const db = haversineDistanceM(position.lat, position.lon, b.location!.lat, b.location!.lon);
     return da - db;
   });
 
@@ -351,8 +351,18 @@ export default function ChannelsList() {
           columns={[
             { key: 'band', header: 'Band', render: (ch) => <BandPillForChannel channel={ch} /> },
             { key: 'mode', header: 'Mode', render: (ch) => <ModePill mode={ch.mode} /> },
-            { key: 'rx', header: 'RX MHz', render: (ch) => (ch.rxFrequency ? formatFrequencyMhz(ch.rxFrequency).replace(' MHz', '') : '—') },
-            { key: 'tx', header: 'TX MHz', render: (ch) => (ch.txFrequency ? formatFrequencyMhz(ch.txFrequency).replace(' MHz', '') : '—') },
+            {
+              key: 'rx',
+              header: 'RX MHz',
+              render: (ch) =>
+                ch.rxFrequency ? formatFrequencyMhz(ch.rxFrequency).replace(' MHz', '') : '—',
+            },
+            {
+              key: 'tx',
+              header: 'TX MHz',
+              render: (ch) =>
+                ch.txFrequency ? formatFrequencyMhz(ch.txFrequency).replace(' MHz', '') : '—',
+            },
             ...optionalColumnDefs,
           ]}
         />

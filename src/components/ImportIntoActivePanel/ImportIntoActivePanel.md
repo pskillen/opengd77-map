@@ -6,8 +6,8 @@ Import OpenGD77 CSV files into the **active** codeplug from the Import & export 
 
 ## Props
 
-| Prop | Type | Notes |
-| --- | --- | --- |
+| Prop           | Type                 | Notes                                                                                                     |
+| -------------- | -------------------- | --------------------------------------------------------------------------------------------------------- |
 | `vendorFormat` | `VendorFormatOption` | From [`vendorFormats.ts`](../../lib/vendorFormats.ts); shows coming-soon alert when import is not shipped |
 
 ## Usage
@@ -16,7 +16,7 @@ Import OpenGD77 CSV files into the **active** codeplug from the Import & export 
 import ImportIntoActivePanel from '../components/ImportIntoActivePanel/ImportIntoActivePanel.tsx';
 import { vendorFormatById } from '../lib/vendorFormats.ts';
 
-<ImportIntoActivePanel vendorFormat={vendorFormatById('opengd77')} />
+<ImportIntoActivePanel vendorFormat={vendorFormatById('opengd77')} />;
 ```
 
 ## Behaviour

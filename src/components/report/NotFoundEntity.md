@@ -6,10 +6,10 @@ Friendly fallback when a detail route’s `:id` does not match any entity in the
 
 ## Props
 
-| Prop | Type | Notes |
-| --- | --- | --- |
+| Prop          | Type     | Notes                                            |
+| ------------- | -------- | ------------------------------------------------ |
 | `entityLabel` | `string` | Human label, e.g. `"Channel"`, `"RX Group List"` |
-| `listPath` | `string` | Hash route back to the parent list |
+| `listPath`    | `string` | Hash route back to the parent list               |
 
 ## Usage
 

@@ -77,8 +77,17 @@ export default function RxGroupListDetail() {
                 header: 'Type',
                 render: (m) => {
                   if (m.kind === 'talkGroup') return <Badge size="sm">Talk group</Badge>;
-                  if (m.kind === 'contact') return <Badge size="sm" color="grape">Private</Badge>;
-                  return <Badge size="sm" color="yellow">Unresolved</Badge>;
+                  if (m.kind === 'contact')
+                    return (
+                      <Badge size="sm" color="grape">
+                        Private
+                      </Badge>
+                    );
+                  return (
+                    <Badge size="sm" color="yellow">
+                      Unresolved
+                    </Badge>
+                  );
                 },
               },
             ]}

@@ -1,12 +1,6 @@
 import L from 'leaflet';
 import { useEffect } from 'react';
-import {
-  MapContainer,
-  Marker,
-  TileLayer,
-  useMap,
-  useMapEvents,
-} from 'react-leaflet';
+import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from 'react-leaflet';
 import MaidenheadGridLayer from '../CodeplugMap/MaidenheadGridLayer.tsx';
 import { useDocumentLayoutReady } from '../../hooks/useDocumentLayoutReady.ts';
 import { useMapSettings } from '../../hooks/useMapSettings.ts';

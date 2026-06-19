@@ -34,9 +34,7 @@ function messageForGeolocationError(code: number): string {
   }
 }
 
-export function requestCurrentPosition(
-  opts?: PositionOptions,
-): Promise<GeolocationResult> {
+export function requestCurrentPosition(opts?: PositionOptions): Promise<GeolocationResult> {
   if (!isGeolocationSupported()) {
     return Promise.reject(
       new GeolocationError('Location not available in this browser or context'),

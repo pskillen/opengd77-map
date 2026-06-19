@@ -6,14 +6,14 @@ Generic read-only data table for CPS entities. First column is always the entity
 
 ## Props
 
-| Prop | Type | Notes |
-| --- | --- | --- |
-| `rows` | `T[]` | Data rows (caller sorts, e.g. via `sortByName`) |
-| `rowKey` | `(row: T) => string` | Stable React key (usually entity `id`) |
-| `nameColumn.getName` | `(row: T) => string` | Display name |
-| `nameColumn.getPath` | `(row: T) => string` | Hash route, e.g. `/channels/${id}` |
-| `nameColumn.header` | `string` | Optional header (default `"Name"`) |
-| `columns` | `EntityTableColumn<T>[]` | Extra columns: `key`, `header`, `render` |
+| Prop                 | Type                     | Notes                                           |
+| -------------------- | ------------------------ | ----------------------------------------------- |
+| `rows`               | `T[]`                    | Data rows (caller sorts, e.g. via `sortByName`) |
+| `rowKey`             | `(row: T) => string`     | Stable React key (usually entity `id`)          |
+| `nameColumn.getName` | `(row: T) => string`     | Display name                                    |
+| `nameColumn.getPath` | `(row: T) => string`     | Hash route, e.g. `/channels/${id}`              |
+| `nameColumn.header`  | `string`                 | Optional header (default `"Name"`)              |
+| `columns`            | `EntityTableColumn<T>[]` | Extra columns: `key`, `header`, `render`        |
 
 ## Usage
 
@@ -31,7 +31,7 @@ import EntityTable from '../components/report/EntityTable.tsx';
     { key: 'mode', header: 'Mode', render: (ch) => modeLabel(ch.mode) },
     { key: 'rx', header: 'RX MHz', render: (ch) => ch.rxFrequency || '—' },
   ]}
-/>
+/>;
 ```
 
 ## Behaviour

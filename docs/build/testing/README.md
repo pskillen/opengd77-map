@@ -55,25 +55,26 @@ flowchart TB
 | All Vitest | `npm test` | Unit, component, adapter integration (`src/**/*.test.ts(x)`) |
 | Watch | `npm run test:watch` | Same, interactive |
 | System + import UI | `npm run test:system` | `src/test/system/`, `ImportIntoActivePanel` |
-| Coverage | `npm run test:coverage` | Planned — [#79](https://github.com/pskillen/codeplug-tool/issues/79) |
+| Coverage | `npm run test:coverage` | Full Vitest suite with `@vitest/coverage-v8` (same scope as `npm test`) |
 | E2e | `npm run test:e2e` | Planned — [#40](https://github.com/pskillen/codeplug-tool/issues/40) |
 
 Run before commit: `npm run lint`, `npm run format:check`, `npm test`, and `npm run test:system` when touching import/merge/store paths. See [git-workflow](../../../.cursor/skills/git-workflow/SKILL.md).
 
 ## CI on pull requests
 
-PR checks are **planned** in [#79](https://github.com/pskillen/codeplug-tool/issues/79). Today only the release-triggered Pages workflow runs (build on publish, not on PR). When #79 lands, every PR should run:
+Every pull request and push to `main` runs [`.github/workflows/checks.yaml`](../../.github/workflows/checks.yaml) (**Checks** workflow):
 
-| Check | Script | CI (#79) | Notes |
+| Check | Script | CI | Notes |
 | --- | --- | --- | --- |
-| ESLint | `npm run lint` | Planned | |
-| Prettier | `npm run format:check` | Planned | |
-| Unit + component | `npm test` / `test:coverage` | Planned | Coverage via `@vitest/coverage-v8`; report-only in v1 |
-| System | `npm run test:system` | Extend #79 | Shipped on `main`; add to workflow with #79 |
-| E2e | `npm run test:e2e` | When #40 lands | Playwright + browser install |
-| Type-check + build | `npm run build` | Planned | `tsc -b && vite build` |
+| ESLint | `npm run lint` | Yes | |
+| Prettier | `npm run format:check` | Yes | |
+| Unit + component + system | `npm run test:coverage` | Yes | Full Vitest suite; JUnit → [dorny/test-reporter](https://github.com/dorny/test-reporter) check with every test name; coverage report-only in v1 |
+| E2e | `npm run test:e2e` | When #40 lands | Playwright + browser install (commented placeholder in workflow) |
+| Type-check + build | `npm run build` | Yes | `tsc -b && vite build` |
 
-Coverage: artifact upload + job summary (or PR comment). No fail-on-threshold in v1. See [#79](https://github.com/pskillen/codeplug-tool/issues/79) for workflow file and `test:coverage` script.
+`npm run test:system` remains a **local focused script** for import/merge work; CI runs the full suite via `test:coverage`.
+
+**Reading results:** the **Vitest** check run lists every test with pass/fail; the job **Summary** also includes coverage percentages. Download **test-results** or **coverage-report** artifacts for JUnit XML / lcov detail. No fail-on-threshold for coverage in v1.
 
 ## Where to add tests
 
@@ -106,5 +107,5 @@ Coverage: artifact upload + job summary (or PR comment). No fail-on-threshold in
 | Export feature | [docs/features/export/README.md](../../features/export/README.md) |
 | Data model | [docs/features/data-model/README.md](../../features/data-model/README.md) |
 | OpenGD77 wire format | [docs/reference/opengd77/](../../reference/opengd77/README.md) |
-| PR CI (planned) | [#79](https://github.com/pskillen/codeplug-tool/issues/79) |
+| PR checks | [`.github/workflows/checks.yaml`](../../.github/workflows/checks.yaml) — shipped [#79](https://github.com/pskillen/codeplug-tool/issues/79) |
 | Playwright e2e (planned) | [#40](https://github.com/pskillen/codeplug-tool/issues/40) |

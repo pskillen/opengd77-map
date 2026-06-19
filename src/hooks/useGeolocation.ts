@@ -23,8 +23,7 @@ export function useGeolocation() {
       setAccuracyMeters(result.accuracyMeters);
       return result;
     } catch (err) {
-      const message =
-        err instanceof GeolocationError ? err.message : 'Location request failed';
+      const message = err instanceof GeolocationError ? err.message : 'Location request failed';
       setError(message);
       return null;
     } finally {

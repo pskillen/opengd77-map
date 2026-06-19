@@ -26,9 +26,7 @@ describe('geocodeQuery', () => {
       lon: -4.25,
       label: 'Glasgow, Glasgow, United Kingdom',
     });
-    expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining('photon.komoot.io'),
-    );
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('photon.komoot.io'));
   });
 
   it('uses Mapbox when provider is mapbox and token is set', async () => {
@@ -49,9 +47,7 @@ describe('geocodeQuery', () => {
       lon: -4.25,
       label: 'Glasgow, Scotland',
     });
-    expect(fetchMock).toHaveBeenCalledWith(
-      expect.stringContaining('api.mapbox.com'),
-    );
+    expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('api.mapbox.com'));
   });
 
   it('returns null when no results', async () => {

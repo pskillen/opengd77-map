@@ -1,10 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
-import {
-  OperatorPositionProvider,
-  useOperatorPosition,
-} from './operatorPosition.tsx';
+import { OperatorPositionProvider, useOperatorPosition } from './operatorPosition.tsx';
 
 function wrapper({ children }: { children: ReactNode }) {
   return <OperatorPositionProvider>{children}</OperatorPositionProvider>;

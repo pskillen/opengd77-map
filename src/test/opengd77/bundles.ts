@@ -1,4 +1,8 @@
-import { CHANNEL_HEADERS, CONTACT_HEADERS, RX_GROUP_LIST_HEADERS } from '../../lib/import/opengd77/columns.ts';
+import {
+  CHANNEL_HEADERS,
+  CONTACT_HEADERS,
+  RX_GROUP_LIST_HEADERS,
+} from '../../lib/import/opengd77/columns.ts';
 
 /** Synthetic minimal OpenGD77 export for system tests. */
 export const minimalBundle = {

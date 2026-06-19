@@ -1,18 +1,12 @@
 import type { Channel, Contact, RxGroupList, TalkGroup } from '../models/codeplug.ts';
 
-function locationsEqual(
-  a: Channel['location'],
-  b: Channel['location'],
-): boolean {
+function locationsEqual(a: Channel['location'], b: Channel['location']): boolean {
   if (a === null && b === null) return true;
   if (a === null || b === null) return false;
   return a.lat === b.lat && a.lon === b.lon;
 }
 
-function vendorExtrasEqual(
-  a: Record<string, string>,
-  b: Record<string, string>,
-): boolean {
+function vendorExtrasEqual(a: Record<string, string>, b: Record<string, string>): boolean {
   const keysA = Object.keys(a).sort();
   const keysB = Object.keys(b).sort();
   if (keysA.length !== keysB.length) return false;
@@ -70,19 +64,11 @@ export function memberNamesEqual(a: string[], b: string[]): boolean {
 }
 
 export function contactsImportEqual(a: Contact, b: Contact): boolean {
-  return (
-    a.name === b.name &&
-    a.number === b.number &&
-    a.timeslotOverride === b.timeslotOverride
-  );
+  return a.name === b.name && a.number === b.number && a.timeslotOverride === b.timeslotOverride;
 }
 
 export function talkGroupsImportEqual(a: TalkGroup, b: TalkGroup): boolean {
-  return (
-    a.name === b.name &&
-    a.number === b.number &&
-    a.timeslotOverride === b.timeslotOverride
-  );
+  return a.name === b.name && a.number === b.number && a.timeslotOverride === b.timeslotOverride;
 }
 
 export function rxGroupListsImportEqual(a: RxGroupList, b: RxGroupList): boolean {

@@ -1,0 +1,97 @@
+name: Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  checks: write
+
+concurrency:
+  group: checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      - name: Test report
+        uses: dorny/test-reporter@v3
+        if: ${{ !cancelled() }}
+        with:
+          name: Vitest
+          path: test-results/junit.xml
+          reporter: java-junit
+          list-suites: all
+          list-tests: all
+          report-title: Test results
+
+      # Future (#40): Playwright e2e — uncomment when test:e2e lands
+      # - name: Install Playwright browsers
+      #   run: npx playwright install --with-deps chromium
+      # - name: E2e tests
+      #   run: npm run test:e2e
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 14
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 14
+
+      - name: Coverage summary
+        run: |
+          node -e "
+          const fs = require('fs');
+          const summary = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8'));
+          const t = summary.total;
+          const row = (label, key) => \`| \${label} | \${t[key].pct}% |\`;
+          const md = [
+            '## Test coverage',
+            '',
+            '| Metric | Coverage |',
+            '| --- | --- |',
+            row('Statements', 'statements'),
+            row('Branches', 'branches'),
+            row('Functions', 'functions'),
+            row('Lines', 'lines'),
+            '',
+            'Download the full **coverage-report** artifact for lcov and per-file detail.',
+          ].join('\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+          "

@@ -1,7 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { importFiles } from '../../import/index.ts';
 import { resetIdGenerator, setIdGenerator, type Codeplug } from '../../../models/codeplug.ts';
-import { CHANNEL_HEADERS, CONTACT_HEADERS, RX_GROUP_LIST_HEADERS } from '../../import/opengd77/columns.ts';
+import {
+  CHANNEL_HEADERS,
+  CONTACT_HEADERS,
+  RX_GROUP_LIST_HEADERS,
+} from '../../import/opengd77/columns.ts';
 import { serialiseOpenGd77Files } from './serialise.ts';
 
 function withoutId<T extends { id: string }>(item: T): Omit<T, 'id'> {
@@ -87,23 +91,25 @@ Scotland,Scotland TS1,Local 9,,`;
 
     const second = await importFromExport(exported);
 
-    expect(stripIds({
-      channels: second.channels!,
-      zones: second.zones!.map((z) => ({
-        id: 'z',
-        name: z.name,
-        sourceMemberNames: z.memberNames,
-        memberChannelIds: [],
-      })),
-      talkGroups: second.talkGroups!,
-      contacts: second.contacts!,
-      rxGroupLists: second.rxGroupLists!.map((l) => ({
-        id: 'rx',
-        name: l.name,
-        sourceMemberNames: l.sourceMemberNames,
-      })),
-      meta: { schemaVersion: 3, importedAt: null, sourceFiles: [] },
-    })).toEqual(
+    expect(
+      stripIds({
+        channels: second.channels!,
+        zones: second.zones!.map((z) => ({
+          id: 'z',
+          name: z.name,
+          sourceMemberNames: z.memberNames,
+          memberChannelIds: [],
+        })),
+        talkGroups: second.talkGroups!,
+        contacts: second.contacts!,
+        rxGroupLists: second.rxGroupLists!.map((l) => ({
+          id: 'rx',
+          name: l.name,
+          sourceMemberNames: l.sourceMemberNames,
+        })),
+        meta: { schemaVersion: 3, importedAt: null, sourceFiles: [] },
+      }),
+    ).toEqual(
       stripIds({
         channels: first.channels!,
         zones: [

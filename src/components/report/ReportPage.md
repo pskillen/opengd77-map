@@ -6,9 +6,9 @@ Shared page shell for read-only CPS report routes: centred `Container`, page tit
 
 ## Props
 
-| Prop | Type | Notes |
-| --- | --- | --- |
-| `title` | `string` | Main heading for the page |
+| Prop       | Type        | Notes                                     |
+| ---------- | ----------- | ----------------------------------------- |
+| `title`    | `string`    | Main heading for the page                 |
 | `children` | `ReactNode` | Page body (tables, maps, detail sections) |
 
 ## Usage
@@ -17,11 +17,7 @@ Shared page shell for read-only CPS report routes: centred `Container`, page tit
 import ReportPage from '../components/report/ReportPage.tsx';
 
 export default function ChannelsList() {
-  return (
-    <ReportPage title="Channels">
-      {/* EntityTable, CodeplugMap, etc. */}
-    </ReportPage>
-  );
+  return <ReportPage title="Channels">{/* EntityTable, CodeplugMap, etc. */}</ReportPage>;
 }
 ```
 

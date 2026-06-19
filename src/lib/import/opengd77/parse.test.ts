@@ -41,7 +41,7 @@ describe('parseChannels', () => {
         'Zone Skip': 'No',
         'No Beep': 'No',
         'No Eco': 'No',
-        'TS1_TA_Tx': 'Off',
+        TS1_TA_Tx: 'Off',
         'TS2_TA_Tx ID': 'Off',
       },
     });
@@ -167,6 +167,8 @@ Scotland,Scotland TS1,Scotland TS2,,`;
   });
 
   it('throws when TG List Name column is missing', () => {
-    expect(() => parseRxGroupLists('Name,Contact1\nFoo,Bar')).toThrow('Missing column "TG List Name"');
+    expect(() => parseRxGroupLists('Name,Contact1\nFoo,Bar')).toThrow(
+      'Missing column "TG List Name"',
+    );
   });
 });

@@ -6,17 +6,17 @@ Embeddable Leaflet map for plotting codeplug channels and zone hulls inside repo
 
 ## Props
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `channels` | `Channel[]` | — | Channels to plot as markers (after internal filters) |
-| `zones` | `Zone[]` | `[]` | Zones to draw hulls for when “Draw zones” is on |
-| `allChannels` | `Channel[]` | `channels` | Full channel list for resolving zone member coords |
-| `height` | `number \| string` | `400` | Map container height (px or CSS value) |
-| `showControls` | `boolean` | `true` | Show [`MapControls`](MapControls.md) above the map |
-| `defaultFullChannelName` | `boolean` | `false` | Initial state for full-name marker labels |
-| `defaultShowZones` | `boolean` | `true` | Initial state for zone hull visibility |
-| `highlightChannelId` | `string` | — | Emphasise one channel marker (detail pages) |
-| `operatorPosition` | `{ lat, lon } \| null` | `null` | Session operator position — distinct “You” marker; included in bounds |
+| Prop                     | Type                   | Default    | Notes                                                                 |
+| ------------------------ | ---------------------- | ---------- | --------------------------------------------------------------------- |
+| `channels`               | `Channel[]`            | —          | Channels to plot as markers (after internal filters)                  |
+| `zones`                  | `Zone[]`               | `[]`       | Zones to draw hulls for when “Draw zones” is on                       |
+| `allChannels`            | `Channel[]`            | `channels` | Full channel list for resolving zone member coords                    |
+| `height`                 | `number \| string`     | `400`      | Map container height (px or CSS value)                                |
+| `showControls`           | `boolean`              | `true`     | Show [`MapControls`](MapControls.md) above the map                    |
+| `defaultFullChannelName` | `boolean`              | `false`    | Initial state for full-name marker labels                             |
+| `defaultShowZones`       | `boolean`              | `true`     | Initial state for zone hull visibility                                |
+| `highlightChannelId`     | `string`               | —          | Emphasise one channel marker (detail pages)                           |
+| `operatorPosition`       | `{ lat, lon } \| null` | `null`     | Session operator position — distinct “You” marker; included in bounds |
 
 ## Usage
 

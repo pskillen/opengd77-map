@@ -27,4 +27,6 @@ tmp/
 # Node / Vite build output
 node_modules/
 dist/
+coverage/
+test-results/
 *.tsbuildinfo

@@ -93,17 +93,16 @@ function ChannelPopup({ group }: { group: Channel[] }) {
       {group.map((ch) => {
         const freq =
           ch.rxFrequency && ch.txFrequency ? `${ch.rxFrequency} / ${ch.txFrequency} MHz` : '';
-        const dmr =
-          isDmrMode(ch.mode)
-            ? [
-                ch.contactName && ch.contactName !== 'None' ? `TX: ${ch.contactName}` : null,
-                ch.rxGroupListName && ch.rxGroupListName !== 'None'
-                  ? `RX list: ${ch.rxGroupListName}`
-                  : null,
-              ]
-                .filter(Boolean)
-                .join(' · ')
-            : '';
+        const dmr = isDmrMode(ch.mode)
+          ? [
+              ch.contactName && ch.contactName !== 'None' ? `TX: ${ch.contactName}` : null,
+              ch.rxGroupListName && ch.rxGroupListName !== 'None'
+                ? `RX list: ${ch.rxGroupListName}`
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' · ')
+          : '';
         return (
           <div key={ch.id} style={{ marginBottom: '0.5rem' }}>
             <strong>{ch.name}</strong>

@@ -108,10 +108,7 @@ export function rxGroupListMemberHeaders(count = 32): string[] {
   return Array.from({ length: count }, (_, i) => `Contact${i + 1}`);
 }
 
-export const RX_GROUP_LIST_HEADERS = [
-  RX_GROUP_LIST_COL.name,
-  ...rxGroupListMemberHeaders(),
-];
+export const RX_GROUP_LIST_HEADERS = [RX_GROUP_LIST_COL.name, ...rxGroupListMemberHeaders()];
 
 export const DTMF_HEADERS = ['Contact Name', 'Code'];
 

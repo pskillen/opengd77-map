@@ -18,8 +18,8 @@ export default function BandPlan() {
         </Text>
         <BandPlanTable />
         <Alert color="gray" variant="light">
-          For programming convenience only. Not authoritative for on-air operation. Licence
-          class, power, and geographic restrictions apply.
+          For programming convenience only. Not authoritative for on-air operation. Licence class,
+          power, and geographic restrictions apply.
         </Alert>
       </Stack>
     </ReportPage>

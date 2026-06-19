@@ -1,4 +1,13 @@
-import { Button, Checkbox, Group, ScrollArea, SimpleGrid, Stack, Text, TextInput } from '@mantine/core';
+import {
+  Button,
+  Checkbox,
+  Group,
+  ScrollArea,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+} from '@mantine/core';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
 import { OPENGD77_MAX_ZONE_MEMBERS } from '../../lib/codeplugMutations.ts';
@@ -12,7 +21,11 @@ export interface ZoneMemberPickerProps {
   onChange: (ids: string[]) => void;
 }
 
-function moveSelectedBlock(ids: string[], selected: Set<string>, direction: 'up' | 'down'): string[] {
+function moveSelectedBlock(
+  ids: string[],
+  selected: Set<string>,
+  direction: 'up' | 'down',
+): string[] {
   const next = [...ids];
   const indices = next
     .map((id, index) => ({ id, index }))
@@ -101,9 +114,7 @@ export default function ZoneMemberPicker({
       selectedIds
         .map((id) => channels.find((ch) => ch.id === id))
         .filter((ch): ch is Channel => ch != null)
-        .filter(
-          (ch) => !inZoneFilterLower || ch.name.toLowerCase().includes(inZoneFilterLower),
-        ),
+        .filter((ch) => !inZoneFilterLower || ch.name.toLowerCase().includes(inZoneFilterLower)),
     [channels, selectedIds, inZoneFilterLower],
   );
 
@@ -160,7 +171,15 @@ export default function ZoneMemberPicker({
           <Text size="sm" fw={500}>
             Available
           </Text>
-          <ScrollArea h={240} type="auto" offsetScrollbars style={{ border: '1px solid var(--mantine-color-default-border)', borderRadius: 'var(--mantine-radius-sm)' }}>
+          <ScrollArea
+            h={240}
+            type="auto"
+            offsetScrollbars
+            style={{
+              border: '1px solid var(--mantine-color-default-border)',
+              borderRadius: 'var(--mantine-radius-sm)',
+            }}
+          >
             <ChannelList
               items={availableChannels}
               checked={new Set(availableSelected)}
@@ -201,7 +220,15 @@ export default function ZoneMemberPicker({
           <Text size="sm" fw={500}>
             In zone (export order)
           </Text>
-          <ScrollArea h={240} type="auto" offsetScrollbars style={{ border: '1px solid var(--mantine-color-default-border)', borderRadius: 'var(--mantine-radius-sm)' }}>
+          <ScrollArea
+            h={240}
+            type="auto"
+            offsetScrollbars
+            style={{
+              border: '1px solid var(--mantine-color-default-border)',
+              borderRadius: 'var(--mantine-radius-sm)',
+            }}
+          >
             <ChannelList
               items={inZoneChannels}
               checked={new Set(inZoneSelected)}

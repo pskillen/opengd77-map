@@ -24,8 +24,7 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
     return (
       <Alert color="gray" title="Export not available yet">
         {vendorFormat.label} export is planned
-        {vendorFormat.issue ? ` (${vendorFormat.issue})` : ''}. OpenGD77 CPS CSV is supported
-        today.
+        {vendorFormat.issue ? ` (${vendorFormat.issue})` : ''}. OpenGD77 CPS CSV is supported today.
       </Alert>
     );
   }

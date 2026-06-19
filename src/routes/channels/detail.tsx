@@ -118,8 +118,14 @@ export default function ChannelDetail() {
     {
       title: 'RF',
       fields: [
-        { label: 'RX frequency', value: channel.rxFrequency ? formatFrequencyMhz(channel.rxFrequency) : '' },
-        { label: 'TX frequency', value: channel.txFrequency ? formatFrequencyMhz(channel.txFrequency) : '' },
+        {
+          label: 'RX frequency',
+          value: channel.rxFrequency ? formatFrequencyMhz(channel.rxFrequency) : '',
+        },
+        {
+          label: 'TX frequency',
+          value: channel.txFrequency ? formatFrequencyMhz(channel.txFrequency) : '',
+        },
         {
           label: 'Offset',
           value: offset !== null ? formatOffsetMhz(offset) : '',

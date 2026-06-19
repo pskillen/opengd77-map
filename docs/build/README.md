@@ -7,12 +7,12 @@ How the MM9PDY Codeplug Tool **Vite + React SPA** reaches **GitHub Pages**. The 
 | Area | Status | Notes |
 | --- | --- | --- |
 | SPA source layout | Shipped (Ticket A) | Root `index.html`, `src/`, Vite config |
-| CI workflow | Shipped | `.github/workflows/pages.yml` — Node setup + `npm run build` |
+| CI workflow (Pages deploy) | Shipped | `.github/workflows/pages.yml` — Node setup + `npm run build` on release |
+| PR checks (lint, test, coverage, build) | Shipped | `.github/workflows/checks.yaml` — runs on pull request and push to `main` |
 | Release-triggered deploy | Shipped | Publish full GitHub release → GitHub Actions → Pages |
 | Build version footer | Shipped | Vite `define` injects `BUILD_ENV` / `BUILD_VERSION`; `BuildFooter` component |
 | Legacy static tools | Retired (Ticket C) | SPA-only; `site/` and `tools/` removed |
 | Merge-to-main auto deploy | Not used | Releases are explicit via published GitHub releases only |
-| PR CI (lint, test, coverage) | Planned | [#79](https://github.com/pskillen/codeplug-tool/issues/79) — separate from Pages workflow |
 
 ## Documentation map
 
@@ -43,6 +43,7 @@ How the MM9PDY Codeplug Tool **Vite + React SPA** reaches **GitHub Pages**. The 
 | `src/` | React app source |
 | `vite.config.ts` | Vite config — `base`, `define` for build info |
 | `dist/` | Build output (gitignored; uploaded to Pages) |
+| `.github/workflows/checks.yaml` | PR checks — lint, format, test with coverage, build |
 | `.github/workflows/pages.yml` | Release-triggered deploy workflow |
 | `docs/`, `.cursor/`, `AGENTS.md` | **Not** published — contributor/agent material only |
 
@@ -111,7 +112,7 @@ Monitor the **Actions** tab for the “Deploy GitHub Pages” workflow. When it 
 | Dev server | `npm install` then `npm run dev` — visit `http://localhost:5173/codeplug-tool/` |
 | Production build | `npm run build` — output in `dist/` |
 | Preview production build | `npm run preview` |
-| Lint / format / test | `npm run lint`, `npm run format:check`, `npm run test` |
+| Lint / format / test | `npm run lint`, `npm run format:check`, `npm run test`, `npm run test:coverage` |
 | Simulate prod footer | `BUILD_ENV=prod BUILD_VERSION=v1.2.3 npm run build && npm run preview` |
 
 Use CSV fixtures from gitignored `sample-exports/`.
@@ -128,7 +129,7 @@ Use CSV fixtures from gitignored `sample-exports/`.
 - No staging environment — publishing a release updates production Pages.
 - No cache-busting beyond Vite content hashes in `dist/assets/`.
 - Pages workflow does not run on PRs (published-release-only).
-- **PR CI** (lint, test, coverage, build on pull request) — planned [#79](https://github.com/pskillen/codeplug-tool/issues/79); see [testing/README.md](testing/README.md).
+- E2e tests not yet in PR checks — planned [#40](https://github.com/pskillen/codeplug-tool/issues/40); see [testing/README.md](testing/README.md).
 
 ## Cross-links
 

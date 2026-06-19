@@ -60,9 +60,13 @@ export default function ImportIntoActivePanel({ vendorFormat }: ImportIntoActive
   const modeLabel = mode === 'merge' ? 'Merge' : 'Overwrite';
   const hasRemovalWarning =
     pendingReport?.mode === 'overwrite' &&
-    [pendingReport.channels, pendingReport.zones, pendingReport.contacts, pendingReport.talkGroups, pendingReport.rxGroupLists].some(
-      (s) => s.removed > 0,
-    );
+    [
+      pendingReport.channels,
+      pendingReport.zones,
+      pendingReport.contacts,
+      pendingReport.talkGroups,
+      pendingReport.rxGroupLists,
+    ].some((s) => s.removed > 0);
 
   if (vendorFormat.importStatus !== 'shipped') {
     return (

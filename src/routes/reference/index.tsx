@@ -8,9 +8,7 @@ export default function ReferenceIndex() {
   return (
     <ReportPage title="Reference">
       <Stack gap="lg">
-        <Text c="dimmed">
-          Lookup tables and conventions used across the codeplug tool.
-        </Text>
+        <Text c="dimmed">Lookup tables and conventions used across the codeplug tool.</Text>
         <NavLink
           component={Link}
           to="/reference/band-plan"

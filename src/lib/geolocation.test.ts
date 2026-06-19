@@ -1,9 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  GeolocationError,
-  isGeolocationSupported,
-  requestCurrentPosition,
-} from './geolocation.ts';
+import { GeolocationError, isGeolocationSupported, requestCurrentPosition } from './geolocation.ts';
 
 describe('isGeolocationSupported', () => {
   const originalGeolocation = navigator.geolocation;
@@ -101,11 +97,9 @@ describe('requestCurrentPosition', () => {
   });
 
   it('rejects with permission denied message', async () => {
-    const getCurrentPosition = vi.fn(
-      (_success: PositionCallback, error: PositionErrorCallback) => {
-        error({ code: 1, message: 'denied', PERMISSION_DENIED: 1 } as GeolocationPositionError);
-      },
-    );
+    const getCurrentPosition = vi.fn((_success: PositionCallback, error: PositionErrorCallback) => {
+      error({ code: 1, message: 'denied', PERMISSION_DENIED: 1 } as GeolocationPositionError);
+    });
 
     Object.defineProperty(navigator, 'geolocation', {
       value: { getCurrentPosition },

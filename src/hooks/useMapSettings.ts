@@ -21,7 +21,8 @@ export function useMapSettings() {
   const [mapboxToken, setMapboxToken] = useState(
     () => localStorage.getItem(STORAGE_KEY_TOKEN) ?? '',
   );
-  const [maidenheadGrid, setMaidenheadGridState] = useState<MaidenheadGridMode>(readMaidenheadGridMode);
+  const [maidenheadGrid, setMaidenheadGridState] =
+    useState<MaidenheadGridMode>(readMaidenheadGridMode);
 
   const tileConfig = useMemo(
     () => resolveTileConfig(tileProvider, mapboxToken),

@@ -22,11 +22,7 @@ import { isAnalogMode, isDmrMode } from '../../lib/channelModes.ts';
 import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maidenhead.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { hasValidationErrors, validateChannel } from '../../lib/validation/channel.ts';
-import {
-  channelFieldDefaults,
-  type Channel,
-  type ChannelMode,
-} from '../../models/codeplug.ts';
+import { channelFieldDefaults, type Channel, type ChannelMode } from '../../models/codeplug.ts';
 import { findEntityById } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 
@@ -187,7 +183,16 @@ export default function ChannelEdit() {
         vendorExtras: {},
       },
     ];
-  }, [values.lat, values.lon, values.name, values.mode, values.number, values.rxFrequency, values.txFrequency, existing]);
+  }, [
+    values.lat,
+    values.lon,
+    values.name,
+    values.mode,
+    values.number,
+    values.rxFrequency,
+    values.txFrequency,
+    existing,
+  ]);
 
   if (!isNew && !existing) {
     return (

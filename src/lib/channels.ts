@@ -59,8 +59,7 @@ export function applyFilters(
   for (const ch of channels) {
     let reason: string | null = null;
     if (ch.location == null) reason = 'missing coordinates';
-    else if (skipZero && ch.location.lat === 0 && ch.location.lon === 0)
-      reason = '0,0 coordinates';
+    else if (skipZero && ch.location.lat === 0 && ch.location.lon === 0) reason = '0,0 coordinates';
     else if (requireUseLocation && !ch.useLocation) reason = 'Use Location = No';
     else if (ch.hideFromMap) reason = 'hidden from map';
     if (reason) {
@@ -115,8 +114,7 @@ export function zoneGeolocatedPoints(
 
     const ch = plottedById.get(memberId);
     if (!ch) {
-      const name =
-        allChannels.find((c) => c.id === memberId)?.name ?? memberId;
+      const name = allChannels.find((c) => c.id === memberId)?.name ?? memberId;
       missing.push({ name, reason: 'filtered out or missing coordinates' });
       continue;
     }

@@ -6,12 +6,12 @@ Compact toolbar rendered above [`CodeplugMap`](CodeplugMap.md): two map display 
 
 ## Props
 
-| Prop | Type | Notes |
-| --- | --- | --- |
-| `fullChannelName` | `boolean` | Whether markers use full channel name vs callsign (first word) |
-| `onFullChannelNameChange` | `(value: boolean) => void` | Toggle handler |
-| `showZones` | `boolean` | Whether zone hulls are drawn |
-| `onShowZonesChange` | `(value: boolean) => void` | Toggle handler |
+| Prop                      | Type                       | Notes                                                          |
+| ------------------------- | -------------------------- | -------------------------------------------------------------- |
+| `fullChannelName`         | `boolean`                  | Whether markers use full channel name vs callsign (first word) |
+| `onFullChannelNameChange` | `(value: boolean) => void` | Toggle handler                                                 |
+| `showZones`               | `boolean`                  | Whether zone hulls are drawn                                   |
+| `onShowZonesChange`       | `(value: boolean) => void` | Toggle handler                                                 |
 
 ## Usage
 
@@ -25,7 +25,7 @@ import MapControls from '../components/CodeplugMap/MapControls.tsx';
   onFullChannelNameChange={setFullName}
   showZones={showZones}
   onShowZonesChange={setShowZones}
-/>
+/>;
 ```
 
 The settings `ActionIcon` (`IconSettings` from Tabler) navigates to `/settings` (tile provider and Mapbox token).

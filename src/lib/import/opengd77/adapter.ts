@@ -3,12 +3,7 @@ import { parseChannels, parseContacts, parseRxGroupLists, parseZones } from './p
 /** OpenGD77 import adapter — behaviour in docs/features/import/opengd77.md;
  *  wire format in docs/reference/opengd77/. */
 
-export type OpenGd77FileKind =
-  | 'channels'
-  | 'zones'
-  | 'contacts'
-  | 'rxGroupLists'
-  | 'unknown';
+export type OpenGd77FileKind = 'channels' | 'zones' | 'contacts' | 'rxGroupLists' | 'unknown';
 
 export function detectKind(fileName: string, headerRow: string[]): OpenGd77FileKind {
   const lower = fileName.toLowerCase();

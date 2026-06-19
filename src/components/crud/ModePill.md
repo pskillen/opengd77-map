@@ -6,10 +6,10 @@ Displays a coloured pill for a channel mode (FM, DMR, YSF, etc.).
 
 ## Props
 
-| Prop   | Type          | Notes                    |
-| ------ | ------------- | ------------------------ |
-| `mode` | `ChannelMode` | Internal mode id         |
-| `size` | Badge size    | Default `sm`             |
+| Prop   | Type          | Notes            |
+| ------ | ------------- | ---------------- |
+| `mode` | `ChannelMode` | Internal mode id |
+| `size` | Badge size    | Default `sm`     |
 
 ## Related
 

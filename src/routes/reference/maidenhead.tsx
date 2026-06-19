@@ -171,8 +171,7 @@ export default function MaidenheadConverter() {
   };
 
   const handleChannelOptionSubmit = (value: string) => {
-    const channelId =
-      resolveChannelOptionId(value, channelOptions, codeplug.channels) ?? value;
+    const channelId = resolveChannelOptionId(value, channelOptions, codeplug.channels) ?? value;
     setSelectedChannelId(channelId);
     const ch = channelById.get(channelId);
     if (ch) setChannelSearch(channelOptionLabel(ch));
@@ -266,7 +265,11 @@ export default function MaidenheadConverter() {
                   }
                 }}
               />
-              <Button onClick={() => void handleGeocode()} loading={geocodeLoading} style={{ flexShrink: 0 }}>
+              <Button
+                onClick={() => void handleGeocode()}
+                loading={geocodeLoading}
+                style={{ flexShrink: 0 }}
+              >
                 Look up
               </Button>
             </Group>

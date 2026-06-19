@@ -139,10 +139,7 @@ export function bandFromChannel(rxFrequency: string, txFrequency?: string): Band
 }
 
 /** Distinct bands for RX and TX (RX first). Empty when neither frequency classifies. */
-export function bandsFromFrequencies(
-  rxFrequency: string,
-  txFrequency: string,
-): BandDefinition[] {
+export function bandsFromFrequencies(rxFrequency: string, txFrequency: string): BandDefinition[] {
   const bands: BandDefinition[] = [];
   const seen = new Set<string>();
 

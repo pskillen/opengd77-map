@@ -2,7 +2,12 @@ import { renderHook, act, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import type { ReactNode } from 'react';
 import type { ImportResult } from '../lib/import/types.ts';
-import { channelFieldDefaults, emptyCodeplug, resetIdGenerator, setIdGenerator } from '../models/codeplug.ts';
+import {
+  channelFieldDefaults,
+  emptyCodeplug,
+  resetIdGenerator,
+  setIdGenerator,
+} from '../models/codeplug.ts';
 import { CODEPLUG_STORAGE_KEY } from './codeplugStorage.ts';
 import { serializeProjects } from './codeplugStorage.ts';
 import { newProject } from '../models/codeplugProject.ts';

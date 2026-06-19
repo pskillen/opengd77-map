@@ -11,10 +11,10 @@ Not to be confused with the converter’s channel **Use location** button, which
 
 ## Props
 
-| Prop | Type | Default | Notes |
-| --- | --- | --- | --- |
-| `onLocation` | `(lat, lon, accuracyMeters?) => void` | — | Called on success; third arg is browser-reported accuracy when available |
-| `disabled` | `boolean` | — | Disables the button (e.g. while form is read-only) |
+| Prop         | Type                                  | Default | Notes                                                                    |
+| ------------ | ------------------------------------- | ------- | ------------------------------------------------------------------------ |
+| `onLocation` | `(lat, lon, accuracyMeters?) => void` | —       | Called on success; third arg is browser-reported accuracy when available |
+| `disabled`   | `boolean`                             | —       | Disables the button (e.g. while form is read-only)                       |
 
 ## Usage
 
@@ -23,7 +23,7 @@ import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocat
 import { useOperatorPosition } from '../../state/operatorPosition.tsx';
 
 // Channel edit — sets lat/lon, locator, and useLocation via applyCoords
-<UseMyLocationButton onLocation={(lat, lon) => applyCoords(lat, lon)} />
+<UseMyLocationButton onLocation={(lat, lon) => applyCoords(lat, lon)} />;
 
 // Browse views — session position (not persisted)
 const { setPosition } = useOperatorPosition();
@@ -31,7 +31,7 @@ const { setPosition } = useOperatorPosition();
   onLocation={(lat, lon, accuracyMeters) =>
     setPosition({ lat, lon, accuracyMeters: accuracyMeters ?? null })
   }
-/>
+/>;
 ```
 
 ## Behaviour
