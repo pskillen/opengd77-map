@@ -59,7 +59,7 @@ Persistence: [persistence/README.md](../persistence/README.md) — multi-project
 | --- | --- |
 | Home (`/`) | List codeplugs, **Import codeplug**, **Open**, **Delete** (confirm) |
 | App nav (always) | **Home** (when no active project), **Reference**, **Settings** |
-| App nav (when active) | **Active codeplug** + **Switch**; Summary, Channels, Zones, contacts/TG lists, Export; Reference and Settings at the foot |
+| Export (`/export`) | **Import into active codeplug** (merge/overwrite) + download CPS CSV ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 | Route guards | Project-scoped routes redirect to Home when no active project — [`RequireActiveProject`](../../../src/components/RequireActiveProject/RequireActiveProject.tsx) |
 
 No **new empty project** yet — import is the only creation path ([#31](https://github.com/pskillen/codeplug-tool/issues/31)).
@@ -77,7 +77,7 @@ No **new empty project** yet — import is the only creation path ([#31](https:/
 | Project route guards | Shipped | `RequireActiveProject` — [#76](https://github.com/pskillen/codeplug-tool/issues/76) |
 | New empty project | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
 | Rename / duplicate | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
-| Refined switcher / import-export UI | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
+| Active project import | Shipped | Export → `ImportIntoActivePanel` ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 
 ## Documentation map
 

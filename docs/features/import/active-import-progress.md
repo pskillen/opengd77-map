@@ -8,9 +8,11 @@
 - [x] `src/lib/importMerge.ts` — merge/overwrite modes, preview, apply
 - [x] Store wired through `applyImportToCodeplug` with `ImportApplyMode`
 - [x] Unit tests in `src/lib/importMerge.test.ts`
-
-## In flight
-
 - [x] `ImportIntoActivePanel` on Export page
-- [x] System test suite + fixtures (`npm run test:system`)
-- [ ] Feature docs update
+- [x] System test suite + synthetic bundles (`npm run test:system`)
+- [x] Feature docs update
+
+## Verify before release
+
+- [ ] Manual merge/overwrite workflow on `npm run dev`
+- [ ] PR merged; `Closes #58`
