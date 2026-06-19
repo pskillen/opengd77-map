@@ -8,7 +8,7 @@ Session-scoped operator position for field use: distance from me on channel deta
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Distance utilities | In progress | `src/lib/geoDistance.ts` |
+| Distance utilities | Complete | `src/lib/geoDistance.ts` |
 | Session operator position | Planned | `src/state/operatorPosition.tsx` |
 | CodeplugMap operator marker | Planned | `operatorPosition` prop |
 | Channel detail distance | Planned | Location section + map |

@@ -13,7 +13,7 @@
 
 ## Slice 0: Skill + docs scaffold
 
-**Status:** In progress
+**Status:** Complete
 
 **Delivered**
 
@@ -22,6 +22,17 @@
 
 ---
 
+## Slice 1: Distance utilities
+
+**Status:** Complete
+
+**Delivered**
+
+- `src/lib/geoDistance.ts` — `haversineDistanceM`, `formatDistanceM`
+- `src/lib/geoDistance.test.ts`
+
+---
+
 ## Next
 
-- Distance utilities (`geoDistance.ts`)
+- Session operator position context
