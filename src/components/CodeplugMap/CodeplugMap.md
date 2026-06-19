@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Embeddable Leaflet map for plotting codeplug channels and zone hulls inside report pages. Replaces the former full-page `ChannelMap` sidebar layout; tile provider settings live on `/settings` via [`useMapSettings`](../../hooks/useMapSettings.ts).
+Embeddable Leaflet map for plotting codeplug channels and zone hulls inside report pages. Replaces the former full-page `ChannelMap` sidebar layout; tile provider and Maidenhead grid settings live on `/settings` via [`useMapSettings`](../../hooks/useMapSettings.ts).
 
 ## Props
 
@@ -41,6 +41,7 @@ import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
 
 - **Fixed filters** (not exposed in UI): `Use Location = Yes`, skip `0,0`, merge co-located markers.
 - **Tiles:** reads provider/token from `localStorage` through `useMapSettings`; falls back to OSM when Mapbox is selected without a token.
+- **Maidenhead grid:** optional overlay from Settings — maximum resolution Off / 4 / 6 / 8; finer detail unlocks by zoom (6-char at 9+, 8-char at 14+). See [maidenhead-grid doc](../../../docs/features/map/maidenhead-grid.md).
 - **Zone hulls:** circle (1 site), line (2), convex polygon (3+); see [map zones doc](../../../docs/features/map/zones.md).
 - **Layout:** defers mount until document layout is ready (`useDocumentLayoutReady`); `ResizeObserver` keeps Leaflet sized in inset layouts.
 

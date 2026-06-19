@@ -2,7 +2,7 @@
 
 Conversion between Maidenhead grid locators and WGS84 coordinates — shared library used by channel CRUD and the standalone Reference tool.
 
-**Tracking:** [codeplug-tool#11](https://github.com/pskillen/codeplug-tool/issues/11) (channel CRUD) · [codeplug-tool#47](https://github.com/pskillen/codeplug-tool/issues/47) (standalone converter)
+**Tracking:** [codeplug-tool#11](https://github.com/pskillen/codeplug-tool/issues/11) (channel CRUD) · [codeplug-tool#47](https://github.com/pskillen/codeplug-tool/issues/47) (standalone converter) · [codeplug-tool#50](https://github.com/pskillen/codeplug-tool/issues/50) (map grid overlay)
 
 ## Purpose
 
@@ -30,6 +30,7 @@ Channel map rendering is documented in [map/](map/README.md).
 | Path | Role |
 | --- | --- |
 | `src/lib/maidenhead.ts` | `locatorToCoords`, `coordsToLocator`, `isValidLocator` |
+| `src/lib/maidenheadGrid.ts` | Grid line/label geometry for map overlay |
 | `src/lib/geocode.ts` | `geocodeQuery` — Mapbox / Photon address lookup |
 | `src/routes/channels/edit.tsx` | Channel edit locator field |
 | `src/routes/channels/detail.tsx` | Channel detail locator display |
@@ -81,4 +82,4 @@ Channel map rendering is documented in [map/](map/README.md).
 
 ## Related
 
-- [CRUD](crud/README.md) · [bands reference](../reference/bands.md)
+- [CRUD](crud/README.md) · [bands reference](../reference/bands.md) · [map grid overlay](map/maidenhead-grid.md)

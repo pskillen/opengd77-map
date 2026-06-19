@@ -7,6 +7,7 @@ import {
   useMap,
   useMapEvents,
 } from 'react-leaflet';
+import MaidenheadGridLayer from '../CodeplugMap/MaidenheadGridLayer.tsx';
 import { useDocumentLayoutReady } from '../../hooks/useDocumentLayoutReady.ts';
 import { useMapSettings } from '../../hooks/useMapSettings.ts';
 
@@ -87,7 +88,7 @@ export default function MapLocationPicker({
   height = 280,
 }: MapLocationPickerProps) {
   const mapLayoutReady = useDocumentLayoutReady();
-  const { tileProvider, mapboxToken, tileConfig } = useMapSettings();
+  const { tileProvider, mapboxToken, tileConfig, maidenheadGrid } = useMapSettings();
   const hasPosition = lat != null && lon != null;
   const center: [number, number] = hasPosition ? [lat, lon] : DEFAULT_CENTER;
 
@@ -97,6 +98,7 @@ export default function MapLocationPicker({
         <MapContainer
           center={center}
           zoom={hasPosition ? 11 : DEFAULT_ZOOM}
+          preferCanvas
           style={{ height: '100%', width: '100%' }}
         >
           <MapResizeFix />
@@ -114,6 +116,7 @@ export default function MapLocationPicker({
                 }
               : {})}
           />
+          <MaidenheadGridLayer mode={maidenheadGrid} />
           {hasPosition ? (
             <Marker
               position={[lat, lon]}

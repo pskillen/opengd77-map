@@ -2,7 +2,7 @@
 
 OpenGD77 CPS stores latitude and longitude on each channel and lists zone membership in a separate export, but the desktop CPS gives no geographic overview. The map tool loads those CSVs in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended when building a codeplug.
 
-Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leaflet inset map) and `src/lib/` (filters, geometry). Map settings (tile provider, Mapbox token) are on `/settings`. The map is embedded on Channels and Zones report pages rather than a standalone full-page view.
+Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leaflet inset map) and `src/lib/` (filters, geometry). Map settings (tile provider, Mapbox token, Maidenhead grid) are on `/settings`. The map is embedded on Channels and Zones report pages rather than a standalone full-page view.
 
 ## Implementation status
 
@@ -11,7 +11,8 @@ Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leafl
 | Channel markers | Shipped | FM / DMR / other colours, popups, merge co-located sites |
 | Zone convex hulls | Shipped | Polygon, line (2 sites), circle (1 site); overlapping zones supported |
 | Map tiles | Shipped | OpenStreetMap default; optional Mapbox streets / satellite |
-| Filters & map controls | Shipped | Full-name labels and zone hulls on inset map; tile settings on `/settings` |
+| Filters & map controls | Shipped | Full-name labels and zone hulls on inset map; tile and grid settings on `/settings` |
+| Maidenhead grid overlay | Shipped | 4/6-char grid lines + labels; [#50](https://github.com/pskillen/codeplug-tool/issues/50) |
 | Contacts / TG lists map layer | Deferred | Not geographic — out of scope for this tool |
 | GitHub Pages deploy | Shipped | Publish GitHub release → `.github/workflows/pages.yml` |
 
@@ -21,6 +22,7 @@ Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leafl
 | --- | --- |
 | [channels.md](channels.md) | `Channels.csv` parsing, markers, filters, popups, labelling |
 | [zones.md](zones.md) | `Zones.csv` parsing, hull geometry, colours, multi-zone overlap |
+| [maidenhead-grid.md](maidenhead-grid.md) | Maidenhead grid overlay on codeplug maps |
 | [troubleshooting.md](troubleshooting.md) | Console warnings — app vs browser extensions |
 
 User-facing quick start remains in the [repository README](../../../README.md).
