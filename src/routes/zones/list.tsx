@@ -1,31 +1,23 @@
-import { Button, Group, Stack } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
-import { Link } from 'react-router-dom';
+import { Stack } from '@mantine/core';
+import { useMemo } from 'react';
 import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import EntityTable from '../../components/report/EntityTable.tsx';
 import ReportPage from '../../components/report/ReportPage.tsx';
-import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
+import { filterRowsByName, useListNameQuery } from '../../hooks/useListNameQuery.ts';
 import { sortByName } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 export default function ZonesList() {
   const { codeplug } = useCodeplug();
   const { channels, zones } = codeplug;
-  const sorted = sortByName(zones);
+  const { nameFilter } = useListNameQuery();
+  const sorted = useMemo(() => {
+    return filterRowsByName(sortByName(zones), nameFilter, (z) => z.name);
+  }, [zones, nameFilter]);
 
   return (
     <ReportPage title="Zones">
       <Stack gap="lg">
-        <Group justify="flex-end">
-          <Button
-            component={Link}
-            to="/zones/new"
-            leftSection={<IconPlus size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          >
-            New zone
-          </Button>
-        </Group>
-
         <EntityTable
           rows={sorted}
           rowKey={(z) => z.id}

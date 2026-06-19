@@ -1,23 +1,16 @@
-import { AppShell, Burger, Group, NavLink, Stack, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
-import {
-  IconAddressBook,
-  IconAntenna,
-  IconArrowsLeftRight,
-  IconBook,
-  IconFolders,
-  IconHome,
-  IconLayoutDashboard,
-  IconListDetails,
-  IconSettings,
-  IconUsersGroup,
-} from '@tabler/icons-react';
-import type { TablerIcon } from '@tabler/icons-react';
-import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
-import ActiveProjectBar from './components/ActiveProjectBar/ActiveProjectBar.tsx';
+import { AppShell, Box, Burger, Divider, Group, Text } from '@mantine/core';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import AppNav from './components/AppNav/AppNav.tsx';
+import SectionNav from './components/SectionNav/SectionNav.tsx';
 import RequireActiveProject from './components/RequireActiveProject/RequireActiveProject.tsx';
 import BuildFooter from './components/BuildFooter.tsx';
-import { ICON_SIZE_NAV, ICON_STROKE } from './lib/iconSizes.ts';
+import {
+  NAVBAR_WIDTH_WITH_SECONDARY,
+  PRIMARY_NAV_WIDTH,
+  SECONDARY_NAV_WIDTH,
+} from './nav/navWidths.ts';
+import { shouldShowSecondaryNav } from './nav/sectionNavRegistry.ts';
 import Home from './routes/Home.tsx';
 import ImportExport from './routes/ImportExport.tsx';
 import Summary from './routes/Summary.tsx';
@@ -42,36 +35,20 @@ import BandPlan from './routes/reference/band-plan.tsx';
 import MaidenheadConverter from './routes/reference/maidenhead.tsx';
 import { useProjects } from './state/codeplugStore.tsx';
 
-function navActive(pathname: string, path: string): boolean {
-  if (path === '/') return pathname === '/';
-  return pathname === path || pathname.startsWith(`${path}/`);
-}
-
-function navIcon(Icon: TablerIcon) {
-  return <Icon size={ICON_SIZE_NAV} stroke={ICON_STROKE} />;
-}
-
 export default function App() {
   const [opened, { toggle, close }] = useDisclosure();
+  const isDesktopNav = useMediaQuery('(min-width: 48em)');
   const location = useLocation();
   const { activeProjectId } = useProjects();
   const hasActiveProject = activeProjectId != null;
-
-  const navItems: { to: string; label: string; icon: TablerIcon }[] = [
-    { to: '/summary', label: 'Summary', icon: IconLayoutDashboard },
-    { to: '/channels', label: 'Channels', icon: IconAntenna },
-    { to: '/zones', label: 'Zones', icon: IconFolders },
-    { to: '/talk-groups', label: 'Talk groups', icon: IconUsersGroup },
-    { to: '/contacts', label: 'Contacts', icon: IconAddressBook },
-    { to: '/rx-group-lists', label: 'RX Group Lists', icon: IconListDetails },
-    { to: '/export', label: 'Import & export', icon: IconArrowsLeftRight },
-  ];
+  const showSecondary = shouldShowSecondaryNav(location.pathname, hasActiveProject);
+  const navbarWidth = showSecondary ? NAVBAR_WIDTH_WITH_SECONDARY : PRIMARY_NAV_WIDTH;
 
   return (
     <AppShell
       header={{ height: 56 }}
       navbar={{
-        width: 260,
+        width: navbarWidth,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
@@ -84,54 +61,28 @@ export default function App() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
-        <Stack gap="md" style={{ height: '100%' }}>
-          {hasActiveProject ? (
+      <AppShell.Navbar p={0}>
+        <Group wrap="nowrap" align="stretch" gap={0} style={{ height: '100%' }}>
+          <Box w={PRIMARY_NAV_WIDTH} p="md" style={{ flexShrink: 0 }}>
+            <AppNav onNavClick={close} />
+          </Box>
+          {showSecondary && isDesktopNav ? (
             <>
-              <ActiveProjectBar />
-              {navItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  component={Link}
-                  to={item.to}
-                  label={item.label}
-                  leftSection={navIcon(item.icon)}
-                  active={navActive(location.pathname, item.to)}
-                  onClick={close}
-                />
-              ))}
+              <Divider orientation="vertical" />
+              <Box w={SECONDARY_NAV_WIDTH} p="md" style={{ flexShrink: 0, overflow: 'hidden' }}>
+                <SectionNav variant="sidebar" />
+              </Box>
             </>
-          ) : (
-            <NavLink
-              component={Link}
-              to="/"
-              label="Home"
-              leftSection={navIcon(IconHome)}
-              active={navActive(location.pathname, '/')}
-              onClick={close}
-            />
-          )}
-          <div style={{ flex: 1 }} />
-          <NavLink
-            component={Link}
-            to="/reference"
-            label="Reference"
-            leftSection={navIcon(IconBook)}
-            active={navActive(location.pathname, '/reference')}
-            onClick={close}
-          />
-          <NavLink
-            component={Link}
-            to="/settings"
-            label="Settings"
-            leftSection={navIcon(IconSettings)}
-            active={navActive(location.pathname, '/settings')}
-            onClick={close}
-          />
-        </Stack>
+          ) : null}
+        </Group>
       </AppShell.Navbar>
 
       <AppShell.Main>
+        {showSecondary && !isDesktopNav ? (
+          <Box mb="md">
+            <SectionNav variant="toolbar" />
+          </Box>
+        ) : null}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />

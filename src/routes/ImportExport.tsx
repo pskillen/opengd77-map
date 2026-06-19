@@ -1,17 +1,10 @@
-import { Container, Paper, Select, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { useState } from 'react';
+import { Container, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import ExportFromActivePanel from '../components/ExportFromActivePanel/ExportFromActivePanel.tsx';
 import ImportIntoActivePanel from '../components/ImportIntoActivePanel/ImportIntoActivePanel.tsx';
-import {
-  defaultVendorFormatId,
-  vendorFormatById,
-  vendorFormatSelectData,
-  type VendorFormatId,
-} from '../lib/vendorFormats.ts';
+import { useVendorFormatParam } from '../hooks/useVendorFormatParam.ts';
 
 export default function ImportExport() {
-  const [vendorFormatId, setVendorFormatId] = useState<VendorFormatId>(defaultVendorFormatId);
-  const vendorFormat = vendorFormatById(vendorFormatId);
+  const { vendorFormat } = useVendorFormatParam();
 
   return (
     <Container size="lg" py="md">
@@ -19,22 +12,12 @@ export default function ImportExport() {
         <Stack gap="xs">
           <Title order={1}>Import &amp; export</Title>
           <Text c="dimmed">
-            Your codeplug is vendor-neutral inside the app. Choose the interchange format — where
-            files came from for import, or where you want to send them for export. OpenGD77 CPS CSV
-            is supported today; qDMR YAML, native YAML, Baofeng DM-32 CPS, and others are planned.
+            Your codeplug is vendor-neutral inside the app. Choose the interchange format in the
+            sidebar — where files came from for import, or where you want to send them for export.
+            OpenGD77 CPS CSV is supported today; qDMR YAML, native YAML, Baofeng DM-32 CPS, and
+            others are planned.
           </Text>
         </Stack>
-
-        <Select
-          label="Vendor format"
-          description="Pick the CPS or interchange format for the files below."
-          data={vendorFormatSelectData()}
-          value={vendorFormatId}
-          onChange={(value) => {
-            if (value) setVendorFormatId(value as VendorFormatId);
-          }}
-          allowDeselect={false}
-        />
 
         <SimpleGrid cols={{ base: 1, md: 2 }} spacing="lg">
           <Paper withBorder p="md" radius="md">

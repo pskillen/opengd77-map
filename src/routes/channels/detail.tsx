@@ -23,6 +23,7 @@ import { formatFrequencyMhz } from '../../lib/formatFrequency.ts';
 import { formatDistanceM, haversineDistanceM } from '../../lib/geoDistance.ts';
 import { channelHasGeolocation } from '../../lib/channels.ts';
 import { coordsToLocator } from '../../lib/maidenhead.ts';
+import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { modeLabel } from '../../lib/channelModes.ts';
 
@@ -275,7 +276,7 @@ export default function ChannelDetail() {
 
         <DetailLinkList title="Zones" items={zoneLinks} />
 
-        <Stack gap="sm">
+        <Stack gap="sm" id={channelSectionAnchorId('External links')}>
           <Title order={3}>External links</Title>
           <Group gap="md">
             {externalLinks.map((link) => (
@@ -289,7 +290,7 @@ export default function ChannelDetail() {
           </Text>
         </Stack>
 
-        <Stack gap="sm">
+        <Stack gap="sm" id={channelSectionAnchorId('Map')}>
           <Title order={3}>Map</Title>
           <CodeplugMap
             channels={[channel]}

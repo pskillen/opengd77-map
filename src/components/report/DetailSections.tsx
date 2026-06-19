@@ -1,6 +1,7 @@
 import { Anchor, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 
 export interface DetailField {
   label: string;
@@ -20,7 +21,7 @@ export default function DetailSections({ sections }: DetailSectionsProps) {
   return (
     <Stack gap="lg">
       {sections.map((section) => (
-        <Stack key={section.title} gap="sm">
+        <Stack key={section.title} id={channelSectionAnchorId(section.title)} gap="sm">
           <Title order={3}>{section.title}</Title>
           <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
             {section.fields.map((field) => (
@@ -41,12 +42,14 @@ export default function DetailSections({ sections }: DetailSectionsProps) {
 export function DetailLinkList({
   title,
   items,
+  id,
 }: {
   title: string;
   items: { id: string; name: string; path: string }[];
+  id?: string;
 }) {
   return (
-    <Stack gap="sm">
+    <Stack gap="sm" id={id ?? channelSectionAnchorId(title)}>
       <Title order={3}>{title}</Title>
       {items.length === 0 ? (
         <Text size="sm" c="dimmed">

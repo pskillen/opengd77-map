@@ -1,8 +1,10 @@
 import { MantineProvider } from '@mantine/core';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import App from './App.tsx';
+import { addChannel } from './lib/codeplugMutations.ts';
+import { channelFieldDefaults } from './models/codeplug.ts';
 import { newProject } from './models/codeplugProject.ts';
 import { CODEPLUG_STORAGE_KEY, serializeProjects } from './state/codeplugStorage.ts';
 import { CodeplugProvider } from './state/codeplugStore.tsx';
@@ -54,6 +56,19 @@ function seedActiveProject() {
     CODEPLUG_STORAGE_KEY,
     serializeProjects({ activeProjectId: project.id, projects: [project] }),
   );
+}
+
+function seedActiveProjectWithChannels() {
+  const project = newProject('Test repeaters');
+  let codeplug = project.codeplug;
+  codeplug = addChannel(codeplug, { ...channelFieldDefaults(), name: 'GB3SE', mode: 'dmr' });
+  codeplug = addChannel(codeplug, { ...channelFieldDefaults(), name: 'GB3IV', mode: 'dmr' });
+  const withChannels = { ...project, codeplug };
+  localStorage.setItem(
+    CODEPLUG_STORAGE_KEY,
+    serializeProjects({ activeProjectId: withChannels.id, projects: [withChannels] }),
+  );
+  return withChannels.codeplug.channels[0]!.id;
 }
 
 describe('App', () => {
@@ -135,6 +150,58 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Import', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Export', level: 2 })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Import & export' })).toBeInTheDocument();
+    expect(screen.getByText('Vendor format')).toBeInTheDocument();
+  });
+
+  it('filters channels from secondary nav search', () => {
+    seedActiveProjectWithChannels();
+
+    renderApp('/channels');
+
+    expect(screen.getByRole('link', { name: 'GB3SE' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'GB3IV' })).toBeInTheDocument();
+
+    const searchFields = screen.getAllByLabelText('Search');
+    fireEvent.change(searchFields[0], { target: { value: 'GB3SE' } });
+
+    expect(screen.getByRole('link', { name: 'GB3SE' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'GB3IV' })).not.toBeInTheDocument();
+  });
+
+  it('shows New entity actions in secondary nav on list routes', () => {
+    seedActiveProject();
+
+    renderApp('/talk-groups');
+
+    const newLinks = screen.getAllByRole('link', { name: 'New talk group' });
+    expect(newLinks.some((link) => link.getAttribute('href') === '/talk-groups/new')).toBe(true);
+    expect(within(document.body).queryByRole('button', { name: 'New talk group' })).toBeNull();
+  });
+
+  it('shows section scroll links on channel edit', () => {
+    seedActiveProject();
+
+    renderApp('/channels/new');
+
+    expect(screen.getByRole('link', { name: 'Back to channels' })).toHaveAttribute(
+      'href',
+      '/channels',
+    );
+    expect(screen.getByRole('button', { name: 'Identity' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'RF' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'DMR' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Sort')).not.toBeInTheDocument();
+  });
+
+  it('shows section scroll links on channel detail', () => {
+    const channelId = seedActiveProjectWithChannels();
+
+    renderApp(`/channels/${channelId}`);
+
+    expect(screen.getByRole('link', { name: 'Back to channels' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Identity' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Map' })).toBeInTheDocument();
+    expect(screen.queryByLabelText('Sort')).not.toBeInTheDocument();
   });
 
   it('renders the reference index on /reference', () => {

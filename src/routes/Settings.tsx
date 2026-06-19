@@ -43,7 +43,7 @@ export default function Settings() {
           </Alert>
         ) : null}
 
-        <Stack gap="sm">
+        <Stack id="map-tiles" gap="sm">
           <Title order={3}>Map tiles</Title>
           <Select
             label="Provider"
@@ -74,7 +74,7 @@ export default function Settings() {
           </Group>
         </Stack>
 
-        <Stack gap="sm">
+        <Stack id="maidenhead-grid" gap="sm">
           <Title order={3}>Maidenhead grid</Title>
           <Select
             label="Grid overlay"

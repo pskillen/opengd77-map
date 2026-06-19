@@ -20,6 +20,7 @@ import { BandPillsForFrequencies } from '../../components/crud/BandPill.tsx';
 import ChannelModeSelect from '../../components/crud/ChannelModeSegmentedControl.tsx';
 import { isAnalogMode, isDmrMode } from '../../lib/channelModes.ts';
 import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maidenhead.ts';
+import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { hasValidationErrors, validateChannel } from '../../lib/validation/channel.ts';
 import { channelFieldDefaults, type Channel, type ChannelMode } from '../../models/codeplug.ts';
@@ -305,7 +306,7 @@ export default function ChannelEdit() {
             </Text>
           ) : null}
 
-          <Stack gap="sm">
+          <Stack gap="sm" id={channelSectionAnchorId('Identity')}>
             <Title order={4}>Identity</Title>
             <TextInput
               label="Name"
@@ -321,7 +322,7 @@ export default function ChannelEdit() {
             />
           </Stack>
 
-          <Stack gap="sm">
+          <Stack gap="sm" id={channelSectionAnchorId('RF')}>
             <Title order={4}>RF</Title>
             <Group grow>
               <TextInput
@@ -381,7 +382,7 @@ export default function ChannelEdit() {
           </Stack>
 
           {showDmrFields ? (
-            <Stack gap="sm">
+            <Stack gap="sm" id={channelSectionAnchorId('DMR')}>
               <Title order={4}>DMR</Title>
               <Group grow>
                 <TextInput
@@ -419,7 +420,7 @@ export default function ChannelEdit() {
             </Stack>
           ) : null}
 
-          <Stack gap="sm">
+          <Stack gap="sm" id={channelSectionAnchorId('Location')}>
             <Title order={4}>Location</Title>
             <TextInput
               label="Maidenhead locator"
@@ -488,7 +489,7 @@ export default function ChannelEdit() {
             />
           </Stack>
 
-          <Stack gap="sm">
+          <Stack gap="sm" id={channelSectionAnchorId('Scan / APRS')}>
             <Title order={4}>Scan / APRS</Title>
             <TextInput
               label="APRS config"
