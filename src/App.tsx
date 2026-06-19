@@ -1,7 +1,8 @@
 import { AppShell, Box, Burger, Divider, Group, Text } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import AppNav from './components/AppNav/AppNav.tsx';
+import SectionNav from './components/SectionNav/SectionNav.tsx';
 import RequireActiveProject from './components/RequireActiveProject/RequireActiveProject.tsx';
 import BuildFooter from './components/BuildFooter.tsx';
 import {
@@ -9,10 +10,7 @@ import {
   PRIMARY_NAV_WIDTH,
   SECONDARY_NAV_WIDTH,
 } from './nav/navWidths.ts';
-import {
-  resolveSectionNav,
-  shouldShowSecondaryNav,
-} from './nav/sectionNavRegistry.ts';
+import { shouldShowSecondaryNav } from './nav/sectionNavRegistry.ts';
 import Home from './routes/Home.tsx';
 import ImportExport from './routes/ImportExport.tsx';
 import Summary from './routes/Summary.tsx';
@@ -39,12 +37,11 @@ import { useProjects } from './state/codeplugStore.tsx';
 
 export default function App() {
   const [opened, { toggle, close }] = useDisclosure();
+  const isDesktopNav = useMediaQuery('(min-width: 48em)');
   const location = useLocation();
   const { activeProjectId } = useProjects();
   const hasActiveProject = activeProjectId != null;
   const showSecondary = shouldShowSecondaryNav(location.pathname, hasActiveProject);
-  const sectionEntry = resolveSectionNav(location.pathname);
-  const SectionComponent = sectionEntry?.Component;
   const navbarWidth = showSecondary ? NAVBAR_WIDTH_WITH_SECONDARY : PRIMARY_NAV_WIDTH;
 
   return (
@@ -69,16 +66,15 @@ export default function App() {
           <Box w={PRIMARY_NAV_WIDTH} p="md" style={{ flexShrink: 0 }}>
             <AppNav onNavClick={close} />
           </Box>
-          {showSecondary && SectionComponent ? (
+          {showSecondary && isDesktopNav ? (
             <>
-              <Divider orientation="vertical" visibleFrom="sm" />
+              <Divider orientation="vertical" />
               <Box
                 w={SECONDARY_NAV_WIDTH}
                 p="md"
-                visibleFrom="sm"
                 style={{ flexShrink: 0, overflow: 'hidden' }}
               >
-                <SectionComponent variant="sidebar" />
+                <SectionNav variant="sidebar" />
               </Box>
             </>
           ) : null}
@@ -86,9 +82,9 @@ export default function App() {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        {showSecondary && SectionComponent ? (
-          <Box hiddenFrom="sm" mb="md">
-            <SectionComponent variant="toolbar" />
+        {showSecondary && !isDesktopNav ? (
+          <Box mb="md">
+            <SectionNav variant="toolbar" />
           </Box>
         ) : null}
         <Routes>

@@ -9,8 +9,8 @@
 | --- | --- | --- |
 | 1 Shell scaffold | Complete | `src/nav/`, two-column `AppShell` |
 | 2 AppNav + badges | Complete | `AppNav.tsx`, sidecar |
-| 3 SectionNav shell | In progress | |
-| 4 Channels migrate | Pending | |
+| 3 SectionNav shell | Complete | Reference + Settings sections |
+| 4 Channels migrate | In progress | |
 | 5 Other sections | Pending | |
 | 6 Docs + tests + PR | Pending | |
 
