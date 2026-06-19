@@ -30,7 +30,7 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 | `docs/features/map/` | Channel map contributor docs — [README](docs/features/map/README.md) |
 | `docs/features/` | Feature doc index and progress logs |
 | `.cursor/rules/` | File-scoped editor rules |
-| `.cursor/skills/` | Agent skills — git workflow, progress tracking, feature docs |
+| `.cursor/skills/` | Agent skills — make a plan, git workflow, progress tracking, feature docs |
 
 ## OpenGD77 CSV inputs
 
@@ -61,6 +61,8 @@ Follow [`.cursor/skills/git-workflow/SKILL.md`](.cursor/skills/git-workflow/SKIL
 - Do not commit `.env`, secrets, or personal `sample-exports/`.
 
 ## Plans and feature docs
+
+To plan work from GitHub issue numbers, follow [make-a-plan](.cursor/skills/make-a-plan/SKILL.md).
 
 For multi-commit or multi-PR work:
 
