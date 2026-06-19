@@ -1,4 +1,5 @@
 import type { Codeplug } from '../../../models/codeplug.ts';
+import { mapModeToOpenGd77ChannelType } from '../../channelModes.ts';
 import { formatCsv } from '../csvWrite.ts';
 import {
   CHANNEL_COL,
@@ -26,8 +27,7 @@ export function serialiseChannels(codeplug: Codeplug): string {
     const values: Record<string, string> = {
       [CHANNEL_COL.number]: ch.number,
       [CHANNEL_COL.name]: ch.name,
-      [CHANNEL_COL.type]:
-        ch.mode === 'digital' ? 'Digital' : ch.mode === 'analogue' ? 'Analogue' : ch.mode,
+      [CHANNEL_COL.type]: mapModeToOpenGd77ChannelType(ch.mode),
       [CHANNEL_COL.rx]: ch.rxFrequency,
       [CHANNEL_COL.tx]: ch.txFrequency,
       [CHANNEL_COL.bandwidth]: ch.bandwidthKHz,

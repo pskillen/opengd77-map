@@ -37,7 +37,7 @@ Parsed by `parseChannels` in [`src/lib/import/opengd77/parse.ts`](../../../src/l
 | Header | Maps to |
 | --- | --- |
 | `Channel Number` | `number` |
-| `Channel Type` | `mode` |
+| `Channel Type` | `mode` — see [channel-modes mapping](../../reference/channel-modes.md): `Analogue`/`Analog` → `fm`, `Digital` → `dmr` |
 | `Rx Frequency` / `Tx Frequency` | `rxFrequency` / `txFrequency` |
 | `Bandwidth (kHz)` | `bandwidthKHz` |
 | `Colour Code` | `colourCode` |
@@ -82,6 +82,8 @@ Parsed by `parseRxGroupLists` → `RxGroupList` with `sourceMemberNames` from `C
 ## Export
 
 Serialisers in [`src/lib/export/opengd77/serialise.ts`](../../../src/lib/export/opengd77/serialise.ts). Export page at `/#/export`.
+
+`Channel Type` export is **lossy**: all analog modes (`fm`, `am`, `ssb-usb`, `ssb-lsb`) wire as `Analogue`; all digital modes (`dmr`, `ysf`, `dstar`, `m17`, `tetra`) wire as `Digital`. See [channel-modes reference](../../reference/channel-modes.md).
 
 ## Skip vs error
 

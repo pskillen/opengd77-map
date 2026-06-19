@@ -1,10 +1,10 @@
 import { extractCallsign, parseCsv } from '../../csv.ts';
 import {
   channelFieldDefaults,
-  mapChannelMode,
   newId,
   type Channel,
 } from '../../../models/codeplug.ts';
+import { mapOpenGd77ChannelType } from '../../channelModes.ts';
 import type { Contact, TalkGroup } from '../../../models/codeplug.ts';
 import type { ParsedRxGroupList, ParsedZone } from '../types.ts';
 import {
@@ -58,7 +58,7 @@ export function parseChannels(text: string): Channel[] {
       number: get(CHANNEL_COL.number),
       name,
       callsign: extractCallsign(name),
-      mode: mapChannelMode(get(CHANNEL_COL.type)),
+      mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),
       rxFrequency: get(CHANNEL_COL.rx),
       txFrequency: get(CHANNEL_COL.tx),
       bandwidthKHz: get(CHANNEL_COL.bandwidth),

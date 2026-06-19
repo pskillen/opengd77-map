@@ -27,7 +27,7 @@ describe('parseChannels', () => {
       number: '1',
       name: 'GB3DA DMR',
       callsign: 'GB3DA',
-      mode: 'digital',
+      mode: 'dmr',
       colourCode: '2',
       timeslot: '1',
       contactName: 'Local 9',
@@ -45,7 +45,7 @@ describe('parseChannels', () => {
         'TS2_TA_Tx ID': 'Off',
       },
     });
-    expect(channels[1].mode).toBe('analogue');
+    expect(channels[1].mode).toBe('fm');
     expect(channels[1].useLocation).toBe(false);
     expect(channels[1].bandwidthKHz).toBe('12.5');
     expect(channels[1].scanSkip).toBe(true);
