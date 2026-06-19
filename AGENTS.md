@@ -34,12 +34,11 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 
 ## OpenGD77 CSV inputs
 
-OpenGD77 is the first-class CPS target. The channel map reads standard OpenGD77 CPS exports:
+OpenGD77 is the first-class CPS target. Authoritative column and conversion reference: [`docs/reference/opengd77/`](docs/reference/opengd77/README.md) (generic wire format) and [`docs/reference/opengd77/radios/`](docs/reference/opengd77/radios/README.md) (per-radio limits and features). Adapter behaviour: [import docs](docs/features/import/opengd77.md).
 
-- **`Channels.csv`** — `Channel Name`, `Channel Type`, `Latitude`, `Longitude`, `Use Location`, frequencies, DMR contact/TG list columns (matched by header name, not column index).
-- **`Zones.csv`** — `Zone Name`, `Channel1`…`Channel80` (member names matched to channels at the import boundary; internal zones use channel ids). See [import docs](docs/features/import/README.md) and [data model](docs/features/data-model/README.md).
+The internal codeplug model is **radio-agnostic**; radio specifics apply at export time. Today's adapter is calibrated to the Baofeng 1701 profile.
 
-Treat vendor CSV as a lossy interchange format at the edges; the goal is to convert it into vendor-agnostic internal models, with native **YAML** as the lossless round-trip format. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
+Treat vendor CSV as a lossy interchange format at the edges; parse by **header name**, not column index. Preserve case-sensitive channel name foreign keys. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
 
 ## Working principles
 

@@ -29,5 +29,7 @@ Agent skills for documentation and execution tracking:
 | Topic | Docs |
 | --- | --- |
 | UK amateur bands | [reference/bands.md](../reference/bands.md) |
+| Channel modes | [reference/channel-modes.md](../reference/channel-modes.md) |
+| OpenGD77 CPS CSV | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + [radio profiles](../reference/opengd77/radios/README.md) |
 
 Add a row when a new feature is created.
