@@ -1,6 +1,10 @@
-import { Anchor, Badge, Group, Stack, Title } from '@mantine/core';
-import { IconArrowLeft } from '@tabler/icons-react';
-import { Link, useParams } from 'react-router-dom';
+import { Anchor, Badge, Button, Group, Stack, Text, Title } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconArrowLeft, IconPencil, IconTrash } from '@tabler/icons-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import ConfirmDeleteModal from '../components/crud/ConfirmDeleteModal.tsx';
+import { BandPillForChannel } from '../components/crud/BandPill.tsx';
+import ModePill from '../components/crud/ModePill.tsx';
 import EntityTable from '../components/report/EntityTable.tsx';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
@@ -13,11 +17,12 @@ import {
 import type { Contact, TalkGroup } from '../models/codeplug.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
-import { modeLabel } from '../lib/channelModes.ts';
 
 export default function RxGroupListDetail() {
   const { id } = useParams<{ id: string }>();
-  const { codeplug } = useCodeplug();
+  const navigate = useNavigate();
+  const { codeplug, deleteRxGroupList } = useCodeplug();
+  const [deleteOpen, { open: openDelete, close: closeDelete }] = useDisclosure(false);
   const rgl = id ? findEntityById(codeplug.rxGroupLists, id) : null;
 
   if (!rgl) {
@@ -31,15 +36,43 @@ export default function RxGroupListDetail() {
   const members = resolveRxGroupListMembers(rgl, codeplug.talkGroups, codeplug.contacts);
   const usingChannels = channelsWithRxGroupList(rgl.name, codeplug.channels);
 
+  const confirmDelete = () => {
+    deleteRxGroupList(rgl.id);
+    closeDelete();
+    navigate('/rx-group-lists');
+  };
+
   return (
     <ReportPage title={rgl.name}>
       <Stack gap="lg">
-        <Anchor component={Link} to="/rx-group-lists" size="sm">
-          <Group gap={4} wrap="nowrap">
-            <IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />
-            RX Group Lists
+        <Group justify="space-between">
+          <Anchor component={Link} to="/rx-group-lists" size="sm">
+            <Group gap={4} wrap="nowrap">
+              <IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />
+              RX Group Lists
+            </Group>
+          </Anchor>
+          <Group gap="sm">
+            <Button
+              component={Link}
+              to={`/rx-group-lists/${rgl.id}/edit`}
+              variant="light"
+              size="sm"
+              leftSection={<IconPencil size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+            >
+              Edit
+            </Button>
+            <Button
+              color="red"
+              variant="light"
+              size="sm"
+              onClick={openDelete}
+              leftSection={<IconTrash size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+            >
+              Delete
+            </Button>
           </Group>
-        </Anchor>
+        </Group>
 
         <DetailSections
           sections={[
@@ -96,20 +129,43 @@ export default function RxGroupListDetail() {
 
         <Stack gap="sm">
           <Title order={3}>Channels using this list</Title>
-          <EntityTable
-            rows={usingChannels}
-            rowKey={(ch) => ch.id}
-            nameColumn={{
-              getName: (ch) => ch.name,
-              getPath: (ch) => `/channels/${ch.id}`,
-            }}
-            columns={[
-              { key: 'mode', header: 'Mode', render: (ch) => modeLabel(ch.mode) },
-              { key: 'rx', header: 'RX MHz', render: (ch) => ch.rxFrequency || '—' },
-            ]}
-          />
+          {usingChannels.length === 0 ? (
+            <Text size="sm" c="dimmed">
+              No channels reference this RX group list.
+            </Text>
+          ) : (
+            <EntityTable
+              rows={usingChannels}
+              rowKey={(ch) => ch.id}
+              nameColumn={{
+                getName: (ch) => ch.name,
+                getPath: (ch) => `/channels/${ch.id}`,
+              }}
+              columns={[
+                {
+                  key: 'band',
+                  header: 'Band',
+                  render: (ch) => <BandPillForChannel channel={ch} />,
+                },
+                { key: 'mode', header: 'Mode', render: (ch) => <ModePill mode={ch.mode} /> },
+              ]}
+            />
+          )}
         </Stack>
       </Stack>
+
+      <ConfirmDeleteModal
+        opened={deleteOpen}
+        onClose={closeDelete}
+        onConfirm={confirmDelete}
+        title="Delete RX group list"
+        entityName={rgl.name}
+        warning={
+          usingChannels.length > 0
+            ? `${usingChannels.length} channel(s) will have their RX group list cleared.`
+            : undefined
+        }
+      />
     </ReportPage>
   );
 }

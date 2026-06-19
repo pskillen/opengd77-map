@@ -1,19 +1,26 @@
-# Channels and zones CRUD
+# Codeplug CRUD
 
-Create, edit, and delete channels and zones against the internal codeplug model, with zone membership management and validation.
+Create, edit, and delete codeplug entities against the internal vendor-neutral model, with validation and reference consistency on rename/delete.
 
-**Tracking:** [codeplug-tool#11](https://github.com/pskillen/codeplug-tool/issues/11) · [codeplug-tool#12](https://github.com/pskillen/codeplug-tool/issues/12)
+**Tracking:** [codeplug-tool#11](https://github.com/pskillen/codeplug-tool/issues/11) · [#12](https://github.com/pskillen/codeplug-tool/issues/12) · [#13](https://github.com/pskillen/codeplug-tool/issues/13) · [#14](https://github.com/pskillen/codeplug-tool/issues/14)
 
 ## Implementation status
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Store mutations | In progress | `src/lib/codeplugMutations.ts`, `codeplugStore` actions |
-| Channel CRUD UI | Planned | `src/routes/channels/` |
-| Zone CRUD UI | Planned | `src/routes/zones/` + membership picker |
-| Validation | Planned | `src/lib/validation/` |
-| Band pills / filters | Planned | [bands reference](../../reference/bands.md), `src/lib/bands.ts` |
-| Maidenhead | Planned | [maidenhead.md](../maidenhead.md), `src/lib/maidenhead.ts` |
+| Channel CRUD | Complete | `src/routes/channels/` |
+| Zone CRUD | Complete | `src/routes/zones/` + `ZoneMemberPicker` |
+| Talk group CRUD | Complete | `TalkGroupEdit`, list/detail |
+| RX group list CRUD | Complete | `RxGroupListEdit`, `RxGroupListMemberPicker` |
+| Contact CRUD | Complete | `ContactEdit`, list/detail |
+| Store mutations | Complete | `codeplugMutations.ts`, `codeplugStore` |
+| Validation | Complete | `src/lib/validation/` |
+
+## Vendor boundaries
+
+Internal models, mutations, validation, and CRUD UI are **vendor-neutral** — no radio profile constants or member-count caps. Cardinality limits and vendor column mapping apply at the **import/export boundary** only. See [AGENTS.md — Vendor boundaries](../../../AGENTS.md#vendor-boundaries) and [data-model](../data-model/README.md).
+
+TG/RGL/contact CRUD follows the same rule: unlimited RGL members in the internal model; export may truncate per radio profile.
 
 ## Documentation map
 
@@ -29,10 +36,11 @@ Create, edit, and delete channels and zones against the internal codeplug model,
 ## Concepts
 
 - **Internal FKs:** Zone membership uses `memberChannelIds` (UUIDs). `sourceMemberNames` is export wire only.
-- **Export round-trip:** OpenGD77 `Zones.csv` serialises channel names; rebuilt from ids at mutation time.
-- **80-member cap:** OpenGD77 zone limit enforced in UI and mutations.
+- **Wire-name FKs:** Channels reference talk groups/contacts and RX group lists by **name**; RGL members are vendor names. Renames propagate; deletes clear or remove references.
+- **Shared contact namespace:** `TalkGroup.name` and `Contact.name` must be unique across both arrays (internal FK rule).
+- **Export round-trip:** Vendor CSV serialises names; cardinality limits at export per [radio profiles](../../reference/opengd77/radios/README.md).
 
-## Routes (planned)
+## Routes
 
 | Path | Page |
 | --- | --- |
@@ -42,8 +50,17 @@ Create, edit, and delete channels and zones against the internal codeplug model,
 | `/zones/new` | Create zone |
 | `/zones/:id/edit` | Edit zone + members |
 | `/zones/:id` | Detail + edit/delete |
+| `/talk-groups/new` | Create talk group |
+| `/talk-groups/:id/edit` | Edit talk group |
+| `/talk-groups/:id` | Detail + edit/delete |
+| `/rx-group-lists/new` | Create RX group list |
+| `/rx-group-lists/:id/edit` | Edit list + members |
+| `/rx-group-lists/:id` | Detail + edit/delete |
+| `/contacts/new` | Create contact |
+| `/contacts/:id/edit` | Edit contact |
+| `/contacts/:id` | Detail + edit/delete |
 
 ## Related
 
 - [Import](../import/README.md) · [Export](../export/README.md)
-- Branch: `11/paddy/channels-zones-crud`
+- Branch: `13/paddy/tg-rgl-contacts-crud`

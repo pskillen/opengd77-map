@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { importFiles } from '../../import/index.ts';
-import { resetIdGenerator, setIdGenerator, type Codeplug } from '../../../models/codeplug.ts';
+import { addRxGroupList, addTalkGroup } from '../../codeplugMutations.ts';
+import {
+  emptyCodeplug,
+  resetIdGenerator,
+  setIdGenerator,
+  type Codeplug,
+} from '../../../models/codeplug.ts';
 import {
   CHANNEL_HEADERS,
   CONTACT_HEADERS,
@@ -130,5 +136,26 @@ Scotland,Scotland TS1,Local 9,,`;
         meta: { schemaVersion: 3, importedAt: null, sourceFiles: [] },
       }),
     );
+  });
+
+  it('export truncates RX group list members at OpenGD77 profile cap (boundary only)', async () => {
+    let cp = emptyCodeplug();
+    const memberNames: string[] = [];
+    for (let i = 0; i < 40; i++) {
+      const name = `TG${i}`;
+      memberNames.push(name);
+      cp = addTalkGroup(cp, { name, number: String(i), timeslotOverride: '' });
+    }
+    cp = addRxGroupList(cp, { name: 'BigList', sourceMemberNames: memberNames });
+
+    expect(cp.rxGroupLists[0].sourceMemberNames).toHaveLength(40);
+
+    const exported = serialiseOpenGd77Files(cp);
+    const reimported = await importFromExport(exported);
+
+    expect(reimported.rxGroupLists).toHaveLength(1);
+    expect(reimported.rxGroupLists![0].sourceMemberNames).toHaveLength(32);
+    expect(reimported.rxGroupLists![0].sourceMemberNames[0]).toBe('TG0');
+    expect(reimported.rxGroupLists![0].sourceMemberNames[31]).toBe('TG31');
   });
 });

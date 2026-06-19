@@ -52,6 +52,18 @@ Do **not** produce a detailed plan until blockers are resolved or explicitly def
 
 **If not running in plan mode** stop and ask for confirmation. If user insists we can continue to make a plan, but otherwise ask them to enable plan mode.
 
+### Vendor-specific features and limits
+
+Follow [Vendor boundaries](../../../AGENTS.md#vendor-boundaries) in [`AGENTS.md`](../../../AGENTS.md) for all work — not only when planning.
+
+**When drafting a plan** for CRUD or model slices, include a short **vendor-neutral internal model** note in Context if the ticket touches DMR entities, channels, zones, or contacts. Call out:
+
+- What stays unlimited / radio-agnostic in mutations and UI
+- What the exporter may truncate or warn on (defer to export slice or existing serialise docs)
+- Any shared **internal** FK rules that are not radio-specific (e.g. wire-name uniqueness because channels resolve contacts by name)
+
+If a plan inherits pre-existing vendor leakage (e.g. zone member caps from an earlier slice), note it in **Out of scope** or **Outstanding** rather than copying the pattern into new code.
+
 ---
 
 ## 2. Plan structure
@@ -72,7 +84,7 @@ Use this template. Adapt sections to scope; omit what does not apply.
 
 ## Context
 
-<Brief summary from issue(s) + codebase exploration. Link related docs.>
+<Brief summary from issue(s) + codebase exploration. Link related docs. When work touches models, CRUD, or validation, note vendor-neutral boundaries per [AGENTS.md Vendor boundaries](../../../AGENTS.md#vendor-boundaries).>
 
 ## Progress tracking
 
@@ -232,3 +244,5 @@ Each slice should be **completable and committable in one session**. If a slice 
 - Copying the full plan todo list into `*-outstanding.md`.
 - Skipping component sidecars for new shared components.
 - Creating progress files for a one-line fix.
+- Baking radio profile caps or target-radio constants into mutations, validation, or CRUD UI — see [AGENTS.md Vendor boundaries](../../../AGENTS.md#vendor-boundaries).
+- Planning `OPENGD77_MAX_*` (or similar) constants for new internal-model work without an explicit export-only slice.

@@ -78,6 +78,16 @@ export function findRxGroupListByName(name: string, lists: RxGroupList[]): RxGro
   return lists.find((r) => r.name === name) ?? null;
 }
 
+export function rxGroupListsContainingMember(name: string, lists: RxGroupList[]): RxGroupList[] {
+  if (!name) return [];
+  return lists.filter((rgl) => rgl.sourceMemberNames.includes(name));
+}
+
+/** Reference counts in list tables — zero renders as empty. */
+export function formatReferenceCount(count: number): string {
+  return count === 0 ? '' : String(count);
+}
+
 export function externalChannelLinks(callsign: string): { label: string; url: string }[] {
   const q = encodeURIComponent(callsign);
   return [

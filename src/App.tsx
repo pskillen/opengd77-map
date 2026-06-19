@@ -29,10 +29,13 @@ import ZoneDetail from './routes/zones/detail.tsx';
 import ZoneEdit from './routes/zones/edit.tsx';
 import TalkGroupsList from './routes/TalkGroupsList.tsx';
 import TalkGroupDetail from './routes/TalkGroupDetail.tsx';
+import TalkGroupEdit from './routes/TalkGroupEdit.tsx';
 import ContactsList from './routes/ContactsList.tsx';
 import ContactDetail from './routes/ContactDetail.tsx';
+import ContactEdit from './routes/ContactEdit.tsx';
 import RxGroupListsList from './routes/RxGroupListsList.tsx';
 import RxGroupListDetail from './routes/RxGroupListDetail.tsx';
+import RxGroupListEdit from './routes/RxGroupListEdit.tsx';
 import Settings from './routes/Settings.tsx';
 import ReferenceIndex from './routes/reference/index.tsx';
 import BandPlan from './routes/reference/band-plan.tsx';
@@ -146,10 +149,16 @@ export default function App() {
             <Route path="/zones/:id/edit" element={<ZoneEdit />} />
             <Route path="/zones/:id" element={<ZoneDetail />} />
             <Route path="/talk-groups" element={<TalkGroupsList />} />
+            <Route path="/talk-groups/new" element={<TalkGroupEdit />} />
+            <Route path="/talk-groups/:id/edit" element={<TalkGroupEdit />} />
             <Route path="/talk-groups/:id" element={<TalkGroupDetail />} />
             <Route path="/contacts" element={<ContactsList />} />
+            <Route path="/contacts/new" element={<ContactEdit />} />
+            <Route path="/contacts/:id/edit" element={<ContactEdit />} />
             <Route path="/contacts/:id" element={<ContactDetail />} />
             <Route path="/rx-group-lists" element={<RxGroupListsList />} />
+            <Route path="/rx-group-lists/new" element={<RxGroupListEdit />} />
+            <Route path="/rx-group-lists/:id/edit" element={<RxGroupListEdit />} />
             <Route path="/rx-group-lists/:id" element={<RxGroupListDetail />} />
             <Route path="/export" element={<ImportExport />} />
             <Route path="/map" element={<Navigate to="/channels" replace />} />

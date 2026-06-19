@@ -6,7 +6,9 @@ import {
   channelsWithRxGroupList,
   channelsWithTalkGroupName,
   findEntityById,
+  formatReferenceCount,
   resolveRxGroupListMembers,
+  rxGroupListsContainingMember,
   sortByName,
   zonesContainingChannel,
 } from './reportLookup.ts';
@@ -101,5 +103,20 @@ describe('reportLookup', () => {
   it('sortByName sorts locale-aware', () => {
     const items = [{ name: 'Zulu' }, { name: 'Alpha' }];
     expect(sortByName(items).map((i) => i.name)).toEqual(['Alpha', 'Zulu']);
+  });
+
+  it('rxGroupListsContainingMember finds lists with member name', () => {
+    const lists: RxGroupList[] = [
+      { id: 'r1', name: 'A', sourceMemberNames: ['Scotland'] },
+      { id: 'r2', name: 'B', sourceMemberNames: ['Local'] },
+      { id: 'r3', name: 'C', sourceMemberNames: ['Scotland', 'Local'] },
+    ];
+    expect(rxGroupListsContainingMember('Scotland', lists).map((r) => r.name)).toEqual(['A', 'C']);
+    expect(rxGroupListsContainingMember('', lists)).toEqual([]);
+  });
+
+  it('formatReferenceCount renders empty for zero', () => {
+    expect(formatReferenceCount(0)).toBe('');
+    expect(formatReferenceCount(3)).toBe('3');
   });
 });

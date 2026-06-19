@@ -8,6 +8,10 @@ alwaysApply: false
 
 Read [`AGENTS.md`](../../AGENTS.md) first. For git, plans, and docs see [`.cursor/skills/`](../skills/).
 
+## Vendor boundaries
+
+Internal model, store, mutations, validation, and CRUD UI are **vendor-neutral** — no radio profile constants or member-count caps. Cardinality limits, truncation, and column mapping belong at **`src/lib/import/`** and **`src/lib/export/`** only. See [AGENTS.md — Vendor boundaries](../../AGENTS.md#vendor-boundaries).
+
 ## SPA (`src/`)
 
 - React + TypeScript under `src/`; Vite bundles for GitHub Pages (`base: '/codeplug-tool/'`).
