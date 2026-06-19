@@ -6,6 +6,7 @@ import App from './App.tsx';
 import { newProject } from './models/codeplugProject.ts';
 import { CODEPLUG_STORAGE_KEY, serializeProjects } from './state/codeplugStorage.ts';
 import { CodeplugProvider } from './state/codeplugStore.tsx';
+import { OperatorPositionProvider } from './state/operatorPosition.tsx';
 import { theme } from './theme.ts';
 
 vi.mock('react-leaflet', () => ({
@@ -37,9 +38,11 @@ function renderApp(initialRoute = '/') {
   return render(
     <MantineProvider theme={theme} defaultColorScheme="dark">
       <MemoryRouter initialEntries={[initialRoute]}>
-        <CodeplugProvider>
-          <App />
-        </CodeplugProvider>
+        <OperatorPositionProvider>
+          <CodeplugProvider>
+            <App />
+          </CodeplugProvider>
+        </OperatorPositionProvider>
       </MemoryRouter>
     </MantineProvider>,
   );

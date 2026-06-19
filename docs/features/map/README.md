@@ -13,6 +13,7 @@ Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leafl
 | Map tiles | Shipped | OpenStreetMap default; optional Mapbox streets / satellite |
 | Filters & map controls | Shipped | Full-name labels and zone hulls on inset map; tile and grid settings on `/settings` |
 | Maidenhead grid overlay | Shipped | 4/6-char grid lines + labels; [#50](https://github.com/pskillen/codeplug-tool/issues/50) |
+| Operator marker | Shipped | Session “You” marker when browse position set — [operator-distance](../operator-distance/README.md) ([#70](https://github.com/pskillen/codeplug-tool/issues/70)) |
 | Contacts / TG lists map layer | Deferred | Not geographic — out of scope for this tool |
 | GitHub Pages deploy | Shipped | Publish GitHub release → `.github/workflows/pages.yml` |
 

@@ -71,6 +71,8 @@ Channel map rendering is documented in [map/](map/README.md).
 - **Accuracy:** when reported by the browser, shown as dimmed helper text (e.g. `±12 m`).
 - **Requirements:** secure context (HTTPS or `localhost`); unavailable over insecure HTTP.
 
+Session-scoped browse position (distance sort, channel detail distance, map “You” marker) is documented in [operator-distance](../operator-distance/README.md) ([#70](https://github.com/pskillen/codeplug-tool/issues/70)).
+
 ## Manual verify
 
 ### Channel CRUD

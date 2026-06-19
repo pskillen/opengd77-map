@@ -4,6 +4,7 @@ import {
   applyFilters,
   buildChannelById,
   dominantMode,
+  filterChannelsByDistance,
   groupByCoords,
   markerColor,
   markerLabel,
@@ -126,5 +127,51 @@ describe('zoneGeolocatedPoints', () => {
     });
     expect(points).toHaveLength(1);
     expect(missing.some((m) => m.reason === 'not in Channels.csv')).toBe(true);
+  });
+});
+
+describe('filterChannelsByDistance', () => {
+  const operator = { lat: 55.8642, lon: -4.2518 };
+  const near = ch({
+    id: 'near',
+    name: 'Near',
+    location: { lat: 55.87, lon: -4.26 },
+    useLocation: true,
+  });
+  const far = ch({
+    id: 'far',
+    name: 'Far',
+    location: { lat: 55.9533, lon: -3.1883 },
+    useLocation: true,
+  });
+  const noLoc = ch({ id: 'noloc', name: 'NoLoc', location: null, useLocation: false });
+
+  it('returns all channels when disabled', () => {
+    expect(
+      filterChannelsByDistance([near, far, noLoc], {
+        enabled: false,
+        operatorPosition: operator,
+        maxDistanceKm: 10,
+      }),
+    ).toHaveLength(3);
+  });
+
+  it('drops channels without geolocation when enabled', () => {
+    expect(
+      filterChannelsByDistance([near, noLoc], {
+        enabled: true,
+        operatorPosition: null,
+        maxDistanceKm: 50,
+      }),
+    ).toEqual([near]);
+  });
+
+  it('filters by max distance when operator position is set', () => {
+    const result = filterChannelsByDistance([near, far], {
+      enabled: true,
+      operatorPosition: operator,
+      maxDistanceKm: 10,
+    });
+    expect(result.map((c) => c.id)).toEqual(['near']);
   });
 });

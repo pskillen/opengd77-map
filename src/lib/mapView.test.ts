@@ -44,4 +44,12 @@ describe('collectMapPoints', () => {
     expect(collectMapPoints(groups, [[56.5, -4.0]], true)).toHaveLength(3);
     expect(collectMapPoints(groups, [[56.5, -4.0]], false)).toHaveLength(2);
   });
+
+  it('includes extra points such as operator position', () => {
+    const groups = [[{ location: { lat: 56.5, lon: -4.0 } }]];
+    expect(collectMapPoints(groups, [], false, [[55.9, -4.2]])).toEqual([
+      [56.5, -4.0],
+      [55.9, -4.2],
+    ]);
+  });
 });

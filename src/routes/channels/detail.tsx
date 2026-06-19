@@ -8,6 +8,7 @@ import { BandPillForChannel } from '../../components/crud/BandPill.tsx';
 import DetailSections, { DetailLinkList } from '../../components/report/DetailSections.tsx';
 import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
 import ReportPage from '../../components/report/ReportPage.tsx';
+import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import {
   externalChannelLinks,
   findContactByName,
@@ -16,8 +17,11 @@ import {
   zonesContainingChannel,
 } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
+import { useOperatorPosition } from '../../state/operatorPosition.tsx';
 import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
 import { formatFrequencyMhz } from '../../lib/formatFrequency.ts';
+import { formatDistanceM, haversineDistanceM } from '../../lib/geoDistance.ts';
+import { channelHasGeolocation } from '../../lib/channels.ts';
 import { coordsToLocator } from '../../lib/maidenhead.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { modeLabel } from '../../lib/channelModes.ts';
@@ -31,6 +35,7 @@ export default function ChannelDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { codeplug, deleteChannel } = useCodeplug();
+  const { position, setPosition, clearPosition } = useOperatorPosition();
   const [deleteOpen, { open: openDelete, close: closeDelete }] = useDisclosure(false);
   const channel = id ? findEntityById(codeplug.channels, id) : null;
 
@@ -62,6 +67,42 @@ export default function ChannelDetail() {
     channel.location && channel.useLocation
       ? coordsToLocator(channel.location.lat, channel.location.lon, 6)
       : '';
+
+  const geolocated = channelHasGeolocation(channel);
+  const distanceFromMe =
+    geolocated && position
+      ? formatDistanceM(
+          haversineDistanceM(
+            position.lat,
+            position.lon,
+            channel.location!.lat,
+            channel.location!.lon,
+          ),
+        )
+      : '—';
+
+  const locationFields = [
+    {
+      label: 'Coordinates',
+      value: formatLocation(channel.location?.lat, channel.location?.lon),
+    },
+    { label: 'Maidenhead', value: locator },
+    { label: 'Use Location', value: channel.useLocation ? 'Yes' : 'No' },
+    { label: 'Hide from map', value: channel.hideFromMap ? 'Yes' : 'No' },
+    ...(geolocated
+      ? [
+          { label: 'Distance from me', value: distanceFromMe },
+          ...(position
+            ? [
+                {
+                  label: 'My location',
+                  value: formatLocation(position.lat, position.lon),
+                },
+              ]
+            : []),
+        ]
+      : []),
+  ];
 
   const sections = [
     {
@@ -135,15 +176,7 @@ export default function ChannelDetail() {
     },
     {
       title: 'Location',
-      fields: [
-        {
-          label: 'Coordinates',
-          value: formatLocation(channel.location?.lat, channel.location?.lon),
-        },
-        { label: 'Maidenhead', value: locator },
-        { label: 'Use Location', value: channel.useLocation ? 'Yes' : 'No' },
-        { label: 'Hide from map', value: channel.hideFromMap ? 'Yes' : 'No' },
-      ],
+      fields: locationFields,
     },
     {
       title: 'Scan / APRS',
@@ -211,6 +244,29 @@ export default function ChannelDetail() {
 
         <DetailSections sections={sections} />
 
+        {geolocated ? (
+          <Stack gap="xs">
+            {position ? (
+              <>
+                {position.accuracyMeters != null && Number.isFinite(position.accuracyMeters) ? (
+                  <Text size="xs" c="dimmed">
+                    Location accuracy ±{Math.round(position.accuracyMeters)} m
+                  </Text>
+                ) : null}
+                <Button variant="subtle" size="compact-sm" onClick={clearPosition}>
+                  Clear my location
+                </Button>
+              </>
+            ) : (
+              <UseMyLocationButton
+                onLocation={(lat, lon, accuracyMeters) =>
+                  setPosition({ lat, lon, accuracyMeters: accuracyMeters ?? null })
+                }
+              />
+            )}
+          </Stack>
+        ) : null}
+
         <DetailLinkList title="Zones" items={zoneLinks} />
 
         <Stack gap="sm">
@@ -236,6 +292,7 @@ export default function ChannelDetail() {
             highlightChannelId={channel.id}
             compactMode
             defaultShowZones={false}
+            operatorPosition={position}
           />
         </Stack>
       </Stack>

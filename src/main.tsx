@@ -6,6 +6,7 @@ import '@mantine/core/styles.css';
 import 'leaflet/dist/leaflet.css';
 import App from './App.tsx';
 import { CodeplugProvider } from './state/codeplugStore.tsx';
+import { OperatorPositionProvider } from './state/operatorPosition.tsx';
 import { theme } from './theme.ts';
 import './index.css';
 
@@ -14,9 +15,11 @@ createRoot(document.getElementById('root')!).render(
     <ColorSchemeScript defaultColorScheme="dark" />
     <MantineProvider theme={theme} defaultColorScheme="dark">
       <HashRouter>
-        <CodeplugProvider>
-          <App />
-        </CodeplugProvider>
+        <OperatorPositionProvider>
+          <CodeplugProvider>
+            <App />
+          </CodeplugProvider>
+        </OperatorPositionProvider>
       </HashRouter>
     </MantineProvider>
   </StrictMode>,

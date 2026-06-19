@@ -16,6 +16,7 @@ Embeddable Leaflet map for plotting codeplug channels and zone hulls inside repo
 | `defaultFullChannelName` | `boolean` | `false` | Initial state for full-name marker labels |
 | `defaultShowZones` | `boolean` | `true` | Initial state for zone hull visibility |
 | `highlightChannelId` | `string` | — | Emphasise one channel marker (detail pages) |
+| `operatorPosition` | `{ lat, lon } \| null` | `null` | Session operator position — distinct “You” marker; included in bounds |
 
 ## Usage
 
@@ -43,6 +44,7 @@ import CodeplugMap from '../components/CodeplugMap/CodeplugMap.tsx';
 - **Tiles:** reads provider/token from `localStorage` through `useMapSettings`; falls back to OSM when Mapbox is selected without a token.
 - **Maidenhead grid:** optional overlay from Settings — maximum resolution Off / 4 / 6 / 8; finer detail unlocks by zoom (6-char at 9+, 8-char at 14+). See [maidenhead-grid doc](../../../docs/features/map/maidenhead-grid.md).
 - **Zone hulls:** circle (1 site), line (2), convex polygon (3+); see [map zones doc](../../../docs/features/map/zones.md).
+- **Operator marker:** when `operatorPosition` is set, plots a blue “You” marker and includes it in auto bounds. See [operator-distance doc](../../../docs/features/operator-distance/README.md).
 - **Layout:** defers mount until document layout is ready (`useDocumentLayoutReady`); `ResizeObserver` keeps Leaflet sized in inset layouts.
 
 ## Related

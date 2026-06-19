@@ -22,6 +22,7 @@ Agent skills for documentation and execution tracking:
 | Maidenhead | `src/lib/maidenhead.ts`, `src/routes/reference/maidenhead.tsx` | [maidenhead.md](maidenhead.md) | Shipped ([#11](https://github.com/pskillen/codeplug-tool/issues/11) CRUD, [#47](https://github.com/pskillen/codeplug-tool/issues/47) converter) |
 | Reference | `src/routes/reference/` | [reference/bands.md](../reference/bands.md) | Shipped ([#44](https://github.com/pskillen/codeplug-tool/issues/44)) |
 | UI (icons) | `src/lib/iconSizes.ts`, routes/components | [ui/](ui/) | Shipped ([#64](https://github.com/pskillen/codeplug-tool/issues/64)) |
+| Operator distance | `src/lib/geoDistance.ts`, `src/state/operatorPosition.tsx` | [operator-distance/](operator-distance/) | Shipped ([#70](https://github.com/pskillen/codeplug-tool/issues/70)) |
 
 ## Reference
 

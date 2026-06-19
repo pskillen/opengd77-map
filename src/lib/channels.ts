@@ -3,6 +3,7 @@ import type { LatLon } from './geo.ts';
 import { uniqueLatLon } from './geo.ts';
 import { buildNameToChannelId } from './codeplug.ts';
 import { modeColor } from './channelModes.ts';
+import { haversineDistanceM } from './geoDistance.ts';
 
 export interface FilterOptions {
   requireUseLocation: boolean;
@@ -134,4 +135,41 @@ export function zoneGeolocatedPoints(
     points.push([ch.location.lat, ch.location.lon]);
   }
   return { points: uniqueLatLon(points), missing };
+}
+
+export function channelHasGeolocation(channel: Channel): boolean {
+  const { location, useLocation } = channel;
+  return (
+    useLocation &&
+    location != null &&
+    Number.isFinite(location.lat) &&
+    Number.isFinite(location.lon)
+  );
+}
+
+/** Kilometre marks for the channel-list distance filter slider. */
+export const DISTANCE_FILTER_MARKS_KM = [5, 10, 25, 50, 100, 200] as const;
+
+export function filterChannelsByDistance(
+  channels: Channel[],
+  options: {
+    enabled: boolean;
+    operatorPosition: { lat: number; lon: number } | null;
+    maxDistanceKm: number;
+  },
+): Channel[] {
+  const { enabled, operatorPosition, maxDistanceKm } = options;
+  if (!enabled) return channels;
+
+  return channels.filter((ch) => {
+    if (!channelHasGeolocation(ch)) return false;
+    if (!operatorPosition) return true;
+    const metres = haversineDistanceM(
+      operatorPosition.lat,
+      operatorPosition.lon,
+      ch.location!.lat,
+      ch.location!.lon,
+    );
+    return metres <= maxDistanceKm * 1000;
+  });
 }

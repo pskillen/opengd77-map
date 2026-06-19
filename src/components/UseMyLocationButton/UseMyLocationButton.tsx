@@ -4,7 +4,7 @@ import { useGeolocation } from '../../hooks/useGeolocation.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 
 export interface UseMyLocationButtonProps {
-  onLocation: (lat: number, lon: number) => void;
+  onLocation: (lat: number, lon: number, accuracyMeters?: number | null) => void;
   disabled?: boolean;
 }
 
@@ -14,7 +14,7 @@ export default function UseMyLocationButton({ onLocation, disabled }: UseMyLocat
   const handleClick = async () => {
     const result = await requestLocation();
     if (result) {
-      onLocation(result.lat, result.lon);
+      onLocation(result.lat, result.lon, result.accuracyMeters);
     }
   };
 

@@ -72,6 +72,17 @@ function channelDivIcon(
   });
 }
 
+function operatorDivIcon(): L.DivIcon {
+  return L.divIcon({
+    className: 'operator-marker-wrap',
+    html: `<div class="operator-marker">
+      <div class="operator-marker-dot"></div>
+      <div class="operator-marker-label">You</div>
+    </div>`,
+    iconAnchor: [0, 0],
+  });
+}
+
 function ChannelPopup({ group }: { group: Channel[] }) {
   const title =
     group.length === 1 ? group[0].callsign : `${group[0].callsign} (+${group.length - 1})`;
@@ -118,16 +129,24 @@ function FitMapBounds({
   groups,
   zoneHulls,
   showZoneHulls,
+  operatorPosition,
 }: {
   groups: Channel[][];
   zoneHulls: ZoneHullData[];
   showZoneHulls: boolean;
+  operatorPosition?: { lat: number; lon: number } | null;
 }) {
   const map = useMap();
 
   useEffect(() => {
     const zonePoints = showZoneHulls ? zoneHulls.flatMap((zh) => zh.points) : [];
-    const points = collectMapPoints(groups, zonePoints, showZoneHulls);
+    const extraPoints: LatLon[] =
+      operatorPosition != null &&
+      Number.isFinite(operatorPosition.lat) &&
+      Number.isFinite(operatorPosition.lon)
+        ? [[operatorPosition.lat, operatorPosition.lon]]
+        : [];
+    const points = collectMapPoints(groups, zonePoints, showZoneHulls, extraPoints);
     const action = computeMapView(points, {
       padding: [48, 48],
       maxZoom: 11,
@@ -145,7 +164,7 @@ function FitMapBounds({
       padding: action.padding,
       maxZoom: action.maxZoom,
     });
-  }, [map, groups, zoneHulls, showZoneHulls]);
+  }, [map, groups, zoneHulls, showZoneHulls, operatorPosition]);
 
   return null;
 }
@@ -202,6 +221,7 @@ export interface CodeplugMapProps {
   highlightChannelId?: string;
   compactMode?: boolean;
   onLocationPick?: (lat: number, lon: number) => void;
+  operatorPosition?: { lat: number; lon: number } | null;
 }
 
 export default function CodeplugMap({
@@ -215,6 +235,7 @@ export default function CodeplugMap({
   highlightChannelId,
   compactMode = false,
   onLocationPick,
+  operatorPosition = null,
 }: CodeplugMapProps) {
   const mapLayoutReady = useDocumentLayoutReady();
   const { tileProvider, mapboxToken, tileConfig, maidenheadGrid } = useMapSettings();
@@ -423,9 +444,30 @@ export default function CodeplugMap({
               );
             })}
 
+            {operatorPosition != null &&
+            Number.isFinite(operatorPosition.lat) &&
+            Number.isFinite(operatorPosition.lon) ? (
+              <Marker
+                key="operator-position"
+                position={[operatorPosition.lat, operatorPosition.lon]}
+                icon={operatorDivIcon()}
+                zIndexOffset={1000}
+              >
+                <Popup>
+                  <strong>You are here</strong>
+                </Popup>
+              </Marker>
+            ) : null}
+
             {groups.length > 0 ||
+            operatorPosition != null ||
             (showZoneHulls && zoneHulls.some((zh) => zh.geometry !== 'none')) ? (
-              <FitMapBounds groups={groups} zoneHulls={zoneHulls} showZoneHulls={showZoneHulls} />
+              <FitMapBounds
+                groups={groups}
+                zoneHulls={zoneHulls}
+                showZoneHulls={showZoneHulls}
+                operatorPosition={operatorPosition}
+              />
             ) : null}
           </MapContainer>
         ) : null}

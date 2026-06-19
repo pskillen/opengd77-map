@@ -50,6 +50,8 @@ Use **AskQuestion** (or ask conversationally) when anything material is ambiguou
 
 Do **not** produce a detailed plan until blockers are resolved or explicitly deferred with a note.
 
+**If not running in plan mode** stop and ask for confirmation. If user insists we can continue to make a plan, but otherwise ask them to enable plan mode.
+
 ---
 
 ## 2. Plan structure
