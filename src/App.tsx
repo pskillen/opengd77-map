@@ -1,23 +1,22 @@
-import { AppShell, Burger, Group, NavLink, Stack, Text } from '@mantine/core';
+import { AppShell, Box, Burger, Divider, Group, NavLink, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import {
-  IconAddressBook,
-  IconAntenna,
-  IconArrowsLeftRight,
-  IconBook,
-  IconFolders,
-  IconHome,
-  IconLayoutDashboard,
-  IconListDetails,
-  IconSettings,
-  IconUsersGroup,
-} from '@tabler/icons-react';
-import type { TablerIcon } from '@tabler/icons-react';
+import { IconBook, IconHome, IconSettings } from '@tabler/icons-react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import ActiveProjectBar from './components/ActiveProjectBar/ActiveProjectBar.tsx';
 import RequireActiveProject from './components/RequireActiveProject/RequireActiveProject.tsx';
 import BuildFooter from './components/BuildFooter.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from './lib/iconSizes.ts';
+import { navActive } from './nav/navActive.ts';
+import { projectNavItems } from './nav/primaryNavItems.ts';
+import {
+  NAVBAR_WIDTH_WITH_SECONDARY,
+  PRIMARY_NAV_WIDTH,
+  SECONDARY_NAV_WIDTH,
+} from './nav/navWidths.ts';
+import {
+  resolveSectionNav,
+  shouldShowSecondaryNav,
+} from './nav/sectionNavRegistry.ts';
 import Home from './routes/Home.tsx';
 import ImportExport from './routes/ImportExport.tsx';
 import Summary from './routes/Summary.tsx';
@@ -42,36 +41,21 @@ import BandPlan from './routes/reference/band-plan.tsx';
 import MaidenheadConverter from './routes/reference/maidenhead.tsx';
 import { useProjects } from './state/codeplugStore.tsx';
 
-function navActive(pathname: string, path: string): boolean {
-  if (path === '/') return pathname === '/';
-  return pathname === path || pathname.startsWith(`${path}/`);
-}
-
-function navIcon(Icon: TablerIcon) {
-  return <Icon size={ICON_SIZE_NAV} stroke={ICON_STROKE} />;
-}
-
 export default function App() {
   const [opened, { toggle, close }] = useDisclosure();
   const location = useLocation();
   const { activeProjectId } = useProjects();
   const hasActiveProject = activeProjectId != null;
-
-  const navItems: { to: string; label: string; icon: TablerIcon }[] = [
-    { to: '/summary', label: 'Summary', icon: IconLayoutDashboard },
-    { to: '/channels', label: 'Channels', icon: IconAntenna },
-    { to: '/zones', label: 'Zones', icon: IconFolders },
-    { to: '/talk-groups', label: 'Talk groups', icon: IconUsersGroup },
-    { to: '/contacts', label: 'Contacts', icon: IconAddressBook },
-    { to: '/rx-group-lists', label: 'RX Group Lists', icon: IconListDetails },
-    { to: '/export', label: 'Import & export', icon: IconArrowsLeftRight },
-  ];
+  const showSecondary = shouldShowSecondaryNav(location.pathname, hasActiveProject);
+  const sectionEntry = resolveSectionNav(location.pathname);
+  const SectionComponent = sectionEntry?.Component;
+  const navbarWidth = showSecondary ? NAVBAR_WIDTH_WITH_SECONDARY : PRIMARY_NAV_WIDTH;
 
   return (
     <AppShell
       header={{ height: 56 }}
       navbar={{
-        width: 260,
+        width: navbarWidth,
         breakpoint: 'sm',
         collapsed: { mobile: !opened },
       }}
@@ -84,54 +68,79 @@ export default function App() {
         </Group>
       </AppShell.Header>
 
-      <AppShell.Navbar p="md">
-        <Stack gap="md" style={{ height: '100%' }}>
-          {hasActiveProject ? (
-            <>
-              <ActiveProjectBar />
-              {navItems.map((item) => (
+      <AppShell.Navbar p={0}>
+        <Group wrap="nowrap" align="stretch" gap={0} style={{ height: '100%' }}>
+          <Box w={PRIMARY_NAV_WIDTH} p="md" style={{ flexShrink: 0 }}>
+            <Stack gap="md" style={{ height: '100%' }}>
+              {hasActiveProject ? (
+                <>
+                  <ActiveProjectBar />
+                  {projectNavItems.map((item) => {
+                    const Icon = item.icon;
+                    return (
+                      <NavLink
+                        key={item.to}
+                        component={Link}
+                        to={item.to}
+                        label={item.label}
+                        leftSection={<Icon size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+                        active={navActive(location.pathname, item.to)}
+                        onClick={close}
+                      />
+                    );
+                  })}
+                </>
+              ) : (
                 <NavLink
-                  key={item.to}
                   component={Link}
-                  to={item.to}
-                  label={item.label}
-                  leftSection={navIcon(item.icon)}
-                  active={navActive(location.pathname, item.to)}
+                  to="/"
+                  label="Home"
+                  leftSection={<IconHome size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+                  active={navActive(location.pathname, '/')}
                   onClick={close}
                 />
-              ))}
+              )}
+              <div style={{ flex: 1 }} />
+              <NavLink
+                component={Link}
+                to="/reference"
+                label="Reference"
+                leftSection={<IconBook size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+                active={navActive(location.pathname, '/reference')}
+                onClick={close}
+              />
+              <NavLink
+                component={Link}
+                to="/settings"
+                label="Settings"
+                leftSection={<IconSettings size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+                active={navActive(location.pathname, '/settings')}
+                onClick={close}
+              />
+            </Stack>
+          </Box>
+          {showSecondary && SectionComponent ? (
+            <>
+              <Divider orientation="vertical" visibleFrom="sm" />
+              <Box
+                w={SECONDARY_NAV_WIDTH}
+                p="md"
+                visibleFrom="sm"
+                style={{ flexShrink: 0, overflow: 'hidden' }}
+              >
+                <SectionComponent variant="sidebar" />
+              </Box>
             </>
-          ) : (
-            <NavLink
-              component={Link}
-              to="/"
-              label="Home"
-              leftSection={navIcon(IconHome)}
-              active={navActive(location.pathname, '/')}
-              onClick={close}
-            />
-          )}
-          <div style={{ flex: 1 }} />
-          <NavLink
-            component={Link}
-            to="/reference"
-            label="Reference"
-            leftSection={navIcon(IconBook)}
-            active={navActive(location.pathname, '/reference')}
-            onClick={close}
-          />
-          <NavLink
-            component={Link}
-            to="/settings"
-            label="Settings"
-            leftSection={navIcon(IconSettings)}
-            active={navActive(location.pathname, '/settings')}
-            onClick={close}
-          />
-        </Stack>
+          ) : null}
+        </Group>
       </AppShell.Navbar>
 
       <AppShell.Main>
+        {showSecondary && SectionComponent ? (
+          <Box hiddenFrom="sm" mb="md">
+            <SectionComponent variant="toolbar" />
+          </Box>
+        ) : null}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
