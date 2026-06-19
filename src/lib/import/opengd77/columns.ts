@@ -1,4 +1,5 @@
-/** OpenGD77 Channels.csv column headers (canonical CPS order). */
+/** OpenGD77 CPS CSV column headers — mirror docs/reference/opengd77/ (generic wire format)
+ *  and docs/reference/opengd77/radios/baofeng-1701.md (1701-calibrated member counts). */
 export const CHANNEL_COL = {
   number: 'Channel Number',
   name: 'Channel Name',
