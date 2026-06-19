@@ -18,6 +18,7 @@ export function collectMapPoints(
   groups: { location: { lat: number; lon: number } | null }[][],
   zonePoints: LatLon[],
   includeZones: boolean,
+  extraPoints: LatLon[] = [],
 ): LatLon[] {
   const points: LatLon[] = [];
 
@@ -34,6 +35,12 @@ export function collectMapPoints(
       if (Number.isFinite(p[0]) && Number.isFinite(p[1])) {
         points.push(p);
       }
+    }
+  }
+
+  for (const p of extraPoints) {
+    if (Number.isFinite(p[0]) && Number.isFinite(p[1])) {
+      points.push(p);
     }
   }
 
