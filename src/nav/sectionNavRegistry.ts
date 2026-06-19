@@ -1,4 +1,5 @@
 import ReferenceSectionNav from '../components/SectionNav/sections/ReferenceSectionNav.tsx';
+import ChannelsSectionNav from '../components/SectionNav/sections/ChannelsSectionNav.tsx';
 import SettingsSectionNav from '../components/SectionNav/sections/SettingsSectionNav.tsx';
 import { NullSectionNav } from './sectionNavStubs.tsx';
 import type { SectionNavEntry } from './sectionNavTypes.ts';
@@ -7,7 +8,7 @@ import type { SectionNavEntry } from './sectionNavTypes.ts';
 const registry: SectionNavEntry[] = [
   { title: 'Reference', prefix: '/reference', Component: ReferenceSectionNav },
   { title: 'Settings', prefix: '/settings', Component: SettingsSectionNav },
-  { title: 'Channels', prefix: '/channels', Component: NullSectionNav },
+  { title: 'Channels', prefix: '/channels', Component: ChannelsSectionNav },
   { title: 'Zones', prefix: '/zones', Component: NullSectionNav },
   { title: 'Talk groups', prefix: '/talk-groups', Component: NullSectionNav },
   { title: 'Contacts', prefix: '/contacts', Component: NullSectionNav },
