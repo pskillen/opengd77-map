@@ -34,8 +34,8 @@ The next agent relies on these values. Keep them accurate.
 - **Last merged phase:** none
 - **`main` is at:** (commit/PR after last merge) — N/A yet
 - **Epic ticket:** [#93](https://github.com/pskillen/codeplug-tool/issues/93). No per-phase child tickets — FK-by-UUID and provenance/rename are folded under #93.
-- **New tickets to create in Phase 0:**
-  - OpenGD77 export issues (tracking): _#TBD_ (the only new ticket)
+- **New tickets created in Phase 0:**
+  - OpenGD77 export issues (tracking): [#95](https://github.com/pskillen/codeplug-tool/issues/95)
 - **Shared test builders:** not created yet (planned Phase 2 at `src/test/builders`)
 - **Provenance `meta` shape:** not designed yet (Phase 3) — Phase 4 (FK-by-UUID) depends on it
 - **`vendorExtras` renamed to `opengd77Extras`?** No (Phase 3)
@@ -55,24 +55,20 @@ The next agent relies on these values. Keep them accurate.
 
 ## Phase 0 — Audit close-out, new tickets, scaffold (#91)
 
-**Status:** In progress
+**Status:** Complete (pending merge)
 **Branch:** `91/paddy/data-model-vendor-agnostic-review`
-**PR:** _TBD_
+**PR:** [#94](https://github.com/pskillen/codeplug-tool/pull/94) (Closes #91)
 
 **Delivered**
 
-- [vendor-agnostic-review.md](vendor-agnostic-review.md) committed (`74c4293`).
-- These tracking docs created.
-
-**Remaining**
-
-- Create the three new tickets and record numbers in Carry-over state above.
-- Fix stale schema version in [persistence README](../persistence/README.md) (says v1; actual 3).
-- Open the PR closing #91.
+- [vendor-agnostic-review.md](vendor-agnostic-review.md) (`74c4293`) + refined field types (`05f9142`).
+- These tracking docs created (`62b39fe`).
+- OpenGD77 export-issues tracker created: [#95](https://github.com/pskillen/codeplug-tool/issues/95).
+- Fixed stale schema version in [persistence README](../persistence/README.md) (v1 → 3).
 
 **Verify**
 
-- `npm run lint && npm run test`
+- Docs-only; no code changed.
 - Tracking docs linked from [docs/features/README.md](../README.md) and the epic plan.
 
 ---
