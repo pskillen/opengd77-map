@@ -82,7 +82,7 @@ Implementation code is expected to mirror this reference. When code and docs dis
 
 ## Related
 
-- [Import adapter behaviour](../../features/import/opengd77.md)
-- [Export hub](../../features/export/README.md)
+- [Import / export hub](../../features/import-export/README.md)
+- [OpenGD77 adapter behaviour](../../features/import-export/opengd77/README.md)
 - [Data model](../../features/data-model/README.md)
 - [Channel modes](../channel-modes.md)

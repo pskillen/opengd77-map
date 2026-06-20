@@ -140,7 +140,6 @@ Format-fidelity tests must **not** duplicate:
 ## Related
 
 - [Testing hub](README.md)
-- [Import feature](../../features/import/README.md)
-- [Export feature](../../features/export/README.md)
+- [Import / export feature](../../features/import-export/README.md)
 - [System tests](system.md) — merge, persistence, CRUD paths
 - [Fixtures](fixtures.md) — bundles and diff rules

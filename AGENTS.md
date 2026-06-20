@@ -22,7 +22,7 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 | `src/` | React app — routes, components, lib |
 | `src/components/ChannelMap/` | Channel map UI (react-leaflet) |
 | `src/models/` | Internal codeplug data models — [data-model](docs/features/data-model/README.md) |
-| `src/lib/import/` | CPS import adapters and registry — [import](docs/features/import/README.md) |
+| `src/lib/import/`, `src/lib/export/` | CPS import/export adapters and registries — [import-export](docs/features/import-export/README.md) |
 | `src/state/` | Central codeplug store (persistence-ready) |
 | `package.json`, `vite.config.ts`, `tsconfig.json` | SPA build and tooling |
 | `docs/build/` | Build and deploy documentation |
@@ -35,7 +35,7 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 
 ## OpenGD77 CSV inputs
 
-OpenGD77 is the first-class CPS target. Authoritative column and conversion reference: [`docs/reference/opengd77/`](docs/reference/opengd77/README.md) (generic wire format) and [`docs/reference/opengd77/radios/`](docs/reference/opengd77/radios/README.md) (per-radio limits and features). Adapter behaviour: [import docs](docs/features/import/opengd77.md).
+OpenGD77 is the first-class CPS target. Authoritative column and conversion reference: [`docs/reference/opengd77/`](docs/reference/opengd77/README.md) (generic wire format) and [`docs/reference/opengd77/radios/`](docs/reference/opengd77/radios/README.md) (per-radio limits and features). Adapter behaviour: [import-export docs](docs/features/import-export/opengd77/README.md).
 
 The internal codeplug model is **radio-agnostic**; radio specifics apply at export time. Today's adapter is calibrated to the Baofeng 1701 profile.
 

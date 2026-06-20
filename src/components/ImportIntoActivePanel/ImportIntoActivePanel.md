@@ -28,6 +28,6 @@ import { vendorFormatById } from '../lib/vendorFormats.ts';
 
 ## Related
 
-- [import README](../../../docs/features/import/README.md)
+- [import-export README](../../../docs/features/import-export/README.md)
 - [`ImportDropzone`](../ImportDropzone/ImportDropzone.tsx)
 - [`importMerge.ts`](../../lib/importMerge.ts)

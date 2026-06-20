@@ -22,6 +22,7 @@ Read [progress-tracking](../progress-tracking/SKILL.md) when an initiative needs
 | --- | --- | --- |
 | **`<topic>/README.md`** | Every tool or feature area — hub page | `channel-map/README.md` |
 | **Sibling deep dives** | One concern per file; README is the map | `csv-columns.md`, `map-layers.md` |
+| **Combined feature folders** | Import + export share one hub when tightly coupled | `import-export/README.md` with vendor subtrees (`opengd77/`, `dm32/`) |
 | **`*-progress.md` / `*-outstanding.md`** | Multi-step plans or tickets spanning PRs | `channel-map-progress.md` |
 
 **Slug:** kebab-case matching the product concept (`channel-map`), not necessarily the HTML filename.

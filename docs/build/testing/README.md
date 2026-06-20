@@ -103,8 +103,7 @@ Every pull request and push to `main` runs [`.github/workflows/checks.yaml`](../
 | Resource | Link |
 | --- | --- |
 | Build and deploy | [docs/build/README.md](../README.md) |
-| Import feature | [docs/features/import/README.md](../../features/import/README.md) |
-| Export feature | [docs/features/export/README.md](../../features/export/README.md) |
+| Import / export | [docs/features/import-export/README.md](../../features/import-export/README.md) |
 | Data model | [docs/features/data-model/README.md](../../features/data-model/README.md) |
 | OpenGD77 wire format | [docs/reference/opengd77/](../../reference/opengd77/README.md) |
 | PR checks | [`.github/workflows/checks.yaml`](../../.github/workflows/checks.yaml) — shipped [#79](https://github.com/pskillen/codeplug-tool/issues/79) |

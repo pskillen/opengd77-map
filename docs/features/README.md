@@ -14,8 +14,7 @@ Agent skills for documentation and execution tracking:
 | Data model | `src/models/codeplug.ts` | [data-model/](data-model/) | Shipped |
 | Codeplug projects | `src/models/codeplugProject.ts`, `src/state/codeplugStore.tsx` | [codeplug-project/](codeplug-project/) | Shipped (nascent) |
 | Persistence | `src/state/codeplugStorage.ts` | [persistence/](persistence/) | Shipped |
-| Import | `src/lib/import/` | [import/](import/) | Shipped |
-| Export | `src/lib/export/`, `src/routes/ImportExport.tsx` | [export/](export/) | Shipped ([#38](https://github.com/pskillen/codeplug-tool/issues/38), [#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
+| Import / export | `src/lib/import/`, `src/lib/export/`, `src/routes/ImportExport.tsx` | [import-export/](import-export/) | Shipped ([#38](https://github.com/pskillen/codeplug-tool/issues/38), [#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 | Map | `src/components/CodeplugMap/` | [map/](map/) | Shipped |
 | Report | `src/routes/`, `src/components/report/` | [report/](report/) | Shipped ([#6](https://github.com/pskillen/codeplug-tool/issues/6)) |
 | CRUD | `src/routes/channels/`, `src/routes/zones/`, `src/lib/codeplugMutations.ts` | [crud/](crud/) | In progress ([#11](https://github.com/pskillen/codeplug-tool/issues/11), [#12](https://github.com/pskillen/codeplug-tool/issues/12)) |

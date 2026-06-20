@@ -2,7 +2,7 @@
 
 Generic column reference for deferred OpenGD77 CPS files. **Feature availability varies by radio** — see [radio profiles](radios/README.md).
 
-**App status:** Both files are **skipped on import**. Export includes **header-only** bodies inside the ZIP bundle. See [import outstanding](../../features/import/opengd77-outstanding.md).
+**App status:** Both files are **skipped on import**. Export includes **header-only** bodies inside the ZIP bundle. See [import/export outstanding](../../features/import-export/outstanding.md).
 
 ## DTMF.csv
 
@@ -68,4 +68,4 @@ When APRS/DTMF are modelled, add first-class entities or profile-scoped config s
 
 - [Channels — APRS column](channels.md)
 - [OpenGD77 hub](README.md)
-- [Import outstanding](../../features/import/opengd77-outstanding.md)
+- [Import / export outstanding](../../features/import-export/outstanding.md)
