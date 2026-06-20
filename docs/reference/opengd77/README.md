@@ -1,6 +1,6 @@
 # OpenGD77 CPS CSV reference
 
-Authoritative reference for the **OpenGD77 Customer Programming Software (CPS) CSV interchange format** — the vendor wire format our import/export adapters speak at the format boundary.
+Authoritative reference for the **OpenGD77 Customer Programming Software (CPS) CSV interchange format** — **one** of the wire formats our import/export adapters speak at the format boundary (siblings: DM32 CSV, qDMR YAML, CHIRP, … documented separately). Per-radio variants (1701, MD9600, …) live in [`radios/`](radios/README.md).
 
 **Tracking:** [codeplug-tool#43](https://github.com/pskillen/codeplug-tool/issues/43)
 
@@ -11,7 +11,7 @@ Authoritative reference for the **OpenGD77 Customer Programming Software (CPS) C
 | **Generic wire format** | This directory (`channels.md`, `zones.md`, …) | Column headers, semantic mapping to internal models, import/export conversion rules, round-trip tiers |
 | **Radio profiles** | [`radios/`](radios/README.md) | Per-radio limits (max channels, zone member count), feature availability (APRS, DTMF), layout conventions |
 
-The **internal codeplug model is radio-agnostic** ([data model](../../features/data-model/README.md)). Radio-specific constraints are documented in radio profiles and are intended to be **applied at export time** when the operator picks a target radio exporter. Today's shipped adapter is calibrated to the [Baofeng 1701 profile](radios/baofeng-1701.md).
+The **internal codeplug model is format- and radio-agnostic** ([data model](../../features/data-model/README.md)). OpenGD77 radio-variant constraints are documented in radio profiles and are intended to be **applied at export time** when the operator picks a target OpenGD77 radio variant. Today's shipped adapter is calibrated to the [Baofeng 1701 variant](radios/baofeng-1701.md).
 
 ## File set
 
@@ -82,7 +82,7 @@ Implementation code is expected to mirror this reference. When code and docs dis
 
 ## Related
 
-- [Import adapter behaviour](../../features/import/opengd77.md)
-- [Export hub](../../features/export/README.md)
+- [Import / export hub](../../features/import-export/README.md)
+- [OpenGD77 adapter behaviour](../../features/import-export/opengd77/README.md)
 - [Data model](../../features/data-model/README.md)
 - [Channel modes](../channel-modes.md)

@@ -6,7 +6,7 @@ See the [map hub](README.md) for overall data flow and load order.
 
 ## Purpose
 
-Documents filtering, grouping, and rendering of channels from the central codeplug store. Zone hulls reuse the same filtered channel set via id lookup; see [zones.md](zones.md) for zone-specific behaviour. CSV parsing lives in [import docs](../import/README.md); entity shapes in [data model](../data-model/README.md).
+Documents filtering, grouping, and rendering of channels from the central codeplug store. Zone hulls reuse the same filtered channel set via id lookup; see [zones.md](zones.md) for zone-specific behaviour. CSV parsing lives in [import/export docs](../import-export/README.md); entity shapes in [data model](../data-model/README.md).
 
 ## Code anchors
 
@@ -145,6 +145,6 @@ Channel CSV content persists via the **codeplug projects store** in LocalStorage
 ## Related
 
 - [zones.md](zones.md) — zone hulls and `Zones.csv`
-- [import README](../import/README.md) — CSV import and adapters
+- [import/export README](../import-export/README.md) — format adapters and import flow
 - [data model](../data-model/README.md) — internal entities
 - [map README](README.md) — hub and status table

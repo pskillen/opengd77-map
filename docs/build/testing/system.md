@@ -78,5 +78,5 @@ Add system scenarios when CRUD affects export-visible fields. Full browser edit 
 ## Related
 
 - [Format fidelity](format-fidelity.md) — merge/idempotency scenarios
-- [Import feature](../../features/import/README.md) — active import UI
+- [Import / export feature](../../features/import-export/README.md) — active import UI
 - [Fixtures](fixtures.md)

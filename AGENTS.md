@@ -6,7 +6,7 @@ Instructions for AI agents working in this repository.
 
 **A browser-based companion for amateur radio codeplug design** — a modern layer on top of clunky, vendor-locked CPS (customer programming software). It does **not** write a radio's binary codeplug; it helps operators design a codeplug *layout* (channels, zones, talk groups, TG lists, contacts) and export it in a format the vendor CPS already speaks (usually CSV), to import and flash there.
 
-Core workflows: import an existing CPS CSV export, or start a blank project; edit/visualise; export back to a vendor format; and store the working state in a native **YAML** format. State persists in browser **LocalStorage** today (cloud storage — Dropbox / OneDrive / Google Drive — is planned). The aim is cross-vendor; **OpenGD77 is the first and currently only first-class target**, and the import/export layers are being built to be vendor-agnostic.
+Core workflows: import an existing CPS export, or start a blank project; edit/visualise; export back to a chosen format; and store the working state in a native **YAML** format. State persists in browser **LocalStorage** today (cloud storage — Dropbox / OneDrive / Google Drive — is planned). The aim is format-agnostic: **OpenGD77 CSV is one export format among several** (siblings: Baofeng DM32 CSV, qDMR YAML, native YAML, and analogue-only formats like CHIRP — DM32 and CHIRP have nothing to do with OpenGD77). It is simply the first one shipped. The import/export layers are built so no single format leaks into the internal model.
 
 What ships today is the **channel map**; the broader backlog (genericise import, native YAML, CPS export, persistence, CRUD, reports, cloud storage) is tracked as GitHub issues. See the [README](README.md) for the user-facing overview and roadmap.
 
@@ -22,7 +22,7 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 | `src/` | React app — routes, components, lib |
 | `src/components/ChannelMap/` | Channel map UI (react-leaflet) |
 | `src/models/` | Internal codeplug data models — [data-model](docs/features/data-model/README.md) |
-| `src/lib/import/` | CPS import adapters and registry — [import](docs/features/import/README.md) |
+| `src/lib/import/`, `src/lib/export/` | CPS import/export adapters and registries — [import-export](docs/features/import-export/README.md) |
 | `src/state/` | Central codeplug store (persistence-ready) |
 | `package.json`, `vite.config.ts`, `tsconfig.json` | SPA build and tooling |
 | `docs/build/` | Build and deploy documentation |
@@ -35,11 +35,11 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 
 ## OpenGD77 CSV inputs
 
-OpenGD77 is the first-class CPS target. Authoritative column and conversion reference: [`docs/reference/opengd77/`](docs/reference/opengd77/README.md) (generic wire format) and [`docs/reference/opengd77/radios/`](docs/reference/opengd77/radios/README.md) (per-radio limits and features). Adapter behaviour: [import docs](docs/features/import/opengd77.md).
+OpenGD77 CSV is the **first shipped import/export format**, not the only one — treat it as one format among siblings (DM32, qDMR, CHIRP, native YAML), not the default. Within the OpenGD77 format there are per-radio **variants** (OpenGD77-1701, OpenGD77-MD9600, GD-77, …); those are sub-variants applied at export, not separate formats. Authoritative column and conversion reference: [`docs/reference/opengd77/`](docs/reference/opengd77/README.md) (generic wire format) and [`docs/reference/opengd77/radios/`](docs/reference/opengd77/radios/README.md) (per-radio variant limits and features). Adapter behaviour: [import-export docs](docs/features/import-export/opengd77/README.md).
 
-The internal codeplug model is **radio-agnostic**; radio specifics apply at export time. Today's adapter is calibrated to the Baofeng 1701 profile.
+The internal codeplug model is **format- and radio-agnostic**; format specifics and OpenGD77 radio-variant limits apply at export time. Today's OpenGD77 adapter is calibrated to the Baofeng 1701 variant.
 
-Treat vendor CSV as a lossy interchange format at the edges; parse by **header name**, not column index. Preserve case-sensitive channel name foreign keys. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
+Treat any interchange format (OpenGD77 CSV, DM32 CSV, …) as lossy at the edges; parse by **header name**, not column index. Preserve case-sensitive channel name foreign keys. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
 
 ## Vendor boundaries
 

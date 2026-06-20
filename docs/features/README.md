@@ -14,8 +14,7 @@ Agent skills for documentation and execution tracking:
 | Data model | `src/models/codeplug.ts` | [data-model/](data-model/) | Shipped |
 | Codeplug projects | `src/models/codeplugProject.ts`, `src/state/codeplugStore.tsx` | [codeplug-project/](codeplug-project/) | Shipped (nascent) |
 | Persistence | `src/state/codeplugStorage.ts` | [persistence/](persistence/) | Shipped |
-| Import | `src/lib/import/` | [import/](import/) | Shipped |
-| Export | `src/lib/export/`, `src/routes/ImportExport.tsx` | [export/](export/) | Shipped ([#38](https://github.com/pskillen/codeplug-tool/issues/38), [#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
+| Import / export | `src/lib/import/`, `src/lib/export/`, `src/routes/ImportExport.tsx` | [import-export/](import-export/) | Shipped ([#38](https://github.com/pskillen/codeplug-tool/issues/38), [#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 | Map | `src/components/CodeplugMap/` | [map/](map/) | Shipped |
 | Report | `src/routes/`, `src/components/report/` | [report/](report/) | Shipped ([#6](https://github.com/pskillen/codeplug-tool/issues/6)) |
 | CRUD | `src/routes/channels/`, `src/routes/zones/`, `src/lib/codeplugMutations.ts` | [crud/](crud/) | In progress ([#11](https://github.com/pskillen/codeplug-tool/issues/11), [#12](https://github.com/pskillen/codeplug-tool/issues/12)) |
@@ -31,6 +30,7 @@ Agent skills for documentation and execution tracking:
 | --- | --- |
 | UK amateur bands | [reference/bands.md](../reference/bands.md) |
 | Channel modes | [reference/channel-modes.md](../reference/channel-modes.md) |
-| OpenGD77 CPS CSV | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + [radio profiles](../reference/opengd77/radios/README.md) |
+| OpenGD77 CPS CSV (one format of several) | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + per-radio [variant profiles](../reference/opengd77/radios/README.md) |
+| Sibling formats (planned) | DM32 CSV, qDMR YAML, native YAML, CHIRP — each gets its own `reference/<format>/` tree; see [import-export hub](import-export/README.md) |
 
-Add a row when a new feature is created.
+Add a row when a new feature is created. Reference trees are **per format** (OpenGD77, DM32, …); OpenGD77 is the first, not the default.
