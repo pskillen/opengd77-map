@@ -30,6 +30,7 @@ Agent skills for documentation and execution tracking:
 | --- | --- |
 | UK amateur bands | [reference/bands.md](../reference/bands.md) |
 | Channel modes | [reference/channel-modes.md](../reference/channel-modes.md) |
-| OpenGD77 CPS CSV | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + [radio profiles](../reference/opengd77/radios/README.md) |
+| OpenGD77 CPS CSV (one format of several) | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + per-radio [variant profiles](../reference/opengd77/radios/README.md) |
+| Sibling formats (planned) | DM32 CSV, qDMR YAML, native YAML, CHIRP — each gets its own `reference/<format>/` tree; see [import-export hub](import-export/README.md) |
 
-Add a row when a new feature is created.
+Add a row when a new feature is created. Reference trees are **per format** (OpenGD77, DM32, …); OpenGD77 is the first, not the default.

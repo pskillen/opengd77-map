@@ -1,6 +1,6 @@
 # OpenGD77 CSV import / export
 
-Adapter behaviour for the first CPS import/export target. **Column semantics and conversion rules** live in the authoritative [OpenGD77 reference](../../../reference/opengd77/README.md); **radio limits** in [radio profiles](../../../reference/opengd77/radios/README.md).
+Adapter behaviour for the **first shipped import/export format** (one of several — see the [hub](../README.md) for siblings DM32, qDMR, CHIRP, …). **Column semantics and conversion rules** live in the authoritative [OpenGD77 reference](../../../reference/opengd77/README.md); **per-radio variant limits** in [radio profiles](../../../reference/opengd77/radios/README.md).
 
 Entity shapes: [data model](../../data-model/README.md).
 

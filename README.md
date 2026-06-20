@@ -4,7 +4,7 @@ A browser-based companion for amateur radio **codeplug** design — a modern lay
 
 **Live site:** [pskillen.github.io/codeplug-tool](https://pskillen.github.io/codeplug-tool/) (updated when a full GitHub release is published).
 
-> Currently targets **OpenGD77** radios. Support for other vendors is planned — the data model and import/export layers are being built to be vendor-agnostic.
+> **OpenGD77 CSV** is the first shipped import/export **format** — one format among several planned (Baofeng DM32 CSV, qDMR YAML, native YAML, and analogue-only formats like CHIRP). The data model and import/export layers are built to be format-agnostic; OpenGD77 is not special, just first.
 
 ## What it is
 
@@ -17,7 +17,7 @@ Think of it as the planning and management front-end the CPS never gave you:
 - **Visualise** your codeplug — see channels on a map instead of squinting at a spreadsheet of lat/long.
 - **Manage** channels, zones, talk groups, and contacts with sane editing and validation.
 - **Enrich** automatically where it helps (e.g. geography, references) rather than hand-typing everything.
-- **Work across vendors** from one consistent interface (OpenGD77 first).
+- **Work across formats** from one consistent interface (OpenGD77 CSV first; more formats planned).
 
 ## How you'd use it
 
@@ -37,9 +37,9 @@ Your data lives in your browser's **LocalStorage** for now — nothing is upload
 | Capability | State |
 | --- | --- |
 | Channel map (markers, zone hulls, OSM/Mapbox tiles) | **Shipped** |
-| Vendor-agnostic internal data model (genericise import) | Planned |
+| Format-agnostic internal data model (genericise import) | Planned |
 | Native YAML import / export | Planned |
-| CPS export (internal model → vendor CSV) | Planned |
+| Export to a chosen format (OpenGD77 CSV shipped; DM32, qDMR, CHIRP planned) | In progress |
 | LocalStorage persistence | Planned |
 | Multiple projects, switchable | Planned |
 | CRUD for channels / zones / talk groups + TG lists / contacts | Planned |

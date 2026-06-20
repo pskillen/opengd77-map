@@ -8,14 +8,16 @@ How CPS export files enter the app, become internal [codeplug models](../data-mo
 
 Import was originally hard-wired to OpenGD77 CSV inside the channel map. The app now has a format registry, OpenGD77 as the first adapter pair, and a central store that resolves vendor names to internal ids. Export serialises the internal models back to a format the vendor CPS accepts.
 
-The internal model is **radio-agnostic**. Vendor specifics — column mapping, cardinality caps, skipped files — apply at the **import/export boundary** only. Radio-specific limits for OpenGD77 are documented in [radio profiles](../../reference/opengd77/radios/README.md) and are intended to be applied when the operator picks a target radio at export time ([#72](https://github.com/pskillen/codeplug-tool/issues/72)).
+The internal model is **format- and radio-agnostic**. Format specifics — column mapping, cardinality caps, skipped files — apply at the **import/export boundary** only.
+
+**Formats vs variants.** OpenGD77 CSV is **one** import/export format, sibling to Baofeng DM32 CSV, qDMR YAML, native YAML, and analogue-only formats like CHIRP (DM32 and CHIRP are unrelated to OpenGD77). *Within* the OpenGD77 format there are per-radio **variants** (1701, MD9600, GD-77, …). Variant-specific limits are documented in [OpenGD77 radio profiles](../../reference/opengd77/radios/README.md) and are intended to be applied when the operator picks a target OpenGD77 radio at export time ([#72](https://github.com/pskillen/codeplug-tool/issues/72) — OpenGD77-only; not cross-format work).
 
 ## Implementation status
 
 | Area | Status | Notes |
 | --- | --- | --- |
 | Internal models | Shipped | [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) — schema v3 |
-| Import format registry | Shipped | OpenGD77 only; room for more brands |
+| Import format registry | Shipped | OpenGD77 CSV only today; designed for sibling formats (DM32, qDMR, CHIRP, …) |
 | Export format registry | Shipped | [`src/lib/export/`](../../../src/lib/export/) |
 | OpenGD77 import | Shipped | Channels, Zones, Contacts, TG_Lists ([#38](https://github.com/pskillen/codeplug-tool/issues/38)) |
 | OpenGD77 export | Shipped | Per-file + ZIP; DTMF/APRS header-only |
@@ -26,7 +28,7 @@ The internal model is **radio-agnostic**. Vendor specifics — column mapping, c
 | Export page (`/export`) | Shipped | Nav link when a project is active |
 | LocalStorage persistence | Shipped | [#9](https://github.com/pskillen/codeplug-tool/issues/9) — [persistence/](../persistence/) |
 | Multi-project import | Shipped | Home creates project; Import & export merges into active — [codeplug-project/](../codeplug-project/) |
-| Radio profile picker | Planned | Apply per-radio limits at export — [#72](https://github.com/pskillen/codeplug-tool/issues/72) |
+| OpenGD77 radio-variant picker | Planned | Apply per-radio (1701, MD9600, …) limits within OpenGD77 export — [#72](https://github.com/pskillen/codeplug-tool/issues/72); OpenGD77-only, not cross-format |
 | qDMR YAML | Deferred | [#37](https://github.com/pskillen/codeplug-tool/issues/37) — UI placeholder |
 | Native YAML | Deferred | [#10](https://github.com/pskillen/codeplug-tool/issues/10) — UI placeholder |
 | Baofeng DM32 CPS | Future | [#67](https://github.com/pskillen/codeplug-tool/issues/67) — [dm32 stub](dm32/README.md) |
@@ -51,7 +53,7 @@ The internal model is **radio-agnostic**. Vendor specifics — column mapping, c
 flowchart TD
   HomeUI["ImportDropzone (home)"] --> importFiles
   ExportUI["ImportIntoActivePanel (import & export page)"] --> importFiles
-  importFiles --> Adapter["opengd77 adapter"]
+  importFiles --> Adapter["format adapter (OpenGD77 today)"]
   Adapter --> Raw["ImportResult"]
   Raw --> Merge["importMerge — merge or overwrite"]
   Merge --> Store["codeplugStore — active project"]
