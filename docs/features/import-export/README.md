@@ -40,6 +40,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | [data-model/README.md](../data-model/README.md) | Entity definitions (canonical, vendor-neutral) |
 | [opengd77/README.md](opengd77/README.md) | OpenGD77 adapter behaviour; columns in [reference/opengd77/](../../reference/opengd77/README.md) |
 | [adding-a-new-vendor.md](adding-a-new-vendor.md) | Contributor checklist for new formats |
+| [format-taxonomy.md](format-taxonomy.md) | Formats vs variants mental model + data-model findings (planning input) |
 | [outstanding.md](outstanding.md) | Collated open debt |
 | [opengd77/progress.md](opengd77/progress.md) | OpenGD77 execution log |
 | [dm32/README.md](dm32/README.md) | DM32 placeholder |
