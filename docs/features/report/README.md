@@ -54,4 +54,4 @@ Nav appears when a codeplug project is active. Use **Switch** on the active proj
 
 - [Data model](../data-model/README.md)
 - [Map feature](../map/README.md) — rendering behaviour
-- [Import](../import/README.md) — OpenGD77 CSV population
+- [Import / export](../import-export/README.md) — codeplug population from a chosen format (OpenGD77 CSV today)

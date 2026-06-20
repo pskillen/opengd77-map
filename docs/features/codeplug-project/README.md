@@ -104,5 +104,5 @@ Projects are browser-local only. Never commit operator codeplugs or LocalStorage
 ## Related
 
 - [Persistence](../persistence/)
-- [Import](../import/)
+- [Import / export](../import-export/)
 - [Map](../map/)

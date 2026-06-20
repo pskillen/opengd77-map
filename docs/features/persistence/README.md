@@ -90,4 +90,4 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 
 - [Codeplug projects](../codeplug-project/) — wrapper model and CRUD
 - [Data model](../data-model/) — `Codeplug` contents
-- [Import](../import/) — CSV → codeplug at the store boundary
+- [Import / export](../import-export/) — CSV → codeplug at the store boundary

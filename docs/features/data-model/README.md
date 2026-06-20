@@ -130,7 +130,6 @@ flowchart LR
 
 - [OpenGD77 wire reference](../../reference/opengd77/README.md)
 - [OpenGD77 radio profiles](../../reference/opengd77/radios/README.md)
-- [Import (ETL)](../import/README.md)
-- [Export](../export/README.md)
+- [Import / export](../import-export/README.md)
 - [Map — channels](../map/channels.md)
 - [Map — zones](../map/zones.md)

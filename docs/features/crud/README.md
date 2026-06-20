@@ -62,5 +62,5 @@ TG/RGL/contact CRUD follows the same rule: unlimited RGL members in the internal
 
 ## Related
 
-- [Import](../import/README.md) · [Export](../export/README.md)
+- [Import / export](../import-export/README.md)
 - Branch: `13/paddy/tg-rgl-contacts-crud`
