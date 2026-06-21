@@ -20,7 +20,7 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 | `AGENTS.md` | This file — agent workflow |
 | `index.html` | Vite entry HTML |
 | `src/` | React app — routes, components, lib |
-| `src/components/ChannelMap/` | Channel map UI (react-leaflet) |
+| `src/components/CodeplugMap/` | Codeplug map UI (react-leaflet) |
 | `src/models/` | Internal codeplug data models — [data-model](docs/features/data-model/README.md) |
 | `src/lib/import/`, `src/lib/export/` | CPS import/export adapters and registries — [import-export](docs/features/import-export/README.md) |
 | `src/state/` | Central codeplug store (persistence-ready) |

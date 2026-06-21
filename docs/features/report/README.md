@@ -1,6 +1,6 @@
 # Read-only CPS report
 
-Browse an imported OpenGD77 codeplug as tables and detail pages. Editing is tracked separately ([#11](https://github.com/pskillen/codeplug-tool/issues/11) channels, [#12](https://github.com/pskillen/codeplug-tool/issues/12) zones).
+Browse the active codeplug as tables and detail pages. Editing is tracked separately ([#11](https://github.com/pskillen/codeplug-tool/issues/11) channels, [#12](https://github.com/pskillen/codeplug-tool/issues/12) zones).
 
 **Tracking:** [codeplug-tool#6](https://github.com/pskillen/codeplug-tool/issues/6)
 

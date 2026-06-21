@@ -6,7 +6,7 @@ How codeplug projects are saved and restored in the browser.
 
 ## Problem
 
-Imported codeplug state should survive page reloads without re-importing CSV files. Data stays in the browser only — never in the repository.
+Codeplug state should survive page reloads without re-importing. Data stays in the browser only — never in the repository.
 
 ## What is persisted
 
@@ -52,10 +52,10 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 | Action | LocalStorage |
 | --- | --- |
 | Import on home (new project) | Save envelope |
-| Import on map (active project) | Save |
+| Import on Import & export (active project) | Save |
 | Switch active project | Save |
 | Delete project | Save (or remove key if last project) |
-| Clear all (map) | Save (active project codeplug emptied; project kept) |
+| Empty active codeplug (project kept) | Save |
 | Empty project set | Key removed |
 | Corrupt JSON on load | Key removed; boot empty |
 | Partially invalid projects | Invalid entries filtered; `activeProjectId` fixed up |
@@ -80,7 +80,7 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 
 ## Manual verify
 
-1. `npm run dev` → import a codeplug on the home page → open the map.
+1. `npm run dev` → import a codeplug on the home page → open `/channels`.
 2. Hard refresh (Cmd+R) — projects and active selection restored.
 3. Import a second codeplug from home — both listed after refresh.
 4. Delete a project — confirm dialog; refresh — deletion persists.

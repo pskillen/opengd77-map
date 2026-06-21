@@ -20,9 +20,9 @@ erDiagram
   Zone }o--o{ Channel : "memberChannelIds"
 ```
 
-At the **vendor boundary**, `Channel.contactName` and `Channel.rxGroupListName` reference Contacts.csv / TG_Lists.csv **by name** (not internal id). `RxGroupList.sourceMemberNames` lists member names from Contacts.csv (group talk groups and/or private contacts).
+Some relationships are still **name-based** (a vendor-boundary foreign key, not an internal id): `Channel.contactName` and `Channel.rxGroupListName` reference a talk group/contact and an RX group list by name; `RxGroupList.sourceMemberNames` lists member names (talk groups and/or contacts). These names resolve to entities at the import boundary.
 
-Wire-format column detail: [OpenGD77 reference](../../reference/opengd77/README.md). Radio-specific limits (zone member caps, feature availability) live in [radio profiles](../../reference/opengd77/radios/README.md) and apply at export time — not in the internal model.
+Wire-format column detail (which CSV column maps to which field) lives in the [OpenGD77 reference](../../reference/opengd77/README.md) and [import/export](../import-export/README.md) — not here. Radio-specific limits (zone member caps, feature availability) live in [radio profiles](../../reference/opengd77/radios/README.md) and apply at export time, not in the internal model.
 
 **Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **4**
 
@@ -47,9 +47,9 @@ Wire-format column detail: [OpenGD77 reference](../../reference/opengd77/README.
 | --- | --- | --- |
 | `channels` | `Channel[]` | |
 | `zones` | `Zone[]` | |
-| `talkGroups` | `TalkGroup[]` | From Contacts.csv where `ID Type=Group` |
-| `rxGroupLists` | `RxGroupList[]` | From `TG_Lists.csv` |
-| `contacts` | `Contact[]` | From Contacts.csv where `ID Type=Private` |
+| `talkGroups` | `TalkGroup[]` | DMR group calls |
+| `rxGroupLists` | `RxGroupList[]` | Promiscuous RX (receive) group lists |
+| `contacts` | `Contact[]` | DMR private calls |
 | `meta` | `CodeplugMeta` | Import metadata |
 
 ### `Channel`
@@ -57,24 +57,24 @@ Wire-format column detail: [OpenGD77 reference](../../reference/opengd77/README.
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | `string` | Internal |
-| `name` | `string` | OpenGD77 `Channel Name` |
+| `name` | `string` | Display name; case-sensitive FK target for zone members |
 | `callsign` | `string` | Derived — first word of `name` |
 | `mode` | `ChannelMode` | Specific mode — see [channel-modes reference](../../reference/channel-modes.md) (`fm`, `dmr`, `ysf`, …) |
 | `rxFrequency`, `txFrequency` | `string` | |
-| `contactName` | `string` | Vendor `Contact` name |
-| `rxGroupListName` | `string` | Vendor `TG List` — RX group list name |
+| `contactName` | `string` | TX talk group/contact, by name (vendor-boundary FK) |
+| `rxGroupListName` | `string` | RX group list, by name (vendor-boundary FK) |
 | `location` | `GeoPoint \| null` | |
 | `useLocation` | `boolean` | |
 | `bandwidthKHz`, `colourCode`, `timeslot`, `dmrId` | `string` | DMR/FM extras |
 | `rxTone`, `txTone`, `squelch`, `power`, `rxOnly` | `string` | |
-| `aprsConfigName` | `string` | OpenGD77 `APRS` column |
-| `voxEnabled` | `boolean` | From `VOX` |
-| `transmitTimeout` | `string` | From `TOT` |
-| `scanSkip` | `boolean` | From `All Skip` |
+| `aprsConfigName` | `string` | APRS config, by name |
+| `voxEnabled` | `boolean` | VOX enabled |
+| `transmitTimeout` | `string` | Transmit timeout |
+| `scanSkip` | `boolean` | Exclude from scan |
 | `hideFromMap` | `boolean` | Internal only — exclude from map plots |
-| `vendorExtras` | `Record<string, string>` | Remaining OpenGD77-only columns |
+| `vendorExtras` | `Record<string, string>` | Opaque vendor wire fields preserved for round-trip |
 
-OpenGD77 `Channel Number` is **not** stored — assigned sequentially at export (see [OpenGD77 import/export](../import-export/opengd77/README.md)).
+Channel numbering (a vendor CPS slot index) is **not** stored — it is assigned at export per target format. Wire-column mappings for every field above live in the [OpenGD77 reference](../../reference/opengd77/README.md).
 
 ### `Zone`
 
@@ -82,33 +82,33 @@ OpenGD77 `Channel Number` is **not** stored — assigned sequentially at export 
 | --- | --- | --- |
 | `id` | `string` | Internal |
 | `name` | `string` | |
-| `memberChannelIds` | `string[]` | Resolved channel ids |
-| `sourceMemberNames` | `string[]` | `Channel1`…`Channel80` wire names |
+| `memberChannelIds` | `string[]` | Resolved channel ids — authoritative membership |
+| `sourceMemberNames` | `string[]` | Original imported member names (channel names) for re-resolution, unresolved reporting, and export round-trip |
 
 ### `TalkGroup`
 
-DMR group call ID from Contacts.csv (`ID Type=Group`).
+DMR group call.
 
 | Field | Type |
 | --- | --- |
-| `id`, `name`, `number`, `timeslotOverride` | |
+| `id`, `name`, `number`, `timeslotOverride` | (`number` is the DMR ID) |
 
 ### `Contact`
 
-DMR private call from Contacts.csv (`ID Type=Private`).
+DMR private call.
 
 | Field | Type |
 | --- | --- |
-| `id`, `name`, `number`, `timeslotOverride` | |
+| `id`, `name`, `number`, `timeslotOverride` | (`number` is the DMR ID) |
 
 ### `RxGroupList`
 
-Named RX group list from `TG_Lists.csv`. Members are **vendor names** (may be talk groups or private contacts). Many-to-many at the vendor boundary: one list has many members; one name can appear on many lists.
+Named RX (receive) group list driving promiscuous receive. Members are referenced **by name** (talk groups and/or private contacts). Many-to-many at the vendor boundary: one list has many members; one name can appear on many lists.
 
 | Field | Type |
 | --- | --- |
 | `id`, `name` | |
-| `sourceMemberNames` | `string[]` — `Contact1`…`Contact32` |
+| `sourceMemberNames` | `string[]` — original imported member names |
 
 ### `CodeplugMeta`
 
@@ -122,8 +122,8 @@ Named RX group list from `TG_Lists.csv`. Members are **vendor names** (may be ta
 
 ```mermaid
 flowchart LR
-  CSV["Zones.csv member names"] --> Resolve["resolveZoneMembers"]
-  Channels["Channel.name → id map"] --> Resolve
+  Names["sourceMemberNames (channel names)"] --> Resolve["resolveZoneMembers"]
+  Channels["Channel.name to id map"] --> Resolve
   Resolve --> Zone["Zone.memberChannelIds"]
 ```
 
