@@ -26,9 +26,11 @@ function padRow(headers: string[], values: Record<string, string>): string[] {
 }
 
 export function serialiseChannels(codeplug: Codeplug): string {
-  const rows = codeplug.channels.map((ch) => {
+  // Channel Number is assigned at export (1..n in channel list order), not stored in the model.
+  // OpenGD77 allows 1–1023; over-limit warning tracked in codeplug-tool#95.
+  const rows = codeplug.channels.map((ch, i) => {
     const values: Record<string, string> = {
-      [CHANNEL_COL.number]: ch.number,
+      [CHANNEL_COL.number]: String(i + 1),
       [CHANNEL_COL.name]: ch.name,
       [CHANNEL_COL.type]: mapModeToOpenGd77ChannelType(ch.mode),
       [CHANNEL_COL.rx]: ch.rxFrequency,
