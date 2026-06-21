@@ -180,7 +180,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'ca
     location: hasCoords ? { lat, lon } : null,
     useLocation: values.useLocation,
     hideFromMap: values.hideFromMap,
-    vendorExtras: {},
+    opengd77Extras: {},
   };
 }
 
@@ -234,7 +234,7 @@ export default function ChannelEdit() {
         location: { lat, lon },
         useLocation: true,
         hideFromMap: false,
-        vendorExtras: {},
+        opengd77Extras: {},
       },
     ];
   }, [

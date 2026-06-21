@@ -2,6 +2,7 @@ import type { Channel, ChannelMode, Zone } from '../models/codeplug.ts';
 import type { LatLon } from './geo.ts';
 import { uniqueLatLon } from './geo.ts';
 import { buildNameToChannelId } from './codeplug.ts';
+import { getMemberWireNames } from './entityProvenance.ts';
 import { modeColor } from './channelModes.ts';
 import { haversineDistanceM } from './geoDistance.ts';
 
@@ -102,9 +103,9 @@ export function zoneGeolocatedPoints(
 
   const nameToId = buildNameToChannelId(allChannels);
 
-  for (const memberName of zone.sourceMemberNames) {
+  for (const memberName of getMemberWireNames(zone)) {
     if (!nameToId.has(memberName)) {
-      missing.push({ name: memberName, reason: 'not in Channels.csv' });
+      missing.push({ name: memberName, reason: 'unresolved member' });
     }
   }
 

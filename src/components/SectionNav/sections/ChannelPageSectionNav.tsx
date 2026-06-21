@@ -30,7 +30,7 @@ function ChannelPageSectionNav() {
       const channel = findEntityById(codeplug.channels, channelId);
       const links = [...CHANNEL_FORM_SECTIONS];
 
-      if (channel && Object.keys(channel.vendorExtras).length > 0) {
+      if (channel && Object.keys(channel.opengd77Extras).length > 0) {
         links.push({
           id: channelSectionAnchorId('Vendor extras'),
           label: 'Vendor extras',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Channel, Contact, RxGroupList, TalkGroup, Zone } from '../models/codeplug.ts';
+import type { Channel } from '../models/codeplug.ts';
 import {
   channelsForZone,
   channelsWithContactName,
@@ -12,22 +12,28 @@ import {
   sortByName,
   zonesContainingChannel,
 } from './reportLookup.ts';
-import { buildChannel } from '../test/builders/index.ts';
+import {
+  buildChannel,
+  buildContact,
+  buildImportedRxGroupList,
+  buildTalkGroup,
+  buildZone,
+} from '../test/builders/index.ts';
 
 const channel = (id: string, name: string, extras: Partial<Channel> = {}): Channel =>
   buildChannel({ id, name, ...extras });
 
 describe('reportLookup', () => {
   it('findEntityById returns entity or null', () => {
-    const zones: Zone[] = [{ id: 'z1', name: 'Home', memberChannelIds: [], sourceMemberNames: [] }];
+    const zones = [buildZone({ id: 'z1', name: 'Home' })];
     expect(findEntityById(zones, 'z1')?.name).toBe('Home');
     expect(findEntityById(zones, 'missing')).toBeNull();
   });
 
   it('zonesContainingChannel filters by memberChannelIds', () => {
-    const zones: Zone[] = [
-      { id: 'z1', name: 'A', memberChannelIds: ['c1'], sourceMemberNames: [] },
-      { id: 'z2', name: 'B', memberChannelIds: ['c2'], sourceMemberNames: [] },
+    const zones = [
+      buildZone({ id: 'z1', name: 'A', memberChannelIds: ['c1'] }),
+      buildZone({ id: 'z2', name: 'B', memberChannelIds: ['c2'] }),
     ];
     expect(zonesContainingChannel('c1', zones).map((z) => z.name)).toEqual(['A']);
   });
@@ -48,28 +54,22 @@ describe('reportLookup', () => {
   });
 
   it('channelsForZone preserves member order', () => {
-    const zone: Zone = {
+    const zone = buildZone({
       id: 'z1',
       name: 'Scan',
       memberChannelIds: ['c2', 'c1'],
-      sourceMemberNames: [],
-    };
+    });
     const channels = [channel('c1', 'A'), channel('c2', 'B')];
     expect(channelsForZone(zone, channels).map((c) => c.id)).toEqual(['c2', 'c1']);
   });
 
   it('resolveRxGroupListMembers splits talk groups, contacts, unresolved', () => {
-    const rgl: RxGroupList = {
-      id: 'r1',
-      name: 'Scotland',
-      sourceMemberNames: ['Scotland', 'MM9PDY', 'Missing'],
-    };
-    const talkGroups: TalkGroup[] = [
-      { id: 'tg1', name: 'Scotland', number: '950', timeslotOverride: '' },
-    ];
-    const contacts: Contact[] = [
-      { id: 'ct1', name: 'MM9PDY', number: '123', timeslotOverride: '' },
-    ];
+    const rgl = buildImportedRxGroupList(
+      { id: 'r1', name: 'Scotland' },
+      ['Scotland', 'MM9PDY', 'Missing'],
+    );
+    const talkGroups = [buildTalkGroup({ id: 'tg1', name: 'Scotland', number: '950' })];
+    const contacts = [buildContact({ id: 'ct1', name: 'MM9PDY', number: '123' })];
     const resolved = resolveRxGroupListMembers(rgl, talkGroups, contacts);
     expect(resolved.map((m) => m.kind)).toEqual(['talkGroup', 'contact', 'unresolved']);
   });
@@ -80,10 +80,10 @@ describe('reportLookup', () => {
   });
 
   it('rxGroupListsContainingMember finds lists with member name', () => {
-    const lists: RxGroupList[] = [
-      { id: 'r1', name: 'A', sourceMemberNames: ['Scotland'] },
-      { id: 'r2', name: 'B', sourceMemberNames: ['Local'] },
-      { id: 'r3', name: 'C', sourceMemberNames: ['Scotland', 'Local'] },
+    const lists = [
+      buildImportedRxGroupList({ id: 'r1', name: 'A' }, ['Scotland']),
+      buildImportedRxGroupList({ id: 'r2', name: 'B' }, ['Local']),
+      buildImportedRxGroupList({ id: 'r3', name: 'C' }, ['Scotland', 'Local']),
     ];
     expect(rxGroupListsContainingMember('Scotland', lists).map((r) => r.name)).toEqual(['A', 'C']);
     expect(rxGroupListsContainingMember('', lists)).toEqual([]);

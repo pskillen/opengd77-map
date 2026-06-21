@@ -2,7 +2,7 @@ import type { Codeplug } from '../../models/codeplug.ts';
 import type { ValidationIssue } from './channel.ts';
 
 export function validateRxGroupList(
-  input: { name: string; sourceMemberNames?: string[] },
+  input: { name: string; memberWireNames?: string[] },
   codeplug: Codeplug,
   rglId?: string,
 ): ValidationIssue[] {
@@ -21,14 +21,14 @@ export function validateRxGroupList(
     }
   }
 
-  const members = input.sourceMemberNames;
+  const members = input.memberWireNames;
   if (members) {
     const talkGroupNames = new Set(codeplug.talkGroups.map((tg) => tg.name));
     const contactNames = new Set(codeplug.contacts.map((c) => c.name));
     const unresolved = members.filter((n) => !talkGroupNames.has(n) && !contactNames.has(n));
     if (unresolved.length > 0) {
       issues.push({
-        field: 'sourceMemberNames',
+        field: 'memberWireNames',
         message: `${unresolved.length} member name(s) not found in talk groups or contacts`,
         severity: 'warning',
       });

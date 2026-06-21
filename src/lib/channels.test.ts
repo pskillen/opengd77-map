@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildGeolocatedChannel } from '../test/builders/index.ts';
+import { buildGeolocatedChannel, buildImportedZone } from '../test/builders/index.ts';
 import {
   applyFilters,
   buildChannelById,
@@ -10,7 +10,6 @@ import {
   markerLabel,
   zoneGeolocatedPoints,
 } from './channels.ts';
-import type { Zone } from '../models/codeplug.ts';
 
 const ch = buildGeolocatedChannel;
 
@@ -96,12 +95,14 @@ describe('zoneGeolocatedPoints', () => {
     ch({ id: 'id-a', name: 'A', location: { lat: 56.5, lon: -4.0 } }),
     ch({ id: 'id-b', name: 'B', location: { lat: 56.5, lon: -4.0 } }),
   ];
-  const zone: Zone = {
-    id: 'z1',
-    name: 'North',
-    memberChannelIds: ['id-a', 'id-b'],
-    sourceMemberNames: ['A', 'B', 'Missing'],
-  };
+  const zone = buildImportedZone(
+    {
+      id: 'z1',
+      name: 'North',
+      memberChannelIds: ['id-a', 'id-b'],
+    },
+    ['A', 'B', 'Missing'],
+  );
   const plottedById = buildChannelById(allChannels);
 
   it('resolves plotted members and reports missing', () => {
@@ -110,7 +111,7 @@ describe('zoneGeolocatedPoints', () => {
       skipZero: true,
     });
     expect(points).toHaveLength(1);
-    expect(missing.some((m) => m.reason === 'not in Channels.csv')).toBe(true);
+    expect(missing.some((m) => m.reason === 'unresolved member')).toBe(true);
   });
 });
 

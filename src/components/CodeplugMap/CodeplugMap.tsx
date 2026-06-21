@@ -22,6 +22,7 @@ import {
   zoneGeolocatedPoints,
   type FilterOptions,
 } from '../../lib/channels.ts';
+import { getMemberWireNames } from '../../lib/entityProvenance.ts';
 import { formatFrequencyHz } from '../../lib/formatFrequency.ts';
 import { isDmrMode, modeLabel } from '../../lib/channelModes.ts';
 import { convexHullLatLon, zoneColor, type LatLon } from '../../lib/geo.ts';
@@ -267,7 +268,7 @@ export default function CodeplugMap({
           points,
           missing,
           colors,
-          shapeNote: `no geolocated members (${zone.sourceMemberNames.length} in zone)`,
+          shapeNote: `no geolocated members (${getMemberWireNames(zone).length} in zone)`,
           geometry: 'none' as const,
         };
       }
@@ -356,7 +357,7 @@ export default function CodeplugMap({
                     <div>
                       <strong>{zh.zone.name}</strong>
                       <br />
-                      {zh.zone.sourceMemberNames.length} zone members · {zh.shapeNote}
+                      {getMemberWireNames(zh.zone).length} zone members · {zh.shapeNote}
                       {zh.missing.length ? (
                         <>
                           <br />

@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import RxGroupListMemberPicker from '../components/crud/RxGroupListMemberPicker.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
+import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { findEntityById } from '../lib/reportLookup.ts';
 import { hasValidationErrors } from '../lib/validation/channel.ts';
 import { validateRxGroupList } from '../lib/validation/rxGroupList.ts';
@@ -18,7 +19,9 @@ export default function RxGroupListEdit() {
   const existing = !isNew && id ? findEntityById(codeplug.rxGroupLists, id) : null;
 
   const [name, setName] = useState(existing?.name ?? '');
-  const [memberNames, setMemberNames] = useState<string[]>(existing?.sourceMemberNames ?? []);
+  const [memberNames, setMemberNames] = useState<string[]>(
+    existing ? getMemberWireNames(existing) : [],
+  );
   const [formError, setFormError] = useState<string | null>(null);
 
   if (!isNew && !existing) {
@@ -36,7 +39,7 @@ export default function RxGroupListEdit() {
     e.preventDefault();
     setFormError(null);
 
-    const input = { name: name.trim(), sourceMemberNames: memberNames };
+    const input = { name: name.trim(), memberWireNames: memberNames };
     const issues = validateRxGroupList(input, codeplug, existing?.id);
     if (hasValidationErrors(issues)) {
       setFormError(issues.find((i) => i.severity === 'error')?.message ?? 'Validation failed');

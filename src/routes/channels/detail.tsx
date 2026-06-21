@@ -59,7 +59,7 @@ export default function ChannelDetail() {
   const txTalkGroup = codeplug.talkGroups.find((tg) => tg.name === channel.contactName);
   const rxList = findRxGroupListByName(channel.rxGroupListName, codeplug.rxGroupLists);
 
-  const vendorExtraFields = Object.entries(channel.vendorExtras).map(([label, value]) => ({
+  const vendorExtraFields = Object.entries(channel.opengd77Extras).map(([label, value]) => ({
     label,
     value,
   }));

@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import EntityTable from '../components/report/EntityTable.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
+import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
 import { channelsWithRxGroupList, formatReferenceCount, sortByName } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
@@ -26,7 +27,7 @@ export default function RxGroupListsList() {
           {
             key: 'members',
             header: 'Members',
-            render: (r) => formatReferenceCount(r.sourceMemberNames.length),
+            render: (r) => formatReferenceCount(getMemberWireNames(r).length),
           },
           {
             key: 'channels',

@@ -7,6 +7,7 @@ import EntityTable from '../components/report/EntityTable.tsx';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
+import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { formatFrequencyHz } from '../lib/formatFrequency.ts';
 import {
   channelsWithContactName,
@@ -144,7 +145,7 @@ export default function ContactDetail() {
                 {
                   key: 'members',
                   header: 'Members',
-                  render: (rgl) => formatReferenceCount(rgl.sourceMemberNames.length),
+                  render: (rgl) => formatReferenceCount(getMemberWireNames(rgl).length),
                 },
               ]}
             />

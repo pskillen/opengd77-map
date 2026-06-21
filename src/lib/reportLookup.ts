@@ -1,5 +1,6 @@
 import type { Channel, Contact, RxGroupList, TalkGroup, Zone } from '../models/codeplug.ts';
 import { buildNameToChannelId } from './codeplug.ts';
+import { getMemberWireNames } from './entityProvenance.ts';
 
 export function findEntityById<T extends { id: string }>(entities: T[], id: string): T | null {
   return entities.find((e) => e.id === id) ?? null;
@@ -42,7 +43,7 @@ export function resolveRxGroupListMembers(
   const tgByName = new Map(talkGroups.map((tg) => [tg.name, tg]));
   const contactByName = new Map(contacts.map((c) => [c.name, c]));
 
-  return rgl.sourceMemberNames.map((name) => {
+  return getMemberWireNames(rgl).map((name) => {
     const tg = tgByName.get(name);
     if (tg) return { name, kind: 'talkGroup' as const, entity: tg };
     const contact = contactByName.get(name);
@@ -55,7 +56,7 @@ export function unresolvedZoneMemberCount(zone: Zone, channels: Channel[]): numb
   const nameToId = buildNameToChannelId(channels);
   const resolved = new Set(zone.memberChannelIds);
   let count = 0;
-  for (const name of zone.sourceMemberNames) {
+  for (const name of getMemberWireNames(zone)) {
     const id = nameToId.get(name);
     if (!id || !resolved.has(id)) count++;
   }
@@ -80,7 +81,7 @@ export function findRxGroupListByName(name: string, lists: RxGroupList[]): RxGro
 
 export function rxGroupListsContainingMember(name: string, lists: RxGroupList[]): RxGroupList[] {
   if (!name) return [];
-  return lists.filter((rgl) => rgl.sourceMemberNames.includes(name));
+  return lists.filter((rgl) => getMemberWireNames(rgl).includes(name));
 }
 
 /** Reference counts in list tables — zero renders as empty. */

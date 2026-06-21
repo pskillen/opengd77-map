@@ -66,7 +66,7 @@ describe('validateContact', () => {
 describe('validateRxGroupList', () => {
   it('warns on unresolved member names', () => {
     const issues = validateRxGroupList(
-      { name: 'List', sourceMemberNames: ['Missing'] },
+      { name: 'List', memberWireNames: ['Missing'] },
       emptyCodeplug(),
     );
     expect(issues.some((i) => i.severity === 'warning')).toBe(true);
@@ -84,7 +84,7 @@ describe('validateRxGroupList', () => {
         timeslotOverride: '',
       })),
     };
-    const issues = validateRxGroupList({ name: 'Big', sourceMemberNames: members }, cp);
+    const issues = validateRxGroupList({ name: 'Big', memberWireNames: members }, cp);
     expect(hasValidationErrors(issues)).toBe(false);
   });
 });
