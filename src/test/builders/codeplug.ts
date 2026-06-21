@@ -9,6 +9,7 @@ import {
   type TalkGroup,
   type Zone,
 } from '../../models/codeplug.ts';
+import { setMemberWireNames, stampImported } from '../../lib/entityProvenance.ts';
 
 export function buildChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
   const { id, name, callsign, mode, ...rest } = overrides;
@@ -25,9 +26,26 @@ export function buildChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 
 export function buildZone(overrides: Partial<Zone> & Pick<Zone, 'id' | 'name'>): Zone {
   return {
     memberChannelIds: [],
-    sourceMemberNames: [],
     ...overrides,
   };
+}
+
+/** Zone with member wire names in provenance (import/round-trip tests). */
+export function buildImportedZone(
+  overrides: Partial<Zone> & Pick<Zone, 'id' | 'name'>,
+  memberWireNames: string[] = [],
+): Zone {
+  const zone = buildZone(overrides);
+  if (memberWireNames.length === 0) return zone;
+  return setMemberWireNames(
+    stampImported(zone, {
+      formatId: 'opengd77',
+      sourceFile: 'Zones.csv',
+      importedAt: new Date().toISOString(),
+      memberWireNames,
+    }),
+    memberWireNames,
+  );
 }
 
 export function buildTalkGroup(
@@ -51,10 +69,25 @@ export function buildContact(overrides: Partial<Contact> & Pick<Contact, 'id' | 
 export function buildRxGroupList(
   overrides: Partial<RxGroupList> & Pick<RxGroupList, 'id' | 'name'>,
 ): RxGroupList {
-  return {
-    sourceMemberNames: [],
-    ...overrides,
-  };
+  return { ...overrides };
+}
+
+/** RX group list with member wire names in provenance. */
+export function buildImportedRxGroupList(
+  overrides: Partial<RxGroupList> & Pick<RxGroupList, 'id' | 'name'>,
+  memberWireNames: string[] = [],
+): RxGroupList {
+  const rgl = buildRxGroupList(overrides);
+  if (memberWireNames.length === 0) return rgl;
+  return setMemberWireNames(
+    stampImported(rgl, {
+      formatId: 'opengd77',
+      sourceFile: 'TG_Lists.csv',
+      importedAt: new Date().toISOString(),
+      memberWireNames,
+    }),
+    memberWireNames,
+  );
 }
 
 export function buildCodeplug(overrides: Partial<Codeplug> = {}): Codeplug {

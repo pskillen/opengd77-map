@@ -1,7 +1,9 @@
 import type { ChannelMode } from '../lib/channelModes.ts';
 import type { ChannelTimeslot, ChannelTone } from '../lib/channelFields/index.ts';
+import type { EntityMeta } from '../lib/entityProvenance.ts';
 
 export type { ChannelMode };
+export type { EntityMeta, ImportedProvenance } from '../lib/entityProvenance.ts';
 
 export interface GeoPoint {
   lat: number;
@@ -31,7 +33,7 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     transmitTimeout: null,
     scanSkip: false,
     hideFromMap: false,
-    vendorExtras: {},
+    opengd77Extras: {},
   };
 }
 
@@ -71,7 +73,8 @@ export interface Channel {
   /** Internal only — exclude from map hulls/plots when true. */
   hideFromMap: boolean;
   /** OpenGD77-only columns keyed by canonical CSV header name. */
-  vendorExtras: Record<string, string>;
+  opengd77Extras: Record<string, string>;
+  meta?: EntityMeta;
 }
 
 export interface Zone {
@@ -79,8 +82,7 @@ export interface Zone {
   name: string;
   /** Resolved channel memberships by internal id. */
   memberChannelIds: string[];
-  /** Raw imported member names for re-resolution, unresolved reporting, and export round-trip. */
-  sourceMemberNames: string[];
+  meta?: EntityMeta;
 }
 
 export interface TalkGroup {
@@ -88,13 +90,14 @@ export interface TalkGroup {
   name: string;
   number: string;
   timeslotOverride: string;
+  meta?: EntityMeta;
 }
 
 /** RX group list — members are vendor wire names from Contacts.csv (groups and/or privates). */
 export interface RxGroupList {
   id: string;
   name: string;
-  sourceMemberNames: string[];
+  meta?: EntityMeta;
 }
 
 export interface Contact {
@@ -102,6 +105,7 @@ export interface Contact {
   name: string;
   number: string;
   timeslotOverride: string;
+  meta?: EntityMeta;
 }
 
 export interface CodeplugMeta {
@@ -119,7 +123,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 5;
+export const CODEPLUG_SCHEMA_VERSION = 6;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 

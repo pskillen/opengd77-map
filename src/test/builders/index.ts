@@ -3,6 +3,8 @@ export {
   buildCodeplug,
   buildContact,
   buildGeolocatedChannel,
+  buildImportedRxGroupList,
+  buildImportedZone,
   buildRxGroupList,
   buildTalkGroup,
   buildZone,
