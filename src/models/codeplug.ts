@@ -16,7 +16,6 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     rxGroupListName: '',
     location: null,
     useLocation: false,
-    number: '',
     bandwidthKHz: '',
     colourCode: '',
     timeslot: '',
@@ -49,7 +48,6 @@ export interface Channel {
   rxGroupListName: string;
   location: GeoPoint | null;
   useLocation: boolean;
-  number: string;
   bandwidthKHz: string;
   colourCode: string;
   timeslot: string;
@@ -114,7 +112,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 3;
+export const CODEPLUG_SCHEMA_VERSION = 4;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 

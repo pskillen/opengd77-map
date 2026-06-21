@@ -124,7 +124,7 @@ describe('codeplugStorage', () => {
     });
 
     const state = deserializeProjects(json);
-    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(3);
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(4);
     expect(state?.projects[0].codeplug.rxGroupLists).toEqual([
       { id: 'tg-1', name: 'Scotland', sourceMemberNames: ['Scotland TS1'] },
     ]);
@@ -157,9 +157,46 @@ describe('codeplugStorage', () => {
     });
 
     const state = deserializeProjects(json);
-    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(3);
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(4);
     expect(state?.projects[0].codeplug.channels[0].mode).toBe('fm');
     expect(state?.projects[0].codeplug.channels[1].mode).toBe('dmr');
+  });
+
+  it('migrates v3 channels by discarding number', () => {
+    const v3 = {
+      channels: [
+        {
+          id: 'c1',
+          name: 'Test',
+          callsign: 'Test',
+          mode: 'dmr',
+          number: '5',
+        },
+      ],
+      zones: [],
+      talkGroups: [],
+      rxGroupLists: [],
+      contacts: [],
+      meta: { schemaVersion: 3, importedAt: null, sourceFiles: [] },
+    };
+    const json = JSON.stringify({
+      version: CODEPLUG_STORAGE_VERSION,
+      activeProjectId: null,
+      projects: [
+        {
+          id: 'p1',
+          name: 'Legacy',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          codeplug: v3,
+        },
+      ],
+    });
+
+    const state = deserializeProjects(json);
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(4);
+    expect(state?.projects[0].codeplug.channels[0]).not.toHaveProperty('number');
+    expect(state?.projects[0].codeplug.channels[0].name).toBe('Test');
   });
 
   it('isPersistableProjects is false for an empty set', () => {

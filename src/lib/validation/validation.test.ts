@@ -13,7 +13,6 @@ function channel(id: string, name: string) {
     callsign: name,
     mode: 'dmr' as const,
     ...channelFieldDefaults(),
-    number: '1',
   };
 }
 

@@ -31,7 +31,6 @@ function channelsCsvResult(): ImportResult {
         ...base,
         location: { lat: 56.5, lon: -4.0 },
         useLocation: true,
-        number: '1',
       },
       {
         id: 'ch-2',
@@ -41,7 +40,6 @@ function channelsCsvResult(): ImportResult {
         ...base,
         location: { lat: 57.0, lon: -3.5 },
         useLocation: true,
-        number: '2',
       },
     ],
     recognised: ['Channels.csv'],
@@ -100,7 +98,6 @@ describe('codeplug import merge semantics', () => {
           ...channelFieldDefaults(),
           location: { lat: 56.5, lon: -4.0 },
           useLocation: true,
-          number: '1',
         },
       ],
       recognised: ['Channels.csv'],

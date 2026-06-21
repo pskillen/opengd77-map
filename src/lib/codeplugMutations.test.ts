@@ -34,7 +34,6 @@ function makeChannel(id: string, name: string, extras: Partial<Channel> = {}): C
     callsign: name.split(' ')[0],
     mode: 'dmr' as const,
     ...channelFieldDefaults(),
-    number: '1',
     ...extras,
   };
 }
@@ -55,7 +54,6 @@ describe('codeplugMutations', () => {
       name: 'GB3DA DMR',
       mode: 'dmr',
       ...channelFieldDefaults(),
-      number: '',
     });
     expect(next.channels).toHaveLength(1);
     expect(next.channels[0].id).toBe('gen-1');

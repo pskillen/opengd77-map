@@ -17,7 +17,6 @@ function ch(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel
     callsign: overrides.name.split(/\s+/)[0],
     mode: 'dmr',
     ...channelFieldDefaults(),
-    number: '1',
     location: { lat: 56.5, lon: -4.0 },
     useLocation: true,
     ...overrides,
