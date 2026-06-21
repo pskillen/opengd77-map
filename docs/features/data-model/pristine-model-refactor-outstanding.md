@@ -16,7 +16,7 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not th
 
 ## Discovered during execution
 
-- _(none yet — add bugs, doc drift, or CPS quirks found while executing phases, with file paths)_
+- [x] OpenGD77 1–1023 channel-count over-limit export warning — deferred to [#95](https://github.com/pskillen/codeplug-tool/issues/95) (Phase 1 assigns sequentially without cap enforcement).
 
 ## Deferred (out of scope for this epic)
 

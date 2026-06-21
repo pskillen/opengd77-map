@@ -20,7 +20,7 @@ This repo is a **Vite + React + TypeScript SPA** (Mantine UI, react-leaflet maps
 | `AGENTS.md` | This file — agent workflow |
 | `index.html` | Vite entry HTML |
 | `src/` | React app — routes, components, lib |
-| `src/components/ChannelMap/` | Channel map UI (react-leaflet) |
+| `src/components/CodeplugMap/` | Codeplug map UI (react-leaflet) |
 | `src/models/` | Internal codeplug data models — [data-model](docs/features/data-model/README.md) |
 | `src/lib/import/`, `src/lib/export/` | CPS import/export adapters and registries — [import-export](docs/features/import-export/README.md) |
 | `src/state/` | Central codeplug store (persistence-ready) |
@@ -39,11 +39,11 @@ OpenGD77 CSV is the **first shipped import/export format**, not the only one —
 
 The internal codeplug model is **format- and radio-agnostic**; format specifics and OpenGD77 radio-variant limits apply at export time. Today's OpenGD77 adapter is calibrated to the Baofeng 1701 variant.
 
-Treat any interchange format (OpenGD77 CSV, DM32 CSV, …) as lossy at the edges; parse by **header name**, not column index. Preserve case-sensitive channel name foreign keys. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
+Treat any interchange format (OpenGD77 CSV, DM32 CSV, …) as lossy at the edges; parse by **header name**, not column index. Preserve case-sensitive channel name identifiers across the boundary. Do not commit operator codeplug exports unless the user explicitly asks. Use `sample-exports/` (gitignored) for local testing.
 
 ## Vendor boundaries
 
-The internal codeplug model is **vendor-neutral**. State explicitly **where** radio or CPS constraints apply. Do not let OpenGD77 (or any single target radio) leak into internal models, mutations, validation, or CRUD UI.
+The internal codeplug model is **vendor-neutral**. State explicitly **where** radio or CPS constraints apply. Do not let any single target radio leak into internal models, mutations, validation, or CRUD UI.
 
 | Layer | Apply vendor limits? | Examples |
 | --- | --- | --- |
@@ -53,7 +53,7 @@ The internal codeplug model is **vendor-neutral**. State explicitly **where** ra
 
 **Anti-patterns:** baking radio profile caps or target-radio constants into mutations, validation, or CRUD UI; introducing `OPENGD77_MAX_*` (or similar) for internal-model work without an explicit export-only slice.
 
-**Internal FK rules** (not radio-specific): wire-name uniqueness where channels resolve contacts or RX group lists by name; shared talk-group/contact namespace. Cardinality and column survival defer to export per [radio profiles](docs/reference/opengd77/radios/README.md).
+**Internal FK rules** (not radio-specific): the target is **UUID id** foreign keys for every relationship. Some FKs are still **name-based** today (e.g. `Channel.contactName`, `Channel.rxGroupListName`, RX group list members) — treat these as transitional wire baggage converting to ids in epic [#93](https://github.com/pskillen/codeplug-tool/issues/93) Phase 4, not a pattern to extend. Where names are still keys, wire-name uniqueness is required and talk-group/contact share a namespace. Cardinality and column survival defer to export per [radio profiles](docs/reference/opengd77/radios/README.md).
 
 Canonical model reference: [data-model](docs/features/data-model/README.md). If pre-existing vendor leakage remains in the codebase (e.g. zone member caps from an earlier slice), do not copy the pattern into new code — fix or defer explicitly.
 
@@ -62,7 +62,7 @@ Canonical model reference: [data-model](docs/features/data-model/README.md). If 
 1. **SPA at repo root** — React components under `src/`; Vite bundles for GitHub Pages (`base: '/codeplug-tool/'`). HashRouter for subpath routing.
 2. **Vendor boundaries** — Radio limits and CPS column mapping at import/export only; internal model, CRUD, and validation stay vendor-neutral (see [Vendor boundaries](#vendor-boundaries)).
 3. **Parse by header name** — CPS CSV column order can vary; never hard-code column positions. Keep vendor specifics at the import/export edges, not in feature code.
-4. **Preserve CPS quirks** — channel names are case-sensitive foreign keys across files.
+4. **Preserve CPS quirks at the boundary** — in CPS files, channel names are case-sensitive identifiers; preserve them exactly across the import/export edge. Internally the target is id FKs (see [Vendor boundaries](#vendor-boundaries)).
 5. **Minimize scope** — one feature per PR; match existing UI patterns in the SPA.
 6. **Privacy** — operator data and tokens (e.g. Mapbox, future cloud OAuth) belong in browser `localStorage` only, never in the repo.
 7. **Deploy** — merge to `main` for source; publish to GitHub Pages by publishing a full GitHub release (see `docs/build/README.md`).

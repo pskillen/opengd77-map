@@ -51,7 +51,6 @@ export function parseChannels(text: string): Channel[] {
     out.push({
       id: newId(),
       ...channelFieldDefaults(),
-      number: get(CHANNEL_COL.number),
       name,
       callsign: extractCallsign(name),
       mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),

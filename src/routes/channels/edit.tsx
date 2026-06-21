@@ -30,7 +30,6 @@ import { useCodeplug } from '../../state/codeplugStore.tsx';
 type ChannelFormValues = {
   name: string;
   mode: ChannelMode;
-  number: string;
   rxFrequency: string;
   txFrequency: string;
   bandwidthKHz: string;
@@ -59,7 +58,6 @@ function channelToForm(ch: Channel): ChannelFormValues {
   return {
     name: ch.name,
     mode: ch.mode,
-    number: ch.number,
     rxFrequency: ch.rxFrequency,
     txFrequency: ch.txFrequency,
     bandwidthKHz: ch.bandwidthKHz,
@@ -91,7 +89,6 @@ function emptyForm(): ChannelFormValues {
   return {
     name: '',
     mode: 'dmr',
-    number: '',
     rxFrequency: '',
     txFrequency: '',
     bandwidthKHz: defaults.bandwidthKHz,
@@ -126,7 +123,6 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'ca
     ...channelFieldDefaults(),
     name: values.name.trim(),
     mode: values.mode,
-    number: values.number,
     rxFrequency: values.rxFrequency.trim(),
     txFrequency: values.txFrequency.trim(),
     bandwidthKHz: values.bandwidthKHz,
@@ -175,7 +171,6 @@ export default function ChannelEdit() {
         name: values.name.trim() || 'New channel',
         callsign: existing?.callsign ?? '',
         mode: values.mode,
-        number: values.number,
         rxFrequency: values.rxFrequency,
         txFrequency: values.txFrequency,
         location: { lat, lon },
@@ -189,7 +184,6 @@ export default function ChannelEdit() {
     values.lon,
     values.name,
     values.mode,
-    values.number,
     values.rxFrequency,
     values.txFrequency,
     existing,
@@ -315,11 +309,6 @@ export default function ChannelEdit() {
               onChange={(e) => set('name', e.currentTarget.value)}
             />
             <ChannelModeSelect value={values.mode} onChange={(mode) => set('mode', mode)} />
-            <TextInput
-              label="Channel number"
-              value={values.number}
-              onChange={(e) => set('number', e.currentTarget.value)}
-            />
           </Stack>
 
           <Stack gap="sm" id={channelSectionAnchorId('RF')}>

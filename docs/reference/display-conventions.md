@@ -4,7 +4,7 @@ Shared rules for how values are shown in the UI.
 
 ## Frequencies (MHz)
 
-Channel RX/TX frequencies are stored as strings (as imported from CPS CSV).
+Channel RX/TX frequencies are stored as strings on `Channel.rxFrequency` / `Channel.txFrequency`.
 
 When displayed:
 

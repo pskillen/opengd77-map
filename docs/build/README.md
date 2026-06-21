@@ -121,8 +121,8 @@ Use CSV fixtures from gitignored `sample-exports/`.
 
 1. Open `https://pskillen.github.io/codeplug-tool/`.
 2. Confirm muted footer shows `prod · <semver>` matching the release tag.
-3. Navigate to the channel map route (`/#/map`).
-4. Load sample `Channels.csv` / `Zones.csv`; confirm markers and zone hulls render.
+3. Import a sample codeplug on the home page, then open `/#/channels`.
+4. Confirm channel markers and zone hulls render on the embedded map.
 
 ## Known gaps
 

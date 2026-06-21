@@ -29,7 +29,6 @@ export function channelsImportEqual(a: Channel, b: Channel): boolean {
     a.rxGroupListName === b.rxGroupListName &&
     locationsEqual(a.location, b.location) &&
     a.useLocation === b.useLocation &&
-    a.number === b.number &&
     a.bandwidthKHz === b.bandwidthKHz &&
     a.colourCode === b.colourCode &&
     a.timeslot === b.timeslot &&

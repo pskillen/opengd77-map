@@ -18,7 +18,7 @@ All other columns are optional at import — missing headers yield empty values.
 
 | Vendor header | Internal field | Required (import) | Import rule | Export rule | Round-trip | Notes |
 | --- | --- | --- | --- | --- | --- | --- |
-| `Channel Number` | `Channel.number` | No | Trim; strip tabs | As stored | String pass-through | Direct-access number in All-channels zone; see radio profile for range |
+| `Channel Number` | _(export only)_ | No | **Ignored** on import | Sequential `1…n` in channel list order | Not preserved | Direct-access number in All-channels zone; see radio profile for range |
 | `Channel Name` | `Channel.name` | **Yes** | Trim; skip row if empty | As stored | String pass-through | FK target for zones; case-sensitive |
 | `Channel Type` | `Channel.mode` | No | `Analogue`/`Analog` → `fm`; `Digital` → `dmr`; else `other` | All analog modes → `Analogue`; all digital → `Digital`; else passthrough | Lossy for non-FM/DMR | See [channel-modes.md](../channel-modes.md) |
 | `Rx Frequency` | `Channel.rxFrequency` | No | Trim; strip tabs | As stored | String pass-through | MHz; CPS accepts `.` or `,` decimal |

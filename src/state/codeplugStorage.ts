@@ -28,17 +28,20 @@ export class StorageQuotaError extends Error {
   }
 }
 
-function migrateChannel(raw: Partial<Channel>): Channel {
+function migrateChannel(raw: Record<string, unknown>): Channel {
   const defaults = channelFieldDefaults();
+  const rest = { ...raw };
+  delete rest.number;
+  const partial = rest as Partial<Channel>;
   return {
-    id: raw.id ?? '',
-    name: raw.name ?? '',
-    callsign: raw.callsign ?? '',
+    id: partial.id ?? '',
+    name: partial.name ?? '',
+    callsign: partial.callsign ?? '',
     ...defaults,
-    ...raw,
-    mode: normalizeChannelMode(String(raw.mode ?? 'other')),
-    hideFromMap: raw.hideFromMap ?? false,
-    vendorExtras: raw.vendorExtras ?? {},
+    ...partial,
+    mode: normalizeChannelMode(String(partial.mode ?? 'other')),
+    hideFromMap: partial.hideFromMap ?? false,
+    vendorExtras: partial.vendorExtras ?? {},
   };
 }
 
@@ -78,7 +81,7 @@ function migrateTalkGroup(raw: Partial<TalkGroup>): TalkGroup {
   };
 }
 
-/** Normalise a persisted codeplug (v1, v2, or v3) to the current schema. */
+/** Normalise a persisted codeplug (v1, v2, v3, or v4) to the current schema. */
 export function migrateCodeplug(value: unknown): Codeplug | null {
   if (!value || typeof value !== 'object') return null;
   const raw = value as Record<string, unknown>;
@@ -87,7 +90,7 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
   if (meta.schemaVersion > CODEPLUG_SCHEMA_VERSION) return null;
 
   const channels = Array.isArray(raw.channels)
-    ? (raw.channels as Partial<Channel>[]).map(migrateChannel)
+    ? (raw.channels as Record<string, unknown>[]).map(migrateChannel)
     : [];
   const zones = Array.isArray(raw.zones) ? (raw.zones as Zone[]) : [];
   const talkGroups = Array.isArray(raw.talkGroups)

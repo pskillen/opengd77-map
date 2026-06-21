@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Multi-select channel membership editor for zone create/edit forms. Preserves member order (OpenGD77 `Channel1`…`Channel80` export order).
+Multi-select channel membership editor for zone create/edit forms. Preserves member order (`memberChannelIds` order is significant and survives to export).
 
 ## Props
 
@@ -14,9 +14,9 @@ Multi-select channel membership editor for zone create/edit forms. Preserves mem
 
 ## Behaviour
 
-- Enforces OpenGD77 80-member cap (`OPENGD77_MAX_ZONE_MEMBERS`).
-- Selected list shows reorder controls (↑/↓) for export column order.
+- Selected list shows reorder controls (↑/↓); order is preserved through to export.
 - Uses internal channel **ids**; names displayed for UI only.
+- Currently enforces an 80-member cap via `OPENGD77_MAX_ZONE_MEMBERS` in `setZoneMembers`. This is **known vendor leakage** — per [AGENTS.md vendor boundaries](../../../AGENTS.md#vendor-boundaries), CRUD should stay uncapped and cardinality limits should apply only at export. Tracked in [#95](https://github.com/pskillen/codeplug-tool/issues/95).
 
 ## Related
 

@@ -40,7 +40,6 @@ describe('newProject', () => {
       callsign: 'Test',
       mode: 'dmr',
       ...channelFieldDefaults(),
-      number: '1',
     });
 
     const project = newProject('With channels', codeplug);

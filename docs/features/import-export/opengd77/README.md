@@ -37,7 +37,7 @@ Typical filenames: `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`. 
 
 | File kind | Parser | Model output |
 | --- | --- | --- |
-| `channels` | `parseChannels` | `Channel[]` |
+| `channels` | `parseChannels` | `Channel[]` (wire `Channel Number` column ignored) |
 | `zones` | `parseZones` | `ParsedZone[]` → resolved to `Zone[]` with `memberChannelIds` |
 | `contacts` | `parseContacts` | `TalkGroup[]` + `Contact[]` |
 | `rxGroupLists` | `parseRxGroupLists` | `ParsedRxGroupList[]` → `RxGroupList[]` |
@@ -58,6 +58,7 @@ Full skip/error table: [reference hub](../../../reference/opengd77/README.md#ski
 
 - **Per-file download:** `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`
 - **ZIP:** all six CPS files; `DTMF.csv` and `APRS.csv` are header-only (not modelled)
+- **`Channel Number`:** assigned sequentially (1..n in channel list order) when serialising `Channels.csv` — not stored in the internal model. Original import numbers are not preserved on round-trip.
 
 Round-trip test: [`roundtrip.test.ts`](../../../../src/lib/export/opengd77/roundtrip.test.ts).
 

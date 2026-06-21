@@ -113,7 +113,6 @@ export default function ChannelDetail() {
         { label: 'Callsign', value: channel.callsign },
         { label: 'Mode', value: modeLabel(channel.mode) },
         { label: 'Band', value: <BandPillForChannel channel={channel} /> },
-        { label: 'Channel number', value: channel.number },
       ],
     },
     {

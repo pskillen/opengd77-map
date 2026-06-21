@@ -6,7 +6,7 @@ How codeplug projects are saved and restored in the browser.
 
 ## Problem
 
-Imported codeplug state should survive page reloads without re-importing CSV files. Data stays in the browser only — never in the repository.
+Codeplug state should survive page reloads without re-importing. Data stays in the browser only — never in the repository.
 
 ## What is persisted
 
@@ -43,7 +43,7 @@ Each `codeplug` object is a full [`Codeplug`](../../src/models/codeplug.ts) (cha
 | Constant | Value | Gates |
 | --- | --- | --- |
 | `CODEPLUG_STORAGE_VERSION` | `1` | On-disk envelope shape |
-| `CODEPLUG_SCHEMA_VERSION` | `3` | Inner `Codeplug` model shape (`meta.schemaVersion`); v1/v2 codeplugs migrate on load |
+| `CODEPLUG_SCHEMA_VERSION` | `4` | Inner `Codeplug` model shape (`meta.schemaVersion`); v1–v3 codeplugs migrate on load |
 
 Unknown or future envelope `version` → boot with an empty project set (no crash).
 
@@ -52,10 +52,10 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 | Action | LocalStorage |
 | --- | --- |
 | Import on home (new project) | Save envelope |
-| Import on map (active project) | Save |
+| Import on Import & export (active project) | Save |
 | Switch active project | Save |
 | Delete project | Save (or remove key if last project) |
-| Clear all (map) | Save (active project codeplug emptied; project kept) |
+| Empty active codeplug (project kept) | Save |
 | Empty project set | Key removed |
 | Corrupt JSON on load | Key removed; boot empty |
 | Partially invalid projects | Invalid entries filtered; `activeProjectId` fixed up |
@@ -69,7 +69,7 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 ## Size limits
 
 - Typical browser limit: **~5 MB per origin** (varies by browser and other keys on the same origin).
-- A medium OpenGD77 export (hundreds of channels, dozens of zones) is usually well under 1 MB as JSON.
+- A medium codeplug (hundreds of channels, dozens of zones) is usually well under 1 MB as JSON.
 - Multiple projects share the same quota. Very large codeplugs or many projects may need [#32](https://github.com/pskillen/codeplug-tool/issues/32) (IndexedDB / OPFS).
 
 ## Privacy
@@ -80,7 +80,7 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 
 ## Manual verify
 
-1. `npm run dev` → import a codeplug on the home page → open the map.
+1. `npm run dev` → import a codeplug on the home page → open `/channels`.
 2. Hard refresh (Cmd+R) — projects and active selection restored.
 3. Import a second codeplug from home — both listed after refresh.
 4. Delete a project — confirm dialog; refresh — deletion persists.
@@ -90,4 +90,4 @@ Unknown or future envelope `version` → boot with an empty project set (no cras
 
 - [Codeplug projects](../codeplug-project/) — wrapper model and CRUD
 - [Data model](../data-model/) — `Codeplug` contents
-- [Import / export](../import-export/) — CSV → codeplug at the store boundary
+- [Import / export](../import-export/) — imported format → codeplug at the store boundary

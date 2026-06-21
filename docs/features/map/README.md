@@ -1,6 +1,8 @@
 # Map tool
 
-OpenGD77 CPS stores latitude and longitude on each channel and lists zone membership in a separate export, but the desktop CPS gives no geographic overview. The map tool loads those CSVs in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended when building a codeplug.
+A codeplug carries latitude and longitude on each channel and lists zone membership separately, but vendor CPS gives no geographic overview. The map tool plots the **active project's codeplug** in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended.
+
+The map reads the **internal model** ([`Channel`](../data-model/README.md#channel) / [`Zone`](../data-model/README.md#zone)) from the codeplug store — it never parses CSV. Bringing a codeplug into the store (import) is the [import/export surface](../import-export/README.md), upstream of this tool.
 
 Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leaflet inset map) and `src/lib/` (filters, geometry). Map settings (tile provider, Mapbox token, Maidenhead grid) are on `/settings`. The map is embedded on the Summary dashboard and Channels/Zones report pages rather than a standalone full-page view.
 
@@ -21,8 +23,8 @@ Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leafl
 
 | Doc | Covers |
 | --- | --- |
-| [channels.md](channels.md) | `Channels.csv` parsing, markers, filters, popups, labelling |
-| [zones.md](zones.md) | `Zones.csv` parsing, hull geometry, colours, multi-zone overlap |
+| [channels.md](channels.md) | `Channel` fields the map reads, markers, filters, popups, labelling |
+| [zones.md](zones.md) | `Zone` member resolution, hull geometry, colours, multi-zone overlap |
 | [maidenhead-grid.md](maidenhead-grid.md) | Maidenhead grid overlay on codeplug maps |
 | [troubleshooting.md](troubleshooting.md) | Console warnings — app vs browser extensions |
 
@@ -32,42 +34,43 @@ User-facing quick start remains in the [repository README](../../../README.md).
 
 | Term | Meaning in this tool |
 | --- | --- |
-| **Channel Name** | Primary key — zone members and lookups match this string **case-sensitively** |
-| **Use Location** | OpenGD77 `Yes` / `No` on a channel row; when the filter is on, `No` rows are excluded from markers and zone hulls |
-| **Plotted vs skipped** | A channel may exist in the CSV but be hidden by filters or missing/invalid coordinates |
+| **`Channel.name`** | Display name; zone members currently resolve to channels by this string **case-sensitively** at import (transitional — id FKs are the target, epic [#93](https://github.com/pskillen/codeplug-tool/issues/93) Phase 4) |
+| **`useLocation`** | Channel model boolean; when the filter is on, `false` channels are excluded from markers and zone hulls |
+| **`hideFromMap`** | Internal channel flag; always excludes the channel from markers and hulls |
+| **Plotted vs skipped** | A channel may exist in the codeplug but be hidden by filters or missing/invalid coordinates |
 | **Merged marker** | Several channels sharing the same lat/lon (to 5 decimal places) shown as one marker with a combined popup |
 | **Zone hull** | Convex polygon around distinct geolocated sites referenced by a zone — not a radio coverage model |
-| **channelIndex** | In-memory map of **plotted** channel names → channel objects; zone resolution uses only plotted channels |
+| **plotted-by-id index** | In-memory map of **plotted** channel `id` → channel; zone members resolve through it |
 
 ## Data flow
 
 ```mermaid
 flowchart LR
-  subgraph inputs [User files]
-    CH[Channels.csv]
-    ZN[Zones.csv optional]
+  subgraph importSurface [Import surface]
+    IMP[import adapters]
   end
-  subgraph parse [Parse by header name]
-    PC[parseChannelsCsv]
-    PZ[parseZonesCsv]
+  subgraph store [Codeplug store]
+    CHM["channels: Channel[]"]
+    ZNM["zones: Zone[]"]
   end
-  subgraph filter [applyFilters + channelIndex]
+  subgraph filter [applyFilters + plotted-by-id]
     PL[plotted channels]
     SK[skipped list]
   end
   subgraph layers [Leaflet layers]
-    MK[markerLayer]
-    ZL[zoneLayer hulls]
+    MK[marker layer]
+    ZL[zone hull layer]
   end
-  CH --> PC --> filter
+  IMP --> CHM
+  IMP --> ZNM
+  CHM --> filter
   filter --> MK
-  ZN --> PZ
-  PZ --> ZL
-  PL --> ZL
   filter --> SK
+  PL --> ZL
+  ZNM --> ZL
 ```
 
-Load order matters: **`Channels.csv` first**, then optional **`Zones.csv`**. Zones cannot be resolved until channels are loaded.
+The map renders from the codeplug model directly. Zone hulls depend on plotted channels: a zone resolves its `memberChannelIds` against the plotted set, so channels filtered out (or absent) are reported as missing rather than drawn.
 
 ## Cross-links
 

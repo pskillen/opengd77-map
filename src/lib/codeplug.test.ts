@@ -10,8 +10,6 @@ function ch(id: string, name: string): Channel {
     mode: 'dmr',
     ...channelFieldDefaults(),
     location: { lat: 56.5, lon: -4.0 },
-    useLocation: true,
-    number: '1',
   };
 }
 

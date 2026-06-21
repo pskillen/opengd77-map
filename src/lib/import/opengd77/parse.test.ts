@@ -24,7 +24,6 @@ describe('parseChannels', () => {
     expect(channels).toHaveLength(2);
     expect(channels[0]).toMatchObject({
       id: 'ch-1',
-      number: '1',
       name: 'GB3DA DMR',
       callsign: 'GB3DA',
       mode: 'dmr',

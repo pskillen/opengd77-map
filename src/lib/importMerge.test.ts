@@ -29,16 +29,16 @@ describe('importMerge', () => {
 
   describe('merge mode — channels', () => {
     it('is idempotent when re-importing identical channels', () => {
-      const existing = channel({ id: 'ch-1', name: 'A', number: '1' });
+      const existing = channel({ id: 'ch-1', name: 'A' });
       const cp = applyImportToCodeplug(
         { ...emptyCodeplug(), channels: [existing] },
-        channelsResult([channel({ id: 'new-id', name: 'A', number: '1' })]),
+        channelsResult([channel({ id: 'new-id', name: 'A' })]),
         'merge',
       ).codeplug;
 
       const second = applyImportToCodeplug(
         cp,
-        channelsResult([channel({ id: 'another-id', name: 'A', number: '1' })]),
+        channelsResult([channel({ id: 'another-id', name: 'A' })]),
         'merge',
       );
 

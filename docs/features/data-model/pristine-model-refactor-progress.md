@@ -4,12 +4,13 @@
 **Epic plan:** `.cursor/plans/vendor-neutral_data_model_epic_941d5a01.plan.md`
 **Review doc:** [vendor-agnostic-review.md](vendor-agnostic-review.md)
 **Outstanding:** [pristine-model-refactor-outstanding.md](pristine-model-refactor-outstanding.md)
+**Doc audit:** [vendor-boundary-doc-audit.md](vendor-boundary-doc-audit.md) — documentation violations of the vendor-boundary / format-agnostic rules, scheduled by phase below
 
 ---
 
 ## Overall status
 
-**Status:** In progress (Phase 0 scaffolding)
+**Status:** In progress (Phase 1 complete, pending PR)
 
 The model refactor is delivered as a **phased epic**. Each phase is a self-contained subplan, executed by a **separate agent session**, on its own branch + PR, merged to `main` **sequentially** before the next phase branches.
 
@@ -30,9 +31,9 @@ The model refactor is delivered as a **phased epic**. Each phase is a self-conta
 
 The next agent relies on these values. Keep them accurate.
 
-- **Current `CODEPLUG_SCHEMA_VERSION`:** 3 (no bump landed yet)
-- **Last merged phase:** none
-- **`main` is at:** (commit/PR after last merge) — N/A yet
+- **Current `CODEPLUG_SCHEMA_VERSION`:** 4 (Phase 1 landed on branch `53/paddy/drop-channel-number`)
+- **Last merged phase:** Phase 0 (#91, PR #94)
+- **`main` is at:** `c9b01a0` (after Phase 0 merge) — Phase 1 pending merge
 - **Epic ticket:** [#93](https://github.com/pskillen/codeplug-tool/issues/93). No per-phase child tickets — FK-by-UUID and provenance/rename are folded under #93.
 - **New tickets created in Phase 0:**
   - OpenGD77 export issues (tracking): [#95](https://github.com/pskillen/codeplug-tool/issues/95)
@@ -55,7 +56,7 @@ The next agent relies on these values. Keep them accurate.
 
 ## Phase 0 — Audit close-out, new tickets, scaffold (#91)
 
-**Status:** Complete (pending merge)
+**Status:** Complete (merged)
 **Branch:** `91/paddy/data-model-vendor-agnostic-review`
 **PR:** [#94](https://github.com/pskillen/codeplug-tool/pull/94) (Closes #91)
 
@@ -75,8 +76,24 @@ The next agent relies on these values. Keep them accurate.
 
 ## Phase 1 — Drop `Channel.number` (#53)
 
-**Status:** Not started
-**Branch:** `53/paddy/drop-channel-number` (from `origin/main` after Phase 0 merges)
+**Status:** Complete (pending merge)
+**Branch:** `53/paddy/drop-channel-number`
+**PR:** [#96](https://github.com/pskillen/codeplug-tool/pull/96) (Closes #53)
+
+**Delivered**
+
+- Export assigns `Channel Number` sequentially (`0bdcf8c`).
+- Import discards wire column; merge equality updated (`0f95e08`).
+- Channel edit/detail UI no longer shows channel number (`de1f117`).
+- `Channel.number` removed; schema v4 migration discards persisted values (`fb6ee6d`).
+- Docs: data-model README, persistence schema v4, OpenGD77 reference, map channels.
+- Doc-compliance pass on **touched** files (data-model README, AGENTS.md, persistence, map README/channels/zones): name FKs reframed as transitional → UUID, OpenGD77/CSV defaults generalised. Remaining violations catalogued in [vendor-boundary-doc-audit.md](vendor-boundary-doc-audit.md) and scheduled under the phases below.
+
+**Verify**
+
+- `npm run lint && npm run test && npm run build` green.
+- v3→v4 migration fixture passes; round-trip test green.
+- Original import channel numbers are not preserved (by design).
 
 ---
 
@@ -85,12 +102,16 @@ The next agent relies on these values. Keep them accurate.
 **Status:** Not started
 **Branch:** `52/paddy/typed-channel-fields`
 
+**Doc debt to clear in this phase** (from [doc audit](vendor-boundary-doc-audit.md) #3): when adding `docs/reference/` entries for power/squelch/tones, split the OpenGD77 `import`/`export` columns out of the generic [`docs/reference/channel-modes.md`](../../reference/channel-modes.md) mode table (and its OpenGD77 footnote) into the OpenGD77 reference, leaving `channel-modes.md` format-neutral.
+
 ---
 
 ## Phase 3 — Import provenance to per-entity `meta` + `opengd77Extras` rename (new ticket)
 
 **Status:** Not started
 **Branch:** `{ticket}/paddy/import-provenance-meta`
+
+**Doc debt to clear in this phase** (from [doc audit](vendor-boundary-doc-audit.md) #4): when provenance reshapes member resolution/reporting, replace the literal `not in Channels.csv` reason string in [`src/lib/channels.ts`](../../../src/lib/channels.ts) with a format-neutral message; update `channels.test.ts` and the echo in [`map/zones.md`](../map/zones.md).
 
 ---
 
@@ -99,6 +120,8 @@ The next agent relies on these values. Keep them accurate.
 **Status:** Not started
 **Branch:** `{ticket}/paddy/fk-by-uuid`
 **Prerequisite:** Phase 3 provenance `meta` shape merged.
+
+**Doc debt to clear in this phase** (from [doc audit](vendor-boundary-doc-audit.md) #1, #2, #5): once FKs are id-keyed, rewrite the name-FK descriptions in [`crud/README.md`](../crud/README.md) (L38–41) and [`RxGroupListMemberPicker.md`](../../../src/components/crud/RxGroupListMemberPicker.md) (props move from `selectedNames` to id refs), and generalise "Vendor CSV serialises names" (crud README L41) to "the export adapter serialises per target format".
 
 ---
 
@@ -109,7 +132,15 @@ The next agent relies on these values. Keep them accurate.
 
 ---
 
+## Standalone doc hygiene (not phase-bound)
+
+From the [doc audit](vendor-boundary-doc-audit.md) #6–#8 — pure doc/anchor fixes, clearable in any small docs PR (not tied to a model change):
+
+- [`.cursor/rules/codeplug-tool.mdc`](../../../.cursor/rules/codeplug-tool.mdc) "Channel map" section points at non-existent `ChannelMap.tsx` / `Map.tsx` / `csv.ts`; update to `CodeplugMap`, real routes, and `src/lib/import/`.
+- [`README.md`](../../../README.md) (repo root) L53 — soften "import an OpenGD77 CPS export" to keep OpenGD77 as an example, not the definition.
+- Confirm no other stale `ChannelMap` anchors remain (see [`CodeplugMap.md`](../../../src/components/CodeplugMap/CodeplugMap.md)).
+
 ## Next
 
-- Finish Phase 0: create the three tickets, fix the persistence doc, open the PR closing #91.
-- Then generate the Phase 1 subplan in a fresh session and execute it.
+- Merge PR #96 (Phase 1, closes #53).
+- After merge, generate the Phase 2 subplan (#52 typed channel fields) in a fresh session; clear doc-audit #3 within it.

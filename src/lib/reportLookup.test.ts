@@ -25,7 +25,6 @@ const channel = (id: string, name: string, extras: Partial<Channel> = {}): Chann
     useLocation: false,
     rxFrequency: '',
     txFrequency: '',
-    number: '',
     bandwidthKHz: '',
     colourCode: '',
     timeslot: '',
