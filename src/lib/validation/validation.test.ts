@@ -9,7 +9,10 @@ import { validateZone } from './zone.ts';
 
 describe('validateChannel', () => {
   it('requires unique name', () => {
-    const cp = { ...emptyCodeplug(), channels: [buildChannel({ id: 'c1', name: 'Dup', callsign: 'Dup' })] };
+    const cp = {
+      ...emptyCodeplug(),
+      channels: [buildChannel({ id: 'c1', name: 'Dup', callsign: 'Dup' })],
+    };
     const issues = validateChannel({ name: 'Dup', ...channelFieldDefaults(), mode: 'dmr' }, cp);
     expect(hasValidationErrors(issues)).toBe(true);
   });

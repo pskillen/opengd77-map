@@ -26,10 +26,16 @@ export function validateChannel(
     }
   }
 
-  if (input.rxFrequency != null && (!Number.isFinite(input.rxFrequency) || input.rxFrequency <= 0)) {
+  if (
+    input.rxFrequency != null &&
+    (!Number.isFinite(input.rxFrequency) || input.rxFrequency <= 0)
+  ) {
     issues.push({ field: 'rxFrequency', message: 'Invalid RX frequency', severity: 'error' });
   }
-  if (input.txFrequency != null && (!Number.isFinite(input.txFrequency) || input.txFrequency <= 0)) {
+  if (
+    input.txFrequency != null &&
+    (!Number.isFinite(input.txFrequency) || input.txFrequency <= 0)
+  ) {
     issues.push({ field: 'txFrequency', message: 'Invalid TX frequency', severity: 'error' });
   }
 

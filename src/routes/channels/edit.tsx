@@ -146,17 +146,12 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'ca
   const lat = parseFloat(values.lat);
   const lon = parseFloat(values.lon);
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lon);
-  const tot = values.transmitTimeout.trim()
-    ? parseInt(values.transmitTimeout, 10)
-    : null;
+  const tot = values.transmitTimeout.trim() ? parseInt(values.transmitTimeout, 10) : null;
   const colourCode = values.colourCode.trim() ? parseInt(values.colourCode, 10) : null;
   const timeslotRaw = values.timeslot.trim();
-  const timeslot: ChannelTimeslot | null =
-    timeslotRaw === '1' ? 1 : timeslotRaw === '2' ? 2 : null;
+  const timeslot: ChannelTimeslot | null = timeslotRaw === '1' ? 1 : timeslotRaw === '2' ? 2 : null;
   const dmrId = values.dmrId.trim() ? parseInt(values.dmrId, 10) : null;
-  const bandwidth = values.bandwidthKHz.trim()
-    ? parseFloat(values.bandwidthKHz)
-    : null;
+  const bandwidth = values.bandwidthKHz.trim() ? parseFloat(values.bandwidthKHz) : null;
 
   return {
     ...channelFieldDefaults(),
@@ -280,8 +275,7 @@ export default function ChannelEdit() {
 
   const rxHz = parseFrequencyHzFromMhzInput(values.rxFrequencyMhz);
   const txHz = parseFrequencyHzFromMhzInput(values.txFrequencyMhz);
-  const offset =
-    rxHz != null && txHz != null ? frequencyOffsetMhz(rxHz, txHz) : null;
+  const offset = rxHz != null && txHz != null ? frequencyOffsetMhz(rxHz, txHz) : null;
 
   const applyLocator = (loc: string) => {
     set('locator', loc);

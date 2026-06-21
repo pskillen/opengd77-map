@@ -41,7 +41,10 @@ describe('importMerge', () => {
 
     it('applies delta when one field changes', () => {
       const existing = buildChannel({ id: 'ch-1', name: 'A', rxFrequency: 430_000_000 });
-      const cp = { ...emptyCodeplug(), channels: [existing, buildChannel({ id: 'ch-2', name: 'B' })] };
+      const cp = {
+        ...emptyCodeplug(),
+        channels: [existing, buildChannel({ id: 'ch-2', name: 'B' })],
+      };
 
       const { codeplug, report } = applyImportToCodeplug(
         cp,
@@ -73,7 +76,12 @@ describe('importMerge', () => {
     });
 
     it('preserves hideFromMap on merge update', () => {
-      const existing = buildChannel({ id: 'ch-1', name: 'A', hideFromMap: true, rxFrequency: 430_000_000 });
+      const existing = buildChannel({
+        id: 'ch-1',
+        name: 'A',
+        hideFromMap: true,
+        rxFrequency: 430_000_000,
+      });
       const cp = { ...emptyCodeplug(), channels: [existing] };
 
       const { codeplug } = applyImportToCodeplug(
@@ -106,7 +114,10 @@ describe('importMerge', () => {
     it('preserves zone id on upsert and resolves members', () => {
       const cp = applyImportToCodeplug(
         emptyCodeplug(),
-        channelsResult([buildChannel({ id: 'ch-1', name: 'A' }), buildChannel({ id: 'ch-2', name: 'B' })]),
+        channelsResult([
+          buildChannel({ id: 'ch-1', name: 'A' }),
+          buildChannel({ id: 'ch-2', name: 'B' }),
+        ]),
         'merge',
       ).codeplug;
 

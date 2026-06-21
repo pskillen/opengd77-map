@@ -151,7 +151,10 @@ export default function ChannelDetail() {
     {
       title: 'DMR',
       fields: [
-        { label: 'Colour code', value: channel.colourCode != null ? String(channel.colourCode) : '' },
+        {
+          label: 'Colour code',
+          value: channel.colourCode != null ? String(channel.colourCode) : '',
+        },
         { label: 'Timeslot', value: channel.timeslot != null ? String(channel.timeslot) : '' },
         { label: 'DMR ID', value: channel.dmrId != null ? String(channel.dmrId) : '' },
         {

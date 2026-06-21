@@ -10,9 +10,7 @@ import {
   type Zone,
 } from '../../models/codeplug.ts';
 
-export function buildChannel(
-  overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>,
-): Channel {
+export function buildChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
   const { id, name, callsign, mode, ...rest } = overrides;
   return {
     id,
