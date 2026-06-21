@@ -42,7 +42,11 @@ export default function ChannelsList() {
       return {
         key: col.key,
         header: col.header,
-        render: (ch: Channel) => ch.rxGroupListName || '—',
+        render: (ch: Channel) => {
+          if (!ch.rxGroupListId) return '—';
+          const list = codeplug.rxGroupLists.find((r) => r.id === ch.rxGroupListId);
+          return list?.name ?? '—';
+        },
       };
     }
     if (col.key === 'distance') {
@@ -102,6 +106,7 @@ export default function ChannelsList() {
           allChannels={channels}
           talkGroups={codeplug.talkGroups}
           contacts={codeplug.contacts}
+          rxGroupLists={codeplug.rxGroupLists}
           operatorPosition={position}
         />
       </Stack>

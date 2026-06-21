@@ -32,7 +32,7 @@ describe('parseChannels', () => {
       colourCode: 2,
       timeslot: 1,
       contactRef: null,
-      rxGroupListName: 'Scotland',
+      rxGroupListId: null,
       squelch: 75,
       power: null,
       rxOnly: false,

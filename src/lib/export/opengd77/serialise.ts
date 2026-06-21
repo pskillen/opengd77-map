@@ -12,7 +12,7 @@ import {
   formatOpenGd77ToneWire,
   formatOpenGd77TransmitTimeoutWire,
 } from './channelWire.ts';
-import { contactRefWireNameForExport } from '../../entityRefs.ts';
+import { contactRefWireNameForExport, rxGroupListWireNameForExport } from '../../entityRefs.ts';
 import { rxGroupListExportMemberNames, zoneExportMemberNames } from '../../entityProvenance.ts';
 
 /** OpenGD77 CSV serialisers — wire format in docs/reference/opengd77/;
@@ -52,7 +52,7 @@ export function serialiseChannels(codeplug: Codeplug): string {
       [CHANNEL_COL.colourCode]: formatOpenGd77ColourCodeWire(ch.colourCode),
       [CHANNEL_COL.timeslot]: formatOpenGd77TimeslotWire(ch.timeslot),
       [CHANNEL_COL.contact]: contactRefWireNameForExport(ch, codeplug),
-      [CHANNEL_COL.tgList]: ch.rxGroupListName,
+      [CHANNEL_COL.tgList]: rxGroupListWireNameForExport(ch, codeplug),
       [CHANNEL_COL.dmrId]: formatOpenGd77DmrIdWire(ch.dmrId),
       [CHANNEL_COL.rxTone]: formatOpenGd77ToneWire(ch.rxTone),
       [CHANNEL_COL.txTone]: formatOpenGd77ToneWire(ch.txTone),

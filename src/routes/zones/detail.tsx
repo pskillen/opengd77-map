@@ -129,6 +129,7 @@ export default function ZoneDetail() {
             allChannels={codeplug.channels}
             talkGroups={codeplug.talkGroups}
             contacts={codeplug.contacts}
+            rxGroupLists={codeplug.rxGroupLists}
             defaultShowZones
             operatorPosition={position}
           />

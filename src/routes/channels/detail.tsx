@@ -12,7 +12,6 @@ import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocat
 import {
   externalChannelLinks,
   findEntityById,
-  findRxGroupListByName,
   zonesContainingChannel,
 } from '../../lib/reportLookup.ts';
 import { entityRefDisplayName } from '../../lib/entityRefs.ts';
@@ -68,7 +67,9 @@ export default function ChannelDetail() {
     channel.contactRef?.kind === 'talkGroup'
       ? findEntityById(codeplug.talkGroups, channel.contactRef.id)
       : null;
-  const rxList = findRxGroupListByName(channel.rxGroupListName, codeplug.rxGroupLists);
+  const rxList = channel.rxGroupListId
+    ? findEntityById(codeplug.rxGroupLists, channel.rxGroupListId)
+    : null;
 
   const vendorExtraFields = Object.entries(channel.opengd77Extras).map(([label, value]) => ({
     label,
@@ -188,18 +189,13 @@ export default function ChannelDetail() {
         },
         {
           label: 'RX group list',
-          value:
-            channel.rxGroupListName && channel.rxGroupListName !== 'None' ? (
-              rxList ? (
-                <Anchor component={Link} to={`/rx-group-lists/${rxList.id}`}>
-                  {channel.rxGroupListName}
-                </Anchor>
-              ) : (
-                channel.rxGroupListName
-              )
-            ) : (
-              '—'
-            ),
+          value: rxList ? (
+            <Anchor component={Link} to={`/rx-group-lists/${rxList.id}`}>
+              {rxList.name}
+            </Anchor>
+          ) : (
+            '—'
+          ),
         },
       ],
     },
@@ -323,6 +319,7 @@ export default function ChannelDetail() {
             allChannels={codeplug.channels}
             talkGroups={codeplug.talkGroups}
             contacts={codeplug.contacts}
+            rxGroupLists={codeplug.rxGroupLists}
             highlightChannelId={channel.id}
             compactMode
             defaultShowZones={false}

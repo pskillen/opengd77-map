@@ -49,7 +49,7 @@ type ChannelFormValues = {
   colourCode: string;
   timeslot: string;
   contactRefKey: string;
-  rxGroupListName: string;
+  rxGroupListId: string;
   dmrId: string;
   rxTone: ChannelTone;
   txTone: ChannelTone;
@@ -93,7 +93,7 @@ function channelToForm(ch: Channel): ChannelFormValues {
     colourCode: ch.colourCode != null ? String(ch.colourCode) : '',
     timeslot: ch.timeslot != null ? String(ch.timeslot) : '',
     contactRefKey: ch.contactRef ? entityRefKey(ch.contactRef) : '',
-    rxGroupListName: ch.rxGroupListName,
+    rxGroupListId: ch.rxGroupListId ?? '',
     dmrId: ch.dmrId != null ? String(ch.dmrId) : '',
     rxTone: ch.rxTone,
     txTone: ch.txTone,
@@ -124,7 +124,7 @@ function emptyForm(): ChannelFormValues {
     colourCode: '',
     timeslot: '',
     contactRefKey: '',
-    rxGroupListName: defaults.rxGroupListName,
+    rxGroupListId: '',
     dmrId: '',
     rxTone: defaults.rxTone,
     txTone: defaults.txTone,
@@ -167,7 +167,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'ca
         : null,
     timeslot,
     contactRef: parseEntityRefKey(values.contactRefKey),
-    rxGroupListName: values.rxGroupListName,
+    rxGroupListId: values.rxGroupListId || null,
     dmrId: dmrId != null && Number.isFinite(dmrId) && dmrId > 0 ? dmrId : null,
     rxTone: values.rxTone,
     txTone: values.txTone,
@@ -277,7 +277,7 @@ export default function ChannelEdit() {
 
   const rglOptions = [
     { value: '', label: 'None' },
-    ...codeplug.rxGroupLists.map((r) => ({ value: r.name, label: r.name })),
+    ...codeplug.rxGroupLists.map((r) => ({ value: r.id, label: r.name })),
   ];
 
   const rxHz = parseFrequencyHzFromMhzInput(values.rxFrequencyMhz);
@@ -477,8 +477,8 @@ export default function ChannelEdit() {
               <Select
                 label="RX group list"
                 data={rglOptions}
-                value={values.rxGroupListName || ''}
-                onChange={(v) => set('rxGroupListName', v ?? '')}
+                value={values.rxGroupListId || ''}
+                onChange={(v) => set('rxGroupListId', v ?? '')}
                 searchable
                 clearable
               />
@@ -548,6 +548,7 @@ export default function ChannelEdit() {
               channels={mapPreviewChannels}
               talkGroups={codeplug.talkGroups}
               contacts={codeplug.contacts}
+              rxGroupLists={codeplug.rxGroupLists}
               height={240}
               compactMode
               showControls={false}

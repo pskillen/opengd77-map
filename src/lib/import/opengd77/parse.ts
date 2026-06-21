@@ -99,7 +99,7 @@ export function parseChannels(text: string): Channel[] {
         colourCode: parseOpenGd77ColourCodeWire(get(CHANNEL_COL.colourCode)),
         timeslot: parseOpenGd77TimeslotWire(get(CHANNEL_COL.timeslot)),
         contactRef: null,
-        rxGroupListName: get(CHANNEL_COL.tgList),
+        rxGroupListId: null,
         dmrId: parseOpenGd77DmrIdWire(get(CHANNEL_COL.dmrId)),
         rxTone: parseOpenGd77ToneWire(get(CHANNEL_COL.rxTone)),
         txTone: parseOpenGd77ToneWire(get(CHANNEL_COL.txTone)),

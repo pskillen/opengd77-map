@@ -54,12 +54,12 @@ export function validateChannel(
     }
   }
 
-  const rgl = input.rxGroupListName?.trim();
-  if (rgl && rgl !== 'None') {
-    if (!codeplug.rxGroupLists.some((list) => list.name === rgl)) {
+  const rgl = input.rxGroupListId?.trim();
+  if (rgl) {
+    if (!codeplug.rxGroupLists.some((list) => list.id === rgl)) {
       issues.push({
-        field: 'rxGroupListName',
-        message: `RX group list "${rgl}" not found in project`,
+        field: 'rxGroupListId',
+        message: 'Selected RX group list not found in project',
         severity: 'warning',
       });
     }

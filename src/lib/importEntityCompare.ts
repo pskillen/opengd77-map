@@ -28,6 +28,15 @@ function channelContactImportEqual(a: Channel, b: Channel): boolean {
   return entityRefsEqual(a.contactRef, b.contactRef);
 }
 
+function channelRxListImportEqual(a: Channel, b: Channel): boolean {
+  const wireA = a.meta?.imported?.rxGroupListWireName;
+  const wireB = b.meta?.imported?.rxGroupListWireName;
+  if (wireA !== undefined || wireB !== undefined) {
+    return (wireA ?? '') === (wireB ?? '');
+  }
+  return a.rxGroupListId === b.rxGroupListId;
+}
+
 /** Compare import-mapped channel fields (excludes internal id and hideFromMap). */
 export function channelsImportEqual(a: Channel, b: Channel): boolean {
   return (
@@ -37,7 +46,7 @@ export function channelsImportEqual(a: Channel, b: Channel): boolean {
     a.rxFrequency === b.rxFrequency &&
     a.txFrequency === b.txFrequency &&
     channelContactImportEqual(a, b) &&
-    a.rxGroupListName === b.rxGroupListName &&
+    channelRxListImportEqual(a, b) &&
     locationsEqual(a.location, b.location) &&
     a.useLocation === b.useLocation &&
     a.bandwidthKHz === b.bandwidthKHz &&

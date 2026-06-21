@@ -10,7 +10,7 @@ import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
 import {
-  channelsWithRxGroupList,
+  channelsReferencingRxGroupListId,
   findEntityById,
   resolveRxGroupListMembers,
 } from '../lib/reportLookup.ts';
@@ -34,7 +34,7 @@ export default function RxGroupListDetail() {
   }
 
   const members = resolveRxGroupListMembers(rgl, codeplug.talkGroups, codeplug.contacts);
-  const usingChannels = channelsWithRxGroupList(rgl.name, codeplug.channels);
+  const usingChannels = channelsReferencingRxGroupListId(rgl.id, codeplug.channels);
 
   const confirmDelete = () => {
     deleteRxGroupList(rgl.id);

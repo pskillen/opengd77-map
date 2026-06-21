@@ -116,6 +116,7 @@ export default function SummaryDashboard({ project, codeplug }: SummaryDashboard
                 allChannels={channels}
                 talkGroups={codeplug.talkGroups}
                 contacts={codeplug.contacts}
+                rxGroupLists={codeplug.rxGroupLists}
                 height={420}
                 defaultShowZones
                 operatorPosition={position}

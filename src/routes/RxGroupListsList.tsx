@@ -3,7 +3,7 @@ import EntityTable from '../components/report/EntityTable.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
 import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
-import { channelsWithRxGroupList, formatReferenceCount, sortByName } from '../lib/reportLookup.ts';
+import { channelsWithRxGroupListId, formatReferenceCount, sortByName } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 
 export default function RxGroupListsList() {
@@ -32,7 +32,7 @@ export default function RxGroupListsList() {
           {
             key: 'channels',
             header: 'Channels using',
-            render: (r) => formatReferenceCount(channelsWithRxGroupList(r.name, channels).length),
+            render: (r) => formatReferenceCount(channelsWithRxGroupListId(r.id, channels).length),
           },
         ]}
       />

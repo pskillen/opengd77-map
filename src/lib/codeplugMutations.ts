@@ -220,20 +220,9 @@ function clearContactEntityReferences(
   return { ...codeplug, channels, rxGroupLists };
 }
 
-function propagateRxGroupListWireRename(
-  codeplug: Codeplug,
-  oldName: string,
-  newName: string,
-): Codeplug {
+function clearRxGroupListReferences(codeplug: Codeplug, rglId: string): Codeplug {
   const channels = codeplug.channels.map((ch) =>
-    ch.rxGroupListName === oldName ? { ...ch, rxGroupListName: newName } : ch,
-  );
-  return { ...codeplug, channels };
-}
-
-function clearRxGroupListWireReferences(codeplug: Codeplug, name: string): Codeplug {
-  const channels = codeplug.channels.map((ch) =>
-    ch.rxGroupListName === name ? { ...ch, rxGroupListName: '' } : ch,
+    ch.rxGroupListId === rglId ? { ...ch, rxGroupListId: null } : ch,
   );
   return { ...codeplug, channels };
 }
@@ -351,11 +340,7 @@ export function updateRxGroupList(
   const rxGroupLists = [...codeplug.rxGroupLists];
   rxGroupLists[index] = updated;
 
-  let next: Codeplug = { ...codeplug, rxGroupLists };
-  if (name !== existing.name) {
-    next = propagateRxGroupListWireRename(next, existing.name, name);
-  }
-  return next;
+  return { ...codeplug, rxGroupLists };
 }
 
 export function deleteRxGroupList(codeplug: Codeplug, rglId: string): Codeplug {
@@ -366,7 +351,7 @@ export function deleteRxGroupList(codeplug: Codeplug, rglId: string): Codeplug {
     ...codeplug,
     rxGroupLists: codeplug.rxGroupLists.filter((r) => r.id !== rglId),
   };
-  return clearRxGroupListWireReferences(next, rgl.name);
+  return clearRxGroupListReferences(next, rglId);
 }
 
 export function setRxGroupListMembers(

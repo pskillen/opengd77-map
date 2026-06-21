@@ -13,6 +13,7 @@ import type { EntityMeta } from '../lib/entityProvenance.ts';
 import {
   normaliseWireName,
   resolveChannelContactRefs,
+  resolveChannelRxGroupListIds,
 } from '../lib/entityRefs.ts';
 import { normalizeChannelMode } from '../lib/channelModes.ts';
 import { normalizeToneValue } from '../lib/channelFields/index.ts';
@@ -61,11 +62,15 @@ function migrateChannel(
 
   const legacyContactName =
     typeof raw.contactName === 'string' ? normaliseWireName(raw.contactName) : '';
+  const legacyRxGroupListName =
+    typeof raw.rxGroupListName === 'string' ? normaliseWireName(raw.rxGroupListName) : '';
   delete rest.contactName;
+  delete rest.rxGroupListName;
 
   const partial = rest as Partial<Channel> & {
     vendorExtras?: Record<string, string>;
     contactName?: string;
+    rxGroupListName?: string;
   };
   const migrated: Partial<Channel> = { ...defaults, ...partial };
   migrated.mode = normalizeChannelMode(String(partial.mode ?? 'other'));
@@ -73,8 +78,22 @@ function migrateChannel(
   migrated.opengd77Extras =
     partial.opengd77Extras ?? partial.vendorExtras ?? defaults.opengd77Extras;
   migrated.contactRef = partial.contactRef ?? null;
+  migrated.rxGroupListId = partial.rxGroupListId ?? null;
 
   let meta = partial.meta as EntityMeta | undefined;
+  if (legacyRxGroupListName && !meta?.imported?.rxGroupListWireName) {
+    const imported = meta?.imported;
+    meta = {
+      ...meta,
+      imported: {
+        formatId: imported?.formatId ?? 'opengd77',
+        sourceFile: imported?.sourceFile ?? null,
+        importedAt: imported?.importedAt ?? projectImportedAt ?? new Date(0).toISOString(),
+        ...imported,
+        rxGroupListWireName: legacyRxGroupListName,
+      },
+    };
+  }
   if (legacyContactName && !meta?.imported?.contactWireName) {
     const imported = meta?.imported;
     meta = {
@@ -240,11 +259,17 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
     ? (raw.contacts as Partial<Contact>[]).map(migrateContact)
     : [];
 
+  const rxGroupLists = migrateRxGroupLists(raw, projectImportedAt);
+
   return {
-    channels: resolveChannelContactRefs(channels, talkGroups, contacts),
+    channels: resolveChannelContactRefs(
+      resolveChannelRxGroupListIds(channels, rxGroupLists),
+      talkGroups,
+      contacts,
+    ),
     zones,
     talkGroups,
-    rxGroupLists: migrateRxGroupLists(raw, projectImportedAt),
+    rxGroupLists,
     contacts,
     meta: {
       importedAt: meta.importedAt ?? null,

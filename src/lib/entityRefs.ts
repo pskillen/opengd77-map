@@ -120,6 +120,19 @@ export function memberRefsToWireNames(
   return names;
 }
 
+export function resolveChannelRxGroupListIds(
+  channels: Channel[],
+  rxGroupLists: RxGroupList[],
+): Channel[] {
+  return channels.map((ch) => {
+    const wireName = ch.meta?.imported?.rxGroupListWireName;
+    if (wireName === undefined) return ch;
+    const rxGroupListId = resolveRxGroupListIdByName(wireName, rxGroupLists);
+    if (ch.rxGroupListId === rxGroupListId) return ch;
+    return { ...ch, rxGroupListId };
+  });
+}
+
 export function resolveChannelContactRefs(
   channels: Channel[],
   talkGroups: TalkGroup[],

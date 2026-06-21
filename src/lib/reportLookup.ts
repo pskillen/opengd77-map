@@ -37,9 +37,16 @@ export function channelsWithContactName(
   return channels.filter((ch) => entityRefsEqual(ch.contactRef, ref));
 }
 
-export function channelsWithRxGroupList(name: string, channels: Channel[]): Channel[] {
-  if (!name || name === 'None') return [];
-  return channels.filter((ch) => ch.rxGroupListName === name);
+export function channelsReferencingRxGroupListId(
+  rxGroupListId: string,
+  channels: Channel[],
+): Channel[] {
+  if (!rxGroupListId) return [];
+  return channels.filter((ch) => ch.rxGroupListId === rxGroupListId);
+}
+
+export function channelsWithRxGroupListId(rxGroupListId: string, channels: Channel[]): Channel[] {
+  return channelsReferencingRxGroupListId(rxGroupListId, channels);
 }
 
 export function channelsWithTalkGroupName(

@@ -241,7 +241,7 @@ describe('codeplugMutations', () => {
   });
 
   describe('rx group lists', () => {
-    it('addRxGroupList and updateRxGroupList rename propagates to channels', () => {
+    it('updateRxGroupList rename keeps channel id refs unchanged', () => {
       let cp = addRxGroupList(emptyCodeplug(), {
         name: 'Scotland',
         memberWireNames: ['TG1'],
@@ -249,22 +249,22 @@ describe('codeplugMutations', () => {
       const rglId = cp.rxGroupLists[0].id;
       cp = {
         ...cp,
-        channels: [makeChannel('ch-1', 'GB3DA', { rxGroupListName: 'Scotland' })],
+        channels: [makeChannel('ch-1', 'GB3DA', { rxGroupListId: rglId })],
       };
       const next = updateRxGroupList(cp, rglId, { name: 'Scotland2' });
       expect(next.rxGroupLists[0].name).toBe('Scotland2');
-      expect(next.channels[0].rxGroupListName).toBe('Scotland2');
+      expect(next.channels[0].rxGroupListId).toBe(rglId);
     });
 
-    it('deleteRxGroupList clears channel rxGroupListName', () => {
+    it('deleteRxGroupList clears channel rxGroupListId', () => {
       const cp = {
         ...emptyCodeplug(),
         rxGroupLists: [buildRxGroupList({ id: 'rgl-1', name: 'Scotland' })],
-        channels: [makeChannel('ch-1', 'GB3DA', { rxGroupListName: 'Scotland' })],
+        channels: [makeChannel('ch-1', 'GB3DA', { rxGroupListId: 'rgl-1' })],
       };
       const next = deleteRxGroupList(cp, 'rgl-1');
       expect(next.rxGroupLists).toHaveLength(0);
-      expect(next.channels[0].rxGroupListName).toBe('');
+      expect(next.channels[0].rxGroupListId).toBeNull();
     });
 
     it('setRxGroupListMembers accepts large lists and dedupes', () => {

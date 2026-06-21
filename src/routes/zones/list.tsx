@@ -40,6 +40,7 @@ export default function ZonesList() {
           allChannels={channels}
           talkGroups={codeplug.talkGroups}
           contacts={codeplug.contacts}
+          rxGroupLists={codeplug.rxGroupLists}
         />
       </Stack>
     </ReportPage>

@@ -341,6 +341,9 @@ describe('codeplugStorage', () => {
     expect(cp.channels[0].meta?.imported?.contactWireName).toBe('Scotland');
     expect(cp.channels[0]).not.toHaveProperty('contactName');
     expect(cp.channels[1].contactRef).toBeNull();
+    expect(cp.channels[0].rxGroupListId).toBe('rgl-1');
+    expect(cp.channels[0].meta?.imported?.rxGroupListWireName).toBe('RGL1');
+    expect(cp.channels[0]).not.toHaveProperty('rxGroupListName');
     expect(cp.channels[1].meta?.imported?.contactWireName).toBe('Dangling');
   });
 

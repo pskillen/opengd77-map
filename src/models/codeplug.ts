@@ -18,7 +18,7 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     rxFrequency: null,
     txFrequency: null,
     contactRef: null,
-    rxGroupListName: '',
+    rxGroupListId: null,
     location: null,
     useLocation: false,
     bandwidthKHz: null,
@@ -50,8 +50,7 @@ export interface Channel {
   rxFrequency: number | null;
   txFrequency: number | null;
   contactRef: EntityRef | null;
-  /** Transitional name FK → RX group list. */
-  rxGroupListName: string;
+  rxGroupListId: string | null;
   location: GeoPoint | null;
   useLocation: boolean;
   /** Channel bandwidth in kHz — null when unset. */

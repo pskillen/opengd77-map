@@ -3,7 +3,7 @@ import type { Channel } from '../models/codeplug.ts';
 import {
   channelsForZone,
   channelsWithContactName,
-  channelsWithRxGroupList,
+  channelsWithRxGroupListId,
   channelsWithTalkGroupName,
   findEntityById,
   formatReferenceCount,
@@ -52,10 +52,10 @@ describe('reportLookup', () => {
     expect(channelsWithTalkGroupName('Scotland', channels, talkGroups)).toHaveLength(1);
   });
 
-  it('channelsWithRxGroupList matches RX group list name', () => {
-    const channels = [channel('c1', 'GB3SG', { rxGroupListName: 'Scotland' })];
-    expect(channelsWithRxGroupList('Scotland', channels)).toHaveLength(1);
-    expect(channelsWithRxGroupList('None', channels)).toHaveLength(0);
+  it('channelsWithRxGroupListId matches RX group list id', () => {
+    const channels = [channel('c1', 'GB3SG', { rxGroupListId: 'rgl-1' })];
+    expect(channelsWithRxGroupListId('rgl-1', channels)).toHaveLength(1);
+    expect(channelsWithRxGroupListId('', channels)).toHaveLength(0);
   });
 
   it('channelsForZone preserves member order', () => {
