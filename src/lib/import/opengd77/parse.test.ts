@@ -27,12 +27,17 @@ describe('parseChannels', () => {
       name: 'GB3DA DMR',
       callsign: 'GB3DA',
       mode: 'dmr',
-      colourCode: '2',
-      timeslot: '1',
+      rxFrequency: 430_000_000,
+      txFrequency: 430_000_000,
+      colourCode: 2,
+      timeslot: 1,
       contactName: 'Local 9',
       rxGroupListName: 'Scotland',
+      squelch: 75,
+      power: null,
+      rxOnly: false,
       voxEnabled: false,
-      transmitTimeout: '0',
+      transmitTimeout: 0,
       scanSkip: false,
       location: { lat: 56.5, lon: -4.0 },
       useLocation: true,
@@ -46,7 +51,10 @@ describe('parseChannels', () => {
     });
     expect(channels[1].mode).toBe('fm');
     expect(channels[1].useLocation).toBe(false);
-    expect(channels[1].bandwidthKHz).toBe('12.5');
+    expect(channels[1].bandwidthKHz).toBe(12.5);
+    expect(channels[1].rxTone).toBe('none');
+    expect(channels[1].txTone).toBe('103.5');
+    expect(channels[1].squelch).toBe(0);
     expect(channels[1].scanSkip).toBe(true);
     expect(channels[1].voxEnabled).toBe(true);
     expect(new Set(channels.map((c) => c.id)).size).toBe(2);

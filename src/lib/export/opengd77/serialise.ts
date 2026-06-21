@@ -1,6 +1,17 @@
 import type { Codeplug } from '../../../models/codeplug.ts';
 import { mapModeToOpenGd77ChannelType } from '../../channelModes.ts';
 import { formatCsv } from '../csvWrite.ts';
+import {
+  formatOpenGd77BandwidthWire,
+  formatOpenGd77ColourCodeWire,
+  formatOpenGd77DmrIdWire,
+  formatOpenGd77FrequencyWire,
+  formatOpenGd77PowerWire,
+  formatOpenGd77SquelchWire,
+  formatOpenGd77TimeslotWire,
+  formatOpenGd77ToneWire,
+  formatOpenGd77TransmitTimeoutWire,
+} from './channelWire.ts';
 
 /** OpenGD77 CSV serialisers — wire format in docs/reference/opengd77/;
  *  1701 profile limits in docs/reference/opengd77/radios/baofeng-1701.md. */
@@ -33,21 +44,21 @@ export function serialiseChannels(codeplug: Codeplug): string {
       [CHANNEL_COL.number]: String(i + 1),
       [CHANNEL_COL.name]: ch.name,
       [CHANNEL_COL.type]: mapModeToOpenGd77ChannelType(ch.mode),
-      [CHANNEL_COL.rx]: ch.rxFrequency,
-      [CHANNEL_COL.tx]: ch.txFrequency,
-      [CHANNEL_COL.bandwidth]: ch.bandwidthKHz,
-      [CHANNEL_COL.colourCode]: ch.colourCode,
-      [CHANNEL_COL.timeslot]: ch.timeslot,
+      [CHANNEL_COL.rx]: formatOpenGd77FrequencyWire(ch.rxFrequency),
+      [CHANNEL_COL.tx]: formatOpenGd77FrequencyWire(ch.txFrequency),
+      [CHANNEL_COL.bandwidth]: formatOpenGd77BandwidthWire(ch.bandwidthKHz),
+      [CHANNEL_COL.colourCode]: formatOpenGd77ColourCodeWire(ch.colourCode),
+      [CHANNEL_COL.timeslot]: formatOpenGd77TimeslotWire(ch.timeslot),
       [CHANNEL_COL.contact]: ch.contactName,
       [CHANNEL_COL.tgList]: ch.rxGroupListName,
-      [CHANNEL_COL.dmrId]: ch.dmrId,
-      [CHANNEL_COL.rxTone]: ch.rxTone,
-      [CHANNEL_COL.txTone]: ch.txTone,
-      [CHANNEL_COL.squelch]: ch.squelch,
-      [CHANNEL_COL.power]: ch.power,
-      [CHANNEL_COL.rxOnly]: ch.rxOnly,
+      [CHANNEL_COL.dmrId]: formatOpenGd77DmrIdWire(ch.dmrId),
+      [CHANNEL_COL.rxTone]: formatOpenGd77ToneWire(ch.rxTone),
+      [CHANNEL_COL.txTone]: formatOpenGd77ToneWire(ch.txTone),
+      [CHANNEL_COL.squelch]: formatOpenGd77SquelchWire(ch.squelch),
+      [CHANNEL_COL.power]: formatOpenGd77PowerWire(ch.power),
+      [CHANNEL_COL.rxOnly]: wireYesNo(ch.rxOnly),
       [CHANNEL_COL.allSkip]: wireYesNo(ch.scanSkip),
-      [CHANNEL_COL.tot]: ch.transmitTimeout,
+      [CHANNEL_COL.tot]: formatOpenGd77TransmitTimeoutWire(ch.transmitTimeout),
       [CHANNEL_COL.vox]: wireVoxEnabled(ch.voxEnabled),
       [CHANNEL_COL.aprs]: ch.aprsConfigName,
       [CHANNEL_COL.lat]: ch.location ? String(ch.location.lat) : '',
