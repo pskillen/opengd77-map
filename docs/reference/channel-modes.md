@@ -16,18 +16,20 @@ Canonical reference for channel mode labels, categories, UI pill colours, and fo
 
 ## Mode table
 
-| ID | Label | Category | Hex | Mantine | OpenGD77 import | OpenGD77 export |
-| --- | --- | --- | --- | --- | --- | --- |
-| `fm` | FM | analog | `#f0c419` | `yellow.5` | `Analogue`, `Analog` | `Analogue` |
-| `am` | AM | analog | `#fab005` | `yellow.6` | (manual) | `Analogue` |
-| `ssb-usb` | SSB USB | analog | `#fd7e14` | `orange.6` | (manual) | `Analogue` |
-| `ssb-lsb` | SSB LSB | analog | `#e8590c` | `orange.7` | (manual) | `Analogue` |
-| `dmr` | DMR | digital | `#e03131` | `red.7` | `Digital` | `Digital` |
-| `ysf` | YSF | digital | `#339af0` | `blue.5` | (manual) | `Digital` |
-| `dstar` | D-STAR | digital | `#7950f2` | `violet.6` | (manual) | `Digital` |
-| `m17` | M17 | digital | `#12b886` | `teal.6` | (manual) | `Digital` |
-| `tetra` | Tetra | digital | `#868e96` | `gray.6` | (manual) | `Digital` |
-| `other` | Other | other | `#9c36b5` | `grape.6` | unknown types | passthrough |
+| ID | Label | Category | Hex | Mantine |
+| --- | --- | --- | --- | --- |
+| `fm` | FM | analog | `#f0c419` | `yellow.5` |
+| `am` | AM | analog | `#fab005` | `yellow.6` |
+| `ssb-usb` | SSB USB | analog | `#fd7e14` | `orange.6` |
+| `ssb-lsb` | SSB LSB | analog | `#e8590c` | `orange.7` |
+| `dmr` | DMR | digital | `#e03131` | `red.7` |
+| `ysf` | YSF | digital | `#339af0` | `blue.5` |
+| `dstar` | D-STAR | digital | `#7950f2` | `violet.6` |
+| `m17` | M17 | digital | `#12b886` | `teal.6` |
+| `tetra` | Tetra | digital | `#868e96` | `gray.6` |
+| `other` | Other | other | `#9c36b5` | `grape.6` |
+
+OpenGD77 `Channel Type` wire mapping (`Analogue` / `Digital` / passthrough): [opengd77/channels.md](opengd77/channels.md).
 
 ## Legacy migration (schema v2 → v3)
 
@@ -45,7 +47,7 @@ Canonical reference for channel mode labels, categories, UI pill colours, and fo
 | Colour code, timeslot, DMR ID, contact, RX group list | `isDmrMode(mode)` — `dmr` only |
 | (hidden) tones | `isDigitalMode(mode)` — all digital modes |
 
-YSF, D-STAR, M17, and Tetra are digital but have no DMR-specific CPS columns in OpenGD77 today.
+YSF, D-STAR, M17, and Tetra are digital but may lack format-specific CPS columns for some adapters. OpenGD77 mode wire rules: [opengd77/channels.md](opengd77/channels.md).
 
 ## Related
 
