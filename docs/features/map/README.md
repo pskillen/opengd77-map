@@ -1,6 +1,8 @@
 # Map tool
 
-OpenGD77 CPS stores latitude and longitude on each channel and lists zone membership in a separate export, but the desktop CPS gives no geographic overview. The map tool loads those CSVs in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended when building a codeplug.
+Channels carry latitude/longitude and zones list their member channels, but vendor CPS gives no geographic overview. The map tool plots the **codeplug model** in the browser so you can see where repeaters sit, which channels lack coordinates, and whether zone footprints match the geography you intended.
+
+The map consumes the **internal data model** (`Channel[]`, `Zone[]`) from the active project's codeplug — it does **not** parse CSV. Turning a vendor export into that model is the [import/export](../import-export/README.md) surface's job.
 
 Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leaflet inset map) and `src/lib/` (filters, geometry). Map settings (tile provider, Mapbox token, Maidenhead grid) are on `/settings`. The map is embedded on the Summary dashboard and Channels/Zones report pages rather than a standalone full-page view.
 
@@ -21,10 +23,12 @@ Implementation lives in the SPA under `src/components/CodeplugMap/` (react-leafl
 
 | Doc | Covers |
 | --- | --- |
-| [channels.md](channels.md) | `Channels.csv` parsing, markers, filters, popups, labelling |
-| [zones.md](zones.md) | `Zones.csv` parsing, hull geometry, colours, multi-zone overlap |
+| [channels.md](channels.md) | `Channel` markers, filters, popups, labelling |
+| [zones.md](zones.md) | `Zone` hull geometry, colours, multi-zone overlap |
 | [maidenhead-grid.md](maidenhead-grid.md) | Maidenhead grid overlay on codeplug maps |
 | [troubleshooting.md](troubleshooting.md) | Console warnings — app vs browser extensions |
+
+CSV column mapping and parsing live at the [import/export](../import-export/README.md) surface, not in these map docs.
 
 User-facing quick start remains in the [repository README](../../../README.md).
 
@@ -32,26 +36,24 @@ User-facing quick start remains in the [repository README](../../../README.md).
 
 | Term | Meaning in this tool |
 | --- | --- |
-| **Channel Name** | Primary key — zone members and lookups match this string **case-sensitively** |
-| **Use Location** | OpenGD77 `Yes` / `No` on a channel row; when the filter is on, `No` rows are excluded from markers and zone hulls |
-| **Plotted vs skipped** | A channel may exist in the CSV but be hidden by filters or missing/invalid coordinates |
+| **`channel.name`** | Display name; zone members resolve to channels by this string **case-sensitively** at import |
+| **`channel.useLocation`** | Boolean on the model; when the filter is on, `false` channels are excluded from markers and zone hulls |
+| **Plotted vs skipped** | A channel may exist in the codeplug but be hidden by filters, `hideFromMap`, or missing/invalid coordinates |
 | **Merged marker** | Several channels sharing the same lat/lon (to 5 decimal places) shown as one marker with a combined popup |
 | **Zone hull** | Convex polygon around distinct geolocated sites referenced by a zone — not a radio coverage model |
-| **channelIndex** | In-memory map of **plotted** channel names → channel objects; zone resolution uses only plotted channels |
+| **Plotted index** | In-memory map of **plotted** channel `id` → channel (`buildChannelById`); zone resolution uses only plotted channels |
 
 ## Data flow
 
+The map starts from the codeplug model; CSV parsing happens earlier, at the import surface.
+
 ```mermaid
 flowchart LR
-  subgraph inputs [User files]
-    CH[Channels.csv]
-    ZN[Zones.csv optional]
+  subgraph store [Codeplug store]
+    CH["channels: Channel[]"]
+    ZN["zones: Zone[]"]
   end
-  subgraph parse [Parse by header name]
-    PC[parseChannelsCsv]
-    PZ[parseZonesCsv]
-  end
-  subgraph filter [applyFilters + channelIndex]
+  subgraph filter [applyFilters + plotted index]
     PL[plotted channels]
     SK[skipped list]
   end
@@ -59,15 +61,14 @@ flowchart LR
     MK[markerLayer]
     ZL[zoneLayer hulls]
   end
-  CH --> PC --> filter
+  CH --> filter
   filter --> MK
-  ZN --> PZ
-  PZ --> ZL
-  PL --> ZL
   filter --> SK
+  PL --> ZL
+  ZN --> ZL
 ```
 
-Load order matters: **`Channels.csv` first**, then optional **`Zones.csv`**. Zones cannot be resolved until channels are loaded.
+Zones resolve against the **plotted** channel index, so member coordinates exist only for channels that survive the filters. Member name → id resolution itself happens at import; the map relies on `Zone.memberChannelIds`.
 
 ## Cross-links
 
