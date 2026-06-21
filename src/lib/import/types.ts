@@ -14,7 +14,7 @@ export interface ParsedZone {
 /** Adapter output — RX group list with vendor wire member names. */
 export interface ParsedRxGroupList {
   name: string;
-  sourceMemberNames: string[];
+  memberWireNames: string[];
 }
 
 export interface ImportResult {

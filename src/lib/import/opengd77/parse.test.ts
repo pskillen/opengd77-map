@@ -41,7 +41,7 @@ describe('parseChannels', () => {
       scanSkip: false,
       location: { lat: 56.5, lon: -4.0 },
       useLocation: true,
-      vendorExtras: {
+      opengd77Extras: {
         'Zone Skip': 'No',
         'No Beep': 'No',
         'No Eco': 'No',
@@ -161,7 +161,7 @@ Scotland TS1,2355,Group,1`;
 });
 
 describe('parseRxGroupLists', () => {
-  it('extracts list members as sourceMemberNames', () => {
+  it('extracts list members as memberWireNames', () => {
     const csv = `${RX_GROUP_LIST_HEADERS.join(',')}
 Scotland,Scotland TS1,Scotland TS2,,`;
 
@@ -169,7 +169,7 @@ Scotland,Scotland TS1,Scotland TS2,,`;
     expect(lists).toHaveLength(1);
     expect(lists[0]).toEqual({
       name: 'Scotland',
-      sourceMemberNames: ['Scotland TS1', 'Scotland TS2'],
+      memberWireNames: ['Scotland TS1', 'Scotland TS2'],
     });
   });
 

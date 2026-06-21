@@ -1,8 +1,10 @@
-import { extractCallsign, parseCsv } from '../../csv.ts';
+import { parseCsv } from '../../csv.ts';
 import { channelFieldDefaults, newId, type Channel } from '../../../models/codeplug.ts';
 import { mapOpenGd77ChannelType } from '../../channelModes.ts';
+import { extractCallsign } from '../../csv.ts';
 import type { Contact, TalkGroup } from '../../../models/codeplug.ts';
 import type { ParsedRxGroupList, ParsedZone } from '../types.ts';
+import { stampImported, type WithEntityMeta } from '../../entityProvenance.ts';
 import {
   CHANNEL_COL,
   CONTACT_COL,
@@ -23,6 +25,19 @@ import {
   parseOpenGd77TransmitTimeoutWire,
 } from './channelWire.ts';
 
+const OPENGD77_FORMAT = 'opengd77';
+
+function importStamp(sourceFile: string, memberWireNames?: string[]) {
+  const importedAt = new Date().toISOString();
+  return <T extends WithEntityMeta>(entity: T): T =>
+    stampImported(entity, {
+      formatId: OPENGD77_FORMAT,
+      sourceFile,
+      importedAt,
+      memberWireNames,
+    });
+}
+
 export function parseChannels(text: string): Channel[] {
   const rows = parseCsv(text.replace(/^\uFEFF/, ''));
   if (!rows.length) throw new Error('Empty CSV');
@@ -37,6 +52,7 @@ export function parseChannels(text: string): Channel[] {
 
   const idx = Object.fromEntries(headers.map((h, i) => [h, i]));
   const out: Channel[] = [];
+  const stamp = importStamp('Channels.csv');
 
   for (let r = 1; r < rows.length; r++) {
     const cells = rows[r];
@@ -52,40 +68,42 @@ export function parseChannels(text: string): Channel[] {
     const hasLat = Number.isFinite(lat);
     const hasLon = Number.isFinite(lon);
 
-    const vendorExtras: Record<string, string> = {};
+    const opengd77Extras: Record<string, string> = {};
     for (const header of VENDOR_EXTRA_HEADERS) {
       if (headers.includes(header)) {
-        vendorExtras[header] = get(header);
+        opengd77Extras[header] = get(header);
       }
     }
 
-    out.push({
-      id: newId(),
-      ...channelFieldDefaults(),
-      name,
-      callsign: extractCallsign(name),
-      mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),
-      rxFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.rx)),
-      txFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.tx)),
-      bandwidthKHz: parseOpenGd77BandwidthWire(get(CHANNEL_COL.bandwidth)),
-      colourCode: parseOpenGd77ColourCodeWire(get(CHANNEL_COL.colourCode)),
-      timeslot: parseOpenGd77TimeslotWire(get(CHANNEL_COL.timeslot)),
-      contactName: get(CHANNEL_COL.contact),
-      rxGroupListName: get(CHANNEL_COL.tgList),
-      dmrId: parseOpenGd77DmrIdWire(get(CHANNEL_COL.dmrId)),
-      rxTone: parseOpenGd77ToneWire(get(CHANNEL_COL.rxTone)),
-      txTone: parseOpenGd77ToneWire(get(CHANNEL_COL.txTone)),
-      squelch: parseOpenGd77SquelchWire(get(CHANNEL_COL.squelch)),
-      power: parseOpenGd77PowerWire(get(CHANNEL_COL.power)),
-      rxOnly: parseYesNo(get(CHANNEL_COL.rxOnly)),
-      aprsConfigName: get(CHANNEL_COL.aprs),
-      voxEnabled: parseVoxEnabled(get(CHANNEL_COL.vox)),
-      transmitTimeout: parseOpenGd77TransmitTimeoutWire(get(CHANNEL_COL.tot)),
-      scanSkip: parseYesNo(get(CHANNEL_COL.allSkip)),
-      location: hasLat && hasLon ? { lat, lon } : null,
-      useLocation: parseYesNo(get(CHANNEL_COL.useLocation)),
-      vendorExtras,
-    });
+    out.push(
+      stamp({
+        id: newId(),
+        ...channelFieldDefaults(),
+        name,
+        callsign: extractCallsign(name),
+        mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),
+        rxFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.rx)),
+        txFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.tx)),
+        bandwidthKHz: parseOpenGd77BandwidthWire(get(CHANNEL_COL.bandwidth)),
+        colourCode: parseOpenGd77ColourCodeWire(get(CHANNEL_COL.colourCode)),
+        timeslot: parseOpenGd77TimeslotWire(get(CHANNEL_COL.timeslot)),
+        contactName: get(CHANNEL_COL.contact),
+        rxGroupListName: get(CHANNEL_COL.tgList),
+        dmrId: parseOpenGd77DmrIdWire(get(CHANNEL_COL.dmrId)),
+        rxTone: parseOpenGd77ToneWire(get(CHANNEL_COL.rxTone)),
+        txTone: parseOpenGd77ToneWire(get(CHANNEL_COL.txTone)),
+        squelch: parseOpenGd77SquelchWire(get(CHANNEL_COL.squelch)),
+        power: parseOpenGd77PowerWire(get(CHANNEL_COL.power)),
+        rxOnly: parseYesNo(get(CHANNEL_COL.rxOnly)),
+        aprsConfigName: get(CHANNEL_COL.aprs),
+        voxEnabled: parseVoxEnabled(get(CHANNEL_COL.vox)),
+        transmitTimeout: parseOpenGd77TransmitTimeoutWire(get(CHANNEL_COL.tot)),
+        scanSkip: parseYesNo(get(CHANNEL_COL.allSkip)),
+        location: hasLat && hasLon ? { lat, lon } : null,
+        useLocation: parseYesNo(get(CHANNEL_COL.useLocation)),
+        opengd77Extras,
+      }),
+    );
   }
   return out;
 }
@@ -109,6 +127,7 @@ export function parseContacts(text: string): ParsedContacts {
   const idx = Object.fromEntries(headers.map((h, i) => [h, i]));
   const contacts: Contact[] = [];
   const talkGroups: TalkGroup[] = [];
+  const stamp = importStamp('Contacts.csv');
 
   for (let r = 1; r < rows.length; r++) {
     const cells = rows[r];
@@ -123,9 +142,11 @@ export function parseContacts(text: string): ParsedContacts {
     const timeslotOverride = get(CONTACT_COL.tsOverride);
 
     if (idType.toLowerCase() === 'group') {
-      talkGroups.push({ id: newId(), name, number, timeslotOverride });
+      const base: TalkGroup = { id: newId(), name, number, timeslotOverride };
+      talkGroups.push(stamp(base));
     } else {
-      contacts.push({ id: newId(), name, number, timeslotOverride });
+      const base: Contact = { id: newId(), name, number, timeslotOverride };
+      contacts.push(stamp(base));
     }
   }
 
@@ -156,12 +177,12 @@ export function parseRxGroupLists(text: string): ParsedRxGroupList[] {
     const name = (cells[idx[RX_GROUP_LIST_COL.name]] ?? '').trim();
     if (!name) continue;
 
-    const sourceMemberNames: string[] = [];
+    const memberWireNames: string[] = [];
     for (const ci of memberCols) {
       const member = (cells[ci] ?? '').trim();
-      if (member) sourceMemberNames.push(member);
+      if (member) memberWireNames.push(member);
     }
-    out.push({ name, sourceMemberNames });
+    out.push({ name, memberWireNames });
   }
   return out;
 }
