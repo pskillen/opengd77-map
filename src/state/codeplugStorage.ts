@@ -10,6 +10,8 @@ import {
   type Zone,
 } from '../models/codeplug.ts';
 import { normalizeChannelMode } from '../lib/channelModes.ts';
+import { normalizeToneValue } from '../lib/channelFields/index.ts';
+import { coerceLegacyStringField } from '../lib/import/opengd77/channelWire.ts';
 import type { CodeplugProject } from '../models/codeplugProject.ts';
 import { newProject } from '../models/codeplugProject.ts';
 
@@ -28,20 +30,56 @@ export class StorageQuotaError extends Error {
   }
 }
 
+const TYPED_CHANNEL_FIELDS = [
+  'rxFrequency',
+  'txFrequency',
+  'bandwidthKHz',
+  'power',
+  'squelch',
+  'colourCode',
+  'timeslot',
+  'dmrId',
+  'transmitTimeout',
+  'rxTone',
+  'txTone',
+  'rxOnly',
+] as const;
+
 function migrateChannel(raw: Record<string, unknown>): Channel {
   const defaults = channelFieldDefaults();
   const rest = { ...raw };
   delete rest.number;
+
   const partial = rest as Partial<Channel>;
+  const migrated: Partial<Channel> = { ...defaults, ...partial };
+  migrated.mode = normalizeChannelMode(String(partial.mode ?? 'other'));
+  migrated.hideFromMap = partial.hideFromMap ?? false;
+  migrated.vendorExtras = partial.vendorExtras ?? {};
+
+  for (const field of TYPED_CHANNEL_FIELDS) {
+    const current = partial[field];
+    if (typeof current === 'string' || (current != null && field === 'rxOnly')) {
+      const coerced = coerceLegacyStringField(field, current);
+      (migrated as Record<string, unknown>)[field] = coerced;
+    }
+  }
+
+  if (typeof partial.rxTone === 'string') {
+    migrated.rxTone = normalizeToneValue(partial.rxTone);
+  }
+  if (typeof partial.txTone === 'string') {
+    migrated.txTone = normalizeToneValue(partial.txTone);
+  }
+
   return {
     id: partial.id ?? '',
     name: partial.name ?? '',
     callsign: partial.callsign ?? '',
     ...defaults,
-    ...partial,
-    mode: normalizeChannelMode(String(partial.mode ?? 'other')),
-    hideFromMap: partial.hideFromMap ?? false,
-    vendorExtras: partial.vendorExtras ?? {},
+    ...migrated,
+    mode: migrated.mode!,
+    hideFromMap: migrated.hideFromMap ?? false,
+    vendorExtras: migrated.vendorExtras ?? {},
   };
 }
 
@@ -81,7 +119,7 @@ function migrateTalkGroup(raw: Partial<TalkGroup>): TalkGroup {
   };
 }
 
-/** Normalise a persisted codeplug (v1, v2, v3, or v4) to the current schema. */
+/** Normalise a persisted codeplug (v1–v5) to the current schema. */
 export function migrateCodeplug(value: unknown): Codeplug | null {
   if (!value || typeof value !== 'object') return null;
   const raw = value as Record<string, unknown>;

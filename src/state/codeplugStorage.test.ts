@@ -124,7 +124,7 @@ describe('codeplugStorage', () => {
     });
 
     const state = deserializeProjects(json);
-    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(4);
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(5);
     expect(state?.projects[0].codeplug.rxGroupLists).toEqual([
       { id: 'tg-1', name: 'Scotland', sourceMemberNames: ['Scotland TS1'] },
     ]);
@@ -157,7 +157,7 @@ describe('codeplugStorage', () => {
     });
 
     const state = deserializeProjects(json);
-    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(4);
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(5);
     expect(state?.projects[0].codeplug.channels[0].mode).toBe('fm');
     expect(state?.projects[0].codeplug.channels[1].mode).toBe('dmr');
   });
@@ -194,9 +194,62 @@ describe('codeplugStorage', () => {
     });
 
     const state = deserializeProjects(json);
-    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(4);
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(5);
     expect(state?.projects[0].codeplug.channels[0]).not.toHaveProperty('number');
     expect(state?.projects[0].codeplug.channels[0].name).toBe('Test');
+  });
+
+  it('migrates v4 string channel fields to typed v5 values', () => {
+    const v4 = {
+      channels: [
+        {
+          id: 'c1',
+          name: 'Legacy',
+          callsign: 'Legacy',
+          mode: 'dmr',
+          rxFrequency: '430.0',
+          txFrequency: '430.0',
+          power: 'Master',
+          squelch: '75%',
+          rxOnly: 'Yes',
+          colourCode: '2',
+          timeslot: '1',
+          transmitTimeout: '0',
+          rxTone: 'None',
+          txTone: 'None',
+        },
+      ],
+      zones: [],
+      talkGroups: [],
+      rxGroupLists: [],
+      contacts: [],
+      meta: { schemaVersion: 4, importedAt: null, sourceFiles: [] },
+    };
+    const json = JSON.stringify({
+      version: CODEPLUG_STORAGE_VERSION,
+      activeProjectId: null,
+      projects: [
+        {
+          id: 'p1',
+          name: 'Legacy',
+          createdAt: '2026-01-01T00:00:00.000Z',
+          updatedAt: '2026-01-01T00:00:00.000Z',
+          codeplug: v4,
+        },
+      ],
+    });
+
+    const state = deserializeProjects(json);
+    const ch = state?.projects[0].codeplug.channels[0];
+    expect(state?.projects[0].codeplug.meta.schemaVersion).toBe(5);
+    expect(ch?.rxFrequency).toBe(430_000_000);
+    expect(ch?.power).toBeNull();
+    expect(ch?.squelch).toBe(75);
+    expect(ch?.rxOnly).toBe(true);
+    expect(ch?.colourCode).toBe(2);
+    expect(ch?.timeslot).toBe(1);
+    expect(ch?.transmitTimeout).toBe(0);
+    expect(ch?.rxTone).toBe('none');
   });
 
   it('isPersistableProjects is false for an empty set', () => {

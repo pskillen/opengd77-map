@@ -1,4 +1,5 @@
 import type { ChannelMode } from '../lib/channelModes.ts';
+import type { ChannelTimeslot, ChannelTone } from '../lib/channelFields/index.ts';
 
 export type { ChannelMode };
 
@@ -10,24 +11,24 @@ export interface GeoPoint {
 /** Default values for optional Channel fields — spread in tests and migration. */
 export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign' | 'mode'> {
   return {
-    rxFrequency: '',
-    txFrequency: '',
+    rxFrequency: null,
+    txFrequency: null,
     contactName: '',
     rxGroupListName: '',
     location: null,
     useLocation: false,
-    bandwidthKHz: '',
-    colourCode: '',
-    timeslot: '',
-    dmrId: '',
-    rxTone: '',
-    txTone: '',
-    squelch: '',
-    power: '',
-    rxOnly: '',
+    bandwidthKHz: null,
+    colourCode: null,
+    timeslot: null,
+    dmrId: null,
+    rxTone: 'none',
+    txTone: 'none',
+    squelch: null,
+    power: null,
+    rxOnly: false,
     aprsConfigName: '',
     voxEnabled: false,
-    transmitTimeout: '',
+    transmitTimeout: null,
     scanSkip: false,
     hideFromMap: false,
     vendorExtras: {},
@@ -37,29 +38,35 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
 export interface Channel {
   /** Stable internal identifier — not derived from vendor fields. */
   id: string;
-  /** OpenGD77 vendor/display field; not an internal relationship key. */
+  /** Display/export label; transitional resolution key for zone members. */
   name: string;
   callsign: string;
   mode: ChannelMode;
-  rxFrequency: string;
-  txFrequency: string;
+  /** Integer Hz — null when unset. */
+  rxFrequency: number | null;
+  txFrequency: number | null;
   contactName: string;
-  /** OpenGD77 `TG List` — RX group list name (vendor wire). */
+  /** Transitional name FK → RX group list. */
   rxGroupListName: string;
   location: GeoPoint | null;
   useLocation: boolean;
-  bandwidthKHz: string;
-  colourCode: string;
-  timeslot: string;
-  dmrId: string;
-  rxTone: string;
-  txTone: string;
-  squelch: string;
-  power: string;
-  rxOnly: string;
+  /** Channel bandwidth in kHz — null when unset. */
+  bandwidthKHz: number | null;
+  /** DMR colour code 0–15 — null when not applicable. */
+  colourCode: number | null;
+  timeslot: ChannelTimeslot | null;
+  dmrId: number | null;
+  rxTone: ChannelTone;
+  txTone: ChannelTone;
+  /** Squelch level 0–100 percent; 0 = open/off; null = radio default. */
+  squelch: number | null;
+  /** TX power 0–100 percent; null = radio default. */
+  power: number | null;
+  rxOnly: boolean;
   aprsConfigName: string;
   voxEnabled: boolean;
-  transmitTimeout: string;
+  /** Transmit timeout in seconds; 0 = off; null when unset. */
+  transmitTimeout: number | null;
   scanSkip: boolean;
   /** Internal only — exclude from map hulls/plots when true. */
   hideFromMap: boolean;
@@ -112,7 +119,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 4;
+export const CODEPLUG_SCHEMA_VERSION = 5;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 
