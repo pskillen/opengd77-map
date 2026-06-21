@@ -1,24 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { channelFieldDefaults, emptyCodeplug } from '../../models/codeplug.ts';
+import { buildChannel } from '../../test/builders/index.ts';
 import { hasValidationErrors, isSimplex, validateChannel } from './channel.ts';
 import { validateContact } from './contact.ts';
 import { validateRxGroupList } from './rxGroupList.ts';
 import { validateTalkGroup } from './talkGroup.ts';
 import { validateZone } from './zone.ts';
 
-function channel(id: string, name: string) {
-  return {
-    id,
-    name,
-    callsign: name,
-    mode: 'dmr' as const,
-    ...channelFieldDefaults(),
-  };
-}
-
 describe('validateChannel', () => {
   it('requires unique name', () => {
-    const cp = { ...emptyCodeplug(), channels: [channel('c1', 'Dup')] };
+    const cp = { ...emptyCodeplug(), channels: [buildChannel({ id: 'c1', name: 'Dup', callsign: 'Dup' })] };
     const issues = validateChannel({ name: 'Dup', ...channelFieldDefaults(), mode: 'dmr' }, cp);
     expect(hasValidationErrors(issues)).toBe(true);
   });

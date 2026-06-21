@@ -24,18 +24,12 @@ import {
   emptyCodeplug,
   resetIdGenerator,
   setIdGenerator,
-  type Channel,
 } from '../models/codeplug.ts';
+import { buildChannel } from '../test/builders/index.ts';
+import type { Channel } from '../models/codeplug.ts';
 
-function makeChannel(id: string, name: string, extras: Partial<Channel> = {}): Channel {
-  return {
-    id,
-    name,
-    callsign: name.split(' ')[0],
-    mode: 'dmr' as const,
-    ...channelFieldDefaults(),
-    ...extras,
-  };
+function makeChannel(id: string, name: string, extras: Partial<Channel> = {}) {
+  return buildChannel({ id, name, ...extras });
 }
 
 describe('codeplugMutations', () => {

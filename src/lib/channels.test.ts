@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { channelFieldDefaults, type Channel } from '../models/codeplug.ts';
+import { buildGeolocatedChannel } from '../test/builders/index.ts';
 import {
   applyFilters,
   buildChannelById,
@@ -12,16 +12,7 @@ import {
 } from './channels.ts';
 import type { Zone } from '../models/codeplug.ts';
 
-function ch(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
-  return {
-    callsign: overrides.name.split(/\s+/)[0],
-    mode: 'dmr',
-    ...channelFieldDefaults(),
-    location: { lat: 56.5, lon: -4.0 },
-    useLocation: true,
-    ...overrides,
-  };
-}
+const ch = buildGeolocatedChannel;
 
 describe('markerColor', () => {
   it('returns per-mode colours from channelModes', () => {

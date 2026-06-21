@@ -1,17 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { channelFieldDefaults, resetIdGenerator, setIdGenerator } from '../models/codeplug.ts';
+import { resetIdGenerator, setIdGenerator } from '../models/codeplug.ts';
 import type { Channel } from '../models/codeplug.ts';
+import { buildChannel } from '../test/builders/index.ts';
 import type { ImportResult } from './import/types.ts';
 import { applyImportToCodeplug, emptyEntityStats, previewImportMerge } from './importMerge.ts';
-
-function channel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
-  return {
-    callsign: overrides.name.split(' ')[0],
-    mode: 'dmr',
-    ...channelFieldDefaults(),
-    ...overrides,
-  };
-}
 
 function channelsResult(channels: Channel[]): ImportResult {
   return { channels, recognised: ['Channels.csv'], skipped: [], errors: [] };
@@ -29,16 +21,16 @@ describe('importMerge', () => {
 
   describe('merge mode — channels', () => {
     it('is idempotent when re-importing identical channels', () => {
-      const existing = channel({ id: 'ch-1', name: 'A' });
+      const existing = buildChannel({ id: 'ch-1', name: 'A' });
       const cp = applyImportToCodeplug(
         { ...emptyCodeplug(), channels: [existing] },
-        channelsResult([channel({ id: 'new-id', name: 'A' })]),
+        channelsResult([buildChannel({ id: 'new-id', name: 'A' })]),
         'merge',
       ).codeplug;
 
       const second = applyImportToCodeplug(
         cp,
-        channelsResult([channel({ id: 'another-id', name: 'A' })]),
+        channelsResult([buildChannel({ id: 'another-id', name: 'A' })]),
         'merge',
       );
 
@@ -48,14 +40,14 @@ describe('importMerge', () => {
     });
 
     it('applies delta when one field changes', () => {
-      const existing = channel({ id: 'ch-1', name: 'A', rxFrequency: '430' });
-      const cp = { ...emptyCodeplug(), channels: [existing, channel({ id: 'ch-2', name: 'B' })] };
+      const existing = buildChannel({ id: 'ch-1', name: 'A', rxFrequency: '430' });
+      const cp = { ...emptyCodeplug(), channels: [existing, buildChannel({ id: 'ch-2', name: 'B' })] };
 
       const { codeplug, report } = applyImportToCodeplug(
         cp,
         channelsResult([
-          channel({ id: 'x', name: 'A', rxFrequency: '431' }),
-          channel({ id: 'y', name: 'B' }),
+          buildChannel({ id: 'x', name: 'A', rxFrequency: '431' }),
+          buildChannel({ id: 'y', name: 'B' }),
         ]),
         'merge',
       );
@@ -66,11 +58,11 @@ describe('importMerge', () => {
     });
 
     it('appends new names and leaves existing unchanged', () => {
-      const cp = { ...emptyCodeplug(), channels: [channel({ id: 'ch-1', name: 'A' })] };
+      const cp = { ...emptyCodeplug(), channels: [buildChannel({ id: 'ch-1', name: 'A' })] };
 
       const { codeplug, report } = applyImportToCodeplug(
         cp,
-        channelsResult([channel({ id: 'new', name: 'B' })]),
+        channelsResult([buildChannel({ id: 'new', name: 'B' })]),
         'merge',
       );
 
@@ -81,12 +73,12 @@ describe('importMerge', () => {
     });
 
     it('preserves hideFromMap on merge update', () => {
-      const existing = channel({ id: 'ch-1', name: 'A', hideFromMap: true, rxFrequency: '430' });
+      const existing = buildChannel({ id: 'ch-1', name: 'A', hideFromMap: true, rxFrequency: '430' });
       const cp = { ...emptyCodeplug(), channels: [existing] };
 
       const { codeplug } = applyImportToCodeplug(
         cp,
-        channelsResult([channel({ id: 'x', name: 'A', rxFrequency: '431' })]),
+        channelsResult([buildChannel({ id: 'x', name: 'A', rxFrequency: '431' })]),
         'merge',
       );
 
@@ -99,8 +91,8 @@ describe('importMerge', () => {
       const { codeplug, report } = applyImportToCodeplug(
         cp,
         channelsResult([
-          channel({ id: 'a', name: 'Dup', rxFrequency: '100' }),
-          channel({ id: 'b', name: 'Dup', rxFrequency: '200' }),
+          buildChannel({ id: 'a', name: 'Dup', rxFrequency: '100' }),
+          buildChannel({ id: 'b', name: 'Dup', rxFrequency: '200' }),
         ]),
         'merge',
       );
@@ -114,7 +106,7 @@ describe('importMerge', () => {
     it('preserves zone id on upsert and resolves members', () => {
       const cp = applyImportToCodeplug(
         emptyCodeplug(),
-        channelsResult([channel({ id: 'ch-1', name: 'A' }), channel({ id: 'ch-2', name: 'B' })]),
+        channelsResult([buildChannel({ id: 'ch-1', name: 'A' }), buildChannel({ id: 'ch-2', name: 'B' })]),
         'merge',
       ).codeplug;
 
@@ -153,15 +145,15 @@ describe('importMerge', () => {
       const cp = {
         ...emptyCodeplug(),
         channels: [
-          channel({ id: 'ch-1', name: 'A' }),
-          channel({ id: 'ch-2', name: 'B' }),
-          channel({ id: 'ch-3', name: 'C' }),
+          buildChannel({ id: 'ch-1', name: 'A' }),
+          buildChannel({ id: 'ch-2', name: 'B' }),
+          buildChannel({ id: 'ch-3', name: 'C' }),
         ],
       };
 
       const { codeplug, report } = applyImportToCodeplug(
         cp,
-        channelsResult([channel({ id: 'new-1', name: 'A' })]),
+        channelsResult([buildChannel({ id: 'new-1', name: 'A' })]),
         'overwrite',
       );
 
@@ -173,7 +165,7 @@ describe('importMerge', () => {
     it('leaves other entity types when only zones overwritten', () => {
       const cp = applyImportToCodeplug(
         emptyCodeplug(),
-        channelsResult([channel({ id: 'ch-1', name: 'A' })]),
+        channelsResult([buildChannel({ id: 'ch-1', name: 'A' })]),
         'merge',
       ).codeplug;
 
@@ -203,8 +195,8 @@ describe('importMerge', () => {
 
   describe('preview matches apply', () => {
     it('returns same stats as apply', () => {
-      const cp = { ...emptyCodeplug(), channels: [channel({ id: 'ch-1', name: 'A' })] };
-      const result = channelsResult([channel({ id: 'x', name: 'B' })]);
+      const cp = { ...emptyCodeplug(), channels: [buildChannel({ id: 'ch-1', name: 'A' })] };
+      const result = channelsResult([buildChannel({ id: 'x', name: 'B' })]);
 
       const preview = previewImportMerge(cp, result, 'merge');
       const applied = applyImportToCodeplug(cp, result, 'merge');
