@@ -43,7 +43,7 @@ Treat any interchange format (OpenGD77 CSV, DM32 CSV, …) as lossy at the edges
 
 ## Vendor boundaries
 
-The internal codeplug model is **vendor-neutral**. State explicitly **where** radio or CPS constraints apply. Do not let OpenGD77 (or any single target radio) leak into internal models, mutations, validation, or CRUD UI.
+The internal codeplug model is **vendor-neutral**. State explicitly **where** radio or CPS constraints apply. Do not let any single target radio leak into internal models, mutations, validation, or CRUD UI.
 
 | Layer | Apply vendor limits? | Examples |
 | --- | --- | --- |

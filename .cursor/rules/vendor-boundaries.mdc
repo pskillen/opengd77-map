@@ -1,0 +1,43 @@
+---
+description: Internal model vs external CPS formats — boundary, FKs, and approved vendor leakage
+alwaysApply: true
+---
+
+# Vendor boundaries and internal model
+
+**Critical rule.** When editing related files, if you notice existing code or docs that violate this rule — even outside your current task — **flag it to the user as a high concern** before or alongside your main work. Do not silently ignore, copy the pattern, or defer without mention. Do not attempt to fix if it's outside the original instruction.
+
+Read [AGENTS.md — Vendor boundaries](../../AGENTS.md#vendor-boundaries) for the full table. This rule adds FK and format-boundary specifics.
+
+## Two data worlds
+
+| World | Where | Rule |
+| --- | --- | --- |
+| **External CPS formats** | `src/lib/import/`, `src/lib/export/`, `docs/reference/` | Third-party column layouts, wire strings, name-based FKs, radio caps — stay here |
+| **Internal codeplug model** | `src/models/`, `src/state/`, `src/lib/codeplugMutations.ts`, `src/lib/validation/`, `src/routes/`, feature UI | Vendor-neutral; strip external modelling at import, re-apply at export |
+
+At the boundary, **convert** — do not pass vendor shapes through to the internal model.
+
+## Internal foreign keys
+
+- Relationships use **UUID `id` fields** (`memberChannelIds`, future contact/RX-list refs).
+- **Never** use human-readable, case-sensitive name strings as internal FKs in mutations, validation, store, or CRUD.
+- `name` fields are display/export labels, not relationship keys.
+- Wire-name baggage for round-trip (`sourceMemberNames`, legacy `contactName` / `rxGroupListName`) belongs at the import/export edge — do not add new name-based FKs; migrate toward id-based refs.
+
+## OpenGD77 is one format among many
+
+OpenGD77 CSV was first shipped; **DM32, qDMR, CHIRP, native YAML** are siblings. Do not let OpenGD77 shape internal models, default assumptions, or generic docs. OpenGD77 specifics belong under `src/lib/import/opengd77/`, `src/lib/export/opengd77/`, and `docs/reference/opengd77/`.
+
+## Approved vendor leakage
+
+Explicit, labelled escape hatches are OK when unlikely to generalise:
+
+- `vendorExtras` (planned rename: `opengd77Extras`) — opaque wire columns for one format
+- Document **known leakage** to fix (e.g. `OPENGD77_MAX_ZONE_MEMBERS` in mutations) — do not copy into new code
+
+## Anti-patterns
+
+- `OPENGD77_*` / radio-profile constants outside import/export
+- Resolving entities by wire name in CRUD or validation
+- Import/export column mapping documented only via OpenGD77 reference when describing the **internal** model
