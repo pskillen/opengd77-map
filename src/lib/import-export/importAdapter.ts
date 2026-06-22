@@ -7,6 +7,11 @@ import type {
   VendorFormatId,
 } from './types.ts';
 
+/** Passed to profile-aware parsers (CHIRP, OpenGD77). */
+export interface ImportParseContext {
+  profileId: string;
+}
+
 export interface ImportAdapter {
   readonly id: VendorFormatId;
   readonly label: string;
@@ -14,10 +19,10 @@ export interface ImportAdapter {
   readonly projectNameLabel: string;
   readonly capabilities: ImportAdapterCapabilities;
   detectKind(fileName: string, headerRow: string[]): ImportFileKind;
-  parseChannels(text: string): Channel[];
-  parseZones?(text: string): ParsedZone[];
-  parseContacts?(text: string): { contacts: Contact[]; talkGroups: TalkGroup[] };
-  parseRxGroupLists?(text: string): ParsedRxGroupList[];
+  parseChannels(text: string, ctx?: ImportParseContext): Channel[];
+  parseZones?(text: string, ctx?: ImportParseContext): ParsedZone[];
+  parseContacts?(text: string, ctx?: ImportParseContext): { contacts: Contact[]; talkGroups: TalkGroup[] };
+  parseRxGroupLists?(text: string, ctx?: ImportParseContext): ParsedRxGroupList[];
 }
 
 export function adapterSupportsKind(

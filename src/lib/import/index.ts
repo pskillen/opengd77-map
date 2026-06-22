@@ -1,7 +1,12 @@
 import { parseCsv } from '../csv.ts';
 import { deriveProjectNameFromImportFiles } from '../../models/codeplugProject.ts';
 import { adapterSupportsKind } from '../import-export/importAdapter.ts';
-import { detectImportAdapter, getImportAdapter } from '../import-export/registry.ts';
+import {
+  detectImportAdapter,
+  getFormatProfiles,
+  getImportAdapter,
+} from '../import-export/registry.ts';
+import type { ImportParseContext } from '../import-export/importAdapter.ts';
 import type { VendorFormatId } from '../import-export/types.ts';
 import type { ImportEntityKind } from '../import-export/types.ts';
 import type { ImportResult } from './types.ts';
@@ -15,35 +20,43 @@ function parseEntity(
   adapter: ReturnType<typeof getImportAdapter>,
   kind: ImportEntityKind,
   text: string,
+  ctx?: ImportParseContext,
 ): Partial<ImportResult> {
   switch (kind) {
     case 'channels':
-      return { channels: adapter.parseChannels(text) };
+      return { channels: adapter.parseChannels(text, ctx) };
     case 'zones': {
       if (!adapter.parseZones) {
         throw new Error('Adapter does not support zone import');
       }
-      return { zones: adapter.parseZones(text) };
+      return { zones: adapter.parseZones(text, ctx) };
     }
     case 'contacts': {
       if (!adapter.parseContacts) {
         throw new Error('Adapter does not support contact import');
       }
-      const parsed = adapter.parseContacts(text);
+      const parsed = adapter.parseContacts(text, ctx);
       return { contacts: parsed.contacts, talkGroups: parsed.talkGroups };
     }
     case 'rxGroupLists': {
       if (!adapter.parseRxGroupLists) {
         throw new Error('Adapter does not support RX group list import');
       }
-      return { rxGroupLists: adapter.parseRxGroupLists(text) };
+      return { rxGroupLists: adapter.parseRxGroupLists(text, ctx) };
     }
   }
 }
 
+export interface ImportFilesOptions {
+  directoryName?: string;
+  vendorFormatId?: VendorFormatId;
+  /** Required for profile-aware formats (CHIRP, OpenGD77). */
+  profileId?: string;
+}
+
 export async function importFiles(
   files: File[],
-  options?: { directoryName?: string; vendorFormatId?: VendorFormatId },
+  options?: ImportFilesOptions,
 ): Promise<ImportResult> {
   const result: ImportResult = {
     recognised: [],
@@ -79,6 +92,19 @@ export async function importFiles(
   }
 
   result.formatId = adapter.id;
+
+  const profiles = getFormatProfiles(adapter.id);
+  let parseCtx: ImportParseContext | undefined;
+  if (profiles?.required) {
+    if (!options?.profileId) {
+      result.errors.push({
+        fileName: '(batch)',
+        message: `Radio profile is required for ${adapter.label} import`,
+      });
+      return result;
+    }
+    parseCtx = { profileId: options.profileId };
+  }
 
   for (const file of files) {
     const fileName = file.name;
@@ -117,7 +143,7 @@ export async function importFiles(
     }
 
     try {
-      const parsed = parseEntity(adapter, kind, text);
+      const parsed = parseEntity(adapter, kind, text, parseCtx);
       if (parsed.channels !== undefined) result.channels = parsed.channels;
       if (parsed.zones !== undefined) result.zones = parsed.zones;
       if (parsed.contacts !== undefined) result.contacts = parsed.contacts;

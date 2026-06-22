@@ -1,8 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { detectKind } from './opengd77/adapter.ts';
 import { importFiles } from './index.ts';
+import { DEFAULT_OPENGD77_PROFILE_ID } from '../opengd77/profiles.ts';
+import { DEFAULT_CHIRP_PROFILE_ID } from '../chirp/profiles.ts';
 import { CHANNEL_HEADERS, CONTACT_HEADERS, RX_GROUP_LIST_HEADERS } from './opengd77/columns.ts';
 import { chirpMinimalBundle } from '../../test/chirp/bundles.ts';
+
+const OPGD77_IMPORT = { profileId: DEFAULT_OPENGD77_PROFILE_ID };
 
 describe('detectKind', () => {
   it('classifies by filename', () => {
@@ -33,10 +37,13 @@ Local 9,9,Group,Disabled`;
 Scotland,Local 9,,`;
 
   it('recognises channels and zones from separate files', async () => {
-    const result = await importFiles([
-      new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
-      new File([zonesCsv], 'Zones.csv', { type: 'text/csv' }),
-    ]);
+    const result = await importFiles(
+      [
+        new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
+        new File([zonesCsv], 'Zones.csv', { type: 'text/csv' }),
+      ],
+      OPGD77_IMPORT,
+    );
     expect(result.recognised).toEqual(['Channels.csv', 'Zones.csv']);
     expect(result.channels).toHaveLength(1);
     expect(result.zones).toHaveLength(1);
@@ -45,21 +52,27 @@ Scotland,Local 9,,`;
   });
 
   it('recognises contacts and TG lists', async () => {
-    const result = await importFiles([
-      new File([contactsCsv], 'Contacts.csv', { type: 'text/csv' }),
-      new File([tgListsCsv], 'TG_Lists.csv', { type: 'text/csv' }),
-    ]);
+    const result = await importFiles(
+      [
+        new File([contactsCsv], 'Contacts.csv', { type: 'text/csv' }),
+        new File([tgListsCsv], 'TG_Lists.csv', { type: 'text/csv' }),
+      ],
+      OPGD77_IMPORT,
+    );
     expect(result.recognised).toEqual(['Contacts.csv', 'TG_Lists.csv']);
     expect(result.talkGroups).toHaveLength(1);
     expect(result.rxGroupLists).toHaveLength(1);
   });
 
   it('skips DTMF and unknown files alongside recognised OpenGD77 files', async () => {
-    const result = await importFiles([
-      new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
-      new File(['Contact Name,Code\n'], 'DTMF.csv', { type: 'text/csv' }),
-      new File(['Name,Number\nFoo,1'], 'Mystery.csv', { type: 'text/csv' }),
-    ]);
+    const result = await importFiles(
+      [
+        new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
+        new File(['Contact Name,Code\n'], 'DTMF.csv', { type: 'text/csv' }),
+        new File(['Name,Number\nFoo,1'], 'Mystery.csv', { type: 'text/csv' }),
+      ],
+      OPGD77_IMPORT,
+    );
     expect(result.skipped).toHaveLength(2);
     expect(result.errors).toHaveLength(0);
     expect(result.formatId).toBe('opengd77');
@@ -74,9 +87,10 @@ Scotland,Local 9,,`;
   });
 
   it('records parse errors', async () => {
-    const result = await importFiles([
-      new File(['not,a,valid,channels,csv'], 'Channels.csv', { type: 'text/csv' }),
-    ]);
+    const result = await importFiles(
+      [new File(['not,a,valid,channels,csv'], 'Channels.csv', { type: 'text/csv' })],
+      OPGD77_IMPORT,
+    );
     expect(result.errors).toHaveLength(1);
     expect(result.recognised).toHaveLength(0);
   });
@@ -91,22 +105,26 @@ Scotland,Local 9,,`;
       value: 'my-codeplug/Zones.csv',
     });
 
-    const result = await importFiles([channels, zones]);
+    const result = await importFiles([channels, zones], OPGD77_IMPORT);
     expect(result.suggestedProjectName).toBe('my-codeplug');
   });
 
   it('suggests OpenGD77 ISO date for loose file imports', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-06-21T12:00:00.000Z'));
-    const single = await importFiles([
-      new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
-    ]);
+    const single = await importFiles(
+      [new File([channelsCsv], 'Channels.csv', { type: 'text/csv' })],
+      OPGD77_IMPORT,
+    );
     expect(single.suggestedProjectName).toBe('OpenGD77 2026-06-21');
 
-    const multiple = await importFiles([
-      new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
-      new File([zonesCsv], 'Zones.csv', { type: 'text/csv' }),
-    ]);
+    const multiple = await importFiles(
+      [
+        new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
+        new File([zonesCsv], 'Zones.csv', { type: 'text/csv' }),
+      ],
+      OPGD77_IMPORT,
+    );
     expect(multiple.suggestedProjectName).toBe('OpenGD77 2026-06-21');
     vi.useRealTimers();
   });
@@ -114,7 +132,7 @@ Scotland,Local 9,,`;
   it('accepts dropped directory name override', async () => {
     const result = await importFiles(
       [new File([channelsCsv], 'Channels.csv', { type: 'text/csv' })],
-      { directoryName: 'DroppedFolder' },
+      { directoryName: 'DroppedFolder', ...OPGD77_IMPORT },
     );
     expect(result.suggestedProjectName).toBe('DroppedFolder');
   });
@@ -123,9 +141,24 @@ Scotland,Local 9,,`;
     const csv = chirpMinimalBundle['chirp-minimal.csv']!;
     const result = await importFiles([new File([csv], 'chirp-minimal.csv', { type: 'text/csv' })], {
       vendorFormatId: 'chirp',
+      profileId: DEFAULT_CHIRP_PROFILE_ID,
     });
     expect(result.formatId).toBe('chirp');
     expect(result.channels?.length).toBeGreaterThan(0);
     expect(result.errors).toHaveLength(0);
+  });
+
+  it('errors when profile-aware import lacks profileId', async () => {
+    const csv = chirpMinimalBundle['chirp-minimal.csv']!;
+    const chirp = await importFiles([new File([csv], 'chirp.csv', { type: 'text/csv' })], {
+      vendorFormatId: 'chirp',
+    });
+    expect(chirp.errors[0]?.message).toMatch(/profile is required/i);
+
+    const opengd77 = await importFiles(
+      [new File([channelsCsv], 'Channels.csv', { type: 'text/csv' })],
+      { vendorFormatId: 'opengd77' },
+    );
+    expect(opengd77.errors[0]?.message).toMatch(/profile is required/i);
   });
 });
