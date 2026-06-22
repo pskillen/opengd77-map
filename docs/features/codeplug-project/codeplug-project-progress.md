@@ -1,7 +1,14 @@
 # Codeplug projects — progress
 
-**Branch:** `60/paddy/summary-dashboard-metadata`  
-**Tracking:** [#60](https://github.com/pskillen/codeplug-tool/issues/60), [#61](https://github.com/pskillen/codeplug-tool/issues/61), [#31](https://github.com/pskillen/codeplug-tool/issues/31) (partial rename via edit screen)
+**Branch:** `102/paddy/start-fresh-blank-codeplug`  
+**Tracking:** [#102](https://github.com/pskillen/codeplug-tool/issues/102), [#60](https://github.com/pskillen/codeplug-tool/issues/60), [#61](https://github.com/pskillen/codeplug-tool/issues/61), [#31](https://github.com/pskillen/codeplug-tool/issues/31) (partial)
+
+## Shipped (#102)
+
+- [x] Slice 1: `ProjectMetadataForm` + `commitNewProject` store action (persist on Create only)
+- [x] Slice 2: `/codeplug/new` route + `NewCodeplug` page
+- [x] Slice 3: Home **Start fresh** button + format-agnostic copy
+- [x] Slice 4: Feature docs + tests
 
 ## Shipped (#60 + #61)
 
@@ -23,6 +30,7 @@
 
 ## Verify
 
-- Open active project → Summary shows project name, metadata, map (or empty state), entity cards
-- Edit project → save → hard refresh restores metadata
-- Legacy localStorage projects load with empty metadata defaults
+- Home → **Start fresh** → **Cancel** → no localStorage write
+- Home → **Start fresh** → **Create** → Summary (0 entities); hard refresh persists
+- **Edit project** on Summary unchanged
+- Import path unchanged
