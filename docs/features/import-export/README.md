@@ -34,6 +34,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | qDMR YAML | Deferred | [#37](https://github.com/pskillen/codeplug-tool/issues/37) — UI placeholder |
 | Native YAML | Deferred | [#10](https://github.com/pskillen/codeplug-tool/issues/10) — UI placeholder |
 | Baofeng DM32 CPS | Future | [#67](https://github.com/pskillen/codeplug-tool/issues/67) — [dm32 stub](dm32/README.md) |
+| CHIRP CSV (analogue FM/AM) | In progress | [#103](https://github.com/pskillen/codeplug-tool/issues/103) — [chirp/](chirp/README.md) |
 
 ## Documentation map
 
@@ -46,6 +47,8 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | [outstanding.md](outstanding.md) | Collated open debt |
 | [opengd77/progress.md](opengd77/progress.md) | OpenGD77 execution log |
 | [dm32/README.md](dm32/README.md) | DM32 placeholder |
+| [chirp/README.md](chirp/README.md) | CHIRP adapter behaviour ([#103](https://github.com/pskillen/codeplug-tool/issues/103)) |
+| [operator-lifecycle.md](../workflows/operator-lifecycle.md) | Multi-format operator workflow |
 | [Testing strategy](../../build/testing/README.md) | Format fidelity, layers, CI |
 | [persistence/README.md](../persistence/README.md) | LocalStorage envelope |
 | [codeplug-project/README.md](../codeplug-project/README.md) | Project wrapper + CRUD |
