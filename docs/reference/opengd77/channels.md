@@ -28,12 +28,12 @@ All other columns are optional at import — missing headers yield empty values.
 | `Timeslot` | `Channel.timeslot` | No | `1` or `2` | As `1`/`2` | Lossless | Digital only |
 | `Contact` | `Channel.contactName` | No | Trim | As stored | String pass-through | TX talk group name; FK → Contacts.csv |
 | `TG List` | `Channel.rxGroupListName` | No | Trim | As stored | String pass-through | Promiscuous RX list; FK → TG_Lists.csv |
-| `DMR ID` | `Channel.dmrId` | No | Parse integer | As integer string | Lossless | Hotspot/repeater ID override |
+| `DMR ID` | `Channel.dmrId` | No | Parse integer; `None`/empty → `null` | Mode-aware — see [mode-dependent columns](#mode-dependent-columns) | Lossless | Digital: `None` when unset; analogue: empty |
 | `TS1_TA_Tx` | `Channel.opengd77Extras['TS1_TA_Tx']` | No | Trim → opengd77Extras | From opengd77Extras | opengd77Extras | Talkaround TS1 |
 | `TS2_TA_Tx ID` | `Channel.opengd77Extras['TS2_TA_Tx ID']` | No | Trim → opengd77Extras | From opengd77Extras | opengd77Extras | Talkaround TS2 |
-| `RX Tone` | `Channel.rxTone` | No | Wire → tone enum (`None` → `none`) | Enum → wire (`none` → `None`) | Lossless | CTCSS/DCS; see tones below |
-| `TX Tone` | `Channel.txTone` | No | Wire → tone enum | Enum → wire | Lossless | |
-| `Squelch` | `Channel.squelch` | No | Wire → percent | Percent → wire | Lossless | See [power-squelch.md](power-squelch.md) |
+| `RX Tone` | `Channel.rxTone` | No | Wire → tone enum (`None` → `none`) | Mode-aware — see below | Lossless | CTCSS/DCS; see tones below |
+| `TX Tone` | `Channel.txTone` | No | Wire → tone enum | Mode-aware — see below | Lossless | |
+| `Squelch` | `Channel.squelch` | No | Wire → percent | Mode-aware — see below | Lossless | See [power-squelch.md](power-squelch.md) |
 | `Power` | `Channel.power` | No | Wire → percent | Percent → wire | Lossless | See [power-squelch.md](power-squelch.md) |
 | `Rx Only` | `Channel.rxOnly` | No | `Yes`/`No` → boolean | `wireYesNo` | Lossless boolean | |
 | `Zone Skip` | `Channel.opengd77Extras['Zone Skip']` | No | Trim → opengd77Extras | From opengd77Extras | opengd77Extras | Not mapped to `scanSkip` |
@@ -56,6 +56,19 @@ All other columns are optional at import — missing headers yield empty values.
 | `None`, empty | `none` |
 | CTCSS (e.g. `103.5`) | same frequency string |
 | DCS (e.g. `D023N`) | same code string |
+
+## Mode-dependent columns
+
+Export derives wire from **model fields + `Channel.mode`** — never from hidden import provenance.
+
+| Column | Digital export | Analogue export |
+| --- | --- | --- |
+| `RX Tone` / `TX Tone` | always empty | `None` when `none`; else CTCSS/DCS wire |
+| `Squelch` | always empty | `Disabled` when `null`; else `N%` |
+| `DMR ID` | `None` when unset; else integer string | always empty |
+| `Contact` / `TG List` | `None` when unset; else resolved wire name | empty when unset; else resolved wire name |
+
+`Disabled` squelch and `Master` both map to `squelch: null` on import (radio default).
 
 ## Digital channel patterns
 

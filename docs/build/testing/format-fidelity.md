@@ -116,7 +116,7 @@ Document known non-round-trip behaviour in reference docs; assert it in fidelity
 | Area | Behaviour | Reference |
 | --- | --- | --- |
 | DTMF / APRS | Header-only in export ZIP; skipped on import; not modelled | [dtmf-aprs.md](../../reference/opengd77/dtmf-aprs.md) |
-| OpenGD77 ambiguous wire cells | `None` vs empty DMR ID/TG list; empty vs `None` tones; empty vs `Master` squelch — round-trip via import provenance (`dmrIdWire`, `rxToneWire`, …) on channels imported from CPS | `entityProvenance.ts`, `serialise.ts` |
+| OpenGD77 mode-dependent columns | Tone/squelch/DMR ID/Contact/TG List wire from model + mode — see [channels.md](../../reference/opengd77/channels.md#mode-dependent-columns) | Export `channelWire.ts` |
 | `vendorExtras` | Opaque columns round-trip via map on channel | [file-format.md](../../reference/opengd77/file-format.md) |
 | App-only fields | e.g. `hideFromMap` — preserved on merge, not in CSV | [importMerge.ts](../../../src/lib/importMerge.ts) |
 | `Comment` (CHIRP) | Not on internal `Channel` model — dropped on import | [channels.md](../../reference/chirp/channels.md) |

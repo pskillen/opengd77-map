@@ -23,6 +23,7 @@ Import converts CPS wire values into the **internal codeplug model**. Export con
 Do **not** preserve raw vendor column strings in provenance or meta and prefer them on export. Examples of this anti-pattern:
 
 - `meta.imported.wireColumns: Record<string, string>` (CHIRP — **known violation to remove**)
+- Per-column replay fields: `dmrIdWire`, `rxToneWire`, `txToneWire`, `squelchWire`, or any `*Wire` cell stash read in `serialise.ts` / export adapters
 - Generic `wireBag`, `importedColumns`, or per-format opaque maps used to overlay export when computed serialisation differs from the file
 - Passing round-trip system tests by replaying the import file instead of serialising from modelled fields
 
@@ -30,10 +31,12 @@ Stash-and-replay hides lossy import/export mappers, breaks edits (model changes 
 
 ## Required approach
 
-1. **Map at the boundary** — parse wire → typed model fields on import; model fields → wire on export.
+1. **Map at the boundary** — parse wire → typed model fields on import; model fields → wire on export (use **mode-aware** rules when CPS sentinels differ by analogue vs digital — see `docs/reference/opengd77/channels.md`).
 2. **Extend the model** when a CPS column is not esoteric and round-trip fidelity needs it (e.g. `comment`, tone mode, DCS components, duplex `off`). Prefer existing `Channel` fields when mappers can be fixed non-trivially.
 3. **Document loss** — if a column is genuinely not modelled, say so in `docs/reference/<vendor>/` and in tests; do not fake fidelity with a wire stash.
 4. **Approved opaque escape (legacy only)** — `opengd77Extras` for documented OpenGD77-only columns not yet promoted to first-class fields. Do **not** add `chirpExtras`, `wireColumns`, or new format-specific wire bags for round-trip.
+
+**`meta.imported` is not an export layer.** Provenance may support merge/delta (e.g. `memberWireNames`, transitional wire names during id FK migration). Export code must **never** branch on `meta.imported.*Wire` instead of model fields.
 
 ## Tests
 

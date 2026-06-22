@@ -19,11 +19,13 @@ Export picks the nearest ladder step for non-exact percent values.
 
 ## Squelch (`Squelch` column)
 
-| OpenGD77 wire | Internal `squelch` |
-| --- | --- |
-| `Master`, empty | `null` (radio default) |
-| `Disabled` | `0` (open / off) |
-| `N%` (e.g. `75%`) | `N` (percent 0–100) |
+Mode-dependent wire rules — see [channels.md](channels.md#mode-dependent-columns).
+
+| OpenGD77 wire | Internal `squelch` | Applies |
+| --- | --- | --- |
+| `Master`, `Disabled`, empty | `null` (radio default) | Analogue |
+| `N%` (e.g. `75%`) | `N` (percent 0–100) | Analogue |
+| _(any)_ | ignored on import; export always `''` | Digital |
 
 ## Related
 
