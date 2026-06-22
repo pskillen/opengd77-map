@@ -41,3 +41,4 @@ Explicit, labelled escape hatches are OK when unlikely to generalise:
 - `OPENGD77_*` / radio-profile constants outside import/export
 - Resolving entities by wire name in CRUD or validation
 - Import/export column mapping documented only via OpenGD77 reference when describing the **internal** model
+- **Wire stash for round-trip** — `wireColumns`, wire bags in provenance, or any export path that replays imported CPS cells instead of model fields ([no-wire-stash-roundtrip.mdc](no-wire-stash-roundtrip.mdc))

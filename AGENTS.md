@@ -58,6 +58,16 @@ The internal codeplug model is **vendor-neutral**. State explicitly **where** ra
 
 Canonical model reference: [data-model](docs/features/data-model/README.md). If pre-existing vendor leakage remains in the codebase (e.g. zone member caps from an earlier slice), do not copy the pattern into new code — fix or defer explicitly.
 
+## Round-trip fidelity
+
+Import converts CPS wire values into the **internal codeplug model**. Export serialises **from model fields** — the model is the source of truth for channels created in the app as well as imported ones.
+
+**Do not fake round-trip** by stashing raw wire column strings in provenance or meta and replaying them on export (e.g. `meta.imported.wireColumns`). That pattern hides lossy mappers, ignores user edits when stash wins, and fails for entities without import provenance. If a system or unit round-trip test fails, extend the model and fix import/export mappers — or document the column as genuinely lossy in `docs/reference/<vendor>/`.
+
+**Approved opaque escape (legacy):** `opengd77Extras` for documented OpenGD77-only columns not yet first-class. Do **not** add new per-format wire bags (`chirpExtras`, `wireColumns`, etc.) for round-trip. See [`.cursor/rules/no-wire-stash-roundtrip.mdc`](.cursor/rules/no-wire-stash-roundtrip.mdc).
+
+**Known violation to remove:** CHIRP `wireColumns` on `ImportedProvenance` ([#103](https://github.com/pskillen/codeplug-tool/issues/103) follow-up).
+
 ## Working principles
 
 1. **SPA at repo root** — React components under `src/`; Vite bundles for GitHub Pages (`base: '/codeplug-tool/'`). HashRouter for subpath routing.

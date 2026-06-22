@@ -15,6 +15,14 @@ Checklist for contributors adding a CPS import/export format to codeplug-tool. T
 
 Do **not** bake radio profile caps into internal models, mutations, validation, or CRUD UI. See [AGENTS.md Vendor boundaries](../../../AGENTS.md#vendor-boundaries).
 
+### Round-trip fidelity (no wire stash)
+
+Import maps CPS wire values into the **internal model**; export serialises **from model fields** only. The model must round-trip columns that matter — including for channels created in the app, not only re-exports of imports.
+
+**Forbidden:** stashing raw wire cells in provenance/meta (e.g. `meta.imported.wireColumns`) and preferring them on export to pass round-trip tests. That is stash-and-replay, not conversion. If fidelity fails, add or fix first-class fields and boundary mappers, or document the column as lossy in reference docs.
+
+**Do not add** new per-format wire bags (`chirpExtras`, `wireColumns`, …) for round-trip. Legacy `opengd77Extras` is the only approved opaque escape — prefer modelling fields instead. See [AGENTS.md — Round-trip fidelity](../../../AGENTS.md#round-trip-fidelity) and [`.cursor/rules/no-wire-stash-roundtrip.mdc`](../../../.cursor/rules/no-wire-stash-roundtrip.mdc).
+
 ---
 
 ## 1. Reference docs
@@ -97,6 +105,7 @@ Extend the internal model only when a field is **shared across vendors** or need
 | Talk group, contact, RX group list semantics | Columns that round-trip but have no UI yet |
 
 - [ ] Read [data-model/README.md](../data-model/README.md) before adding fields
+- [ ] Round-trip via **model fields**, not wire stash — see [Round-trip fidelity](#round-trip-fidelity-no-wire-stash) above
 - [ ] Bump schema version + migration if entity shape changes
 - [ ] Preserve **internal FK rules**: wire-name uniqueness where channels resolve contacts or RX lists by name; case-sensitive channel names (OpenGD77)
 - [ ] Do not cap entity counts in mutations — defer to export with warnings/truncation

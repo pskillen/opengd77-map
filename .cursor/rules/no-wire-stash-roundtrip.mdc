@@ -1,0 +1,44 @@
+---
+description: Ban stash-and-replay wire columns for fake CPS round-trip — model fields and map at the boundary
+globs:
+  - "src/lib/import/**"
+  - "src/lib/export/**"
+  - "src/lib/entityProvenance.ts"
+  - "src/models/codeplug.ts"
+alwaysApply: false
+---
+
+# No wire stash for round-trip
+
+**Critical rule.** When editing related files, if you notice existing code or docs that violate this rule — even outside your current task — **flag it to the user as a high concern** before or alongside your main work. Do not silently ignore, copy the pattern, or defer without mention. Do not attempt to fix if it's outside the original instruction.
+
+Read [AGENTS.md — Round-trip fidelity](../../AGENTS.md#round-trip-fidelity).
+
+## What round-trip means here
+
+Import converts CPS wire values into the **internal codeplug model**. Export converts model fields back to CPS wire values. The model is the source of truth between those two steps — including for channels created or edited in the app (no import provenance).
+
+## Forbidden: stash-and-replay
+
+Do **not** preserve raw vendor column strings in provenance or meta and prefer them on export. Examples of this anti-pattern:
+
+- `meta.imported.wireColumns: Record<string, string>` (CHIRP — **known violation to remove**)
+- Generic `wireBag`, `importedColumns`, or per-format opaque maps used to overlay export when computed serialisation differs from the file
+- Passing round-trip system tests by replaying the import file instead of serialising from modelled fields
+
+Stash-and-replay hides lossy import/export mappers, breaks edits (model changes ignored when stash wins), and fails for in-app-created entities.
+
+## Required approach
+
+1. **Map at the boundary** — parse wire → typed model fields on import; model fields → wire on export.
+2. **Extend the model** when a CPS column is not esoteric and round-trip fidelity needs it (e.g. `comment`, tone mode, DCS components, duplex `off`). Prefer existing `Channel` fields when mappers can be fixed non-trivially.
+3. **Document loss** — if a column is genuinely not modelled, say so in `docs/reference/<vendor>/` and in tests; do not fake fidelity with a wire stash.
+4. **Approved opaque escape (legacy only)** — `opengd77Extras` for documented OpenGD77-only columns not yet promoted to first-class fields. Do **not** add `chirpExtras`, `wireColumns`, or new format-specific wire bags for round-trip.
+
+## Tests
+
+File-level round-trip tests (`src/test/system/*RoundTrip.system.test.ts`) must pass from **model serialisation alone**. Excluding export-reassigned columns (e.g. CHIRP `Location`) is fine; excluding columns because they live in a wire stash is not.
+
+## Quick check
+
+Before adding provenance that stores CPS cell text: *Will export read this instead of the Channel (or other entity) field?* If yes — stop; model the field and fix the mapper.
