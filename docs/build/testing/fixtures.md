@@ -9,11 +9,11 @@
 | `src/test/opengd77/` | Yes | Synthetic bundles for system and component tests |
 | `src/test/chirp/` | Yes | Minimal CHIRP CSV bundles for parse/round-trip |
 | `test-data/chirp/<version>/<radio>/` | Yes | Committed real CHIRP CPS exports for file-level system tests |
-| `test-data/opengd77/` | Planned ([#108](https://github.com/pskillen/codeplug-tool/issues/108)) | Real OpenGD77 CPS export folders for file-level system tests |
+| `test-data/opengd77/<cps-version>/` | Yes | Real OpenGD77 CPS export folders for file-level system tests |
 | `sample-exports/` | Mixed | Operator/manual testing — personal codeplugs stay gitignored; reference subsets (e.g. CHIRP samples from #101) may be committed for local realism |
 | `e2e/fixtures/` (future) | Yes when [#40](https://github.com/pskillen/codeplug-tool/issues/40) lands | Minimal bundle for Playwright import → export |
 
-**Privacy:** Committed fixtures must be **synthetic and minimal**. If real OpenGD77 exports are needed for realism, copy a **sanitised subset** into `src/test/opengd77/` — strip operator identifiers, reduce row count, verify no secrets.
+**Privacy:** `src/test/<vendor>/` bundles stay **synthetic and minimal**. `test-data/chirp/` and `test-data/opengd77/` hold **committed real CPS exports** for file-level fidelity (public repeater/channel data — no operator secrets). Do not commit personal codeplugs to `sample-exports/` without explicit review.
 
 ## Layout
 
@@ -21,6 +21,17 @@
 src/test/opengd77/
   bundles.ts       # CSV string maps keyed by filename
   loadFixture.ts   # loadFixture(bundle) → File[]
+  testData.ts      # load committed test-data/opengd77 fixtures
+```
+
+```
+test-data/opengd77/<cps-version>/
+  Channels.csv
+  Zones.csv
+  Contacts.csv
+  TG_Lists.csv
+  DTMF.csv         # header-only in current fixture
+  APRS.csv         # header-only in current fixture
 ```
 
 ```
@@ -82,15 +93,15 @@ Pattern: `stripIds()` in [`roundtrip.test.ts`](../../../src/lib/export/opengd77/
 
 Fields not present in vendor CSV (e.g. `hideFromMap`) are **excluded** from vendor round-trip assertions but must be preserved through merge — assert in system tests.
 
-### File-level diff (e2e, planned)
+### File-level diff (system + e2e)
 
 Before comparing exported CSV to fixture:
 
 1. Normalise line endings (`\r\n` → `\n`)
 2. Trim trailing whitespace per line
-3. Ensure single trailing newline (or document CPS convention)
-4. Compare substantive files: `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`
-5. DTMF/APRS: expect header-only if asserted
+3. Multiset row compare via [`compareCsvRecords`](../../../src/test/csvRecordCompare.ts) — row order ignored
+4. **OpenGD77** (`opengd77RoundTrip.system.test.ts`): exclude `Channel Number` (reassigned at export); per-file name columns (`Channel Name`, `Zone Name`, …); DTMF/APRS full header-only match
+5. **CHIRP** (`chirpRoundTrip.system.test.ts`): exclude `Location`
 
 Parse by **header name** when semantic comparison is required; raw text diff is acceptable when round-trip should be byte-stable.
 

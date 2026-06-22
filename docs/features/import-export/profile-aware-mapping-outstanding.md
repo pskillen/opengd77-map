@@ -12,5 +12,5 @@
 ## Follow-up
 
 - [ ] Validate **MD9600** P-index ladder and cardinality against real CPS export
-- [ ] **OpenGD77 file-level round-trip** fixture — [#108](https://github.com/pskillen/codeplug-tool/issues/108)
+- [x] **OpenGD77 file-level round-trip** fixture — [#108](https://github.com/pskillen/codeplug-tool/issues/108)
 - [ ] **CHIRP DCS** tone mapping (today exports constants)

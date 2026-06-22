@@ -132,7 +132,7 @@ Checklist:
 - [ ] `adapterContract.test.ts`: required metadata, `capabilities`, delivery type guards
 - [ ] Add committed synthetic bundle under `src/test/<vendor>/` — see [fixtures.md](../../build/testing/fixtures.md)
 - [ ] `roundtrip.test.ts`: deterministic ids via `setIdGenerator`; `stripIds()` before semantic compare
-- [ ] File-level round-trip system test against committed `test-data/<vendor>/` fixtures: import → internal `Codeplug` → export → multiset row diff (`compareCsvRecords`); exclude columns documented as export-reassigned or lossy (CHIRP: `Location`; see `src/test/system/chirpRoundTrip.system.test.ts`). OpenGD77: [#108](https://github.com/pskillen/codeplug-tool/issues/108).
+- [x] File-level round-trip system test against committed `test-data/<vendor>/` fixtures: import → internal `Codeplug` → export → multiset row diff (`compareCsvRecords`); exclude columns documented as export-reassigned or lossy (CHIRP: `Location`; OpenGD77: `Channel Number` — see `src/test/system/chirpRoundTrip.system.test.ts` and `opengd77RoundTrip.system.test.ts`).
 - [ ] Fill a row/column in the adapter fidelity matrix in format-fidelity.md
 - [ ] System test via [`runActiveImportWorkflow`](../../../src/test/system/importWorkflow.ts) for multi-file batch scenarios
 

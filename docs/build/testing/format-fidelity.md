@@ -97,7 +97,7 @@ Extend this table as vendors ship. Each **cell** lists required test types for t
 
 | Import ↓ / Export → | OpenGD77 CSV | CHIRP CSV | qDMR YAML (future) |
 | --- | --- | --- | --- |
-| **OpenGD77 CSV** | Unit parse/serialise, `roundtrip.test.ts`, system merge scenarios | `crossFormat.test.ts` — analogue channels only | Cross-format golden (future) |
+| **OpenGD77 CSV** | Unit parse/serialise, `roundtrip.test.ts`, `opengd77RoundTrip.system.test.ts` (test-data file diff), system merge scenarios | `crossFormat.test.ts` — analogue channels only | Cross-format golden (future) |
 | **CHIRP CSV** | `roundtrip.test.ts`, `chirpRoundTrip.system.test.ts` (test-data file diff) | Cross-format golden (future) |
 | **qDMR YAML (future)** | Cross-format golden (future) | Cross-format golden (future) | Vendor-specific round-trip |
 
@@ -115,7 +115,8 @@ Document known non-round-trip behaviour in reference docs; assert it in fidelity
 
 | Area | Behaviour | Reference |
 | --- | --- | --- |
-| DTMF / APRS | Header-only in export ZIP; not modelled | [dtmf-aprs.md](../../reference/opengd77/dtmf-aprs.md) |
+| DTMF / APRS | Header-only in export ZIP; skipped on import; not modelled | [dtmf-aprs.md](../../reference/opengd77/dtmf-aprs.md) |
+| OpenGD77 ambiguous wire cells | `None` vs empty DMR ID/TG list; empty vs `None` tones; empty vs `Master` squelch — round-trip via import provenance (`dmrIdWire`, `rxToneWire`, …) on channels imported from CPS | `entityProvenance.ts`, `serialise.ts` |
 | `vendorExtras` | Opaque columns round-trip via map on channel | [file-format.md](../../reference/opengd77/file-format.md) |
 | App-only fields | e.g. `hideFromMap` — preserved on merge, not in CSV | [importMerge.ts](../../../src/lib/importMerge.ts) |
 | `Comment` (CHIRP) | Not on internal `Channel` model — dropped on import | [channels.md](../../reference/chirp/channels.md) |

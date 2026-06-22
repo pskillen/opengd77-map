@@ -55,6 +55,11 @@ Each scenario is a named `describe` in [`activeImport.system.test.ts`](../../../
 
 Fixtures: [fixtures.md](fixtures.md) — `minimalBundle`, `modifiedChannelBundle`, etc.
 
+| Suite | File | Asserts |
+| --- | --- | --- |
+| **OpenGD77 file-level round-trip** | [`opengd77RoundTrip.system.test.ts`](../../../src/test/system/opengd77RoundTrip.system.test.ts) | Full CPS folder import → export; multiset CSV diff per file |
+| **CHIRP file-level round-trip** | [`chirpRoundTrip.system.test.ts`](../../../src/test/system/chirpRoundTrip.system.test.ts) | Single CSV import → export; `Location` excluded |
+
 ## Manual manipulation path
 
 Prove CRUD between import and export preserves export fidelity:
