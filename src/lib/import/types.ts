@@ -26,4 +26,6 @@ export interface ImportResult {
   recognised: string[];
   skipped: ImportMessage[];
   errors: ImportMessage[];
+  /** Suggested project name from import file selection (directory or single-file rule). */
+  suggestedProjectName?: string;
 }

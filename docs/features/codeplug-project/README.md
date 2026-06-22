@@ -34,7 +34,7 @@ interface CodeplugProject {
 }
 ```
 
-`newProject(name, codeplug?)` creates a project; `defaultProjectName(recognisedFiles)` derives a name from import filenames (fallback: `"Imported codeplug"`).
+`newProject(name, codeplug?)` creates a project; `deriveProjectNameFromImportFiles(files)` derives a name from the import selection (folder leaf name, or `OpenGD77 YYYY-MM-DD` for a single file; fallback: first filename or `"Imported codeplug"`).
 
 Identity and operator-facing metadata live on the wrapper so [`Codeplug`](../data-model/README.md) stays focused on CPS contents. `author` and `targetRadios` are **indicative human input only** — they must never drive import adapters, export profiles, or validation.
 

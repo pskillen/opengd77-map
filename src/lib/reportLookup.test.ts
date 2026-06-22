@@ -40,10 +40,6 @@ describe('reportLookup', () => {
   });
 
   it('channelsWithContactRef matches by id', () => {
-    const talkGroups = [
-      buildTalkGroup({ id: 'tg1', name: 'Scotland', number: '950' }),
-      buildTalkGroup({ id: 'tg2', name: 'scotland', number: '951' }),
-    ];
     const channels = [
       channel('c1', 'GB3SG', { contactRef: { kind: 'talkGroup', id: 'tg1' } }),
       channel('c2', 'GB3BF', { contactRef: { kind: 'talkGroup', id: 'tg2' } }),

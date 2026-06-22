@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   CODEPLUG_SCHEMA_VERSION,
   channelFieldDefaults,
@@ -6,7 +6,7 @@ import {
   resetIdGenerator,
   setIdGenerator,
 } from './codeplug.ts';
-import { DEFAULT_PROJECT_NAME, defaultProjectName, newProject } from './codeplugProject.ts';
+import { DEFAULT_PROJECT_NAME, defaultProjectName, deriveProjectNameFromImportFiles, newProject } from './codeplugProject.ts';
 
 describe('newProject', () => {
   beforeEach(() => {
@@ -56,5 +56,49 @@ describe('defaultProjectName', () => {
   it('derives from the first recognised filename', () => {
     expect(defaultProjectName(['Channels.csv'])).toBe('Channels');
     expect(defaultProjectName(['Zones.csv', 'Channels.csv'])).toBe('Zones');
+  });
+});
+
+function fileWithPath(name: string, webkitRelativePath = ''): File {
+  const file = new File([''], name, { type: 'text/csv' });
+  if (webkitRelativePath) {
+    Object.defineProperty(file, 'webkitRelativePath', { value: webkitRelativePath });
+  }
+  return file;
+}
+
+describe('deriveProjectNameFromImportFiles', () => {
+  it('uses explicit directory name when provided', () => {
+    expect(
+      deriveProjectNameFromImportFiles([fileWithPath('Channels.csv')], {
+        directoryName: 'MyExport',
+      }),
+    ).toBe('MyExport');
+  });
+
+  it('uses leaf folder from webkitRelativePath', () => {
+    const files = [
+      fileWithPath('Channels.csv', 'opengd77-cps-export/Channels.csv'),
+      fileWithPath('Zones.csv', 'opengd77-cps-export/Zones.csv'),
+    ];
+    expect(deriveProjectNameFromImportFiles(files)).toBe('opengd77-cps-export');
+  });
+
+  it('names a single loose file OpenGD77 with ISO date', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-21T12:00:00.000Z'));
+    expect(deriveProjectNameFromImportFiles([fileWithPath('Channels.csv')])).toBe(
+      'OpenGD77 2026-06-21',
+    );
+    vi.useRealTimers();
+  });
+
+  it('falls back to first filename for multiple loose files', () => {
+    expect(
+      deriveProjectNameFromImportFiles([
+        fileWithPath('Zones.csv'),
+        fileWithPath('Channels.csv'),
+      ]),
+    ).toBe('Zones');
   });
 });

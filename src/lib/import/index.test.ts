@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { detectKind } from './opengd77/adapter.ts';
 import { importFiles } from './index.ts';
 import { CHANNEL_HEADERS, CONTACT_HEADERS, RX_GROUP_LIST_HEADERS } from './opengd77/columns.ts';
@@ -68,5 +68,37 @@ Scotland,Local 9,,`;
     ]);
     expect(result.errors).toHaveLength(1);
     expect(result.recognised).toHaveLength(0);
+  });
+
+  it('suggests directory leaf name for folder imports', async () => {
+    const channels = new File([channelsCsv], 'Channels.csv', { type: 'text/csv' });
+    Object.defineProperty(channels, 'webkitRelativePath', {
+      value: 'my-codeplug/Channels.csv',
+    });
+    const zones = new File([zonesCsv], 'Zones.csv', { type: 'text/csv' });
+    Object.defineProperty(zones, 'webkitRelativePath', {
+      value: 'my-codeplug/Zones.csv',
+    });
+
+    const result = await importFiles([channels, zones]);
+    expect(result.suggestedProjectName).toBe('my-codeplug');
+  });
+
+  it('suggests OpenGD77 ISO date for a single loose file', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-06-21T12:00:00.000Z'));
+    const result = await importFiles([
+      new File([channelsCsv], 'Channels.csv', { type: 'text/csv' }),
+    ]);
+    expect(result.suggestedProjectName).toBe('OpenGD77 2026-06-21');
+    vi.useRealTimers();
+  });
+
+  it('accepts dropped directory name override', async () => {
+    const result = await importFiles(
+      [new File([channelsCsv], 'Channels.csv', { type: 'text/csv' })],
+      { directoryName: 'DroppedFolder' },
+    );
+    expect(result.suggestedProjectName).toBe('DroppedFolder');
   });
 });

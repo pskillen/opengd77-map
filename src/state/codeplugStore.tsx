@@ -92,7 +92,7 @@ function importNewProjectState(
   name?: string,
   mode: ImportApplyMode = 'merge',
 ): ProjectsState {
-  const projectName = name ?? defaultProjectName(result.recognised);
+  const projectName = name ?? result.suggestedProjectName ?? defaultProjectName(result.recognised);
   const project = touchProject({
     ...newProject(projectName),
     codeplug: applyImportToCodeplug(emptyCodeplug(), result, mode),
