@@ -1,26 +1,25 @@
 # Retevis RT95 VOX — CHIRP profile
 
 **Profile id:** `retevis-rt95`  
-**Fixture:** `sample-exports/Chirp 2026-06-29/Retevis_RT95 VOX_20251106.csv`
+**Fixture:** `test-data/chirp/20260629/retevis-rt95/Retevis_RT95 VOX_20251106.csv`  
+**Max RF:** 25 W
 
 ## Limits
 
-| Constraint | Value | Export behaviour |
-| --- | --- | --- |
-| Max memory slots | 128 | Warn when channel count exceeds |
-| Modes | NFM | Fixture is FM-only |
-
-## Power ladder
-
-| Wire string | Notes |
+| Constraint | Value |
 | --- | --- |
-| `10W` | High — default in fixture |
-| `25W` | High (calling channels) |
+| Max memory slots | 128 |
 
-## Filename convention
+## Power ladder (wire → percent)
 
-`Retevis_RT95 VOX_{YYYYMMDD}.csv`
+Percent = watts ÷ 25 W max. `null` internal percent exports as high (`25W`).
+
+| Wire | Watts | Percent |
+| --- | --- | --- |
+| `25W` | 25 W | 100 |
+| `10W` | 10 W | 40 |
 
 ## Related
 
 - [Profile index](README.md)
+- [channels.md](../channels.md)

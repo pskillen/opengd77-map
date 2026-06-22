@@ -49,13 +49,29 @@ These are operator/layout choices, not CSV column differences:
 
 ## Adapter calibration notes
 
-Today's code hard-codes this profile:
+Profile selection is implemented at import and export via `src/lib/opengd77/profiles.ts`:
 
-| Constant | Value | Location |
+| Profile id | Zone members | TG members | Max channels |
+| --- | --- | --- | --- |
+| `opengd77-1701` | 80 | 32 | 1023 |
+| `opengd77-md9600` | 80 | 32 | 1023 |
+
+## Power ladder (P-index → percent)
+
+| Wire | Watts (1701) | Percent |
 | --- | --- | --- |
-| Zone member headers | 80 | `zoneMemberHeaders(80)` in `columns.ts` |
-| TG list member headers | 32 | `rxGroupListMemberHeaders(32)` in `columns.ts` |
-| Export profile picker | Not implemented | Export always uses 1701 column counts |
+| `P9` | 5 W | 100 |
+| `P8` | 4 W | 80 |
+| `P7` | 3 W | 60 |
+| `P6` | 2 W | 40 |
+| `P5` | 1 W | 20 |
+| `P4` | 750 mW | 15 |
+| `P3` | 500 mW | 10 |
+| `P2` | 250 mW | 5 |
+| `P1` | 50 mW | 1 |
+| `Master` | radio default | `null` |
+
+Squelch wire is profile-independent: `N%`, `Disabled` → 0%, `Master` → `null`.
 
 ## Known gaps vs generic reference
 
