@@ -2,7 +2,6 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { importFiles } from '../../import/index.ts';
 import { addRxGroupList, addTalkGroup } from '../../codeplugMutations.ts';
 import type { EntityMeta } from '../../entityProvenance.ts';
-import { getMemberWireNames } from '../../entityProvenance.ts';
 import {
   CODEPLUG_SCHEMA_VERSION,
   emptyCodeplug,
@@ -42,7 +41,11 @@ function stripIds(cp: Codeplug) {
     channels: cp.channels.map(withoutId),
     zones: cp.zones.map(withoutZoneIds),
     talkGroups: cp.talkGroups.map(withoutId),
-    rxGroupLists: cp.rxGroupLists.map(withoutId),
+    rxGroupLists: cp.rxGroupLists.map((rgl) => {
+      const copy = withoutId(rgl) as Codeplug['rxGroupLists'][number];
+      copy.memberRefs = rgl.memberRefs.map((ref) => ({ ...ref }));
+      return copy;
+    }),
     contacts: cp.contacts.map(withoutId),
   };
 }
@@ -142,9 +145,12 @@ Scotland,Scotland TS1,Local 9,,`;
       memberNames.push(name);
       cp = addTalkGroup(cp, { name, number: String(i), timeslotOverride: '' });
     }
-    cp = addRxGroupList(cp, { name: 'BigList', memberWireNames: memberNames });
+    cp = addRxGroupList(cp, {
+      name: 'BigList',
+      memberRefs: cp.talkGroups.map((tg) => ({ kind: 'talkGroup', id: tg.id })),
+    });
 
-    expect(getMemberWireNames(cp.rxGroupLists[0])).toHaveLength(40);
+    expect(cp.rxGroupLists[0].memberRefs).toHaveLength(40);
 
     const exported = serialiseOpenGd77Files(cp);
     const reimported = await importFromExport(exported);

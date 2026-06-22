@@ -3,9 +3,9 @@ import EntityTable from '../components/report/EntityTable.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
 import {
-  channelsWithContactName,
+  channelsReferencingContactId,
   formatReferenceCount,
-  rxGroupListsContainingMember,
+  rxGroupListsContainingMemberRef,
   sortByName,
 } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
@@ -33,13 +33,16 @@ export default function ContactsList() {
           {
             key: 'channels',
             header: 'Channels using',
-            render: (c) => formatReferenceCount(channelsWithContactName(c.name, channels).length),
+            render: (c) =>
+              formatReferenceCount(channelsReferencingContactId(c.id, channels).length),
           },
           {
             key: 'rgl',
             header: 'RX groups using',
             render: (c) =>
-              formatReferenceCount(rxGroupListsContainingMember(c.name, rxGroupLists).length),
+              formatReferenceCount(
+                rxGroupListsContainingMemberRef({ kind: 'contact', id: c.id }, rxGroupLists).length,
+              ),
           },
         ]}
       />

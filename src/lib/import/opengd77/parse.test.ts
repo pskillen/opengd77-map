@@ -31,8 +31,8 @@ describe('parseChannels', () => {
       txFrequency: 430_000_000,
       colourCode: 2,
       timeslot: 1,
-      contactName: 'Local 9',
-      rxGroupListName: 'Scotland',
+      contactRef: null,
+      rxGroupListId: null,
       squelch: 75,
       power: null,
       rxOnly: false,
@@ -49,6 +49,8 @@ describe('parseChannels', () => {
         'TS2_TA_Tx ID': 'Off',
       },
     });
+    expect(channels[0].meta?.imported?.contactWireName).toBe('Local 9');
+    expect(channels[0].meta?.imported?.rxGroupListWireName).toBe('Scotland');
     expect(channels[1].mode).toBe('fm');
     expect(channels[1].useLocation).toBe(false);
     expect(channels[1].bandwidthKHz).toBe(12.5);

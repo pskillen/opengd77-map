@@ -1,4 +1,5 @@
 import { parseCsv } from '../csv.ts';
+import { deriveProjectNameFromImportFiles } from '../../models/codeplugProject.ts';
 import { importAdapters } from './registry.ts';
 import type { ImportResult } from './types.ts';
 
@@ -7,7 +8,10 @@ function headerRow(text: string): string[] {
   return rows[0]?.map((h) => h.trim()) ?? [];
 }
 
-export async function importFiles(files: File[]): Promise<ImportResult> {
+export async function importFiles(
+  files: File[],
+  options?: { directoryName?: string },
+): Promise<ImportResult> {
   const result: ImportResult = {
     recognised: [],
     skipped: [],
@@ -64,6 +68,11 @@ export async function importFiles(files: File[]): Promise<ImportResult> {
     }
   }
 
+  result.suggestedProjectName = deriveProjectNameFromImportFiles(files, {
+    directoryName: options?.directoryName,
+    formatLabel: adapter.projectNameLabel,
+  });
+
   return result;
 }
 
@@ -97,17 +106,30 @@ async function readEntryFiles(entry: DroppedEntry): Promise<File[]> {
   return nested.flat();
 }
 
-export async function collectFilesFromDataTransfer(dt: DataTransfer): Promise<File[]> {
+export interface CollectedImportFiles {
+  files: File[];
+  /** Leaf folder name when the user dropped a single directory. */
+  directoryName?: string;
+}
+
+export async function collectFilesFromDataTransfer(
+  dt: DataTransfer,
+): Promise<CollectedImportFiles> {
   const items = [...dt.items];
   if (items.length && typeof items[0].webkitGetAsEntry === 'function') {
     const entries = items
       .map((item) => item.webkitGetAsEntry?.() as DroppedEntry | null)
       .filter((entry): entry is DroppedEntry => entry != null);
 
+    const directoryName =
+      entries.length === 1 && entries[0].isDirectory ? entries[0].name : undefined;
+
     const files = (await Promise.all(entries.map(readEntryFiles))).flat();
     const csvFiles = files.filter((f) => f.name.toLowerCase().endsWith('.csv'));
-    if (csvFiles.length) return csvFiles;
+    if (csvFiles.length) return { files: csvFiles, directoryName };
   }
 
-  return [...dt.files].filter((f) => f.name.toLowerCase().endsWith('.csv'));
+  return {
+    files: [...dt.files].filter((f) => f.name.toLowerCase().endsWith('.csv')),
+  };
 }

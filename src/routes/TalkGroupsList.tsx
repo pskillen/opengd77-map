@@ -3,9 +3,9 @@ import EntityTable from '../components/report/EntityTable.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
 import {
-  channelsWithTalkGroupName,
+  channelsReferencingTalkGroupId,
   formatReferenceCount,
-  rxGroupListsContainingMember,
+  rxGroupListsContainingMemberRef,
   sortByName,
 } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
@@ -34,13 +34,16 @@ export default function TalkGroupsList() {
             key: 'channels',
             header: 'Channels using',
             render: (tg) =>
-              formatReferenceCount(channelsWithTalkGroupName(tg.name, channels).length),
+              formatReferenceCount(channelsReferencingTalkGroupId(tg.id, channels).length),
           },
           {
             key: 'rgl',
             header: 'RX groups using',
             render: (tg) =>
-              formatReferenceCount(rxGroupListsContainingMember(tg.name, rxGroupLists).length),
+              formatReferenceCount(
+                rxGroupListsContainingMemberRef({ kind: 'talkGroup', id: tg.id }, rxGroupLists)
+                  .length,
+              ),
           },
         ]}
       />

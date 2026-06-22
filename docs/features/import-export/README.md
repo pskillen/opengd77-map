@@ -127,8 +127,9 @@ Authoritative column and conversion reference: [reference/opengd77/](../../refer
 - **Home:** `ImportDropzone` creates a **new** codeplug project (`importNewProject`).
 - **Import & export (`/export`):** `ImportIntoActivePanel` merges into the **active** project with confirm modal (`applyImportToActive`).
 - **Drop target:** multiple `.csv` files or a whole folder.
-- **Recognised:** `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`
-- **Skipped:** `DTMF.csv`, `APRS.csv`, other unknown CSVs
+- **New project naming** (Home import only): folder selection → leaf directory name; loose files (one or many) → `{adapter projectNameLabel} YYYY-MM-DD` (ISO date). Each import adapter sets `projectNameLabel` — see per-format docs (e.g. [OpenGD77](opengd77/README.md#new-project-naming)). See also [codeplug-project](../codeplug-project/README.md).
+- **Recognised (OpenGD77 today):** `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`
+- **Skipped (OpenGD77 today):** `DTMF.csv`, `APRS.csv`, other unknown CSVs
 
 ## Automated tests
 
@@ -145,7 +146,7 @@ Format fidelity strategy: [format-fidelity.md](../../build/testing/format-fideli
 
 ### Merge workflow
 
-1. `npm run dev` → Home → import `Channels.csv` → Summary opens with new project.
+1. `npm run dev` → Home → import a supported CPS export (folder or loose files) → Summary opens with new project named from the folder leaf or `{adapter projectNameLabel} YYYY-MM-DD`.
 2. Import & export → **Merge** → import `Zones.csv` → confirm shows zones added → zones resolve on `/zones`.
 3. Re-import **identical** `Channels.csv` → confirm shows all unchanged.
 4. Re-import **modified** `Channels.csv` → only changed rows updated; zone links intact.

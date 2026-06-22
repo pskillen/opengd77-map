@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import type { EntityRef } from '../lib/entityRefs.ts';
 import {
   applyImportToCodeplug as mergeImportIntoCodeplug,
   type ImportApplyMode,
@@ -70,7 +71,7 @@ type ProjectsAction =
   | { type: 'ADD_RX_GROUP_LIST'; input: RxGroupListInput }
   | { type: 'UPDATE_RX_GROUP_LIST'; rglId: string; patch: Partial<RxGroupListInput> }
   | { type: 'DELETE_RX_GROUP_LIST'; rglId: string }
-  | { type: 'SET_RX_GROUP_LIST_MEMBERS'; rglId: string; memberWireNames: string[] }
+  | { type: 'SET_RX_GROUP_LIST_MEMBERS'; rglId: string; memberRefs: EntityRef[] }
   | { type: 'UPDATE_PROJECT'; id: string; patch: ProjectMetadataPatch };
 
 function applyImportToCodeplug(
@@ -91,7 +92,7 @@ function importNewProjectState(
   name?: string,
   mode: ImportApplyMode = 'merge',
 ): ProjectsState {
-  const projectName = name ?? defaultProjectName(result.recognised);
+  const projectName = name ?? result.suggestedProjectName ?? defaultProjectName(result.recognised);
   const project = touchProject({
     ...newProject(projectName),
     codeplug: applyImportToCodeplug(emptyCodeplug(), result, mode),
@@ -231,7 +232,7 @@ function projectsReducer(state: ProjectsState, action: ProjectsAction): Projects
 
     case 'SET_RX_GROUP_LIST_MEMBERS':
       return updateActiveCodeplug(state, (cp) =>
-        setRxGroupListMembersMutation(cp, action.rglId, action.memberWireNames),
+        setRxGroupListMembersMutation(cp, action.rglId, action.memberRefs),
       );
 
     case 'UPDATE_PROJECT': {
@@ -279,7 +280,7 @@ interface CodeplugContextValue {
   addRxGroupList: (input: RxGroupListInput) => void;
   updateRxGroupList: (rglId: string, patch: Partial<RxGroupListInput>) => void;
   deleteRxGroupList: (rglId: string) => void;
-  setRxGroupListMembers: (rglId: string, memberWireNames: string[]) => void;
+  setRxGroupListMembers: (rglId: string, memberRefs: EntityRef[]) => void;
   persistenceError: string | null;
   clearPersistenceError: () => void;
 }
@@ -445,9 +446,9 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'DELETE_RX_GROUP_LIST', rglId });
   }, []);
 
-  const setRxGroupListMembers = useCallback((rglId: string, memberWireNames: string[]) => {
+  const setRxGroupListMembers = useCallback((rglId: string, memberRefs: EntityRef[]) => {
     setPersistenceError(null);
-    dispatch({ type: 'SET_RX_GROUP_LIST_MEMBERS', rglId, memberWireNames });
+    dispatch({ type: 'SET_RX_GROUP_LIST_MEMBERS', rglId, memberRefs });
   }, []);
 
   const current = activeProject(projectsState);

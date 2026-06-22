@@ -12,6 +12,7 @@ import {
   formatOpenGd77ToneWire,
   formatOpenGd77TransmitTimeoutWire,
 } from './channelWire.ts';
+import { contactRefWireNameForExport, rxGroupListWireNameForExport } from '../../entityRefs.ts';
 import { rxGroupListExportMemberNames, zoneExportMemberNames } from '../../entityProvenance.ts';
 
 /** OpenGD77 CSV serialisers — wire format in docs/reference/opengd77/;
@@ -50,8 +51,8 @@ export function serialiseChannels(codeplug: Codeplug): string {
       [CHANNEL_COL.bandwidth]: formatOpenGd77BandwidthWire(ch.bandwidthKHz),
       [CHANNEL_COL.colourCode]: formatOpenGd77ColourCodeWire(ch.colourCode),
       [CHANNEL_COL.timeslot]: formatOpenGd77TimeslotWire(ch.timeslot),
-      [CHANNEL_COL.contact]: ch.contactName,
-      [CHANNEL_COL.tgList]: ch.rxGroupListName,
+      [CHANNEL_COL.contact]: contactRefWireNameForExport(ch, codeplug),
+      [CHANNEL_COL.tgList]: rxGroupListWireNameForExport(ch, codeplug),
       [CHANNEL_COL.dmrId]: formatOpenGd77DmrIdWire(ch.dmrId),
       [CHANNEL_COL.rxTone]: formatOpenGd77ToneWire(ch.rxTone),
       [CHANNEL_COL.txTone]: formatOpenGd77ToneWire(ch.txTone),
@@ -121,9 +122,11 @@ export function serialiseRxGroupLists(codeplug: Codeplug): string {
   const memberHeaders = rxGroupListMemberHeaders();
   const rows = codeplug.rxGroupLists.map((list) => {
     const values: Record<string, string> = { [RX_GROUP_LIST_COL.name]: list.name };
-    rxGroupListExportMemberNames(list).forEach((name, i) => {
-      if (i < memberHeaders.length) values[memberHeaders[i]] = name;
-    });
+    rxGroupListExportMemberNames(list, codeplug.talkGroups, codeplug.contacts).forEach(
+      (name, i) => {
+        if (i < memberHeaders.length) values[memberHeaders[i]] = name;
+      },
+    );
     return padRow(RX_GROUP_LIST_HEADERS, values);
   });
   return formatCsv(RX_GROUP_LIST_HEADERS, rows);

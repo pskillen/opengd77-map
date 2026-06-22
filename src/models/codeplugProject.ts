@@ -30,6 +30,39 @@ export function defaultProjectName(sourceFiles?: string[]): string {
   return base || DEFAULT_PROJECT_NAME;
 }
 
+function webkitRelativePath(file: File): string {
+  return (file as File & { webkitRelativePath?: string }).webkitRelativePath ?? '';
+}
+
+function directoryNameFromWebkitPaths(files: File[]): string | null {
+  for (const file of files) {
+    const path = webkitRelativePath(file);
+    if (!path.includes('/')) continue;
+    const leaf = path.split('/')[0]?.trim();
+    if (leaf) return leaf;
+  }
+  return null;
+}
+
+function formatDatedProjectName(formatLabel: string, at: Date = new Date()): string {
+  return `${formatLabel} ${at.toISOString().slice(0, 10)}`;
+}
+
+/** Derive a project display name from the files the user selected for import. */
+export function deriveProjectNameFromImportFiles(
+  files: File[],
+  options?: { directoryName?: string; formatLabel?: string },
+): string {
+  const directoryName = options?.directoryName?.trim();
+  if (directoryName) return directoryName;
+
+  const folderFromPaths = directoryNameFromWebkitPaths(files);
+  if (folderFromPaths) return folderFromPaths;
+
+  const formatLabel = options?.formatLabel?.trim() || DEFAULT_PROJECT_NAME;
+  return formatDatedProjectName(formatLabel);
+}
+
 export function newProject(name: string, codeplug: Codeplug = emptyCodeplug()): CodeplugProject {
   const now = new Date().toISOString();
   return {

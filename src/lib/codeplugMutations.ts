@@ -10,6 +10,8 @@ import {
   type Zone,
 } from '../models/codeplug.ts';
 import { getMemberWireNames, setMemberWireNames } from './entityProvenance.ts';
+import type { EntityRef, EntityRefKind } from './entityRefs.ts';
+import { entityRefKey, memberRefsToWireNames } from './entityRefs.ts';
 
 export const OPENGD77_MAX_ZONE_MEMBERS = 80;
 
@@ -21,7 +23,7 @@ export type TalkGroupInput = Omit<TalkGroup, 'id'>;
 
 export type ContactInput = Omit<Contact, 'id'>;
 
-export type RxGroupListInput = Pick<RxGroupList, 'name'> & { memberWireNames?: string[] };
+export type RxGroupListInput = Pick<RxGroupList, 'name'> & { memberRefs?: EntityRef[] };
 
 function channelById(channels: Channel[], id: string): Channel | undefined {
   return channels.find((ch) => ch.id === id);
@@ -172,14 +174,39 @@ export function setZoneMembers(
   return { ...codeplug, zones };
 }
 
-function dedupeMemberNames(names: string[]): string[] {
+function removeMemberRefFromAllRgls(
+  codeplug: Codeplug,
+  kind: EntityRefKind,
+  entityId: string,
+): RxGroupList[] {
+  return codeplug.rxGroupLists.map((rgl) => {
+    const nextRefs = rgl.memberRefs.filter((ref) => !(ref.kind === kind && ref.id === entityId));
+    if (nextRefs.length === rgl.memberRefs.length) return rgl;
+    return {
+      ...rgl,
+      memberRefs: nextRefs,
+      ...syncRglMemberWireNames(rgl, nextRefs, codeplug),
+    };
+  });
+}
+
+function syncRglMemberWireNames(
+  rgl: RxGroupList,
+  memberRefs: EntityRef[],
+  codeplug: Codeplug,
+): Pick<RxGroupList, 'meta'> {
+  const names = memberRefsToWireNames(memberRefs, codeplug.talkGroups, codeplug.contacts);
+  return { meta: setMemberWireNames(rgl, names).meta };
+}
+
+function dedupeMemberRefs(refs: EntityRef[]): EntityRef[] {
   const seen = new Set<string>();
-  const out: string[] = [];
-  for (const name of names) {
-    const trimmed = name.trim();
-    if (!trimmed || seen.has(trimmed)) continue;
-    seen.add(trimmed);
-    out.push(trimmed);
+  const out: EntityRef[] = [];
+  for (const ref of refs) {
+    const key = entityRefKey(ref);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(ref);
   }
   return out;
 }
@@ -196,39 +223,36 @@ function propagateContactWireRename(
   oldName: string,
   newName: string,
 ): Codeplug {
-  const channels = codeplug.channels.map((ch) =>
-    ch.contactName === oldName ? { ...ch, contactName: newName } : ch,
-  );
   const rxGroupLists = codeplug.rxGroupLists.map((rgl) =>
     mapMemberWireNames(rgl, (names) => names.map((n) => (n === oldName ? newName : n))),
   );
-  return { ...codeplug, channels, rxGroupLists };
+  return { ...codeplug, rxGroupLists };
 }
 
-function clearContactWireReferences(codeplug: Codeplug, name: string): Codeplug {
-  const channels = codeplug.channels.map((ch) =>
-    ch.contactName === name ? { ...ch, contactName: '' } : ch,
-  );
-  const rxGroupLists = codeplug.rxGroupLists.map((rgl) =>
-    mapMemberWireNames(rgl, (names) => names.filter((n) => n !== name)),
-  );
-  return { ...codeplug, channels, rxGroupLists };
-}
-
-function propagateRxGroupListWireRename(
+function clearContactEntityReferences(
   codeplug: Codeplug,
-  oldName: string,
-  newName: string,
+  kind: EntityRefKind,
+  entityId: string,
+  wireName: string,
 ): Codeplug {
-  const channels = codeplug.channels.map((ch) =>
-    ch.rxGroupListName === oldName ? { ...ch, rxGroupListName: newName } : ch,
+  const channels = codeplug.channels.map((ch) => {
+    const ref = ch.contactRef;
+    return ref && ref.kind === kind && ref.id === entityId ? { ...ch, contactRef: null } : ch;
+  });
+  const rxGroupLists = codeplug.rxGroupLists.map((rgl) =>
+    mapMemberWireNames(rgl, (names) => names.filter((n) => n !== wireName)),
   );
-  return { ...codeplug, channels };
+  const rglsWithRefs = removeMemberRefFromAllRgls(
+    { ...codeplug, channels, rxGroupLists },
+    kind,
+    entityId,
+  );
+  return { ...codeplug, channels, rxGroupLists: rglsWithRefs };
 }
 
-function clearRxGroupListWireReferences(codeplug: Codeplug, name: string): Codeplug {
+function clearRxGroupListReferences(codeplug: Codeplug, rglId: string): Codeplug {
   const channels = codeplug.channels.map((ch) =>
-    ch.rxGroupListName === name ? { ...ch, rxGroupListName: '' } : ch,
+    ch.rxGroupListId === rglId ? { ...ch, rxGroupListId: null } : ch,
   );
   return { ...codeplug, channels };
 }
@@ -272,7 +296,7 @@ export function deleteTalkGroup(codeplug: Codeplug, talkGroupId: string): Codepl
     ...codeplug,
     talkGroups: codeplug.talkGroups.filter((tg) => tg.id !== talkGroupId),
   };
-  return clearContactWireReferences(next, talkGroup.name);
+  return clearContactEntityReferences(next, 'talkGroup', talkGroupId, talkGroup.name);
 }
 
 export function addContact(codeplug: Codeplug, input: ContactInput): Codeplug {
@@ -314,16 +338,20 @@ export function deleteContact(codeplug: Codeplug, contactId: string): Codeplug {
     ...codeplug,
     contacts: codeplug.contacts.filter((c) => c.id !== contactId),
   };
-  return clearContactWireReferences(next, contact.name);
+  return clearContactEntityReferences(next, 'contact', contactId, contact.name);
 }
 
 export function addRxGroupList(codeplug: Codeplug, input: RxGroupListInput): Codeplug {
-  const memberWireNames = dedupeMemberNames(input.memberWireNames ?? []);
+  const memberRefs = dedupeMemberRefs(input.memberRefs ?? []);
   const base: RxGroupList = {
     id: newId(),
     name: input.name.trim(),
+    memberRefs,
   };
-  const rgl = setMemberWireNames(base, memberWireNames);
+  const rgl = setMemberWireNames(
+    base,
+    memberRefsToWireNames(memberRefs, codeplug.talkGroups, codeplug.contacts),
+  );
   return { ...codeplug, rxGroupLists: [...codeplug.rxGroupLists, rgl] };
 }
 
@@ -337,20 +365,19 @@ export function updateRxGroupList(
 
   const existing = codeplug.rxGroupLists[index];
   const name = patch.name !== undefined ? patch.name.trim() : existing.name;
-  const memberWireNames =
-    patch.memberWireNames !== undefined
-      ? dedupeMemberNames(patch.memberWireNames)
-      : getMemberWireNames(existing);
-  const updated: RxGroupList = setMemberWireNames({ ...existing, name }, memberWireNames);
+  const memberRefs =
+    patch.memberRefs !== undefined ? dedupeMemberRefs(patch.memberRefs) : existing.memberRefs;
+  const updated: RxGroupList = {
+    ...existing,
+    name,
+    memberRefs,
+    ...syncRglMemberWireNames(existing, memberRefs, codeplug),
+  };
 
   const rxGroupLists = [...codeplug.rxGroupLists];
   rxGroupLists[index] = updated;
 
-  let next: Codeplug = { ...codeplug, rxGroupLists };
-  if (name !== existing.name) {
-    next = propagateRxGroupListWireRename(next, existing.name, name);
-  }
-  return next;
+  return { ...codeplug, rxGroupLists };
 }
 
 export function deleteRxGroupList(codeplug: Codeplug, rglId: string): Codeplug {
@@ -361,17 +388,22 @@ export function deleteRxGroupList(codeplug: Codeplug, rglId: string): Codeplug {
     ...codeplug,
     rxGroupLists: codeplug.rxGroupLists.filter((r) => r.id !== rglId),
   };
-  return clearRxGroupListWireReferences(next, rgl.name);
+  return clearRxGroupListReferences(next, rglId);
 }
 
 export function setRxGroupListMembers(
   codeplug: Codeplug,
   rglId: string,
-  memberWireNames: string[],
+  memberRefs: EntityRef[],
 ): Codeplug {
+  const refs = dedupeMemberRefs(memberRefs);
   const rxGroupLists = codeplug.rxGroupLists.map((rgl) => {
     if (rgl.id !== rglId) return rgl;
-    return setMemberWireNames(rgl, dedupeMemberNames(memberWireNames));
+    return {
+      ...rgl,
+      memberRefs: refs,
+      ...syncRglMemberWireNames(rgl, refs, codeplug),
+    };
   });
   return { ...codeplug, rxGroupLists };
 }

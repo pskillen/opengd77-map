@@ -33,6 +33,17 @@ OpenGD77 CPS CSV is **one interchange format shared by many radios**. Import/exp
 
 Typical filenames: `Channels.csv`, `Zones.csv`, `Contacts.csv`, `TG_Lists.csv`. `DTMF.csv` and `APRS.csv` are **skipped** on import.
 
+## New project naming
+
+Follows the [generic import naming rules](../README.md#import-ui-behaviour). When Home import creates a project (not merge into active):
+
+| User selection | Default project name |
+| --- | --- |
+| **Folder** (Choose folder or drop a directory) | Leaf directory name (e.g. `opengd77-cps-export`) |
+| **Loose files** (one or more CSVs without folder context) | `OpenGD77 YYYY-MM-DD` (ISO date, UTC) |
+
+This adapter sets `projectNameLabel: 'OpenGD77'`; `importFiles` stamps `ImportResult.suggestedProjectName`. Operators can rename on Summary later.
+
 ## Parse flow
 
 | File kind | Parser | Model output |

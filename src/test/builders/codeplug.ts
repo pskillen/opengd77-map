@@ -69,7 +69,7 @@ export function buildContact(overrides: Partial<Contact> & Pick<Contact, 'id' | 
 export function buildRxGroupList(
   overrides: Partial<RxGroupList> & Pick<RxGroupList, 'id' | 'name'>,
 ): RxGroupList {
-  return { ...overrides };
+  return { memberRefs: [], ...overrides };
 }
 
 /** RX group list with member wire names in provenance. */

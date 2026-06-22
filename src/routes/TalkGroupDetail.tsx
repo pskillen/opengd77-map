@@ -10,10 +10,10 @@ import ReportPage from '../components/report/ReportPage.tsx';
 import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { formatFrequencyHz } from '../lib/formatFrequency.ts';
 import {
-  channelsWithTalkGroupName,
+  channelsReferencingTalkGroupId,
   findEntityById,
   formatReferenceCount,
-  rxGroupListsContainingMember,
+  rxGroupListsContainingMemberRef,
 } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
@@ -34,8 +34,11 @@ export default function TalkGroupDetail() {
     );
   }
 
-  const usingChannels = channelsWithTalkGroupName(talkGroup.name, codeplug.channels);
-  const usingLists = rxGroupListsContainingMember(talkGroup.name, codeplug.rxGroupLists);
+  const usingChannels = channelsReferencingTalkGroupId(talkGroup.id, codeplug.channels);
+  const usingLists = rxGroupListsContainingMemberRef(
+    { kind: 'talkGroup', id: talkGroup.id },
+    codeplug.rxGroupLists,
+  );
 
   const deleteWarningParts: string[] = [];
   if (usingChannels.length > 0) {

@@ -1,9 +1,11 @@
 import type { ChannelMode } from '../lib/channelModes.ts';
 import type { ChannelTimeslot, ChannelTone } from '../lib/channelFields/index.ts';
 import type { EntityMeta } from '../lib/entityProvenance.ts';
+import type { EntityRef } from '../lib/entityRefs.ts';
 
 export type { ChannelMode };
 export type { EntityMeta, ImportedProvenance } from '../lib/entityProvenance.ts';
+export type { EntityRef, EntityRefKind } from '../lib/entityRefs.ts';
 
 export interface GeoPoint {
   lat: number;
@@ -15,8 +17,8 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
   return {
     rxFrequency: null,
     txFrequency: null,
-    contactName: '',
-    rxGroupListName: '',
+    contactRef: null,
+    rxGroupListId: null,
     location: null,
     useLocation: false,
     bandwidthKHz: null,
@@ -47,9 +49,8 @@ export interface Channel {
   /** Integer Hz — null when unset. */
   rxFrequency: number | null;
   txFrequency: number | null;
-  contactName: string;
-  /** Transitional name FK → RX group list. */
-  rxGroupListName: string;
+  contactRef: EntityRef | null;
+  rxGroupListId: string | null;
   location: GeoPoint | null;
   useLocation: boolean;
   /** Channel bandwidth in kHz — null when unset. */
@@ -93,10 +94,11 @@ export interface TalkGroup {
   meta?: EntityMeta;
 }
 
-/** RX group list — members are vendor wire names from Contacts.csv (groups and/or privates). */
+/** RX group list — members resolved by internal EntityRef ids. */
 export interface RxGroupList {
   id: string;
   name: string;
+  memberRefs: EntityRef[];
   meta?: EntityMeta;
 }
 
@@ -123,7 +125,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 6;
+export const CODEPLUG_SCHEMA_VERSION = 7;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 

@@ -10,7 +10,7 @@
 
 ## Overall status
 
-**Status:** In progress (Phase 3 on branch `93/paddy/import-provenance-meta`)
+**Status:** In progress (Phase 4 complete on branch `93/paddy/fk-by-uuid`, PR pending)
 
 The model refactor is delivered as a **phased epic**. Each phase is a self-contained subplan, executed by a **separate agent session**, on its own branch + PR, merged to `main` **sequentially** before the next phase branches.
 
@@ -31,14 +31,14 @@ The model refactor is delivered as a **phased epic**. Each phase is a self-conta
 
 The next agent relies on these values. Keep them accurate.
 
-- **Current `CODEPLUG_SCHEMA_VERSION`:** 6 (Phase 3)
-- **Last merged phase:** Phase 2 (#52, PR #98)
-- **`main` is at:** after Phase 2 merge — Phase 3 in progress on `93/paddy/import-provenance-meta`
+- **Current `CODEPLUG_SCHEMA_VERSION`:** 7
+- **Last merged phase:** Phase 3 (provenance meta + opengd77Extras rename) — Phase 4 ready on branch `93/paddy/fk-by-uuid`
+- **`main` is at:** after Phase 3 merge — Phase 4 PR pending
 - **Epic ticket:** [#93](https://github.com/pskillen/codeplug-tool/issues/93). No per-phase child tickets — FK-by-UUID and provenance/rename are folded under #93.
 - **New tickets created in Phase 0:**
   - OpenGD77 export issues (tracking): [#95](https://github.com/pskillen/codeplug-tool/issues/95)
 - **Shared test builders:** `src/test/builders/` (Phase 2)
-- **Provenance `meta` shape:** `EntityMeta.imported: { formatId, sourceFile, importedAt, memberWireNames? }` — accessors in `src/lib/entityProvenance.ts`
+- **Provenance `meta` shape:** `EntityMeta.imported: { formatId, sourceFile, importedAt, memberWireNames?, contactWireName?, rxGroupListWireName? }` — accessors in `src/lib/entityProvenance.ts`
 - **`vendorExtras` renamed to `opengd77Extras`?** Yes (Phase 3)
 
 ### Locked design decisions (do not relitigate)
@@ -120,7 +120,7 @@ The next agent relies on these values. Keep them accurate.
 
 ## Phase 3 — Import provenance to per-entity `meta` + `opengd77Extras` rename (new ticket)
 
-**Status:** Complete (pending PR)
+**Status:** Complete (merged)
 **Branch:** `93/paddy/import-provenance-meta`
 
 **Delivered**
@@ -141,11 +141,25 @@ The next agent relies on these values. Keep them accurate.
 
 ## Phase 4 — FKs by UUID, discriminated refs (new ticket)
 
-**Status:** Not started
-**Branch:** `{ticket}/paddy/fk-by-uuid`
+**Status:** Complete (PR pending)
+**Branch:** `93/paddy/fk-by-uuid`
 **Prerequisite:** Phase 3 provenance `meta` shape merged.
 
-**Doc debt to clear in this phase** (from [doc audit](vendor-boundary-doc-audit.md) #1, #2, #5): once FKs are id-keyed, rewrite the name-FK descriptions in [`crud/README.md`](../crud/README.md) (L38–41) and [`RxGroupListMemberPicker.md`](../../../src/components/crud/RxGroupListMemberPicker.md) (props move from `selectedNames` to id refs), and generalise "Vendor CSV serialises names" (crud README L41) to "the export adapter serialises per target format".
+**Delivered**
+
+- `EntityRef` type and resolution/export helpers (`src/lib/entityRefs.ts`).
+- `Channel.contactRef` replaces `contactName`; `Channel.rxGroupListId` replaces `rxGroupListName`.
+- `RxGroupList.memberRefs` replaces internal name membership; wire names in provenance only.
+- Schema v7 migration (v6→v7 fixture); import merge resolves refs after entity merge.
+- CRUD, validation, mutations, report lookups, and map popups use id-based FKs.
+- `aprsConfigName` unchanged (string FK until APRS modelled).
+
+**Doc debt cleared:** vendor-boundary doc audit #1, #2, #5 (data-model README, crud README, RxGroupListMemberPicker sidecar).
+
+**Verify**
+
+- `npm run lint && npm run test && npm run build` green.
+- v6→v7 migration fixture passes (channels + RGL memberRefs); OpenGD77 round-trip test green.
 
 ---
 
@@ -166,5 +180,4 @@ From the [doc audit](vendor-boundary-doc-audit.md) #6–#8 — pure doc/anchor f
 
 ## Next
 
-- Open PR for Phase 3 (provenance meta + opengd77Extras rename); merge after review.
-- After merge, generate the Phase 4 subplan (FK-by-UUID) in a fresh session.
+- Merge Phase 4 PR; branch Phase 5 from `origin/main` when ready (#54).

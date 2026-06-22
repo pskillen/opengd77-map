@@ -1,5 +1,6 @@
 import type { Channel, Contact, RxGroupList, TalkGroup } from '../models/codeplug.ts';
 import { getMemberWireNames } from './entityProvenance.ts';
+import { entityRefsEqual } from './entityRefs.ts';
 
 function locationsEqual(a: Channel['location'], b: Channel['location']): boolean {
   if (a === null && b === null) return true;
@@ -18,6 +19,24 @@ function opengd77ExtrasEqual(a: Record<string, string>, b: Record<string, string
   return true;
 }
 
+function channelContactImportEqual(a: Channel, b: Channel): boolean {
+  const wireA = a.meta?.imported?.contactWireName;
+  const wireB = b.meta?.imported?.contactWireName;
+  if (wireA !== undefined || wireB !== undefined) {
+    return (wireA ?? '') === (wireB ?? '');
+  }
+  return entityRefsEqual(a.contactRef, b.contactRef);
+}
+
+function channelRxListImportEqual(a: Channel, b: Channel): boolean {
+  const wireA = a.meta?.imported?.rxGroupListWireName;
+  const wireB = b.meta?.imported?.rxGroupListWireName;
+  if (wireA !== undefined || wireB !== undefined) {
+    return (wireA ?? '') === (wireB ?? '');
+  }
+  return a.rxGroupListId === b.rxGroupListId;
+}
+
 /** Compare import-mapped channel fields (excludes internal id and hideFromMap). */
 export function channelsImportEqual(a: Channel, b: Channel): boolean {
   return (
@@ -26,8 +45,8 @@ export function channelsImportEqual(a: Channel, b: Channel): boolean {
     a.mode === b.mode &&
     a.rxFrequency === b.rxFrequency &&
     a.txFrequency === b.txFrequency &&
-    a.contactName === b.contactName &&
-    a.rxGroupListName === b.rxGroupListName &&
+    channelContactImportEqual(a, b) &&
+    channelRxListImportEqual(a, b) &&
     locationsEqual(a.location, b.location) &&
     a.useLocation === b.useLocation &&
     a.bandwidthKHz === b.bandwidthKHz &&
@@ -71,8 +90,18 @@ export function talkGroupsImportEqual(a: TalkGroup, b: TalkGroup): boolean {
   return a.name === b.name && a.number === b.number && a.timeslotOverride === b.timeslotOverride;
 }
 
+function rxGroupListMembersImportEqual(a: RxGroupList, b: RxGroupList): boolean {
+  const wireA = getMemberWireNames(a);
+  const wireB = getMemberWireNames(b);
+  if (wireA.length > 0 || wireB.length > 0) {
+    return memberNamesEqual(wireA, wireB);
+  }
+  if (a.memberRefs.length !== b.memberRefs.length) return false;
+  return a.memberRefs.every((ref, i) => entityRefsEqual(ref, b.memberRefs[i]));
+}
+
 export function rxGroupListsImportEqual(a: RxGroupList, b: RxGroupList): boolean {
-  return a.name === b.name && memberNamesEqual(getMemberWireNames(a), getMemberWireNames(b));
+  return a.name === b.name && rxGroupListMembersImportEqual(a, b);
 }
 
 export function mergeContactOntoExisting(existing: Contact, incoming: Contact): Contact {

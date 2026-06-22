@@ -57,7 +57,7 @@ Registration:
 - [ ] Add format option to [`src/lib/vendorFormats.ts`](../../../src/lib/vendorFormats.ts) (`importStatus` / `exportStatus`)
 - [ ] Extend `VendorFormatId` and `parseVendorFormatId` in [`useVendorFormatParam.ts`](../../../src/hooks/useVendorFormatParam.ts) if needed
 
-Adapter contract (import): implement `detectKind(fileName, headerRow)`, parse functions returning internal entities or raw intermediate shapes, report skipped files and parse errors via `ImportResult`.
+Adapter contract (import): implement `detectKind(fileName, headerRow)`, parse functions returning internal entities or raw intermediate shapes, report skipped files and parse errors via `ImportResult`, and set `projectNameLabel` (short string for default new-project names: `{projectNameLabel} YYYY-MM-DD` when the user did not pick a folder).
 
 Adapter contract (export): serialise `Codeplug` to per-file downloads and/or ZIP bundle; apply radio profile limits at this layer when a profile is selected.
 
@@ -189,7 +189,7 @@ Use this as a walk-through when adding DM32, qDMR, or another format.
 | Reference hub | `docs/reference/opengd77/README.md` |
 | Radio profiles | `docs/reference/opengd77/radios/baofeng-1701.md` |
 | Adapter behaviour | `docs/features/import-export/opengd77/README.md` |
-| Import adapter | `src/lib/import/opengd77/adapter.ts`, `parse.ts`, `columns.ts` |
+| Import adapter | `src/lib/import/opengd77/adapter.ts`, `parse.ts`, `columns.ts` (`projectNameLabel: 'OpenGD77'`) |
 | Export adapter | `src/lib/export/opengd77/adapter.ts`, `serialise.ts` |
 | Registries | `src/lib/import/registry.ts`, `src/lib/export/registry.ts` |
 | UI format | `src/lib/vendorFormats.ts` — `id: 'opengd77'`, both shipped |

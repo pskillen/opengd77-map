@@ -133,6 +133,17 @@ describe('projectsReducer', () => {
     expect(state.projects[0].codeplug.channels).toHaveLength(2);
   });
 
+  it('uses suggestedProjectName from import result when creating a project', () => {
+    const state = projectsReducer(
+      { activeProjectId: null, projects: [] },
+      {
+        type: 'IMPORT_NEW_PROJECT',
+        result: { ...channelsCsvResult(), suggestedProjectName: 'my-export' },
+      },
+    );
+    expect(state.projects[0].name).toBe('my-export');
+  });
+
   it('applies import to the active project only', () => {
     setIdGenerator(() => 'proj-1');
     let state = projectsReducer(

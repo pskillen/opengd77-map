@@ -10,6 +10,12 @@ import {
   type Zone,
 } from '../models/codeplug.ts';
 import type { EntityMeta } from '../lib/entityProvenance.ts';
+import {
+  normaliseWireName,
+  resolveChannelContactRefs,
+  resolveChannelRxGroupListIds,
+  resolveRxGroupListMemberRefs,
+} from '../lib/entityRefs.ts';
 import { normalizeChannelMode } from '../lib/channelModes.ts';
 import { normalizeToneValue } from '../lib/channelFields/index.ts';
 import { coerceLegacyStringField } from '../lib/import/opengd77/channelWire.ts';
@@ -46,18 +52,59 @@ const TYPED_CHANNEL_FIELDS = [
   'rxOnly',
 ] as const;
 
-function migrateChannel(raw: Record<string, unknown>): Channel {
+function migrateChannel(raw: Record<string, unknown>, projectImportedAt: string | null): Channel {
   const defaults = channelFieldDefaults();
   const rest = { ...raw };
   delete rest.number;
   delete rest.vendorExtras;
 
-  const partial = rest as Partial<Channel> & { vendorExtras?: Record<string, string> };
+  const legacyContactName =
+    typeof raw.contactName === 'string' ? normaliseWireName(raw.contactName) : '';
+  const legacyRxGroupListName =
+    typeof raw.rxGroupListName === 'string' ? normaliseWireName(raw.rxGroupListName) : '';
+  delete rest.contactName;
+  delete rest.rxGroupListName;
+
+  const partial = rest as Partial<Channel> & {
+    vendorExtras?: Record<string, string>;
+    contactName?: string;
+    rxGroupListName?: string;
+  };
   const migrated: Partial<Channel> = { ...defaults, ...partial };
   migrated.mode = normalizeChannelMode(String(partial.mode ?? 'other'));
   migrated.hideFromMap = partial.hideFromMap ?? false;
   migrated.opengd77Extras =
     partial.opengd77Extras ?? partial.vendorExtras ?? defaults.opengd77Extras;
+  migrated.contactRef = partial.contactRef ?? null;
+  migrated.rxGroupListId = partial.rxGroupListId ?? null;
+
+  let meta = partial.meta as EntityMeta | undefined;
+  if (legacyRxGroupListName && !meta?.imported?.rxGroupListWireName) {
+    const imported = meta?.imported;
+    meta = {
+      ...meta,
+      imported: {
+        formatId: imported?.formatId ?? 'opengd77',
+        sourceFile: imported?.sourceFile ?? null,
+        importedAt: imported?.importedAt ?? projectImportedAt ?? new Date(0).toISOString(),
+        ...imported,
+        rxGroupListWireName: legacyRxGroupListName,
+      },
+    };
+  }
+  if (legacyContactName && !meta?.imported?.contactWireName) {
+    const imported = meta?.imported;
+    meta = {
+      ...meta,
+      imported: {
+        formatId: imported?.formatId ?? 'opengd77',
+        sourceFile: imported?.sourceFile ?? null,
+        importedAt: imported?.importedAt ?? projectImportedAt ?? new Date(0).toISOString(),
+        ...imported,
+        contactWireName: legacyContactName,
+      },
+    };
+  }
 
   for (const field of TYPED_CHANNEL_FIELDS) {
     const current = partial[field];
@@ -83,7 +130,7 @@ function migrateChannel(raw: Record<string, unknown>): Channel {
     mode: migrated.mode!,
     hideFromMap: migrated.hideFromMap ?? false,
     opengd77Extras: migrated.opengd77Extras ?? {},
-    meta: partial.meta as EntityMeta | undefined,
+    meta,
   };
 }
 
@@ -131,6 +178,7 @@ function migrateRxGroupList(
   const rgl: RxGroupList = {
     id: String(raw.id ?? ''),
     name: String(raw.name ?? ''),
+    memberRefs: Array.isArray(raw.memberRefs) ? (raw.memberRefs as RxGroupList['memberRefs']) : [],
     meta: existingMeta,
   };
 
@@ -196,7 +244,7 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
   const projectImportedAt = meta.importedAt ?? null;
 
   const channels = Array.isArray(raw.channels)
-    ? (raw.channels as Record<string, unknown>[]).map(migrateChannel)
+    ? (raw.channels as Record<string, unknown>[]).map((ch) => migrateChannel(ch, projectImportedAt))
     : [];
   const zones = Array.isArray(raw.zones)
     ? (raw.zones as Record<string, unknown>[]).map((z) => migrateZone(z, projectImportedAt))
@@ -208,11 +256,21 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
     ? (raw.contacts as Partial<Contact>[]).map(migrateContact)
     : [];
 
+  const rxGroupLists = resolveRxGroupListMemberRefs(
+    migrateRxGroupLists(raw, projectImportedAt),
+    talkGroups,
+    contacts,
+  );
+
   return {
-    channels,
+    channels: resolveChannelContactRefs(
+      resolveChannelRxGroupListIds(channels, rxGroupLists),
+      talkGroups,
+      contacts,
+    ),
     zones,
     talkGroups,
-    rxGroupLists: migrateRxGroupLists(raw, projectImportedAt),
+    rxGroupLists,
     contacts,
     meta: {
       importedAt: meta.importedAt ?? null,

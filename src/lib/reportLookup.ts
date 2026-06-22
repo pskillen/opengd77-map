@@ -1,6 +1,12 @@
 import type { Channel, Contact, RxGroupList, TalkGroup, Zone } from '../models/codeplug.ts';
 import { buildNameToChannelId } from './codeplug.ts';
 import { getMemberWireNames } from './entityProvenance.ts';
+import {
+  entityRefDisplayName,
+  entityRefsEqual,
+  resolveContactRefByWireName,
+} from './entityRefs.ts';
+import type { EntityRef } from './entityRefs.ts';
 
 export function findEntityById<T extends { id: string }>(entities: T[], id: string): T | null {
   return entities.find((e) => e.id === id) ?? null;
@@ -10,18 +16,61 @@ export function zonesContainingChannel(channelId: string, zones: Zone[]): Zone[]
   return zones.filter((z) => z.memberChannelIds.includes(channelId));
 }
 
-export function channelsWithContactName(name: string, channels: Channel[]): Channel[] {
-  if (!name || name === 'None') return [];
-  return channels.filter((ch) => ch.contactName === name);
+export function channelsReferencingContactId(contactId: string, channels: Channel[]): Channel[] {
+  if (!contactId) return [];
+  return channels.filter(
+    (ch) => ch.contactRef?.kind === 'contact' && ch.contactRef.id === contactId,
+  );
 }
 
-export function channelsWithRxGroupList(name: string, channels: Channel[]): Channel[] {
-  if (!name || name === 'None') return [];
-  return channels.filter((ch) => ch.rxGroupListName === name);
+export function channelsReferencingTalkGroupId(
+  talkGroupId: string,
+  channels: Channel[],
+): Channel[] {
+  if (!talkGroupId) return [];
+  return channels.filter(
+    (ch) => ch.contactRef?.kind === 'talkGroup' && ch.contactRef.id === talkGroupId,
+  );
 }
 
-export function channelsWithTalkGroupName(name: string, channels: Channel[]): Channel[] {
-  return channelsWithContactName(name, channels);
+export function channelsWithContactRef(ref: EntityRef | null, channels: Channel[]): Channel[] {
+  if (!ref) return [];
+  return channels.filter((ch) => entityRefsEqual(ch.contactRef, ref));
+}
+
+/** @deprecated use channelsWithContactRef or channelsReferencing*Id */
+export function channelsWithContactName(
+  name: string,
+  channels: Channel[],
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+): Channel[] {
+  if (!name || name === 'None') return [];
+  const ref = resolveContactRefByWireName(name, talkGroups, contacts);
+  if (!ref) return [];
+  return channels.filter((ch) => entityRefsEqual(ch.contactRef, ref));
+}
+
+export function channelsReferencingRxGroupListId(
+  rxGroupListId: string,
+  channels: Channel[],
+): Channel[] {
+  if (!rxGroupListId) return [];
+  return channels.filter((ch) => ch.rxGroupListId === rxGroupListId);
+}
+
+export function channelsWithRxGroupListId(rxGroupListId: string, channels: Channel[]): Channel[] {
+  return channelsReferencingRxGroupListId(rxGroupListId, channels);
+}
+
+export function channelsWithTalkGroupName(
+  name: string,
+  channels: Channel[],
+  talkGroups: TalkGroup[],
+): Channel[] {
+  const tg = talkGroups.find((t) => t.name === name);
+  if (!tg) return [];
+  return channelsReferencingTalkGroupId(tg.id, channels);
 }
 
 export function channelsForZone(zone: Zone, channels: Channel[]): Channel[] {
@@ -40,6 +89,21 @@ export function resolveRxGroupListMembers(
   talkGroups: TalkGroup[],
   contacts: Contact[],
 ): ResolvedRxMember[] {
+  if (rgl.memberRefs.length > 0) {
+    return rgl.memberRefs.map((ref) => {
+      const name = entityRefDisplayName(ref, talkGroups, contacts);
+      if (!name) {
+        return { name: '', kind: 'unresolved' as const, entity: null };
+      }
+      if (ref.kind === 'talkGroup') {
+        const tg = talkGroups.find((t) => t.id === ref.id) ?? null;
+        return { name, kind: 'talkGroup' as const, entity: tg };
+      }
+      const contact = contacts.find((c) => c.id === ref.id) ?? null;
+      return { name, kind: 'contact' as const, entity: contact };
+    });
+  }
+
   const tgByName = new Map(talkGroups.map((tg) => [tg.name, tg]));
   const contactByName = new Map(contacts.map((c) => [c.name, c]));
 
@@ -79,6 +143,14 @@ export function findRxGroupListByName(name: string, lists: RxGroupList[]): RxGro
   return lists.find((r) => r.name === name) ?? null;
 }
 
+export function rxGroupListsContainingMemberRef(
+  ref: EntityRef,
+  lists: RxGroupList[],
+): RxGroupList[] {
+  return lists.filter((rgl) => rgl.memberRefs.some((member) => entityRefsEqual(member, ref)));
+}
+
+/** @deprecated use rxGroupListsContainingMemberRef */
 export function rxGroupListsContainingMember(name: string, lists: RxGroupList[]): RxGroupList[] {
   if (!name) return [];
   return lists.filter((rgl) => getMemberWireNames(rgl).includes(name));

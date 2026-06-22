@@ -27,14 +27,29 @@ import {
 
 const OPENGD77_FORMAT = 'opengd77';
 
-function importStamp(sourceFile: string, memberWireNames?: string[]) {
+function importStamp(
+  sourceFile: string,
+  defaultExtra?: {
+    memberWireNames?: string[];
+    contactWireName?: string;
+    rxGroupListWireName?: string;
+  },
+) {
   const importedAt = new Date().toISOString();
-  return <T extends WithEntityMeta>(entity: T): T =>
+  return <T extends WithEntityMeta>(
+    entity: T,
+    perEntityExtra?: {
+      memberWireNames?: string[];
+      contactWireName?: string;
+      rxGroupListWireName?: string;
+    },
+  ): T =>
     stampImported(entity, {
       formatId: OPENGD77_FORMAT,
       sourceFile,
       importedAt,
-      memberWireNames,
+      ...defaultExtra,
+      ...perEntityExtra,
     });
 }
 
@@ -76,33 +91,39 @@ export function parseChannels(text: string): Channel[] {
     }
 
     out.push(
-      stamp({
-        id: newId(),
-        ...channelFieldDefaults(),
-        name,
-        callsign: extractCallsign(name),
-        mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),
-        rxFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.rx)),
-        txFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.tx)),
-        bandwidthKHz: parseOpenGd77BandwidthWire(get(CHANNEL_COL.bandwidth)),
-        colourCode: parseOpenGd77ColourCodeWire(get(CHANNEL_COL.colourCode)),
-        timeslot: parseOpenGd77TimeslotWire(get(CHANNEL_COL.timeslot)),
-        contactName: get(CHANNEL_COL.contact),
-        rxGroupListName: get(CHANNEL_COL.tgList),
-        dmrId: parseOpenGd77DmrIdWire(get(CHANNEL_COL.dmrId)),
-        rxTone: parseOpenGd77ToneWire(get(CHANNEL_COL.rxTone)),
-        txTone: parseOpenGd77ToneWire(get(CHANNEL_COL.txTone)),
-        squelch: parseOpenGd77SquelchWire(get(CHANNEL_COL.squelch)),
-        power: parseOpenGd77PowerWire(get(CHANNEL_COL.power)),
-        rxOnly: parseYesNo(get(CHANNEL_COL.rxOnly)),
-        aprsConfigName: get(CHANNEL_COL.aprs),
-        voxEnabled: parseVoxEnabled(get(CHANNEL_COL.vox)),
-        transmitTimeout: parseOpenGd77TransmitTimeoutWire(get(CHANNEL_COL.tot)),
-        scanSkip: parseYesNo(get(CHANNEL_COL.allSkip)),
-        location: hasLat && hasLon ? { lat, lon } : null,
-        useLocation: parseYesNo(get(CHANNEL_COL.useLocation)),
-        opengd77Extras,
-      }),
+      stamp(
+        {
+          id: newId(),
+          ...channelFieldDefaults(),
+          name,
+          callsign: extractCallsign(name),
+          mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),
+          rxFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.rx)),
+          txFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.tx)),
+          bandwidthKHz: parseOpenGd77BandwidthWire(get(CHANNEL_COL.bandwidth)),
+          colourCode: parseOpenGd77ColourCodeWire(get(CHANNEL_COL.colourCode)),
+          timeslot: parseOpenGd77TimeslotWire(get(CHANNEL_COL.timeslot)),
+          contactRef: null,
+          rxGroupListId: null,
+          dmrId: parseOpenGd77DmrIdWire(get(CHANNEL_COL.dmrId)),
+          rxTone: parseOpenGd77ToneWire(get(CHANNEL_COL.rxTone)),
+          txTone: parseOpenGd77ToneWire(get(CHANNEL_COL.txTone)),
+          squelch: parseOpenGd77SquelchWire(get(CHANNEL_COL.squelch)),
+          power: parseOpenGd77PowerWire(get(CHANNEL_COL.power)),
+          rxOnly: parseYesNo(get(CHANNEL_COL.rxOnly)),
+          aprsConfigName: get(CHANNEL_COL.aprs),
+          voxEnabled: parseVoxEnabled(get(CHANNEL_COL.vox)),
+          transmitTimeout: parseOpenGd77TransmitTimeoutWire(get(CHANNEL_COL.tot)),
+          scanSkip: parseYesNo(get(CHANNEL_COL.allSkip)),
+          location: hasLat && hasLon ? { lat, lon } : null,
+          useLocation: parseYesNo(get(CHANNEL_COL.useLocation)),
+          opengd77Extras,
+        },
+        {
+          contactWireName: get(CHANNEL_COL.contact),
+          rxGroupListWireName: get(CHANNEL_COL.tgList),
+        },
+      ),
     );
   }
   return out;

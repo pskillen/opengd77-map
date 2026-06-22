@@ -28,10 +28,10 @@ export default function ImportDropzone({
   const folderInputRef = useRef<HTMLInputElement>(null);
 
   const handleFiles = useCallback(
-    async (files: File[]) => {
+    async (files: File[], directoryName?: string) => {
       if (!files.length) return;
       try {
-        const result = await importFiles(files);
+        const result = await importFiles(files, { directoryName });
         onResult(result);
         setSummary(formatImportFileSummary(result.recognised, result.skipped, result.errors));
         setError(result.errors.length ? result.errors.map((e) => e.message).join('; ') : null);
@@ -46,8 +46,8 @@ export default function ImportDropzone({
     async (e: React.DragEvent) => {
       e.preventDefault();
       setDragover(false);
-      const files = await collectFilesFromDataTransfer(e.dataTransfer);
-      await handleFiles(files);
+      const { files, directoryName } = await collectFilesFromDataTransfer(e.dataTransfer);
+      await handleFiles(files, directoryName);
     },
     [handleFiles],
   );

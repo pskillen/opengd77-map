@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import RxGroupListMemberPicker from '../components/crud/RxGroupListMemberPicker.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
-import { getMemberWireNames } from '../lib/entityProvenance.ts';
+import type { EntityRef } from '../models/codeplug.ts';
 import { findEntityById } from '../lib/reportLookup.ts';
 import { hasValidationErrors } from '../lib/validation/channel.ts';
 import { validateRxGroupList } from '../lib/validation/rxGroupList.ts';
@@ -19,9 +19,7 @@ export default function RxGroupListEdit() {
   const existing = !isNew && id ? findEntityById(codeplug.rxGroupLists, id) : null;
 
   const [name, setName] = useState(existing?.name ?? '');
-  const [memberNames, setMemberNames] = useState<string[]>(
-    existing ? getMemberWireNames(existing) : [],
-  );
+  const [memberRefs, setMemberRefs] = useState<EntityRef[]>(existing?.memberRefs ?? []);
   const [formError, setFormError] = useState<string | null>(null);
 
   if (!isNew && !existing) {
@@ -39,7 +37,7 @@ export default function RxGroupListEdit() {
     e.preventDefault();
     setFormError(null);
 
-    const input = { name: name.trim(), memberWireNames: memberNames };
+    const input = { name: name.trim(), memberRefs };
     const issues = validateRxGroupList(input, codeplug, existing?.id);
     if (hasValidationErrors(issues)) {
       setFormError(issues.find((i) => i.severity === 'error')?.message ?? 'Validation failed');
@@ -54,7 +52,7 @@ export default function RxGroupListEdit() {
         if (name.trim() !== existing.name) {
           updateRxGroupList(existing.id, { name: name.trim() });
         }
-        setRxGroupListMembers(existing.id, memberNames);
+        setRxGroupListMembers(existing.id, memberRefs);
         navigate(`/rx-group-lists/${existing.id}`);
       }
     } catch (err) {
@@ -95,8 +93,8 @@ export default function RxGroupListEdit() {
             <RxGroupListMemberPicker
               talkGroups={codeplug.talkGroups}
               contacts={codeplug.contacts}
-              selectedNames={memberNames}
-              onChange={setMemberNames}
+              selectedRefs={memberRefs}
+              onChange={setMemberRefs}
             />
           </Stack>
 

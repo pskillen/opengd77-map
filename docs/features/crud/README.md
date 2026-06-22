@@ -35,10 +35,10 @@ TG/RGL/contact CRUD follows the same rule: unlimited RGL members in the internal
 
 ## Concepts
 
-- **Internal FKs:** Zone membership uses `memberChannelIds` (UUIDs). `sourceMemberNames` is export wire only.
-- **Wire-name FKs:** Channels reference talk groups/contacts and RX group lists by **name**; RGL members are vendor names. Renames propagate; deletes clear or remove references.
-- **Shared contact namespace:** `TalkGroup.name` and `Contact.name` must be unique across both arrays (internal FK rule).
-- **Export round-trip:** Vendor CSV serialises names; cardinality limits at export per [radio profiles](../../reference/opengd77/radios/README.md).
+- **Internal FKs:** Zone membership uses `memberChannelIds` (UUIDs). Channels use `contactRef` (`EntityRef | null`) and `rxGroupListId`. RX group lists store ordered `memberRefs` (`EntityRef[]`). Wire names from import live in `meta.imported` provenance only.
+- **Rename/delete propagation:** Mutations clear or update id-based refs when a talk group, contact, or RX group list is deleted; renames do not rewrite channel refs (ids are stable).
+- **Shared contact namespace:** `TalkGroup.name` and `Contact.name` must be unique across both arrays (display/export label invariant).
+- **Export round-trip:** The export adapter serialises wire strings per target format; cardinality limits apply at export per [radio profiles](../../reference/opengd77/radios/README.md).
 
 ## Routes
 

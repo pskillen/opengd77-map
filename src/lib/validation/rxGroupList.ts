@@ -1,8 +1,9 @@
 import type { Codeplug } from '../../models/codeplug.ts';
+import type { EntityRef } from '../../lib/entityRefs.ts';
 import type { ValidationIssue } from './channel.ts';
 
 export function validateRxGroupList(
-  input: { name: string; memberWireNames?: string[] },
+  input: { name: string; memberRefs?: EntityRef[] },
   codeplug: Codeplug,
   rglId?: string,
 ): ValidationIssue[] {
@@ -21,15 +22,18 @@ export function validateRxGroupList(
     }
   }
 
-  const members = input.memberWireNames;
+  const members = input.memberRefs;
   if (members) {
-    const talkGroupNames = new Set(codeplug.talkGroups.map((tg) => tg.name));
-    const contactNames = new Set(codeplug.contacts.map((c) => c.name));
-    const unresolved = members.filter((n) => !talkGroupNames.has(n) && !contactNames.has(n));
+    const unresolved = members.filter((ref) => {
+      if (ref.kind === 'talkGroup') {
+        return !codeplug.talkGroups.some((tg) => tg.id === ref.id);
+      }
+      return !codeplug.contacts.some((c) => c.id === ref.id);
+    });
     if (unresolved.length > 0) {
       issues.push({
-        field: 'memberWireNames',
-        message: `${unresolved.length} member name(s) not found in talk groups or contacts`,
+        field: 'memberRefs',
+        message: `${unresolved.length} member ref(s) not found in talk groups or contacts`,
         severity: 'warning',
       });
     }

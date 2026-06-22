@@ -11,6 +11,8 @@ import {
 } from '@mantine/core';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
+import { entityRefKey } from '../../lib/entityRefs.ts';
+import type { EntityRef } from '../../lib/entityRefs.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { sortByName } from '../../lib/reportLookup.ts';
 import type { Contact, TalkGroup } from '../../models/codeplug.ts';
@@ -18,38 +20,39 @@ import type { Contact, TalkGroup } from '../../models/codeplug.ts';
 export interface RxGroupListMemberPickerProps {
   talkGroups: TalkGroup[];
   contacts: Contact[];
-  selectedNames: string[];
-  onChange: (names: string[]) => void;
+  selectedRefs: EntityRef[];
+  onChange: (refs: EntityRef[]) => void;
 }
 
 interface MemberOption {
+  ref: EntityRef;
   name: string;
-  kind: 'talkGroup' | 'contact';
+  key: string;
 }
 
 function moveSelectedBlock(
-  names: string[],
+  refs: EntityRef[],
   selected: Set<string>,
   direction: 'up' | 'down',
-): string[] {
-  const next = [...names];
+): EntityRef[] {
+  const next = [...refs];
   const indices = next
-    .map((name, index) => ({ name, index }))
-    .filter(({ name }) => selected.has(name))
+    .map((ref, index) => ({ key: entityRefKey(ref), index }))
+    .filter(({ key }) => selected.has(key))
     .map(({ index }) => index);
 
   if (direction === 'up') {
     for (const index of indices.sort((a, b) => a - b)) {
       if (index === 0) continue;
       const above = index - 1;
-      if (selected.has(next[above])) continue;
+      if (selected.has(entityRefKey(next[above]))) continue;
       [next[above], next[index]] = [next[index], next[above]];
     }
   } else {
     for (const index of indices.sort((a, b) => b - a)) {
       if (index >= next.length - 1) continue;
       const below = index + 1;
-      if (selected.has(next[below])) continue;
+      if (selected.has(entityRefKey(next[below]))) continue;
       [next[below], next[index]] = [next[index], next[below]];
     }
   }
@@ -58,8 +61,16 @@ function moveSelectedBlock(
 }
 
 function memberOptions(talkGroups: TalkGroup[], contacts: Contact[]): MemberOption[] {
-  const tg = sortByName(talkGroups).map((t) => ({ name: t.name, kind: 'talkGroup' as const }));
-  const ct = sortByName(contacts).map((c) => ({ name: c.name, kind: 'contact' as const }));
+  const tg = sortByName(talkGroups).map((t) => ({
+    ref: { kind: 'talkGroup' as const, id: t.id },
+    name: t.name,
+    key: entityRefKey({ kind: 'talkGroup', id: t.id }),
+  }));
+  const ct = sortByName(contacts).map((c) => ({
+    ref: { kind: 'contact' as const, id: c.id },
+    name: c.name,
+    key: entityRefKey({ kind: 'contact', id: c.id }),
+  }));
   return [...tg, ...ct];
 }
 
@@ -71,7 +82,7 @@ function MemberList({
 }: {
   items: MemberOption[];
   checked: Set<string>;
-  onToggle: (name: string) => void;
+  onToggle: (key: string) => void;
   emptyLabel: string;
 }) {
   if (!items.length) {
@@ -85,14 +96,14 @@ function MemberList({
   return (
     <Stack gap={4} p="xs">
       {items.map((item) => (
-        <Group key={item.name} gap="xs" wrap="nowrap">
+        <Group key={item.key} gap="xs" wrap="nowrap">
           <Checkbox
             label={item.name}
-            checked={checked.has(item.name)}
-            onChange={() => onToggle(item.name)}
+            checked={checked.has(item.key)}
+            onChange={() => onToggle(item.key)}
             style={{ flex: 1 }}
           />
-          {item.kind === 'talkGroup' ? (
+          {item.ref.kind === 'talkGroup' ? (
             <Badge size="sm">Talk group</Badge>
           ) : (
             <Badge size="sm" color="grape">
@@ -108,7 +119,7 @@ function MemberList({
 export default function RxGroupListMemberPicker({
   talkGroups,
   contacts,
-  selectedNames,
+  selectedRefs,
   onChange,
 }: RxGroupListMemberPickerProps) {
   const [availableFilter, setAvailableFilter] = useState('');
@@ -116,9 +127,12 @@ export default function RxGroupListMemberPicker({
   const [availableSelected, setAvailableSelected] = useState<string[]>([]);
   const [inListSelected, setInListSelected] = useState<string[]>([]);
 
-  const selectedSet = new Set(selectedNames);
+  const selectedKeys = useMemo(
+    () => new Set(selectedRefs.map((ref) => entityRefKey(ref))),
+    [selectedRefs],
+  );
   const allOptions = useMemo(() => memberOptions(talkGroups, contacts), [talkGroups, contacts]);
-  const optionByName = useMemo(() => new Map(allOptions.map((o) => [o.name, o])), [allOptions]);
+  const optionByKey = useMemo(() => new Map(allOptions.map((o) => [o.key, o])), [allOptions]);
 
   const availableFilterLower = availableFilter.trim().toLowerCase();
   const inListFilterLower = inListFilter.trim().toLowerCase();
@@ -127,61 +141,69 @@ export default function RxGroupListMemberPicker({
     () =>
       allOptions.filter(
         (o) =>
-          !selectedSet.has(o.name) &&
+          !selectedKeys.has(o.key) &&
           (!availableFilterLower || o.name.toLowerCase().includes(availableFilterLower)),
       ),
-    [allOptions, selectedNames, availableFilterLower],
+    [allOptions, selectedKeys, availableFilterLower],
   );
 
   const inListMembers = useMemo(
     () =>
-      selectedNames
-        .map((name) => optionByName.get(name) ?? { name, kind: 'contact' as const })
+      selectedRefs
+        .map((ref) => {
+          const key = entityRefKey(ref);
+          return optionByKey.get(key) ?? { ref, name: key, key };
+        })
         .filter((o) => !inListFilterLower || o.name.toLowerCase().includes(inListFilterLower)),
-    [selectedNames, optionByName, inListFilterLower],
+    [selectedRefs, optionByKey, inListFilterLower],
   );
 
-  const toggleAvailable = (name: string) => {
+  const toggleAvailable = (key: string) => {
     setAvailableSelected((prev) =>
-      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name],
+      prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key],
     );
   };
 
-  const toggleInList = (name: string) => {
+  const toggleInList = (key: string) => {
     setInListSelected((prev) =>
-      prev.includes(name) ? prev.filter((x) => x !== name) : [...prev, name],
+      prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key],
     );
   };
 
   const addSelected = () => {
-    const toAdd = availableSelected.filter((name) => !selectedSet.has(name));
+    const toAdd = availableSelected
+      .map((key) => optionByKey.get(key)?.ref)
+      .filter((ref): ref is EntityRef => ref != null && !selectedKeys.has(entityRefKey(ref)));
     if (!toAdd.length) return;
-    onChange([...selectedNames, ...toAdd]);
+    onChange([...selectedRefs, ...toAdd]);
     setAvailableSelected([]);
   };
 
   const removeSelected = () => {
     if (!inListSelected.length) return;
     const remove = new Set(inListSelected);
-    onChange(selectedNames.filter((name) => !remove.has(name)));
+    onChange(selectedRefs.filter((ref) => !remove.has(entityRefKey(ref))));
     setInListSelected([]);
   };
 
   const moveSelected = (direction: 'up' | 'down') => {
     if (!inListSelected.length) return;
-    onChange(moveSelectedBlock(selectedNames, new Set(inListSelected), direction));
+    onChange(moveSelectedBlock(selectedRefs, new Set(inListSelected), direction));
   };
 
-  const canMoveUp = inListSelected.some((name) => selectedNames.indexOf(name) > 0);
-  const canMoveDown = inListSelected.some((name) => {
-    const index = selectedNames.indexOf(name);
-    return index >= 0 && index < selectedNames.length - 1;
+  const canMoveUp = inListSelected.some((key) => {
+    const index = selectedRefs.findIndex((ref) => entityRefKey(ref) === key);
+    return index > 0;
+  });
+  const canMoveDown = inListSelected.some((key) => {
+    const index = selectedRefs.findIndex((ref) => entityRefKey(ref) === key);
+    return index >= 0 && index < selectedRefs.length - 1;
   });
 
   return (
     <Stack gap="sm">
       <Text size="sm" c="dimmed">
-        {selectedNames.length} member{selectedNames.length === 1 ? '' : 's'}
+        {selectedRefs.length} member{selectedRefs.length === 1 ? '' : 's'}
       </Text>
 
       <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
