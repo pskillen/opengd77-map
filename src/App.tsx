@@ -15,6 +15,7 @@ import Home from './routes/Home.tsx';
 import ImportExport from './routes/ImportExport.tsx';
 import Summary from './routes/Summary.tsx';
 import ProjectEdit from './routes/project/edit.tsx';
+import NewCodeplug from './routes/project/new.tsx';
 import ChannelsList from './routes/channels/list.tsx';
 import ChannelDetail from './routes/channels/detail.tsx';
 import ChannelEdit from './routes/channels/edit.tsx';
@@ -90,6 +91,7 @@ export default function App() {
           <Route path="/reference" element={<ReferenceIndex />} />
           <Route path="/reference/band-plan" element={<BandPlan />} />
           <Route path="/reference/maidenhead" element={<MaidenheadConverter />} />
+          <Route path="/codeplug/new" element={<NewCodeplug />} />
           <Route element={<RequireActiveProject />}>
             <Route path="/summary" element={<Summary />} />
             <Route path="/summary/edit" element={<ProjectEdit />} />
