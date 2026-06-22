@@ -72,7 +72,8 @@ type ProjectsAction =
   | { type: 'UPDATE_RX_GROUP_LIST'; rglId: string; patch: Partial<RxGroupListInput> }
   | { type: 'DELETE_RX_GROUP_LIST'; rglId: string }
   | { type: 'SET_RX_GROUP_LIST_MEMBERS'; rglId: string; memberRefs: EntityRef[] }
-  | { type: 'UPDATE_PROJECT'; id: string; patch: ProjectMetadataPatch };
+  | { type: 'UPDATE_PROJECT'; id: string; patch: ProjectMetadataPatch }
+  | { type: 'COMMIT_NEW_PROJECT'; metadata: ProjectMetadataPatch };
 
 function applyImportToCodeplug(
   codeplug: Codeplug,
@@ -84,6 +85,24 @@ function applyImportToCodeplug(
 
 function touchProject(project: CodeplugProject): CodeplugProject {
   return { ...project, updatedAt: new Date().toISOString() };
+}
+
+function commitNewProjectState(
+  state: ProjectsState,
+  metadata: ProjectMetadataPatch,
+): ProjectsState {
+  const name = metadata.name?.trim() ?? '';
+  const project = touchProject({
+    ...newProject(name),
+    description: metadata.description ?? '',
+    notes: metadata.notes ?? '',
+    author: metadata.author ?? '',
+    targetRadios: metadata.targetRadios ?? [],
+  });
+  return {
+    projects: [...state.projects, project],
+    activeProjectId: project.id,
+  };
 }
 
 function importNewProjectState(
@@ -246,6 +265,9 @@ function projectsReducer(state: ProjectsState, action: ProjectsAction): Projects
       };
     }
 
+    case 'COMMIT_NEW_PROJECT':
+      return commitNewProjectState(state, action.metadata);
+
     default:
       return state;
   }
@@ -294,6 +316,7 @@ interface ProjectsContextValue {
   setActiveProject: (id: string) => void;
   deleteProject: (id: string) => void;
   updateProject: (id: string, patch: ProjectMetadataPatch) => void;
+  commitNewProject: (metadata: ProjectMetadataPatch) => void;
   persistenceError: string | null;
   clearPersistenceError: () => void;
 }
@@ -364,6 +387,11 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
   const updateProject = useCallback((id: string, patch: ProjectMetadataPatch) => {
     setPersistenceError(null);
     dispatch({ type: 'UPDATE_PROJECT', id, patch });
+  }, []);
+
+  const commitNewProject = useCallback((metadata: ProjectMetadataPatch) => {
+    setPersistenceError(null);
+    dispatch({ type: 'COMMIT_NEW_PROJECT', metadata });
   }, []);
 
   const addChannel = useCallback((input: ChannelInput) => {
@@ -515,6 +543,7 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
       setActiveProject,
       deleteProject,
       updateProject,
+      commitNewProject,
       persistenceError,
       clearPersistenceError,
     }),
@@ -526,6 +555,7 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
       setActiveProject,
       deleteProject,
       updateProject,
+      commitNewProject,
       persistenceError,
       clearPersistenceError,
     ],

@@ -60,6 +60,8 @@ The SPA has lint, format, and test tooling. Before committing, run the checks re
 - Confirm no secrets (Mapbox tokens, personal CSVs) are staged
 - Match existing patterns in the target component/module under `src/`
 
+**Formatting:** `npm run format` writes fixes; `npm run format:check` is what CI runs. If `format:check` fails locally, run `npm run format`, review the diff, and commit the result — do not open a PR with unformatted files.
+
 ---
 
 ## 4. Commits
@@ -130,9 +132,12 @@ When the **Shell** tool runs `git`:
 
 When work is ready:
 
-1. Open one PR in `pskillen/codeplug-tool` via `user-github-personal` MCP
-2. Link the issue (`Closes #N`) when applicable
-3. Note which part of the SPA changed and how to smoke-test locally (`npm run dev`, affected route, or the GitHub Pages URL)
+1. Run `npm run format` and commit any Prettier fixes (CI runs `format:check`).
+2. Run `npm run format:check && npm run lint && npm run test && npm run build`.
+3. Push the branch.
+4. Open one PR in `pskillen/codeplug-tool` via `user-github-personal` MCP
+5. Link the issue (`Closes #N`) when applicable
+6. Note which part of the SPA changed and how to smoke-test locally (`npm run dev`, affected route, or the GitHub Pages URL)
 
 **PR description template:**
 
@@ -141,7 +146,7 @@ When work is ready:
 - …
 
 ## Test plan
-- [ ] `npm run lint && npm run test && npm run build`
+- [ ] `npm run format:check && npm run lint && npm run test && npm run build`
 - [ ] `npm run dev`, exercise the affected route (e.g. `/#/map` with sample Channels.csv / Zones.csv)
 - [ ] …
 ```
@@ -154,7 +159,7 @@ When work is ready:
 |------|--------|
 | Plan | Issue for non-trivial work; link plan + feature docs |
 | Branch | `{num}/{author}/{slug}` or `{type}/{slug}` from `origin/main` |
-| Pre-commit | `npm run lint/test/build`; dev-server smoke-test; no secrets in diff |
+| Pre-commit | `npm run format:check`, lint, test, build; dev-server smoke-test; no secrets in diff |
 | Commit | Conventional commits; atomic; Shell `working_directory` = repo root |
-| PR | One PR in this repo; link issue; describe manual test steps |
+| PR | `npm run format` first; then push; one PR; link issue; describe manual test steps |
 | Deploy | Merge to `main`, then publish a full GitHub release (tag `v*`) → GitHub Pages |

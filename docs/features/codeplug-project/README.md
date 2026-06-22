@@ -2,7 +2,7 @@
 
 Contributor reference for the **codeplug project** wrapper — the named, persistent, switchable container that holds one codeplug and is the unit users work with across tools.
 
-**Tracking:** [codeplug-tool#9](https://github.com/pskillen/codeplug-tool/issues/9) (persistence + nascent CRUD), [codeplug-tool#31](https://github.com/pskillen/codeplug-tool/issues/31) (UI polish), [codeplug-tool#76](https://github.com/pskillen/codeplug-tool/issues/76) (nav + route guards)
+**Tracking:** [codeplug-tool#9](https://github.com/pskillen/codeplug-tool/issues/9) (persistence + nascent CRUD), [codeplug-tool#31](https://github.com/pskillen/codeplug-tool/issues/31) (UI polish), [codeplug-tool#76](https://github.com/pskillen/codeplug-tool/issues/76) (nav + route guards), [codeplug-tool#102](https://github.com/pskillen/codeplug-tool/issues/102) (start fresh)
 
 ## Problem
 
@@ -45,11 +45,12 @@ Identity and operator-facing metadata live on the wrapper so [`Codeplug`](../dat
 | Hook | Role |
 | --- | --- |
 | `useCodeplug()` | Active project's `codeplug`, `applyImport`, `clear`, persistence warnings |
-| `useProjects()` | Full list, active id, `importNewProject`, `setActiveProject`, `deleteProject`, `updateProject` |
+| `useProjects()` | Full list, active id, `importNewProject`, `commitNewProject`, `setActiveProject`, `deleteProject`, `updateProject` |
 
 | Action | Effect |
 | --- | --- |
 | `importNewProject` | New project from import; becomes active |
+| `commitNewProject` | New blank project from metadata form; becomes active; first persist on submit ([#102](https://github.com/pskillen/codeplug-tool/issues/102)) |
 | `applyImport` / `applyImportToActive` | Merge into active project (or create if none) |
 | `setActiveProject` | Switch active |
 | `deleteProject` | Remove; reassign active |
@@ -62,14 +63,15 @@ Persistence: [persistence/README.md](../persistence/README.md) — multi-project
 
 | Surface | Behaviour |
 | --- | --- |
-| Home (`/`) | List codeplugs (name + description when set), **Import codeplug**, **Open**, **Delete** (confirm) |
+| Home (`/`) | List codeplugs (name + description when set), **Start fresh**, **Import codeplug**, **Open**, **Delete** (confirm) |
+| New codeplug (`/codeplug/new`) | Public create form — metadata only; **Create** calls `commitNewProject` (no persist until submit) ([#102](https://github.com/pskillen/codeplug-tool/issues/102)) |
 | Summary (`/summary`) | Project dashboard — metadata header, channel map, entity cards ([#60](https://github.com/pskillen/codeplug-tool/issues/60), [#61](https://github.com/pskillen/codeplug-tool/issues/61)) |
 | Summary edit (`/summary/edit`) | Edit project name, description, author, target radios, notes ([#60](https://github.com/pskillen/codeplug-tool/issues/60)) |
 | App nav (always) | **Home** (when no active project), **Reference**, **Settings** |
 | Export (`/export`) | **Import & export** — vendor format picker; merge/overwrite import + CPS download ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
-| Route guards | Project-scoped routes redirect to Home when no active project — [`RequireActiveProject`](../../../src/components/RequireActiveProject/RequireActiveProject.tsx) |
+| Route guards | Project-scoped routes redirect to Home when no active project — [`RequireActiveProject`](../../../src/components/RequireActiveProject/RequireActiveProject.tsx). `/codeplug/new` is public (no active project required). |
 
-No **new empty project** yet — import is the only creation path ([#31](https://github.com/pskillen/codeplug-tool/issues/31)).
+Start fresh does **not** write to localStorage until the operator submits **Create** on `/codeplug/new` — cancel or navigate away leaves no orphan project.
 
 ## Implementation status
 
@@ -83,7 +85,7 @@ No **new empty project** yet — import is the only creation path ([#31](https:/
 | Active bar + project nav | Shipped | `ActiveProjectBar` + project links when a codeplug is active |
 | Always-available nav | Shipped | Home, Reference, Settings — [#76](https://github.com/pskillen/codeplug-tool/issues/76) |
 | Project route guards | Shipped | `RequireActiveProject` — [#76](https://github.com/pskillen/codeplug-tool/issues/76) |
-| New empty project | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
+| New empty project | Shipped | Home → `/codeplug/new` → `commitNewProject` — [#102](https://github.com/pskillen/codeplug-tool/issues/102) |
 | Rename via edit screen | Shipped | `/summary/edit` — partial [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
 | Duplicate project | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
 | Active project import | Shipped | Export → `ImportIntoActivePanel` ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |

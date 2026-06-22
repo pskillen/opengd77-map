@@ -115,6 +115,7 @@ Use this template. Adapt sections to scope; omit what does not apply.
 ## Test plan
 
 - [ ] `npm run lint && npm run test`
+- [ ] `npm run format:check` (or `npm run format` then commit any fixes)
 - [ ] `npm run build` (when touching build/config/types)
 - [ ] `npm run dev` — exercise affected route(s)
 - [ ] …
@@ -179,6 +180,13 @@ If a checkpoint spans docs + code, prefer **two commits** (docs, then code) when
 **Shell:** set `working_directory` to `/Users/patricks/git_personal/opengd77-map` for all git commands.
 
 **PR:** one PR in `pskillen/codeplug-tool` via `user-github-personal` MCP; link issue with `Closes #N`.
+
+### Before opening the PR
+
+1. Run `npm run format` — CI fails on `format:check` if Prettier drift remains.
+2. If format changed files, commit them (`chore: format` or include in the last slice commit).
+3. Run `npm run format:check && npm run lint && npm run test && npm run build`.
+4. Push the branch, then open the PR.
 ```
 
 This section **overrides** the default “commit only when the user asks” rule — plans that include it require commits at checkpoints without waiting for the user to prompt.
@@ -241,8 +249,12 @@ Each slice should be **completable and committable in one session**. If a slice 
 - Planning from issue title alone without reading the issue body and code.
 - A “Commits” section listing predicted commit messages — use **commit checkpoints** instead.
 - “Commit everything at the end before PR.”
+- Opening a PR without running `npm run format` / `format:check` — CI will fail on Prettier drift.
 - Copying the full plan todo list into `*-outstanding.md`.
 - Skipping component sidecars for new shared components.
 - Creating progress files for a one-line fix.
 - Baking radio profile caps or target-radio constants into mutations, validation, or CRUD UI — see [AGENTS.md Vendor boundaries](../../../AGENTS.md#vendor-boundaries).
 - Planning `OPENGD77_MAX_*` (or similar) constants for new internal-model work without an explicit export-only slice.
+- Creating a plan in the local repo unless specifically asked. Use the common Cursor plans directory. If you're trying to create
+  one in the local dir it's likely you're not running in plan mode, so stop and ask the user to switch to plan mode.
+- Creating a `something.md` file - you should be making `something.plan.md` - again this is a symptom of not runnig in plan mode.

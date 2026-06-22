@@ -1,6 +1,20 @@
 import { emptyCodeplug, newId, type Codeplug } from './codeplug.ts';
 
 export const DEFAULT_PROJECT_NAME = 'Imported codeplug';
+export const DEFAULT_BLANK_PROJECT_NAME = 'Untitled codeplug';
+
+export function blankProjectMetadataFormValues(): Pick<
+  CodeplugProject,
+  'name' | 'description' | 'notes' | 'author' | 'targetRadios'
+> {
+  return {
+    name: DEFAULT_BLANK_PROJECT_NAME,
+    description: '',
+    notes: '',
+    author: '',
+    targetRadios: [],
+  };
+}
 
 export interface CodeplugProject {
   id: string;

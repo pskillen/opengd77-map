@@ -84,6 +84,16 @@ describe('App', () => {
     renderApp('/');
     expect(screen.getByRole('heading', { name: 'MM9PDY Codeplug Tool' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Import codeplug' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Start fresh' })).toBeInTheDocument();
+  });
+
+  it('start fresh on home opens new codeplug form without persisting', () => {
+    renderApp('/');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Start fresh' }));
+
+    expect(screen.getByRole('heading', { name: 'New codeplug' })).toBeInTheDocument();
+    expect(localStorage.getItem(CODEPLUG_STORAGE_KEY)).toBeNull();
   });
 
   it('shows minimal nav without an active project', () => {
@@ -138,6 +148,35 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Edit project' })).toBeInTheDocument();
     expect(screen.getByDisplayValue('Test repeaters')).toBeInTheDocument();
     expect(screen.getByText('Target radios')).toBeInTheDocument();
+  });
+
+  it('renders new codeplug form on /codeplug/new without an active project', () => {
+    renderApp('/codeplug/new');
+
+    expect(screen.getByRole('heading', { name: 'New codeplug' })).toBeInTheDocument();
+    expect(screen.getByDisplayValue('Untitled codeplug')).toBeInTheDocument();
+    expect(localStorage.getItem(CODEPLUG_STORAGE_KEY)).toBeNull();
+  });
+
+  it('cancel on new codeplug returns home without persisting', () => {
+    renderApp('/codeplug/new');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Cancel' }));
+
+    expect(screen.getByRole('heading', { name: 'MM9PDY Codeplug Tool' })).toBeInTheDocument();
+    expect(localStorage.getItem(CODEPLUG_STORAGE_KEY)).toBeNull();
+  });
+
+  it('create on new codeplug persists project and opens summary', async () => {
+    renderApp('/codeplug/new');
+
+    const nameInput = screen.getByLabelText(/^Name/);
+    fireEvent.change(nameInput, { target: { value: 'Scratch layout' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create' }));
+
+    expect(await screen.findByRole('heading', { name: 'Scratch layout' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Channels', level: 4 })).toBeInTheDocument();
+    expect(localStorage.getItem(CODEPLUG_STORAGE_KEY)).not.toBeNull();
   });
 
   it('shows app nav with active codeplug when a project is active', () => {
