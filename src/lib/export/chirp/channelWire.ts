@@ -7,33 +7,22 @@ import {
   formatChirpScanSkip,
   formatChirpToneColumns,
   formatChirpTStepWire,
-  parseChirpOffsetMhz,
 } from '../../import/chirp/channelWire.ts';
 
 const DEFAULT_DTCS_CODE = '023';
 const DEFAULT_DTCS_POLARITY = 'NN';
 const DEFAULT_CROSS_MODE = 'Tone->Tone';
 
+/**
+ * CHIRP Duplex/Offset from model only — see docs/reference/chirp/channels.md (Duplex table).
+ * Inverse of import parseChirpDuplex: rxFrequency, txFrequency, rxOnly → wire duplex + offset.
+ */
 function chirpDuplexAndOffset(channel: Channel): { duplex: string; offsetMhz: number } {
-  const derived = deriveChirpDuplexAndOffset(
+  return deriveChirpDuplexAndOffset(
     channel.rxFrequency,
     channel.txFrequency,
     channel.rxOnly,
   );
-  const imported = channel.meta?.imported;
-  if (
-    imported?.formatId === 'chirp' &&
-    imported.chirpDuplexWire !== undefined &&
-    channel.rxFrequency === channel.txFrequency &&
-    derived.duplex === '' &&
-    imported.chirpDuplexWire.trim() !== ''
-  ) {
-    return {
-      duplex: imported.chirpDuplexWire,
-      offsetMhz: parseChirpOffsetMhz(imported.chirpOffsetWire ?? '0'),
-    };
-  }
-  return derived;
 }
 
 /** Map one internal channel to a CHIRP CSV row (header order). */
