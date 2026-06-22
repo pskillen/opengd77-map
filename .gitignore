@@ -1,5 +1,5 @@
 # Local CPS exports used for manual testing (keep your codeplug private)
-sample-exports/*
+# sample-exports/*
 !sample-exports/README.md
 fixtures/
 local/
