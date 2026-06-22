@@ -180,9 +180,7 @@ function removeMemberRefFromAllRgls(
   entityId: string,
 ): RxGroupList[] {
   return codeplug.rxGroupLists.map((rgl) => {
-    const nextRefs = rgl.memberRefs.filter(
-      (ref) => !(ref.kind === kind && ref.id === entityId),
-    );
+    const nextRefs = rgl.memberRefs.filter((ref) => !(ref.kind === kind && ref.id === entityId));
     if (nextRefs.length === rgl.memberRefs.length) return rgl;
     return {
       ...rgl,
@@ -239,9 +237,7 @@ function clearContactEntityReferences(
 ): Codeplug {
   const channels = codeplug.channels.map((ch) => {
     const ref = ch.contactRef;
-    return ref && ref.kind === kind && ref.id === entityId
-      ? { ...ch, contactRef: null }
-      : ch;
+    return ref && ref.kind === kind && ref.id === entityId ? { ...ch, contactRef: null } : ch;
   });
   const rxGroupLists = codeplug.rxGroupLists.map((rgl) =>
     mapMemberWireNames(rgl, (names) => names.filter((n) => n !== wireName)),

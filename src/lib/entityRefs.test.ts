@@ -69,7 +69,9 @@ describe('entityRefs', () => {
     expect(entityRefDisplayName({ kind: 'contact', id: 'ct-1' }, talkGroups, contacts)).toBe(
       'MM9PDY',
     );
-    expect(entityRefDisplayName({ kind: 'contact', id: 'missing' }, talkGroups, contacts)).toBeNull();
+    expect(
+      entityRefDisplayName({ kind: 'contact', id: 'missing' }, talkGroups, contacts),
+    ).toBeNull();
   });
 
   it('memberRefsToWireNames preserves order', () => {
@@ -97,7 +99,14 @@ describe('entityRefs', () => {
       contactRefWireNameForExport(
         {
           contactRef: { kind: 'talkGroup', id: 'tg-1' },
-          meta: { imported: { formatId: 'opengd77', sourceFile: null, importedAt: '', contactWireName: 'Wire TG' } },
+          meta: {
+            imported: {
+              formatId: 'opengd77',
+              sourceFile: null,
+              importedAt: '',
+              contactWireName: 'Wire TG',
+            },
+          },
         },
         codeplug,
       ),
@@ -115,7 +124,14 @@ describe('entityRefs', () => {
       rxGroupListWireNameForExport(
         {
           rxGroupListId: 'rgl-1',
-          meta: { imported: { formatId: 'opengd77', sourceFile: null, importedAt: '', rxGroupListWireName: 'Wire RGL' } },
+          meta: {
+            imported: {
+              formatId: 'opengd77',
+              sourceFile: null,
+              importedAt: '',
+              rxGroupListWireName: 'Wire RGL',
+            },
+          },
         },
         codeplug,
       ),

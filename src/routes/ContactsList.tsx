@@ -33,7 +33,8 @@ export default function ContactsList() {
           {
             key: 'channels',
             header: 'Channels using',
-            render: (c) => formatReferenceCount(channelsReferencingContactId(c.id, channels).length),
+            render: (c) =>
+              formatReferenceCount(channelsReferencingContactId(c.id, channels).length),
           },
           {
             key: 'rgl',

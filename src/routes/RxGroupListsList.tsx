@@ -3,7 +3,11 @@ import EntityTable from '../components/report/EntityTable.tsx';
 import ReportPage from '../components/report/ReportPage.tsx';
 import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
-import { channelsWithRxGroupListId, formatReferenceCount, sortByName } from '../lib/reportLookup.ts';
+import {
+  channelsWithRxGroupListId,
+  formatReferenceCount,
+  sortByName,
+} from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 
 export default function RxGroupListsList() {

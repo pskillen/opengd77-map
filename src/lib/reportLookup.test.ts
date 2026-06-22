@@ -44,9 +44,7 @@ describe('reportLookup', () => {
       channel('c1', 'GB3SG', { contactRef: { kind: 'talkGroup', id: 'tg1' } }),
       channel('c2', 'GB3BF', { contactRef: { kind: 'talkGroup', id: 'tg2' } }),
     ];
-    expect(
-      channelsWithContactRef({ kind: 'talkGroup', id: 'tg1' }, channels),
-    ).toHaveLength(1);
+    expect(channelsWithContactRef({ kind: 'talkGroup', id: 'tg1' }, channels)).toHaveLength(1);
     expect(channelsReferencingTalkGroupId('tg1', channels)).toHaveLength(1);
   });
 

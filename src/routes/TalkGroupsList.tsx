@@ -41,10 +41,8 @@ export default function TalkGroupsList() {
             header: 'RX groups using',
             render: (tg) =>
               formatReferenceCount(
-                rxGroupListsContainingMemberRef(
-                  { kind: 'talkGroup', id: tg.id },
-                  rxGroupLists,
-                ).length,
+                rxGroupListsContainingMemberRef({ kind: 'talkGroup', id: tg.id }, rxGroupLists)
+                  .length,
               ),
           },
         ]}

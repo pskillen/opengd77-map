@@ -6,12 +6,12 @@ Multi-select RX group list membership editor. Members are `EntityRef` ids (talk 
 
 ## Props
 
-| Prop            | Type                          | Notes                |
-| --------------- | ----------------------------- | -------------------- |
-| `talkGroups`    | `TalkGroup[]`                 | Group call options   |
-| `contacts`      | `Contact[]`                   | Private call options |
-| `selectedRefs`  | `EntityRef[]`                 | Ordered member refs  |
-| `onChange`      | `(refs: EntityRef[]) => void` | Updated selection    |
+| Prop           | Type                          | Notes                |
+| -------------- | ----------------------------- | -------------------- |
+| `talkGroups`   | `TalkGroup[]`                 | Group call options   |
+| `contacts`     | `Contact[]`                   | Private call options |
+| `selectedRefs` | `EntityRef[]`                 | Ordered member refs  |
+| `onChange`     | `(refs: EntityRef[]) => void` | Updated selection    |
 
 ## Behaviour
 

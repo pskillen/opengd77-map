@@ -1,7 +1,11 @@
 import type { Channel, Contact, RxGroupList, TalkGroup, Zone } from '../models/codeplug.ts';
 import { buildNameToChannelId } from './codeplug.ts';
 import { getMemberWireNames } from './entityProvenance.ts';
-import { entityRefDisplayName, entityRefsEqual, resolveContactRefByWireName } from './entityRefs.ts';
+import {
+  entityRefDisplayName,
+  entityRefsEqual,
+  resolveContactRefByWireName,
+} from './entityRefs.ts';
 import type { EntityRef } from './entityRefs.ts';
 
 export function findEntityById<T extends { id: string }>(entities: T[], id: string): T | null {
@@ -19,7 +23,10 @@ export function channelsReferencingContactId(contactId: string, channels: Channe
   );
 }
 
-export function channelsReferencingTalkGroupId(talkGroupId: string, channels: Channel[]): Channel[] {
+export function channelsReferencingTalkGroupId(
+  talkGroupId: string,
+  channels: Channel[],
+): Channel[] {
   if (!talkGroupId) return [];
   return channels.filter(
     (ch) => ch.contactRef?.kind === 'talkGroup' && ch.contactRef.id === talkGroupId,

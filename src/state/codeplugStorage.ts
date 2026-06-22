@@ -52,10 +52,7 @@ const TYPED_CHANNEL_FIELDS = [
   'rxOnly',
 ] as const;
 
-function migrateChannel(
-  raw: Record<string, unknown>,
-  projectImportedAt: string | null,
-): Channel {
+function migrateChannel(raw: Record<string, unknown>, projectImportedAt: string | null): Channel {
   const defaults = channelFieldDefaults();
   const rest = { ...raw };
   delete rest.number;
@@ -247,9 +244,7 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
   const projectImportedAt = meta.importedAt ?? null;
 
   const channels = Array.isArray(raw.channels)
-    ? (raw.channels as Record<string, unknown>[]).map((ch) =>
-        migrateChannel(ch, projectImportedAt),
-      )
+    ? (raw.channels as Record<string, unknown>[]).map((ch) => migrateChannel(ch, projectImportedAt))
     : [];
   const zones = Array.isArray(raw.zones)
     ? (raw.zones as Record<string, unknown>[]).map((z) => migrateZone(z, projectImportedAt))

@@ -336,11 +336,7 @@ function applyImportInternal(
     mode,
     importedAt,
   );
-  const resolvedRxGroupLists = resolveRxGroupListMemberRefs(
-    rxGroupLists,
-    talkGroups,
-    contacts,
-  );
+  const resolvedRxGroupLists = resolveRxGroupListMemberRefs(rxGroupLists, talkGroups, contacts);
 
   const { zones: mergedZones, stats: zoneStats } = mergeZones(
     codeplug.zones,

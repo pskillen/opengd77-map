@@ -6,7 +6,12 @@ import {
   resetIdGenerator,
   setIdGenerator,
 } from './codeplug.ts';
-import { DEFAULT_PROJECT_NAME, defaultProjectName, deriveProjectNameFromImportFiles, newProject } from './codeplugProject.ts';
+import {
+  DEFAULT_PROJECT_NAME,
+  defaultProjectName,
+  deriveProjectNameFromImportFiles,
+  newProject,
+} from './codeplugProject.ts';
 
 describe('newProject', () => {
   beforeEach(() => {
@@ -95,10 +100,9 @@ describe('deriveProjectNameFromImportFiles', () => {
       }),
     ).toBe('OpenGD77 2026-06-21');
     expect(
-      deriveProjectNameFromImportFiles(
-        [fileWithPath('Zones.csv'), fileWithPath('Channels.csv')],
-        { formatLabel: 'OpenGD77' },
-      ),
+      deriveProjectNameFromImportFiles([fileWithPath('Zones.csv'), fileWithPath('Channels.csv')], {
+        formatLabel: 'OpenGD77',
+      }),
     ).toBe('OpenGD77 2026-06-21');
     vi.useRealTimers();
   });
