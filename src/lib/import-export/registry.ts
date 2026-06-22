@@ -1,11 +1,12 @@
 import { parseCsv } from '../csv.ts';
 import { opengd77Adapter } from '../import/opengd77/adapter.ts';
+import { chirpAdapter } from '../import/chirp/adapter.ts';
 import { opengd77ExportAdapter } from '../export/opengd77/adapter.ts';
 import type { ImportAdapter } from './importAdapter.ts';
 import type { ExportAdapter } from './exportAdapter.ts';
 import type { VendorFormatId } from './types.ts';
 
-export const importAdapters: readonly ImportAdapter[] = [opengd77Adapter];
+export const importAdapters: readonly ImportAdapter[] = [opengd77Adapter, chirpAdapter];
 
 export const exportAdapters: readonly ExportAdapter[] = [opengd77ExportAdapter];
 
