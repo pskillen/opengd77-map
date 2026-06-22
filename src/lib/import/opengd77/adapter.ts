@@ -23,11 +23,14 @@ export function detectKind(fileName: string, headerRow: string[]): OpenGd77FileK
 export const opengd77Adapter = {
   id: 'opengd77' as const,
   label: 'OpenGD77 CPS CSV',
-  /** Short label for default new-project names — `{projectNameLabel} YYYY-MM-DD`. */
   projectNameLabel: 'OpenGD77',
+  capabilities: {
+    delivery: 'multi-file' as const,
+    entityKinds: ['channels', 'zones', 'contacts', 'rxGroupLists'] as const,
+  },
   detectKind,
   parseChannels,
   parseZones,
   parseContacts,
   parseRxGroupLists,
-};
+} satisfies import('../../import-export/importAdapter.ts').ImportAdapter;

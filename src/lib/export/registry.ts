@@ -1,5 +1,10 @@
-import { opengd77ExportAdapter } from './opengd77/adapter.ts';
+export {
+  exportAdapters,
+  getExportAdapter,
+} from '../import-export/registry.ts';
 
-export const exportAdapters = [opengd77ExportAdapter] as const;
-
-export type ExportAdapterId = (typeof exportAdapters)[number]['id'];
+export type {
+  ExportAdapter,
+  MultiFileExportAdapter,
+  SingleFileExportAdapter,
+} from '../import-export/exportAdapter.ts';

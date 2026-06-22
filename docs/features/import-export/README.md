@@ -19,7 +19,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | Area | Status | Notes |
 | --- | --- | --- |
 | Internal models | Shipped | [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) — schema v3 |
-| Import format registry | Shipped | OpenGD77 CSV only today; designed for sibling formats (DM32, qDMR, CHIRP, …) |
+| Adapter interface contracts | Shipped | [`src/lib/import-export/`](../../../src/lib/import-export/) — `ImportAdapter`, `ExportAdapter` |
 | Export format registry | Shipped | [`src/lib/export/`](../../../src/lib/export/) |
 | OpenGD77 import | Shipped | Channels, Zones, Contacts, TG_Lists ([#38](https://github.com/pskillen/codeplug-tool/issues/38)) |
 | OpenGD77 export | Shipped | Per-file + ZIP; DTMF/APRS header-only |

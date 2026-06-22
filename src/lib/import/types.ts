@@ -1,4 +1,5 @@
 import type { Channel, Contact, TalkGroup } from '../../models/codeplug.ts';
+import type { VendorFormatId } from '../import-export/types.ts';
 
 export interface ImportMessage {
   fileName: string;
@@ -28,4 +29,6 @@ export interface ImportResult {
   errors: ImportMessage[];
   /** Suggested project name from import file selection (directory or single-file rule). */
   suggestedProjectName?: string;
+  /** Format adapter that produced this result. */
+  formatId?: VendorFormatId;
 }
