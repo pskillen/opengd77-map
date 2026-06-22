@@ -90,10 +90,13 @@ Start fresh does **not** write to localStorage until the operator submits **Crea
 | Duplicate project | Deferred | [#31](https://github.com/pskillen/codeplug-tool/issues/31) |
 | Active project import | Shipped | Export → `ImportIntoActivePanel` ([#58](https://github.com/pskillen/codeplug-tool/issues/58)) |
 
+One codeplug project can be **exported to multiple CPS formats** without re-importing — see [operator lifecycle](../workflows/operator-lifecycle.md). Import source format does not lock export targets.
+
 ## Documentation map
 
 | Doc | Contents |
 | --- | --- |
+| [operator-lifecycle.md](../workflows/operator-lifecycle.md) | Create → edit → persist → multi-format export |
 | [codeplug-project-progress.md](codeplug-project-progress.md) | Execution log |
 | [codeplug-project-outstanding.md](codeplug-project-outstanding.md) | #31 UI debt |
 | [persistence/README.md](../persistence/README.md) | LocalStorage envelope |

@@ -2,7 +2,9 @@
 
 How CPS export files enter the app, become internal [codeplug models](../data-model/README.md), and leave again as vendor formats.
 
-**Tracking:** [codeplug-tool#7](https://github.com/pskillen/codeplug-tool/issues/7) (import foundation), [#38](https://github.com/pskillen/codeplug-tool/issues/38) (OpenGD77 full I/O), [#58](https://github.com/pskillen/codeplug-tool/issues/58) (active import), [#84](https://github.com/pskillen/codeplug-tool/issues/84) (doc collate)
+**Tracking:** [codeplug-tool#7](https://github.com/pskillen/codeplug-tool/issues/7) (import foundation), [#38](https://github.com/pskillen/codeplug-tool/issues/38) (OpenGD77 full I/O), [#58](https://github.com/pskillen/codeplug-tool/issues/58) (active import), [#84](https://github.com/pskillen/codeplug-tool/issues/84) (doc collate), [#103](https://github.com/pskillen/codeplug-tool/issues/103) (CHIRP)
+
+Operator workflow (create → edit → persist → export to multiple formats): [operator lifecycle](../workflows/operator-lifecycle.md).
 
 ## Problem
 

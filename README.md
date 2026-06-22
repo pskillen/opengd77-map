@@ -23,10 +23,12 @@ Think of it as the planning and management front-end the CPS never gave you:
 
 The tool is built around a small number of round-trip workflows:
 
-1. **Start from your existing codeplug.** Export it from your CPS as CSV and import it here.
+1. **Start from your existing codeplug.** Export it from your CPS as CSV and import it here — OpenGD77, CHIRP, or another supported format.
 2. **Or start fresh.** Create a blank project and build the codeplug from scratch.
-3. **Export for your radio.** However you started, export back out in a format your CPS speaks, ready to import and flash.
-4. **Keep a clean source of truth.** Store and re-open your work in a native **YAML** format that fully captures the codeplug, independent of any one vendor's lossy CSV.
+3. **Edit and persist.** Changes save in your browser; optional native YAML and cloud sync are planned.
+4. **Export for your radios.** Export the same project to **one or more** CPS formats when you are ready to flash — DMR via OpenGD77, analogue FM via CHIRP, etc.
+
+Full workflow: [`docs/features/workflows/operator-lifecycle.md`](docs/features/workflows/operator-lifecycle.md).
 
 ### Storage
 
@@ -37,12 +39,12 @@ Your data lives in your browser's **LocalStorage** for now — nothing is upload
 | Capability | State |
 | --- | --- |
 | Channel map (markers, zone hulls, OSM/Mapbox tiles) | **Shipped** |
-| Format-agnostic internal data model (genericise import) | Planned |
+| Format-agnostic internal data model | **Shipped** (refactor ongoing) |
 | Native YAML import / export | Planned |
-| Export to a chosen format (OpenGD77 CSV shipped; DM32, qDMR, CHIRP planned) | In progress |
-| LocalStorage persistence | Planned |
-| Multiple projects, switchable | Planned |
-| CRUD for channels / zones / talk groups + TG lists / contacts | Planned |
+| Export to a chosen format (OpenGD77 shipped; CHIRP in progress; DM32, qDMR planned) | In progress |
+| LocalStorage persistence | **Shipped** |
+| Multiple projects, switchable | **Shipped** |
+| CRUD for channels / zones / talk groups + TG lists / contacts | In progress |
 | Read-only tabular report (zones, channels, TGs) | **Shipped** |
 | Cloud storage (Dropbox / OneDrive / Google Drive) | Planned |
 
