@@ -1,6 +1,4 @@
-# Local CPS exports used for manual testing (keep your codeplug private)
-# sample-exports/*
-!sample-exports/README.md
+# Private operator codeplugs (shared samples live in sample-exports/)
 fixtures/
 local/
 
