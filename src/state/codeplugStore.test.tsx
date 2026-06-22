@@ -218,6 +218,36 @@ describe('projectsReducer', () => {
     expect(updated.updatedAt).toBe('2026-06-02T00:00:00.000Z');
     vi.useRealTimers();
   });
+
+  it('commitNewProject appends empty project with metadata and sets active', () => {
+    setIdGenerator(() => 'existing');
+    const existing = newProject('Existing');
+    setIdGenerator(() => 'new-proj');
+    const state = projectsReducer(
+      { activeProjectId: existing.id, projects: [existing] },
+      {
+        type: 'COMMIT_NEW_PROJECT',
+        metadata: {
+          name: 'Trip layout',
+          description: 'Summer trip',
+          author: 'MM9PDY',
+          notes: 'Build from scratch',
+          targetRadios: ['Baofeng 1701'],
+        },
+      },
+    );
+
+    expect(state.projects).toHaveLength(2);
+    expect(state.activeProjectId).toBe('new-proj');
+    const created = state.projects.find((p) => p.id === 'new-proj');
+    expect(created?.name).toBe('Trip layout');
+    expect(created?.description).toBe('Summer trip');
+    expect(created?.author).toBe('MM9PDY');
+    expect(created?.notes).toBe('Build from scratch');
+    expect(created?.targetRadios).toEqual(['Baofeng 1701']);
+    expect(created?.codeplug).toEqual(emptyCodeplug());
+    expect(state.projects.find((p) => p.id === existing.id)?.name).toBe('Existing');
+  });
 });
 
 describe('CodeplugProvider persistence', () => {
@@ -263,6 +293,34 @@ describe('CodeplugProvider persistence', () => {
 
     expect(result.current.projects.projects).toHaveLength(1);
     expect(result.current.codeplug.codeplug.channels).toHaveLength(2);
+  });
+
+  it('persists after commitNewProject', async () => {
+    const { result } = renderHook(
+      () => ({
+        projects: useProjects(),
+        codeplug: useCodeplug(),
+      }),
+      { wrapper },
+    );
+
+    act(() => {
+      result.current.projects.commitNewProject({
+        name: 'Fresh layout',
+        description: 'From scratch',
+        author: '',
+        notes: '',
+        targetRadios: [],
+      });
+    });
+
+    await waitFor(() => {
+      expect(localStorage.getItem(CODEPLUG_STORAGE_KEY)).not.toBeNull();
+    });
+
+    expect(result.current.projects.projects).toHaveLength(1);
+    expect(result.current.projects.activeProject?.name).toBe('Fresh layout');
+    expect(result.current.codeplug.codeplug.channels).toHaveLength(0);
   });
 
   it('returns empty codeplug when no active project', () => {
