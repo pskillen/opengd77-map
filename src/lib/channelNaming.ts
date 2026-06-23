@@ -42,25 +42,36 @@ export function findCallsignTokenIndex(tokens: readonly string[]): number {
 }
 
 export function parseChannelWireName(wire: string): ParsedChannelWireName {
-  const prepared = prepareWireForCallsignParse(wire);
+  const trimmed = wire.trim();
+  const prepared = prepareWireForCallsignParse(trimmed);
   const tokens = tokenizeChannelWire(prepared);
   const matchIndex = findCallsignTokenIndex(tokens);
 
   if (matchIndex < 0) {
     return {
       callsign: '',
-      name: prepared,
+      name: trimmed,
       exportNameMode: 'name_only',
     };
   }
 
   const callsign = normalizeCallsignToken(tokens[matchIndex]);
-  const nameTokens = [...tokens.slice(0, matchIndex), ...tokens.slice(matchIndex + 1)];
+  let name = [...tokens.slice(0, matchIndex), ...tokens.slice(matchIndex + 1)].join(' ').trim();
+  if (name) {
+    name = qualifyNameWithWireModeSuffix(trimmed, name);
+  }
   return {
     callsign,
-    name: nameTokens.join(' ').trim(),
+    name,
     exportNameMode: 'callsign_name',
   };
+}
+
+/** When CPS wire used a mode suffix on the qualifier, keep it on the internal name. */
+function qualifyNameWithWireModeSuffix(trimmed: string, name: string): string {
+  if (!trimmed.endsWith('-F') && !trimmed.endsWith('-D')) return name;
+  const suffix = trimmed.slice(-2);
+  return name.endsWith(suffix) ? name : `${name}${suffix}`;
 }
 
 export function composeChannelWireName(
@@ -106,10 +117,14 @@ export function normalizeImportedChannelNaming(channels: Channel[]): Channel[] {
   return channels.map((channel) => {
     const wire = channel.meta?.imported?.channelWireName ?? channel.name;
     const parsed = parseChannelWireName(wire);
+    let name = parsed.name;
+    if (channel.multiMode && (name.endsWith('-F') || name.endsWith('-D'))) {
+      name = stripModeExportSuffix(name);
+    }
     return {
       ...channel,
       callsign: parsed.callsign,
-      name: parsed.name,
+      name,
       exportNameMode: parsed.exportNameMode,
     };
   });
