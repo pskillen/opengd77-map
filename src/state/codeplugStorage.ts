@@ -19,6 +19,12 @@ import {
 import { normalizeChannelMode } from '../lib/channelModes.ts';
 import { normalizeToneValue } from '../lib/channelFields/index.ts';
 import { coerceLegacyStringField } from '../lib/import/opengd77/channelWire.ts';
+import {
+  isCallsignToken,
+  parseChannelWireName,
+  splitLegacyCombinedName,
+} from '../lib/channelNaming.ts';
+import type { ChannelExportNameMode } from '../models/codeplug.ts';
 import type { CodeplugProject } from '../models/codeplugProject.ts';
 import { newProject } from '../models/codeplugProject.ts';
 
@@ -133,12 +139,44 @@ function migrateChannel(raw: Record<string, unknown>, projectImportedAt: string 
     meta = { ...meta, imported };
   }
 
+  const legacyName = partial.name ?? '';
+  const legacyCallsign = partial.callsign ?? '';
+  let exportNameMode = partial.exportNameMode as ChannelExportNameMode | undefined;
+  let name = legacyName;
+  let callsign = legacyCallsign;
+
+  if (exportNameMode === undefined) {
+    const parsed = parseChannelWireName(legacyName);
+    if (parsed.callsign) {
+      callsign = parsed.callsign;
+      name = parsed.name;
+      exportNameMode = parsed.exportNameMode;
+    } else if (legacyCallsign) {
+      if (
+        legacyCallsign.toUpperCase() === legacyName.trim().toUpperCase() &&
+        !isCallsignToken(legacyCallsign)
+      ) {
+        callsign = '';
+        name = legacyName;
+        exportNameMode = 'name_only';
+      } else {
+        callsign = legacyCallsign;
+        name = splitLegacyCombinedName(legacyName, legacyCallsign);
+        exportNameMode =
+          legacyCallsign && name ? 'callsign_name' : legacyCallsign ? 'callsign_only' : 'name_only';
+      }
+    } else {
+      exportNameMode = 'name_only';
+    }
+  }
+
   return {
     id: partial.id ?? '',
-    name: partial.name ?? '',
-    callsign: partial.callsign ?? '',
     ...defaults,
     ...migrated,
+    name,
+    callsign,
+    exportNameMode: exportNameMode ?? 'name_only',
     mode: migrated.mode!,
     hideFromMap: migrated.hideFromMap ?? false,
     opengd77Extras: migrated.opengd77Extras ?? {},

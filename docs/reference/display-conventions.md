@@ -21,6 +21,19 @@ UK amateur band pills use definitions in [bands.md](./bands.md). When RX and TX 
 
 Mode pills and map marker colours use definitions in [channel-modes.md](./channel-modes.md).
 
+## Channel naming ([#54](https://github.com/pskillen/codeplug-tool/issues/54))
+
+| Field / control | Rule |
+| --- | --- |
+| **Callsign** | Default map marker label; ukrepeater search key |
+| **Name** | Human qualifier in lists and detail — not the composed CPS wire string |
+| **Export name mode** | Select in channel edit — `callsign_name`, `callsign_only`, `name_only`, `callsign_suffix` |
+| **Wire name preview** | Read-only `composeChannelWireName` from form state (edit) or model (detail) |
+| **Full channel name** (map toggle) | `callsign — name` qualifier parts — not the export wire string |
+| **Comment** | Internal notes; labelled “not exported to CPS” in edit form |
+
+Implementation: [`src/lib/channelNaming.ts`](../../../src/lib/channelNaming.ts), [`channel-name-parsing.md`](../features/import-export/channel-name-parsing.md).
+
 ## Icons
 
 The SPA uses [Tabler Icons](https://tabler.io/icons) via `@tabler/icons-react` — the set Mantine documents and examples use.

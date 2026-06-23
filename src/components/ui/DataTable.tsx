@@ -11,14 +11,18 @@ export interface DataTableColumn<T> {
 
 export type DataTableMobileColumnPolicy = 'none' | 'collapse';
 
+export interface DataTableLinkedColumn<T> {
+  header?: string;
+  getName: (row: T) => string;
+  getPath: (row: T) => string;
+}
+
 export interface DataTableProps<T> {
   rows: T[];
   rowKey: (row: T) => string;
-  nameColumn: {
-    header?: string;
-    getName: (row: T) => string;
-    getPath: (row: T) => string;
-  };
+  /** Optional leading linked column (e.g. callsign before name). */
+  callsignColumn?: DataTableLinkedColumn<T>;
+  nameColumn: DataTableLinkedColumn<T>;
   columns: DataTableColumn<T>[];
   emptyState?: ReactNode;
   caption?: ReactNode;
@@ -27,16 +31,26 @@ export interface DataTableProps<T> {
   mobileColumnPolicy?: DataTableMobileColumnPolicy;
 }
 
+function LinkedCell<T>({ column, row }: { column: DataTableLinkedColumn<T>; row: T }) {
+  return (
+    <Anchor component={Link} to={column.getPath(row)} fw={500}>
+      {column.getName(row)}
+    </Anchor>
+  );
+}
+
 export default function DataTable<T>({
   rows,
   rowKey,
+  callsignColumn,
   nameColumn,
   columns,
   emptyState,
   caption,
   toolbar,
 }: DataTableProps<T>) {
-  const colSpan = columns.length + 1;
+  const leadingColCount = (callsignColumn ? 1 : 0) + 1;
+  const colSpan = columns.length + leadingColCount;
   const defaultEmpty = <EmptyState message="No items" />;
 
   return (
@@ -46,6 +60,7 @@ export default function DataTable<T>({
         <Table striped highlightOnHover withTableBorder>
           <Table.Thead>
             <Table.Tr>
+              {callsignColumn ? <Table.Th>{callsignColumn.header ?? 'Callsign'}</Table.Th> : null}
               <Table.Th>{nameColumn.header ?? 'Name'}</Table.Th>
               {columns.map((col) => (
                 <Table.Th key={col.key}>{col.header}</Table.Th>
@@ -60,10 +75,13 @@ export default function DataTable<T>({
             ) : (
               rows.map((row) => (
                 <Table.Tr key={rowKey(row)}>
+                  {callsignColumn ? (
+                    <Table.Td>
+                      <LinkedCell column={callsignColumn} row={row} />
+                    </Table.Td>
+                  ) : null}
                   <Table.Td>
-                    <Anchor component={Link} to={nameColumn.getPath(row)} fw={500}>
-                      {nameColumn.getName(row)}
-                    </Anchor>
+                    <LinkedCell column={nameColumn} row={row} />
                   </Table.Td>
                   {columns.map((col) => (
                     <Table.Td key={col.key}>{col.render(row)}</Table.Td>

@@ -2,7 +2,6 @@ import {
   channelFieldDefaults,
   emptyCodeplug,
   type Channel,
-  type ChannelMode,
   type Codeplug,
   type Contact,
   type RxGroupList,
@@ -12,13 +11,23 @@ import {
 import { setMemberWireNames, stampImported } from '../../lib/entityProvenance.ts';
 
 export function buildChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
-  const { id, name, callsign, mode, multiMode, modeProfiles, ...rest } = overrides;
+  const {
+    id,
+    name,
+    callsign = '',
+    mode,
+    multiMode,
+    modeProfiles,
+    exportNameMode,
+    ...rest
+  } = overrides;
   return {
     ...channelFieldDefaults(),
     id,
     name,
-    callsign: callsign ?? name.split(/\s+/)[0],
-    mode: mode ?? ('dmr' as ChannelMode),
+    callsign,
+    exportNameMode: exportNameMode ?? 'name_only',
+    mode: mode ?? 'dmr',
     multiMode: multiMode ?? false,
     modeProfiles: modeProfiles ?? [],
     ...rest,

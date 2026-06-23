@@ -32,7 +32,9 @@ describe('ukrepeater mapper system', () => {
 
     const channel = buildChannel({
       id: 'c1',
-      name: 'GB7DC',
+      callsign: mapped.input.callsign,
+      name: mapped.input.name,
+      exportNameMode: mapped.input.exportNameMode,
       mode: 'fm',
       multiMode: true,
       modeProfiles: mapped.input.modeProfiles,

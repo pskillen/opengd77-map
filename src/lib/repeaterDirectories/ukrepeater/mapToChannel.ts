@@ -89,7 +89,9 @@ export function mapListingToChannelInput(
     };
     input = {
       ...channelFieldDefaults(),
-      name: listing.repeater,
+      callsign: listing.repeater,
+      name: listing.town?.trim() ?? '',
+      exportNameMode: 'callsign_name',
       mode: 'fm',
       multiMode: true,
       modeProfiles: [fmProfile, dmrProfile],
@@ -100,7 +102,9 @@ export function mapListingToChannelInput(
     const mode = primaryModeFromCodes(parsed);
     input = {
       ...channelFieldDefaults(),
-      name: listing.repeater,
+      callsign: listing.repeater,
+      name: listing.town?.trim() ?? '',
+      exportNameMode: 'callsign_name',
       mode,
       multiMode: false,
       modeProfiles: [],

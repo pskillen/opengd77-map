@@ -28,7 +28,8 @@ The map consumes these [`Channel`](../data-model/README.md#channel) fields:
 | Field | Used for |
 | --- | --- |
 | `name` | Popup title source, full-name label, zone member resolution |
-| `callsign` | Default marker label (derived first word of `name`) |
+| `callsign` | Default marker label |
+| `name` | Human qualifier — used when **Full channel name** is on (`callsign — name`) |
 | `location` (`{ lat, lon } \| null`) | Marker position; `null` → skipped |
 | `useLocation` | Filter — `false` excludes the channel when the Use-Location filter is on |
 | `hideFromMap` | Internal flag — always excludes the channel from markers and hulls |
@@ -37,7 +38,7 @@ The map consumes these [`Channel`](../data-model/README.md#channel) fields:
 | `rxFrequency`, `txFrequency` | Popup RX/TX MHz line |
 | `contactName`, `rxGroupListName` | Popup DMR rows (hidden when empty or `None`) |
 
-`callsign` is derived at import as the first whitespace-separated token of `name` (`extractCallsign`); the map treats it as a plain model field.
+`callsign` and `name` are first-class model fields ([#54](https://github.com/pskillen/codeplug-tool/issues/54)); import splits CPS wire names via [channel-name-parsing](../import-export/channel-name-parsing.md). Map labels use `channelDisplayLabel` — not the composed export wire string.
 
 ### Channel record (in memory)
 
@@ -65,7 +66,7 @@ See [data model — Channel](../data-model/README.md#channel). Example of the fi
 
 | Control / filter | Source | Default | Effect |
 | --- | --- | --- | --- |
-| Full channel name | `MapControls` toggle | off | Label uses full `name`; default is `callsign` |
+| Full channel name | `MapControls` toggle | off | Label uses `callsign — name` qualifier parts; default is callsign only |
 | Draw zones | `MapControls` toggle | on | Show/hide zone hulls — see [zones.md](zones.md) |
 | Require `useLocation` | fixed (`DEFAULT_FILTER_OPTS`) | on | Skips channels with `useLocation === false` |
 | Skip `0,0` | fixed (`DEFAULT_FILTER_OPTS`) | on | Skips channels at exactly `0, 0` |
@@ -124,7 +125,7 @@ The codeplug itself persists via the **projects store** in LocalStorage ([#9](ht
 2. Run `npm run dev` and open `http://localhost:5173/codeplug-tool/#/channels` (or the [live site](https://pskillen.github.io/codeplug-tool/#/channels)).
 3. Confirm markers appear for known repeaters; open popups for frequency/contact fields.
 4. Edit a channel's location or toggle **Hide from map** — the marker should appear/disappear on save.
-5. Toggle **Full channel name** — labels switch between callsign and full name.
+5. Toggle **Full channel name** — labels switch between callsign-only and `callsign — name`.
 6. Co-located FM/DMR pairs should collapse to one merged marker with a combined popup.
 
 ## Known gaps

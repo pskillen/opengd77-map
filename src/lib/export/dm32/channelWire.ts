@@ -1,5 +1,6 @@
 import type { Channel } from '../../../models/codeplug.ts';
 import { isAnalogMode, isDmrMode } from '../../channelModes.ts';
+import { composeChannelWireName } from '../../channelNaming.ts';
 import {
   resolveChannelModeProfiles,
   type ExpandedChannelRow,
@@ -32,7 +33,9 @@ export function serialiseDm32ChannelRow(
   const dmrProfile = profiles.find((p) => isDmrMode(p.mode));
 
   const nativeDual =
-    sourceChannel.multiMode && profiles.length > 1 && row.wireName === sourceChannel.name;
+    sourceChannel.multiMode &&
+    profiles.length > 1 &&
+    row.wireName === composeChannelWireName(sourceChannel);
   const channelType = nativeDual
     ? formatDm32ChannelTypeWire(sourceChannel.mode, true, profiles)
     : isDmrMode(row.mode)

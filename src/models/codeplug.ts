@@ -7,6 +7,12 @@ export type { ChannelMode };
 export type { EntityMeta, ImportedProvenance } from '../lib/entityProvenance.ts';
 export type { EntityRef, EntityRefKind } from '../lib/entityRefs.ts';
 
+export type ChannelExportNameMode =
+  | 'callsign_name'
+  | 'callsign_only'
+  | 'name_only'
+  | 'callsign_suffix';
+
 export interface GeoPoint {
   lat: number;
   lon: number;
@@ -77,15 +83,19 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     opengd77Extras: {},
     multiMode: false,
     modeProfiles: [],
+    exportNameMode: 'name_only',
   };
 }
 
 export interface Channel {
   /** Stable internal identifier — not derived from vendor fields. */
   id: string;
-  /** Display/export label; transitional resolution key for zone members. */
+  /** Human qualifier (town, TG label, etc.) — not the full CPS wire string. */
   name: string;
+  /** Repeater/site id; map default label and directory search key. */
   callsign: string;
+  /** How export composes the CPS Channel Name from callsign + name. */
+  exportNameMode: ChannelExportNameMode;
   mode: ChannelMode;
   /** Integer Hz — null when unset. */
   rxFrequency: number | null;
@@ -114,7 +124,7 @@ export interface Channel {
   scanSkip: boolean;
   /** Internal only — exclude from map hulls/plots when true. */
   hideFromMap: boolean;
-  /** Operator comment — CHIRP `Comment` column and general notes. */
+  /** Operator notes — internal only; not exported to CPS wire columns. */
   comment: string;
   /** CPS transmit admit policy wire label (DM32 and similar). */
   txAdmit: string;
@@ -189,7 +199,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 11;
+export const CODEPLUG_SCHEMA_VERSION = 12;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 

@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { formatBandRangeMhz, formatFrequencyMhz, formatMhzNumber } from './formatFrequency.ts';
+import {
+  formatBandRangeMhz,
+  formatChannelRxTxListCell,
+  formatFrequencyMhz,
+  formatMhzNumber,
+} from './formatFrequency.ts';
 
 describe('formatFrequencyMhz', () => {
   it('shows three decimal places for kHz-aligned frequencies', () => {
@@ -34,5 +39,21 @@ describe('formatBandRangeMhz', () => {
   it('formats min–max with MHz unit', () => {
     expect(formatBandRangeMhz(144, 146)).toBe('144.000 – 146.000 MHz');
     expect(formatBandRangeMhz(5.2585, 5.4065)).toBe('5.2585 – 5.4065 MHz');
+  });
+});
+
+describe('formatChannelRxTxListCell', () => {
+  const mhz = (n: number) => n * 1_000_000;
+
+  it('shows one value when RX equals TX', () => {
+    expect(formatChannelRxTxListCell(mhz(145.775), mhz(145.775))).toBe('145.775');
+  });
+
+  it('shows rx / tx when split', () => {
+    expect(formatChannelRxTxListCell(mhz(145.775), mhz(145.175))).toBe('145.775 / 145.175');
+  });
+
+  it('shows em dash when both missing', () => {
+    expect(formatChannelRxTxListCell(null, null)).toBe('—');
   });
 });

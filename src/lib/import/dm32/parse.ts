@@ -1,4 +1,4 @@
-import { parseCsv, extractCallsign } from '../../csv.ts';
+import { parseCsv } from '../../csv.ts';
 import {
   channelFieldDefaults,
   newId,
@@ -41,6 +41,7 @@ function importStamp(sourceFile: string) {
       contactWireName?: string;
       rxGroupListWireName?: string;
       multiModeProfileWire?: import('../../entityProvenance.ts').ImportedProvenance['multiModeProfileWire'];
+      channelWireName?: string;
     },
   ): T =>
     stampImported(entity, {
@@ -104,7 +105,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
       ...channelFieldDefaults(),
       id: newId(),
       name,
-      callsign: extractCallsign(name),
+      callsign: '',
       mode: typeParse.mode,
       multiMode: typeParse.multiMode,
       modeProfiles,
@@ -133,6 +134,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
 
     out.push(
       stamp<Channel>(channel, {
+        channelWireName: name,
         contactWireName: contactWire ?? undefined,
         rxGroupListWireName: rglWire ?? undefined,
         multiModeProfileWire: typeParse.multiMode

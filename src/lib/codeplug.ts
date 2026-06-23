@@ -1,4 +1,5 @@
 import type { Channel, Codeplug } from '../models/codeplug.ts';
+import { channelImportMergeKeys, composeChannelWireName } from './channelNaming.ts';
 import {
   expandAllChannelsForExport,
   modeExportNameSuffix,
@@ -20,10 +21,14 @@ export function buildNameToChannelId(
 ): Map<string, string> {
   const map = new Map<string, string>();
   for (const ch of channels) {
-    if (!map.has(ch.name)) map.set(ch.name, ch.id);
+    for (const key of channelImportMergeKeys(ch)) {
+      if (!map.has(key)) map.set(key, ch.id);
+    }
+    const base = composeChannelWireName(ch);
+    if (!map.has(base)) map.set(base, ch.id);
     if (ch.multiMode) {
       for (const profile of resolveChannelModeProfiles(ch)) {
-        const alias = `${ch.name}${modeExportNameSuffix(profile.mode)}`;
+        const alias = `${base}${modeExportNameSuffix(profile.mode)}`;
         if (!map.has(alias)) map.set(alias, ch.id);
       }
     }

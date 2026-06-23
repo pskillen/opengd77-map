@@ -47,7 +47,7 @@ All other columns are optional at import — missing headers yield empty values.
 | `Longitude` | `Channel.location.lon` | **Column required** | Parse float | String from location | Lossless when valid | |
 | `Use Location` | `Channel.useLocation` | No | `Yes` → `true` | `wireYesNo(useLocation)` | Lossless boolean | |
 
-`Channel.callsign` is derived on import from the first word of `Channel Name` (`extractCallsign`) — not a CSV column.
+`Channel Name` maps to split internal fields on import and is **composed on export** from `callsign`, `name`, and `exportNameMode`. Split rules: [channel-name-parsing](../../features/import-export/channel-name-parsing.md).
 
 ## Tone wire forms
 

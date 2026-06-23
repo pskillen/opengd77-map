@@ -26,7 +26,11 @@ function withoutId<T extends { id: string; meta?: EntityMeta }>(item: T): Omit<T
 }
 
 function stripChannels(channels: Channel[]) {
-  return channels.map(withoutId);
+  return channels.map((ch) => {
+    const { comment, ...rest } = withoutId(ch);
+    void comment;
+    return rest;
+  });
 }
 
 async function importChirpCsv(csv: string) {

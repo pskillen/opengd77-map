@@ -18,6 +18,10 @@ export interface ImportedProvenance {
     rxGroupListWireName?: string;
     opengd77Extras?: Record<string, string>;
   }>;
+  /** Original Channel Name cell at import — re-import/merge identity only; export uses composeChannelWireName. */
+  channelWireName?: string;
+  /** All CPS wire names when import collapse merged multiple rows into one channel. */
+  channelWireNames?: string[];
 }
 
 /** Remote repeater directory snapshot — verify/display only, not export source of truth. */
@@ -73,6 +77,8 @@ export interface StampImportedInput {
   chirpDuplexWire?: string;
   chirpOffsetWire?: string;
   multiModeProfileWire?: ImportedProvenance['multiModeProfileWire'];
+  channelWireName?: string;
+  channelWireNames?: string[];
 }
 
 export function getMemberWireNames(entity: WithEntityMeta): string[] {
@@ -120,6 +126,10 @@ export function stampImported<T extends WithEntityMeta>(entity: T, input: StampI
         ...(input.chirpOffsetWire !== undefined ? { chirpOffsetWire: input.chirpOffsetWire } : {}),
         ...(input.multiModeProfileWire !== undefined
           ? { multiModeProfileWire: input.multiModeProfileWire }
+          : {}),
+        ...(input.channelWireName !== undefined ? { channelWireName: input.channelWireName } : {}),
+        ...(input.channelWireNames !== undefined
+          ? { channelWireNames: input.channelWireNames }
           : {}),
       },
     },

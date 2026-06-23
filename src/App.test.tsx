@@ -61,8 +61,18 @@ function seedActiveProject() {
 function seedActiveProjectWithChannels() {
   const project = newProject('Test repeaters');
   let codeplug = project.codeplug;
-  codeplug = addChannel(codeplug, { ...channelFieldDefaults(), name: 'GB3SE', mode: 'dmr' });
-  codeplug = addChannel(codeplug, { ...channelFieldDefaults(), name: 'GB3IV', mode: 'dmr' });
+  codeplug = addChannel(codeplug, {
+    ...channelFieldDefaults(),
+    callsign: 'GB3SE',
+    name: 'Edinburgh',
+    mode: 'dmr',
+  });
+  codeplug = addChannel(codeplug, {
+    ...channelFieldDefaults(),
+    callsign: 'GB3IV',
+    name: 'Inverness',
+    mode: 'dmr',
+  });
   const withChannels = { ...project, codeplug };
   localStorage.setItem(
     CODEPLUG_STORAGE_KEY,
@@ -236,14 +246,14 @@ describe('App', () => {
 
     renderApp('/channels');
 
-    expect(screen.getByRole('link', { name: 'GB3SE' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'GB3IV' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Edinburgh' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Inverness' })).toBeInTheDocument();
 
     const searchFields = screen.getAllByLabelText('Search');
     fireEvent.change(searchFields[0], { target: { value: 'GB3SE' } });
 
-    expect(screen.getByRole('link', { name: 'GB3SE' })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: 'GB3IV' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Edinburgh' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: 'Inverness' })).not.toBeInTheDocument();
   });
 
   it('shows New entity actions in secondary nav on list routes', () => {

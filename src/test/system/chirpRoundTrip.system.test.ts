@@ -42,7 +42,7 @@ describe('CHIRP file-level round-trip (test-data)', () => {
       });
 
       const comparison = compareCsvRecords(originalCsv, exportedCsv, {
-        excludeColumns: ['Location'],
+        excludeColumns: ['Location', 'Comment'],
       });
 
       expect(

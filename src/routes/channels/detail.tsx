@@ -29,6 +29,11 @@ import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import ModePill from '../../components/crud/ModePill.tsx';
 import { resolveChannelModeProfiles } from '../../lib/channelExpansion/index.ts';
+import {
+  channelDisplayLabel,
+  composeChannelWireName,
+  exportNameModeLabel,
+} from '../../lib/channelNaming.ts';
 
 function formatLocation(lat: number | undefined, lon: number | undefined): string {
   if (lat == null || lon == null) return '—';
@@ -128,8 +133,13 @@ export default function ChannelDetail() {
     {
       title: 'Channel config',
       fields: [
-        { label: 'Name', value: channel.name },
-        { label: 'Callsign', value: channel.callsign },
+        { label: 'Callsign', value: channel.callsign || '—' },
+        { label: 'Name', value: channel.name || '—' },
+        { label: 'Export name mode', value: exportNameModeLabel(channel.exportNameMode) },
+        {
+          label: 'Wire name preview',
+          value: composeChannelWireName(channel) || '—',
+        },
         { label: 'Comment', value: channel.comment || '—' },
         {
           label: 'Mode',
@@ -324,7 +334,7 @@ export default function ChannelDetail() {
 
   return (
     <Page>
-      <PageHeader title={channel.name} />
+      <PageHeader title={channelDisplayLabel(channel, true) || channel.name || 'Channel'} />
       <Stack gap="lg">
         <Group justify="space-between">
           <Anchor component={Link} to="/channels" size="sm">
@@ -417,7 +427,7 @@ export default function ChannelDetail() {
         onClose={closeDelete}
         onConfirm={confirmDelete}
         title="Delete channel"
-        entityName={channel.name}
+        entityName={channelDisplayLabel(channel, true) || channel.name}
         warning={zoneWarning}
       />
     </Page>

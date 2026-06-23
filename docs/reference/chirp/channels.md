@@ -21,7 +21,7 @@ Parse by **header name**, not column index.
 | CHIRP header | Internal field | Import | Export | Notes |
 | --- | --- | --- | --- | --- |
 | `Location` | — | ignored | 1-based export index | Excluded from round-trip compare |
-| `Name` | `name` | trim; skip empty | as stored | Case-sensitive |
+| `Name` | composed wire name | trim; skip empty | `composeChannelWireName(callsign, name, exportNameMode)` | Case-sensitive |
 | `Frequency` | `rxFrequency` | MHz → Hz | Hz → MHz (6 dp) | |
 | `Duplex`+`Offset` | `txFrequency`, `rxOnly` | see duplex table | inverse | `off` = TX disabled (`rxOnly`) |
 | `Tone` | derived | see tone table | from `rxTone`/`txTone` | |
@@ -32,7 +32,7 @@ Parse by **header name**, not column index.
 | `TStep` | — | ignored | constant `5.00` | |
 | `Skip` | `scanSkip` | `S`→true | true→`S` | `P` unsupported |
 | `Power` | `power` | profile ladder wire→percent | profile ladder percent→wire | Requires `profileId` |
-| `Comment` | `comment` | trim | as stored | |
+| `Comment` | `comment` on import only | trim | **Not exported** — internal `comment` field only; column left empty on export |
 | `URCALL`/`RPT1CALL`/`RPT2CALL`/`DVCODE` | — | ignored | empty | Digital — not modelled |
 
 `txFrequency` is derived on import from `Frequency` + `Duplex` + `Offset`.

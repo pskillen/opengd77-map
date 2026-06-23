@@ -3,11 +3,12 @@ import { DISTANCE_FILTER_MARKS_KM } from '../lib/channels.ts';
 export const CHANNEL_LIST_COLUMN_STORAGE_KEY = 'channels-list-columns';
 export const CHANNEL_LIST_COLUMNS_SCHEMA_KEY = 'channels-list-columns-schema';
 /** Bump when adding optional columns that should be merged into existing saved prefs once. */
-export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 2;
+export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 4;
 
 export type ChannelSortMode = 'name' | 'distance';
 
 export const CHANNEL_OPTIONAL_COLUMNS = [
+  { key: 'rxTx', header: 'RX/TX', defaultVisible: true },
   { key: 'contact', header: 'Contact', defaultVisible: true },
   { key: 'rgl', header: 'RX group list', defaultVisible: true },
   { key: 'loc', header: 'Locator', defaultVisible: true },
@@ -38,6 +39,10 @@ export function loadChannelVisibleColumns(): string[] {
       if (schema < CHANNEL_LIST_COLUMNS_SCHEMA_VERSION) {
         if (!cols.includes('distance')) cols = [...cols, 'distance'];
         if (!cols.includes('power')) cols = [...cols, 'power'];
+        if (schema < 4) {
+          cols = cols.filter((k) => k !== 'callsign');
+          if (!cols.includes('rxTx')) cols = ['rxTx', ...cols];
+        }
         localStorage.setItem(CHANNEL_LIST_COLUMN_STORAGE_KEY, JSON.stringify(cols));
         localStorage.setItem(
           CHANNEL_LIST_COLUMNS_SCHEMA_KEY,

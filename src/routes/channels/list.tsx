@@ -6,7 +6,7 @@ import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocat
 import { applyFilters } from '../../lib/channels.ts';
 import ModePill from '../../components/crud/ModePill.tsx';
 import { resolveChannelModeProfiles } from '../../lib/channelExpansion/index.ts';
-import { formatFrequencyHz } from '../../lib/formatFrequency.ts';
+import { formatChannelRxTxListCell } from '../../lib/formatFrequency.ts';
 import { formatSquelchListCell, percentLabel } from '../../lib/channelFields/percent.ts';
 import { coordsToLocator } from '../../lib/maidenhead.ts';
 import { CHANNEL_OPTIONAL_COLUMNS } from '../../hooks/channelListQueryUtils.ts';
@@ -32,6 +32,13 @@ export default function ChannelsList() {
   const optionalColumnDefs = CHANNEL_OPTIONAL_COLUMNS.filter((c) =>
     visibleCols.includes(c.key),
   ).map((col) => {
+    if (col.key === 'rxTx') {
+      return {
+        key: col.key,
+        header: col.header,
+        render: (ch: Channel) => formatChannelRxTxListCell(ch.rxFrequency, ch.txFrequency),
+      };
+    }
     if (col.key === 'contact') {
       return {
         key: col.key,
@@ -93,8 +100,12 @@ export default function ChannelsList() {
         <DataTable
           rows={filtered}
           rowKey={(ch) => ch.id}
+          callsignColumn={{
+            getName: (ch) => ch.callsign || '—',
+            getPath: (ch) => `/channels/${ch.id}`,
+          }}
           nameColumn={{
-            getName: (ch) => ch.name,
+            getName: (ch) => ch.name || '—',
             getPath: (ch) => `/channels/${ch.id}`,
           }}
           columns={[
@@ -112,18 +123,6 @@ export default function ChannelsList() {
                 ) : (
                   <ModePill mode={ch.mode} />
                 ),
-            },
-            {
-              key: 'rx',
-              header: 'RX MHz',
-              render: (ch) =>
-                ch.rxFrequency ? formatFrequencyHz(ch.rxFrequency).replace(' MHz', '') : '—',
-            },
-            {
-              key: 'tx',
-              header: 'TX MHz',
-              render: (ch) =>
-                ch.txFrequency ? formatFrequencyHz(ch.txFrequency).replace(' MHz', '') : '—',
             },
             ...optionalColumnDefs,
           ]}

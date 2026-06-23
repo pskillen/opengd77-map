@@ -45,13 +45,21 @@ import { coordsToLocator, isValidLocator, locatorToCoords } from '../../lib/maid
 import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { hasValidationErrors, validateChannel } from '../../lib/validation/channel.ts';
-import { channelFieldDefaults, type Channel, type ChannelMode } from '../../models/codeplug.ts';
+import { composeChannelWireName, EXPORT_NAME_MODE_OPTIONS } from '../../lib/channelNaming.ts';
+import {
+  channelFieldDefaults,
+  type Channel,
+  type ChannelExportNameMode,
+  type ChannelMode,
+} from '../../models/codeplug.ts';
 import { entityRefKey, parseEntityRefKey } from '../../lib/entityRefs.ts';
 import { findEntityById } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 type ChannelFormValues = {
+  callsign: string;
   name: string;
+  exportNameMode: ChannelExportNameMode;
   mode: ChannelMode;
   rxFrequencyMhz: string;
   txFrequencyMhz: string;
@@ -143,7 +151,9 @@ function seedMultiModeProfiles(values: ChannelFormValues): ModeProfileFormValues
 
 function channelToForm(ch: Channel): ChannelFormValues {
   return {
+    callsign: ch.callsign,
     name: ch.name,
+    exportNameMode: ch.exportNameMode,
     mode: ch.mode,
     rxFrequencyMhz: hzToMhzInput(ch.rxFrequency),
     txFrequencyMhz: hzToMhzInput(ch.txFrequency),
@@ -177,7 +187,9 @@ function channelToForm(ch: Channel): ChannelFormValues {
 function emptyForm(): ChannelFormValues {
   const defaults = channelFieldDefaults();
   return {
+    callsign: '',
     name: '',
+    exportNameMode: defaults.exportNameMode,
     mode: 'dmr',
     rxFrequencyMhz: '',
     txFrequencyMhz: '',
@@ -207,7 +219,7 @@ function emptyForm(): ChannelFormValues {
   };
 }
 
-function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'callsign'> {
+function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
   const lat = parseFloat(values.lat);
   const lon = parseFloat(values.lon);
   const hasCoords = Number.isFinite(lat) && Number.isFinite(lon);
@@ -221,7 +233,9 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id' | 'ca
 
   const base = {
     ...channelFieldDefaults(),
+    callsign: values.callsign.trim(),
     name: values.name.trim(),
+    exportNameMode: values.exportNameMode,
     mode: values.mode,
     multiMode: values.multiMode,
     modeProfiles,
@@ -322,12 +336,15 @@ export default function ChannelEdit() {
     const lon = parseFloat(values.lon);
     if (!Number.isFinite(lat) || !Number.isFinite(lon)) return [];
 
+    const label = values.name.trim() || values.callsign.trim() || 'New channel';
+
     return [
       {
         ...channelFieldDefaults(),
         id: existing?.id ?? '__preview__',
-        name: values.name.trim() || 'New channel',
-        callsign: existing?.callsign ?? '',
+        callsign: values.callsign.trim(),
+        name: values.name.trim() || label,
+        exportNameMode: values.exportNameMode,
         mode: values.mode,
         rxFrequency: parseFrequencyHzFromMhzInput(values.rxFrequencyMhz),
         txFrequency: parseFrequencyHzFromMhzInput(values.txFrequencyMhz),
@@ -340,7 +357,9 @@ export default function ChannelEdit() {
   }, [
     values.lat,
     values.lon,
+    values.callsign,
     values.name,
+    values.exportNameMode,
     values.mode,
     values.rxFrequencyMhz,
     values.txFrequencyMhz,
@@ -444,9 +463,21 @@ export default function ChannelEdit() {
 
   const cancelPath = isNew ? '/channels' : `/channels/${existing?.id}`;
 
+  const wirePreview = composeChannelWireName({
+    callsign: values.callsign,
+    name: values.name,
+    exportNameMode: values.exportNameMode,
+  });
+
+  const pageTitle = isNew
+    ? 'New channel'
+    : [existing?.callsign, existing?.name].filter(Boolean).join(' — ') ||
+      existing?.name ||
+      'channel';
+
   return (
     <FormPage
-      title={isNew ? 'New channel' : `Edit ${existing?.name ?? 'channel'}`}
+      title={isNew ? 'New channel' : `Edit ${pageTitle}`}
       onSubmit={handleSubmit}
       footer={
         <>
@@ -483,14 +514,36 @@ export default function ChannelEdit() {
         <Stack gap="sm" id={channelSectionAnchorId('Channel config')}>
           <Title order={4}>Channel config</Title>
           <TextInput
+            label="Callsign"
+            description="Repeater or site identifier (e.g. GB7GL)"
+            value={values.callsign}
+            onChange={(e) => set('callsign', e.currentTarget.value)}
+          />
+          <TextInput
             label="Name"
-            required
+            description="Human qualifier — town, TG label, etc."
             value={values.name}
             onChange={(e) => set('name', e.currentTarget.value)}
           />
+          <Select
+            label="Export name mode"
+            description="How CPS export composes the channel name column"
+            data={EXPORT_NAME_MODE_OPTIONS.map((o) => ({
+              value: o.value,
+              label: `${o.label} — ${o.description}`,
+            }))}
+            value={values.exportNameMode}
+            onChange={(v) => set('exportNameMode', (v ?? 'name_only') as ChannelExportNameMode)}
+          />
+          <TextInput
+            label="Wire name preview"
+            description="Composed CPS channel name on export"
+            value={wirePreview}
+            readOnly
+          />
           <TextInput
             label="Comment"
-            description="Operator notes"
+            description="Internal notes only — not exported to CPS"
             value={values.comment}
             onChange={(e) => set('comment', e.currentTarget.value)}
           />

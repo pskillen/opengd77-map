@@ -31,7 +31,7 @@ Internal relationships use **UUID id** foreign keys. `EntityRef` is a discrimina
 
 Wire-format mapping lives in the [import/export hub](../import-export/README.md) and per-format references under `docs/reference/<format>/` — not here. Radio-specific limits (zone member caps, feature availability) are format/profile concerns that apply at export time, not in the internal model.
 
-**Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **9** (multi-mode channels)
+**Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **12** (first-class callsign + export name mode)
 
 ## Design principles
 
@@ -66,8 +66,9 @@ Typed scalar fields use vendor-neutral semantics in the model; CPS wire strings 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | `string` | Internal |
-| `name` | `string` | Display name; currently also the resolution key for zone members (transitional — see name-FK note) |
-| `callsign` | `string` | Derived — first word of `name` |
+| `name` | `string` | Human qualifier (town, TG label, etc.) — **not** the full CPS wire string after import |
+| `callsign` | `string` | Repeater/site identifier; map default label; edited independently of `name` |
+| `exportNameMode` | `ChannelExportNameMode` | How export composes CPS `Channel Name` from `callsign` + `name` — see [channel-name-parsing](../import-export/channel-name-parsing.md) |
 | `mode` | `ChannelMode` | Primary/display mode — see [channel-modes reference](../../reference/channel-modes.md) (`fm`, `dmr`, `ysf`, …) |
 | `multiMode` | `boolean` | When `true`, channel carries multiple RF mode profiles (opt-in; default `false`) |
 | `modeProfiles` | `ChannelModeProfile[]` | Per-mode settings when `multiMode` is enabled; empty when off — see below |
@@ -88,7 +89,7 @@ Typed scalar fields use vendor-neutral semantics in the model; CPS wire strings 
 | `voxEnabled` | `boolean` | VOX enabled |
 | `transmitTimeout` | `number \| null` | Seconds; `0` = off; `null` when unset |
 | `scanSkip` | `boolean` | Exclude from scan |
-| `comment` | `string` | Operator notes; CHIRP `Comment` column (default `''`) |
+| `comment` | `string` | Internal operator notes only (`''` default); **not** exported to CHIRP |
 | `hideFromMap` | `boolean` | Internal only — exclude from map plots |
 | `opengd77Extras` | `Record<string, string>` | OpenGD77-only opaque wire columns preserved for round-trip |
 | `meta` | `EntityMeta` | Optional per-entity metadata (see below) |
@@ -177,7 +178,7 @@ Named RX (receive) group list driving promiscuous receive. Members are ordered `
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (10) after migration |
+| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (12) after migration |
 | `importedAt` | `string \| null` | |
 | `sourceFiles` | `string[]` | |
 
@@ -191,6 +192,8 @@ Per-entity import provenance — accessors in [`src/lib/entityProvenance.ts`](..
 | `meta.imported.sourceFile` | `string \| null` | Source CSV filename when known |
 | `meta.imported.importedAt` | `string` | ISO-8601 timestamp |
 | `meta.imported.memberWireNames` | `string[]` | Ordered wire names for zone/RGL list members (merge/delta) |
+| `meta.imported.channelWireName` | `string` | Verbatim CPS channel name at import — **merge identity only**; export uses `composeChannelWireName` |
+| `meta.imported.channelWireNames` | `string[]` | All contributing wire names when import collapse merged rows (multi-mode / multi-TG) |
 | `meta.imported.contactWireName` | `string` | Channel TX contact wire string — merge/delta (channels only) |
 | `meta.imported.rxGroupListWireName` | `string` | Channel RX list wire string — merge/delta (channels only) |
 

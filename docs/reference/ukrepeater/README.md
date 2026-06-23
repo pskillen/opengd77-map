@@ -86,7 +86,8 @@ Timeslot is **not** in ETCC listings — operator fills in CRUD.
 | `txbw` | `bandwidthKHz` | kHz |
 | `modeCodes` | `mode`, `colourCode`, `multiMode`, `modeProfiles` | See mode flags |
 | `locator` | `location` | Via `locatorToCoords`; `useLocation: true` when resolved |
-| `repeater` | `name`, `callsign` | Callsign is first token of name |
+| `repeater` | `callsign` | |
+| `town` | `name` | Human qualifier; `exportNameMode` defaults to `callsign_name` |
 | `town`, `status`, `keeperCallsign`, `extraDetails.ngr`, `dbwErp` | `meta.repeaterDirectory.snapshot` | Display / verify only |
 | `id` | `meta.repeaterDirectory.remoteListingId` | Verify identity |
 

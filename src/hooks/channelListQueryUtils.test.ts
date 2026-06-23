@@ -20,7 +20,7 @@ describe('defaultChannelVisibleColumns', () => {
 });
 
 describe('loadChannelVisibleColumns', () => {
-  it('migrates stored prefs to include power but not squelch', () => {
+  it('migrates stored prefs to include power and rxTx but not squelch', () => {
     const key = CHANNEL_LIST_COLUMN_STORAGE_KEY;
     const schemaKey = CHANNEL_LIST_COLUMNS_SCHEMA_KEY;
     const previous = localStorage.getItem(key);
@@ -31,6 +31,8 @@ describe('loadChannelVisibleColumns', () => {
     try {
       const cols = loadChannelVisibleColumns();
       expect(cols).toContain('power');
+      expect(cols).toContain('rxTx');
+      expect(cols).not.toContain('callsign');
       expect(cols).not.toContain('squelch');
       expect(localStorage.getItem(schemaKey)).toBe(String(CHANNEL_LIST_COLUMNS_SCHEMA_VERSION));
     } finally {

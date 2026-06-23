@@ -1,4 +1,4 @@
-import { parseCsv, extractCallsign } from '../../csv.ts';
+import { parseCsv } from '../../csv.ts';
 import { channelFieldDefaults, newId, type Channel } from '../../../models/codeplug.ts';
 import { stampImported } from '../../entityProvenance.ts';
 import type { ImportParseContext } from '../../import-export/importAdapter.ts';
@@ -76,7 +76,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
     const channel: Channel = {
       id: newId(),
       name,
-      callsign: extractCallsign(name),
+      callsign: '',
       mode,
       ...channelFieldDefaults(),
       rxFrequency,
@@ -95,6 +95,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
         formatId: CHIRP_FORMAT,
         sourceFile: null,
         importedAt,
+        channelWireName: name,
         chirpDuplexWire: duplexWire,
         chirpOffsetWire: offsetWire,
       }),

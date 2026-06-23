@@ -7,6 +7,7 @@ import type { EtccListing } from './ukrepeater/types.ts';
 import { mapListingToChannelInput, isMapListingSkip } from './ukrepeater/mapToChannel.ts';
 
 export type ChannelDiffField =
+  | 'callsign'
   | 'name'
   | 'rxFrequency'
   | 'txFrequency'
@@ -28,6 +29,7 @@ export interface ChannelDiffRow {
 }
 
 const FIELD_LABELS: Record<ChannelDiffField, string> = {
+  callsign: 'Callsign',
   name: 'Name',
   rxFrequency: 'RX frequency',
   txFrequency: 'TX frequency',
@@ -96,6 +98,7 @@ export function diffChannelFromListing(channel: Channel, listing: EtccListing): 
     });
   };
 
+  push('callsign', channel.callsign, remote.callsign, channel.callsign !== remote.callsign);
   push('name', channel.name, remote.name, channel.name !== remote.name);
   push(
     'rxFrequency',
@@ -181,6 +184,7 @@ export function buildPatchFromDiff(
   const patch: Partial<ChannelInput> = {};
   const selected = new Set(selectedFields);
 
+  if (selected.has('callsign')) patch.callsign = remote.callsign;
   if (selected.has('name')) patch.name = remote.name;
   if (selected.has('rxFrequency')) patch.rxFrequency = remote.rxFrequency;
   if (selected.has('txFrequency')) patch.txFrequency = remote.txFrequency;

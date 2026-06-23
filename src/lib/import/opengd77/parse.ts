@@ -1,5 +1,5 @@
 import { mergeImportChannelsBestEffort } from '../../channelExpansion/index.ts';
-import { parseCsv, extractCallsign } from '../../csv.ts';
+import { parseCsv } from '../../csv.ts';
 import { channelFieldDefaults, newId, type Channel } from '../../../models/codeplug.ts';
 import { mapOpenGd77ChannelType } from '../../channelModes.ts';
 import type { Contact, TalkGroup } from '../../../models/codeplug.ts';
@@ -34,6 +34,7 @@ function importStamp(
     memberWireNames?: string[];
     contactWireName?: string;
     rxGroupListWireName?: string;
+    channelWireName?: string;
   },
 ) {
   const importedAt = new Date().toISOString();
@@ -43,6 +44,7 @@ function importStamp(
       memberWireNames?: string[];
       contactWireName?: string;
       rxGroupListWireName?: string;
+      channelWireName?: string;
     },
   ): T =>
     stampImported(entity, {
@@ -101,7 +103,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
           id: newId(),
           ...channelFieldDefaults(),
           name,
-          callsign: extractCallsign(name),
+          callsign: '',
           mode: mapOpenGd77ChannelType(get(CHANNEL_COL.type)),
           rxFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.rx)),
           txFrequency: parseOpenGd77FrequencyWire(get(CHANNEL_COL.tx)),
@@ -125,6 +127,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
           opengd77Extras,
         },
         {
+          channelWireName: name,
           contactWireName: get(CHANNEL_COL.contact),
           rxGroupListWireName: get(CHANNEL_COL.tgList),
         },

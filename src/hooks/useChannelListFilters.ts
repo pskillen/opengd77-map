@@ -54,8 +54,11 @@ export function filterChannelsForList(
   position: OperatorPosition | null,
 ): Channel[] {
   const nameFiltered = channels.filter((ch) => {
-    if (query.nameFilter && !ch.name.toLowerCase().includes(query.nameFilter.toLowerCase())) {
-      return false;
+    if (query.nameFilter) {
+      const q = query.nameFilter.toLowerCase();
+      const matchesName = ch.name.toLowerCase().includes(q);
+      const matchesCallsign = ch.callsign.toLowerCase().includes(q);
+      if (!matchesName && !matchesCallsign) return false;
     }
     if (!channelMatchesBandFilter(ch.rxFrequency, ch.txFrequency, query.bandFilter)) return false;
     if (query.modeFilter.length && !channelMatchesModeFilter(ch, query.modeFilter)) return false;

@@ -46,7 +46,7 @@ Enable TG expansion (`ExportOptions.expandRxGroupLists`) only when the **target 
 
 Each expanded row is one site × one member:
 
-- **Wire name:** `{baseWireName} {memberWireName}` — `baseWireName` already includes `-F`/`-D` when multi-mode expanded
+- **Wire name:** `{baseWireName} {memberWireName}` — `baseWireName` = `composeChannelWireName(channel)` (already includes `-F`/`-D` when multi-mode expanded)
 - **Contact / TX ref:** the member (`contactRef` on the expanded row)
 - **RX group list:** `null` — single-TG row; no RGL on wire
 

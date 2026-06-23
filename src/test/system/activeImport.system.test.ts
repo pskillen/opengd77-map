@@ -126,7 +126,7 @@ describe('active import system workflow', () => {
 
       expect(delta.applyReport.channels.updated).toBe(1);
       expect(delta.applyReport.channels.unchanged).toBe(1);
-      expect(delta.codeplugAfter.channels.find((c) => c.name === 'GB3DA DMR')?.rxFrequency).toBe(
+      expect(delta.codeplugAfter.channels.find((c) => c.callsign === 'GB3DA')?.rxFrequency).toBe(
         431_000_000,
       );
     });
@@ -251,7 +251,7 @@ describe('active import system workflow', () => {
       const cp = {
         ...base.codeplugAfter,
         channels: base.codeplugAfter.channels.map((c) =>
-          c.name === 'GB3DA DMR' ? { ...c, hideFromMap: true } : c,
+          c.callsign === 'GB3DA' ? { ...c, hideFromMap: true } : c,
         ),
       };
 
@@ -261,7 +261,7 @@ describe('active import system workflow', () => {
         mode: 'merge',
       });
 
-      expect(merged.codeplugAfter.channels.find((c) => c.name === 'GB3DA DMR')?.hideFromMap).toBe(
+      expect(merged.codeplugAfter.channels.find((c) => c.callsign === 'GB3DA')?.hideFromMap).toBe(
         true,
       );
     });

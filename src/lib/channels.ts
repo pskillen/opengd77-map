@@ -2,6 +2,7 @@ import type { Channel, ChannelMode, Zone } from '../models/codeplug.ts';
 import type { LatLon } from './geo.ts';
 import { uniqueLatLon } from './geo.ts';
 import { buildNameToChannelId } from './codeplug.ts';
+import { channelDisplayLabel } from './channelNaming.ts';
 import { getMemberWireNames } from './entityProvenance.ts';
 import { resolveChannelModeProfiles } from './channelExpansion/index.ts';
 import { modeColor, modeLabel } from './channelModes.ts';
@@ -53,14 +54,14 @@ export function channelMatchesModeFilter(channel: Channel, modeFilter: string[])
 export function markerLabel(group: Channel[], useFull: boolean): string {
   const ch = group[0];
   if (group.length === 1 && ch.multiMode) {
-    const base = useFull ? ch.name : ch.callsign;
+    const base = channelDisplayLabel(ch, useFull);
     return `${base} ${channelModeSummary(ch)}`;
   }
   if (group.length > 1) {
-    const base = useFull ? ch.name : ch.callsign;
+    const base = channelDisplayLabel(ch, useFull);
     return `${base} +${group.length - 1}`;
   }
-  return useFull ? ch.name : ch.callsign;
+  return channelDisplayLabel(ch, useFull);
 }
 
 export function dominantMode(group: Channel[]): ChannelMode {

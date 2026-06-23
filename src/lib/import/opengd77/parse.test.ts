@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { normalizeImportedChannelNaming } from '../../channelNaming.ts';
 import { resetIdGenerator, setIdGenerator } from '../../../models/codeplug.ts';
 import { CHANNEL_HEADERS, CONTACT_HEADERS, RX_GROUP_LIST_HEADERS } from './columns.ts';
 import { parseChannels, parseContacts, parseRxGroupLists, parseZones } from './parse.ts';
@@ -22,12 +23,13 @@ describe('parseChannels', () => {
 1,GB3DA DMR,Digital,430.0,430.0,,2,1,Local 9,Scotland,,Off,Off,,,75%,Master,No,No,No,0,Off,No,No,None,56.5,-4.0,Yes
 2,GB3XX FM,Analogue,145.0,145.0,12.5,,,,,,,,None,103.5,Disabled,Master,No,No,Yes,0,On,No,No,None,57.0,-3.5,No`;
 
-    const channels = parseChannels(csv, OPGD77_CTX);
+    const channels = normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX));
     expect(channels).toHaveLength(2);
     expect(channels[0]).toMatchObject({
       id: 'ch-1',
-      name: 'GB3DA DMR',
+      name: 'DMR',
       callsign: 'GB3DA',
+      exportNameMode: 'callsign_name',
       mode: 'dmr',
       rxFrequency: 430_000_000,
       txFrequency: 430_000_000,
@@ -82,7 +84,7 @@ describe('parseChannels', () => {
 2,,Digital,430,430,,,,,,,,,,,,,,,,,,,,,56.5,-4.0,Yes`;
 
     expect(parseChannels(csv, OPGD77_CTX)).toHaveLength(1);
-    expect(parseChannels(csv, OPGD77_CTX)[0].name).toBe('Named');
+    expect(normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX))[0].name).toBe('Named');
   });
 
   it('sets null location for invalid coordinates', () => {
@@ -96,10 +98,12 @@ describe('parseChannels', () => {
 1,GB7GL-F,Analogue,430.0,430.0,12.5,,,,,,,,None,88.5,Disabled,Master,No,No,No,0,Off,No,No,None,56.5,-4.0,Yes
 2,GB7GL-D,Digital,430.0,430.0,,2,1,Local 9,Scotland,,Off,Off,,,75%,Master,No,No,No,0,Off,No,No,None,56.5,-4.0,Yes`;
 
-    const channels = parseChannels(csv, OPGD77_CTX);
+    const channels = normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX));
     expect(channels).toHaveLength(1);
     expect(channels[0].multiMode).toBe(true);
-    expect(channels[0].name).toBe('GB7GL');
+    expect(channels[0].callsign).toBe('GB7GL');
+    expect(channels[0].name).toBe('');
+    expect(channels[0].meta?.imported?.channelWireNames).toEqual(['GB7GL-F', 'GB7GL-D']);
     expect(channels[0].modeProfiles).toHaveLength(2);
     expect(channels[0].modeProfiles.map((p) => p.mode).sort()).toEqual(['dmr', 'fm']);
   });

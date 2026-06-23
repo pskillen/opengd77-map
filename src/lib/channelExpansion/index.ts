@@ -17,6 +17,7 @@ import type {
   Zone,
 } from '../../models/codeplug.ts';
 import { channelModeProfileDefaults, newId } from '../../models/codeplug.ts';
+import { composeChannelWireName, withMergedChannelWireProvenance } from '../channelNaming.ts';
 
 /** Resolved export row — shared channel fields merged with one mode profile. */
 export interface ExpandedChannelRow {
@@ -170,9 +171,10 @@ export function expandChannelForExport(
   const warnings = options.warnings;
   const profiles = resolveChannelModeProfiles(channel);
   const expandModes = options.expandModes ?? true;
+  const baseWireName = composeChannelWireName(channel);
 
   if (!channel.multiMode || profiles.length <= 1) {
-    const name = uniqueWireName(channel.name, reserved);
+    const name = uniqueWireName(baseWireName, reserved);
     reserved.add(name);
     if (options.maxNameLength != null && name.length > options.maxNameLength) {
       warnings?.push(`Channel name "${name}" exceeds ${options.maxNameLength} characters`);
@@ -181,7 +183,7 @@ export function expandChannelForExport(
   }
 
   if (!expandModes) {
-    const name = uniqueWireName(channel.name, reserved);
+    const name = uniqueWireName(baseWireName, reserved);
     reserved.add(name);
     if (options.maxNameLength != null && name.length > options.maxNameLength) {
       warnings?.push(`Channel name "${name}" exceeds ${options.maxNameLength} characters`);
@@ -215,7 +217,7 @@ export function expandChannelForExport(
   const rows: ExpandedChannelRow[] = [];
   for (const profile of profiles) {
     const suffix = modeExportNameSuffix(profile.mode);
-    const candidate = uniqueWireName(`${channel.name}${suffix}`, reserved);
+    const candidate = uniqueWireName(`${baseWireName}${suffix}`, reserved);
     reserved.add(candidate);
     if (options.maxNameLength != null && candidate.length > options.maxNameLength) {
       warnings?.push(
@@ -520,7 +522,7 @@ export function mergeChannelsToMultiTalkgroup(
     rxGroupListId,
   };
 
-  return { channel, rxGroupLists };
+  return { channel: withMergedChannelWireProvenance(channel, sources), rxGroupLists };
 }
 
 function canMergeMultiTalkgroupPair(
@@ -768,7 +770,7 @@ export function mergeChannelsToMultiMode(
     };
   }
 
-  return syncChannelFromPrimaryProfile(base);
+  return syncChannelFromPrimaryProfile(withMergedChannelWireProvenance(base, sources));
 }
 
 function canMergePair(a: Channel, b: Channel): boolean {

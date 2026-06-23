@@ -80,13 +80,16 @@ describe('dominantMode', () => {
 
 describe('markerLabel', () => {
   it('uses callsign by default and full name when requested', () => {
-    const group = [ch({ id: '1', name: 'GB3DA DMR' })];
+    const group = [ch({ id: '1', name: 'DMR', callsign: 'GB3DA' })];
     expect(markerLabel(group, false)).toBe('GB3DA');
-    expect(markerLabel(group, true)).toBe('GB3DA DMR');
+    expect(markerLabel(group, true)).toBe('GB3DA — DMR');
   });
 
   it('appends +N for merged groups', () => {
-    const group = [ch({ id: '1', name: 'GB3DA DMR' }), ch({ id: '2', name: 'GB3DA FM' })];
+    const group = [
+      ch({ id: '1', name: 'DMR', callsign: 'GB3DA' }),
+      ch({ id: '2', name: 'FM', callsign: 'GB3DA' }),
+    ];
     expect(markerLabel(group, false)).toBe('GB3DA +1');
   });
 
@@ -94,7 +97,8 @@ describe('markerLabel', () => {
     const group = [
       ch({
         id: '1',
-        name: 'GB7GL',
+        name: 'Glasgow',
+        callsign: 'GB7GL',
         mode: 'fm',
         multiMode: true,
         modeProfiles: [

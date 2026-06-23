@@ -54,7 +54,7 @@ Some CPS builds spell analogue `Anlaog` — accept on import; export uses fixtur
 | `CTC/DCS Decode` / `Encode` | `rxTone` / `txTone` | Wire → tone | Tone → wire | Yes | `None` when off |
 | `Scramble` … `PTT ID Display` | — | Ignored | Fixture defaults | Constant | |
 
-`Channel.callsign` is derived from the first word of `Channel Name` on import.
+`Channel Name` maps to split internal fields on import and is **composed on export**. Split rules: [channel-name-parsing](../../features/import-export/channel-name-parsing.md).
 
 ## Export expansion (DM32 adapter)
 

@@ -1,4 +1,5 @@
 import type { Channel } from '../../../models/codeplug.ts';
+import { composeChannelWireName } from '../../channelNaming.ts';
 import {
   deriveChirpDuplexAndOffset,
   formatChirpFrequencyWire,
@@ -28,7 +29,7 @@ export function channelToChirpRow(channel: Channel, location: number, profileId:
 
   return [
     String(location),
-    channel.name,
+    composeChannelWireName(channel),
     formatChirpFrequencyWire(channel.rxFrequency),
     duplex,
     offsetMhz.toFixed(6),
@@ -43,7 +44,7 @@ export function channelToChirpRow(channel: Channel, location: number, profileId:
     formatChirpTStepWire(),
     formatChirpScanSkip(channel.scanSkip),
     formatChirpPowerWireForProfile(channel.power, profileId),
-    channel.comment,
+    '',
     '',
     '',
     '',

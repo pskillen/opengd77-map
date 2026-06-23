@@ -56,3 +56,15 @@ export function formatMhzNumber(mhz: number): string {
 export function formatBandRangeMhz(minMhz: number, maxMhz: number): string {
   return `${formatMhzNumber(minMhz)} – ${formatMhzNumber(maxMhz)} MHz`;
 }
+
+/** Channels list: one MHz value, or `rx / tx` when split (no unit suffix). */
+export function formatChannelRxTxListCell(rxHz: number | null, txHz: number | null): string {
+  const fmt = (hz: number | null) =>
+    hz != null && hz > 0 ? formatFrequencyHz(hz).replace(' MHz', '') : null;
+  const rx = fmt(rxHz);
+  const tx = fmt(txHz);
+  if (!rx && !tx) return '—';
+  if (rx && tx && rxHz === txHz) return rx;
+  if (rx && tx) return `${rx} / ${tx}`;
+  return rx ?? tx ?? '—';
+}

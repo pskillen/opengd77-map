@@ -43,7 +43,7 @@ Each `codeplug` object is a full [`Codeplug`](../../src/models/codeplug.ts) (cha
 | Constant | Value | Gates |
 | --- | --- | --- |
 | `CODEPLUG_STORAGE_VERSION` | `1` | On-disk envelope shape |
-| `CODEPLUG_SCHEMA_VERSION` | `7` | Inner `Codeplug` model shape (`meta.schemaVersion`); v1–v6 codeplugs migrate on load |
+| `CODEPLUG_SCHEMA_VERSION` | `12` | Inner `Codeplug` model shape (`meta.schemaVersion`); older codeplugs migrate on load |
 
 Unknown or future envelope `version` → boot with an empty project set (no crash).
 

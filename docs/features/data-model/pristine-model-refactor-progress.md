@@ -165,10 +165,17 @@ The next agent relies on these values. Keep them accurate.
 
 ## Phase 5 — First-class naming + export name composition (#54)
 
-**Status:** Not started
-**Branch:** `54/paddy/first-class-callsign-naming`
+**Status:** Complete — PR pending  
+**Branch:** `54/paddy/first-class-callsign-naming`  
+**Log:** [channel-naming-progress.md](channel-naming-progress.md)
+
+Delivered: `callsign` + `name` + `exportNameMode`, `channelNaming.ts`, import split + export compose, schema v12, CRUD/map UI.
 
 ---
+
+## Next
+
+- Open PR for Phase 5 (#54); merge when reviewed.
 
 ## Standalone doc hygiene (not phase-bound)
 
@@ -177,7 +184,3 @@ From the [doc audit](vendor-boundary-doc-audit.md) #6–#8 — pure doc/anchor f
 - [`.cursor/rules/codeplug-tool.mdc`](../../../.cursor/rules/codeplug-tool.mdc) "Channel map" section points at non-existent `ChannelMap.tsx` / `Map.tsx` / `csv.ts`; update to `CodeplugMap`, real routes, and `src/lib/import/`.
 - [`README.md`](../../../README.md) (repo root) L53 — soften "import an OpenGD77 CPS export" to keep OpenGD77 as an example, not the definition.
 - Confirm no other stale `ChannelMap` anchors remain (see [`CodeplugMap.md`](../../../src/components/CodeplugMap/CodeplugMap.md)).
-
-## Next
-
-- Merge Phase 4 PR; branch Phase 5 from `origin/main` when ready (#54).

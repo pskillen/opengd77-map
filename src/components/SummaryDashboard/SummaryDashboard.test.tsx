@@ -61,7 +61,8 @@ describe('SummaryDashboard', () => {
     let codeplug = project.codeplug;
     codeplug = addChannel(codeplug, {
       ...channelFieldDefaults(),
-      name: 'GB3SE',
+      callsign: 'GB3SE',
+      name: 'Edinburgh',
       mode: 'dmr',
       location: { lat: 56.5, lon: -4.0 },
       useLocation: true,

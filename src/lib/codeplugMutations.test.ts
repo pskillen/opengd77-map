@@ -51,22 +51,25 @@ describe('codeplugMutations', () => {
     resetIdGenerator();
   });
 
-  it('addChannel assigns id and callsign', () => {
+  it('addChannel assigns id and preserves callsign', () => {
     const cp = emptyCodeplug();
     const next = addChannel(cp, {
-      name: 'GB3DA DMR',
+      name: 'DMR',
+      callsign: 'GB3DA',
       mode: 'dmr',
       ...channelFieldDefaults(),
     });
     expect(next.channels).toHaveLength(1);
     expect(next.channels[0].id).toBe('gen-1');
     expect(next.channels[0].callsign).toBe('GB3DA');
+    expect(next.channels[0].name).toBe('DMR');
   });
 
   it('addChannel clears modeProfiles when multiMode is false', () => {
     const cp = emptyCodeplug();
     const next = addChannel(cp, {
       ...channelFieldDefaults(),
+      callsign: '',
       name: 'GB7GL',
       mode: 'fm',
       multiMode: false,
@@ -80,7 +83,8 @@ describe('codeplugMutations', () => {
     const cp = emptyCodeplug();
     const next = addChannel(cp, {
       ...channelFieldDefaults(),
-      name: 'GB7GL',
+      callsign: 'GB7GL',
+      name: 'Glasgow',
       mode: 'dmr',
       multiMode: true,
       modeProfiles: [

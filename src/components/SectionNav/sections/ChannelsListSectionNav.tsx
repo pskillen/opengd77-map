@@ -92,7 +92,7 @@ export default function ChannelsListSectionNav({ variant }: SectionNavProps) {
 
       <TextInput
         label="Search"
-        placeholder="Filter name…"
+        placeholder="Filter name or callsign…"
         value={query.nameFilter}
         onChange={(e) => query.setNameFilter(e.currentTarget.value)}
         size={isSidebar ? 'sm' : 'md'}
