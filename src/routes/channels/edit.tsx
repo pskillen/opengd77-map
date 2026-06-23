@@ -29,10 +29,14 @@ import {
 import { formatMhzNumber } from '../../lib/formatFrequency.ts';
 import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
 import { BandPillsForFrequencies } from '../../components/crud/BandPill.tsx';
-import ChannelModeSelect from '../../components/crud/ChannelModeSegmentedControl.tsx';
+import ChannelModeSelect, {
+  ChannelModesMultiSelect,
+  ChannelPrimaryModeSelect,
+} from '../../components/crud/ChannelModeSegmentedControl.tsx';
 import ChannelModeProfilesEditor, {
   formProfileToModel,
   modeProfileToForm,
+  syncModeProfilesFromSelection,
   type ModeProfileFormValues,
 } from '../../components/crud/ChannelModeProfilesEditor.tsx';
 import { channelModeProfileDefaults } from '../../models/codeplug.ts';
@@ -94,6 +98,13 @@ function selectValueToPercent(value: string): number | null {
 
 function emptyModeProfileForm(mode: ChannelMode): ModeProfileFormValues {
   return modeProfileToForm(channelModeProfileDefaults(mode));
+}
+
+function syncProfilesFromModeSelection(
+  selectedModes: ChannelMode[],
+  existingProfiles: ModeProfileFormValues[],
+): ModeProfileFormValues[] {
+  return syncModeProfilesFromSelection(selectedModes, existingProfiles);
 }
 
 function seedMultiModeProfiles(values: ChannelFormValues): ModeProfileFormValues[] {
@@ -428,9 +439,8 @@ export default function ChannelEdit() {
     }
   };
 
-  const showAnalogFields = !values.multiMode && isAnalogMode(values.mode);
+  const showSingleModeAnalogFields = !values.multiMode && isAnalogMode(values.mode);
   const showDmrFields = !values.multiMode && isDmrMode(values.mode);
-  const showSingleModeRfExtras = !values.multiMode;
 
   return (
     <ReportPage title={isNew ? 'New channel' : `Edit ${existing?.name ?? 'channel'}`}>
@@ -453,8 +463,8 @@ export default function ChannelEdit() {
             </Text>
           ) : null}
 
-          <Stack gap="sm" id={channelSectionAnchorId('Identity')}>
-            <Title order={4}>Identity</Title>
+          <Stack gap="sm" id={channelSectionAnchorId('Channel config')}>
+            <Title order={4}>Channel config</Title>
             <TextInput
               label="Name"
               required
@@ -463,14 +473,13 @@ export default function ChannelEdit() {
             />
             <TextInput
               label="Comment"
-              description="Operator notes — exported to CHIRP Comment column"
+              description="Operator notes"
               value={values.comment}
               onChange={(e) => set('comment', e.currentTarget.value)}
             />
-            <ChannelModeSelect value={values.mode} onChange={(mode) => set('mode', mode)} />
             <Checkbox
               label="Multi-mode channel"
-              description="One logical site with FM and DMR (and other) profiles — expands on OpenGD77 export"
+              description="One logical site with separate settings per RF mode"
               checked={values.multiMode}
               onChange={(e) => {
                 const checked = e.currentTarget.checked;
@@ -482,21 +491,51 @@ export default function ChannelEdit() {
                 }));
               }}
             />
+            {values.multiMode ? (
+              <>
+                <ChannelModesMultiSelect
+                  value={values.modeProfiles.map((p) => p.mode)}
+                  onChange={(modes) => {
+                    setValues((prev) => {
+                      const modeProfiles = syncProfilesFromModeSelection(modes, prev.modeProfiles);
+                      const mode = modes.includes(prev.mode) ? prev.mode : (modes[0] ?? prev.mode);
+                      return { ...prev, modeProfiles, mode };
+                    });
+                  }}
+                />
+                {values.modeProfiles.length > 0 ? (
+                  <ChannelPrimaryModeSelect
+                    value={values.mode}
+                    modes={values.modeProfiles.map((p) => p.mode)}
+                    onChange={(mode) => set('mode', mode)}
+                  />
+                ) : null}
+              </>
+            ) : (
+              <ChannelModeSelect value={values.mode} onChange={(mode) => set('mode', mode)} />
+            )}
+            <NumberInput
+              label="Transmit timeout (seconds)"
+              value={
+                values.transmitTimeout === '' ? undefined : parseInt(values.transmitTimeout, 10)
+              }
+              onChange={(v) => set('transmitTimeout', v != null ? String(v) : '')}
+              min={0}
+              max={495}
+              step={15}
+              allowDecimal={false}
+            />
+            <Checkbox
+              label="VOX"
+              checked={values.voxEnabled}
+              onChange={(e) => set('voxEnabled', e.currentTarget.checked)}
+            />
+            <Checkbox
+              label="Scan skip"
+              checked={values.scanSkip}
+              onChange={(e) => set('scanSkip', e.currentTarget.checked)}
+            />
           </Stack>
-
-          {values.multiMode ? (
-            <Stack gap="sm" id={channelSectionAnchorId('Mode profiles')}>
-              <Title order={4}>Mode profiles</Title>
-              <Text size="sm" c="dimmed">
-                Per-mode RF settings. Frequencies, power, and location are shared below.
-              </Text>
-              <ChannelModeProfilesEditor
-                profiles={values.modeProfiles}
-                codeplug={codeplug}
-                onChange={(modeProfiles) => setValues((prev) => ({ ...prev, modeProfiles }))}
-              />
-            </Stack>
-          ) : null}
 
           <Stack gap="sm" id={channelSectionAnchorId('RF')}>
             <Title order={4}>RF</Title>
@@ -518,7 +557,7 @@ export default function ChannelEdit() {
               </Text>
             ) : null}
             <BandPillsForFrequencies rxFrequency={rxHz} txFrequency={txHz} />
-            {showSingleModeRfExtras ? (
+            {showSingleModeAnalogFields ? (
               <Select
                 label="Bandwidth (kHz)"
                 data={bandwidthSelectData}
@@ -533,7 +572,7 @@ export default function ChannelEdit() {
               value={values.power}
               onChange={(v) => set('power', v ?? 'default')}
             />
-            {showAnalogFields ? (
+            {showSingleModeAnalogFields ? (
               <Group grow>
                 <Select
                   label="RX tone"
@@ -551,7 +590,7 @@ export default function ChannelEdit() {
                 />
               </Group>
             ) : null}
-            {showSingleModeRfExtras ? (
+            {showSingleModeAnalogFields ? (
               <Select
                 label="Squelch"
                 data={squelchSelectData}
@@ -565,52 +604,6 @@ export default function ChannelEdit() {
               onChange={(e) => set('rxOnly', e.currentTarget.checked)}
             />
           </Stack>
-
-          {showDmrFields ? (
-            <Stack gap="sm" id={channelSectionAnchorId('DMR')}>
-              <Title order={4}>DMR</Title>
-              <Group grow>
-                <NumberInput
-                  label="Colour code"
-                  value={values.colourCode === '' ? undefined : parseInt(values.colourCode, 10)}
-                  onChange={(v) => set('colourCode', v != null ? String(v) : '')}
-                  min={0}
-                  max={15}
-                  allowDecimal={false}
-                />
-                <Select
-                  label="Timeslot"
-                  data={timeslotSelectData}
-                  value={values.timeslot}
-                  onChange={(v) => set('timeslot', v ?? '')}
-                  clearable
-                />
-              </Group>
-              <NumberInput
-                label="DMR ID"
-                value={values.dmrId === '' ? undefined : parseInt(values.dmrId, 10)}
-                onChange={(v) => set('dmrId', v != null ? String(v) : '')}
-                min={1}
-                allowDecimal={false}
-              />
-              <Select
-                label="TX contact"
-                data={contactOptions}
-                value={values.contactRefKey || ''}
-                onChange={(v) => set('contactRefKey', v ?? '')}
-                searchable
-                clearable
-              />
-              <Select
-                label="RX group list"
-                data={rglOptions}
-                value={values.rxGroupListId || ''}
-                onChange={(v) => set('rxGroupListId', v ?? '')}
-                searchable
-                clearable
-              />
-            </Stack>
-          ) : null}
 
           <Stack gap="sm" id={channelSectionAnchorId('Location')}>
             <Title order={4}>Location</Title>
@@ -684,35 +677,65 @@ export default function ChannelEdit() {
             />
           </Stack>
 
-          <Stack gap="sm" id={channelSectionAnchorId('Scan / APRS')}>
-            <Title order={4}>Scan / APRS</Title>
-            <TextInput
-              label="APRS config"
-              value={values.aprsConfigName}
-              onChange={(e) => set('aprsConfigName', e.currentTarget.value)}
-            />
-            <NumberInput
-              label="Transmit timeout (seconds)"
-              value={
-                values.transmitTimeout === '' ? undefined : parseInt(values.transmitTimeout, 10)
-              }
-              onChange={(v) => set('transmitTimeout', v != null ? String(v) : '')}
-              min={0}
-              max={495}
-              step={15}
-              allowDecimal={false}
-            />
-            <Checkbox
-              label="Scan skip"
-              checked={values.scanSkip}
-              onChange={(e) => set('scanSkip', e.currentTarget.checked)}
-            />
-            <Checkbox
-              label="VOX"
-              checked={values.voxEnabled}
-              onChange={(e) => set('voxEnabled', e.currentTarget.checked)}
-            />
-          </Stack>
+          {values.multiMode ? (
+            <Stack gap="sm" id={channelSectionAnchorId('Mode profiles')}>
+              <Title order={4}>Mode profiles</Title>
+              <Text size="sm" c="dimmed">
+                Per-mode RF settings. Frequencies, power, and location are shared above.
+              </Text>
+              <ChannelModeProfilesEditor
+                profiles={values.modeProfiles}
+                codeplug={codeplug}
+                onChange={(modeProfiles) => setValues((prev) => ({ ...prev, modeProfiles }))}
+              />
+            </Stack>
+          ) : null}
+
+          {showDmrFields ? (
+            <Stack gap="sm" id={channelSectionAnchorId('DMR')}>
+              <Title order={4}>DMR</Title>
+              <Group grow>
+                <NumberInput
+                  label="Colour code"
+                  value={values.colourCode === '' ? undefined : parseInt(values.colourCode, 10)}
+                  onChange={(v) => set('colourCode', v != null ? String(v) : '')}
+                  min={0}
+                  max={15}
+                  allowDecimal={false}
+                />
+                <Select
+                  label="Timeslot"
+                  data={timeslotSelectData}
+                  value={values.timeslot}
+                  onChange={(v) => set('timeslot', v ?? '')}
+                  clearable
+                />
+              </Group>
+              <NumberInput
+                label="DMR ID"
+                value={values.dmrId === '' ? undefined : parseInt(values.dmrId, 10)}
+                onChange={(v) => set('dmrId', v != null ? String(v) : '')}
+                min={1}
+                allowDecimal={false}
+              />
+              <Select
+                label="TX contact"
+                data={contactOptions}
+                value={values.contactRefKey || ''}
+                onChange={(v) => set('contactRefKey', v ?? '')}
+                searchable
+                clearable
+              />
+              <Select
+                label="RX group list"
+                data={rglOptions}
+                value={values.rxGroupListId || ''}
+                onChange={(v) => set('rxGroupListId', v ?? '')}
+                searchable
+                clearable
+              />
+            </Stack>
+          ) : null}
 
           <Group>
             <Button

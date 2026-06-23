@@ -10,6 +10,7 @@ import {
 } from '../../lib/channelFields/index.ts';
 import { isAnalogMode, isDmrMode, modeLabel, type ChannelMode } from '../../lib/channelModes.ts';
 import type { ChannelModeProfile } from '../../models/codeplug.ts';
+import { channelModeProfileDefaults } from '../../models/codeplug.ts';
 import { entityRefKey, parseEntityRefKey } from '../../lib/entityRefs.ts';
 import type { Codeplug } from '../../models/codeplug.ts';
 
@@ -82,6 +83,16 @@ export function modeProfileToForm(profile: ChannelModeProfile): ModeProfileFormV
   };
 }
 
+export function syncModeProfilesFromSelection(
+  selectedModes: ChannelMode[],
+  existingProfiles: ModeProfileFormValues[],
+): ModeProfileFormValues[] {
+  return selectedModes.map((mode) => {
+    const existing = existingProfiles.find((p) => p.mode === mode);
+    return existing ?? modeProfileToForm(channelModeProfileDefaults(mode));
+  });
+}
+
 export interface ChannelModeProfilesEditorProps {
   profiles: ModeProfileFormValues[];
   codeplug: Codeplug;
@@ -138,37 +149,39 @@ export default function ChannelModeProfilesEditor({
       {profiles.map((profile, index) => (
         <Tabs.Panel key={profile.mode} value={profile.mode} pt="md">
           <Stack gap="sm">
-            <Select
-              label="Bandwidth (kHz)"
-              data={bandwidthSelectData}
-              value={profile.bandwidthKHz}
-              onChange={(v) => updateProfile(index, { bandwidthKHz: v ?? '' })}
-              clearable
-            />
             {isAnalogMode(profile.mode) ? (
-              <Group grow>
+              <>
                 <Select
-                  label="RX tone"
-                  data={toneSelectOptions()}
-                  value={profile.rxTone}
-                  onChange={(v) => updateProfile(index, { rxTone: (v ?? 'none') as ChannelTone })}
-                  searchable
+                  label="Bandwidth (kHz)"
+                  data={bandwidthSelectData}
+                  value={profile.bandwidthKHz}
+                  onChange={(v) => updateProfile(index, { bandwidthKHz: v ?? '' })}
+                  clearable
                 />
+                <Group grow>
+                  <Select
+                    label="RX tone"
+                    data={toneSelectOptions()}
+                    value={profile.rxTone}
+                    onChange={(v) => updateProfile(index, { rxTone: (v ?? 'none') as ChannelTone })}
+                    searchable
+                  />
+                  <Select
+                    label="TX tone"
+                    data={toneSelectOptions()}
+                    value={profile.txTone}
+                    onChange={(v) => updateProfile(index, { txTone: (v ?? 'none') as ChannelTone })}
+                    searchable
+                  />
+                </Group>
                 <Select
-                  label="TX tone"
-                  data={toneSelectOptions()}
-                  value={profile.txTone}
-                  onChange={(v) => updateProfile(index, { txTone: (v ?? 'none') as ChannelTone })}
-                  searchable
+                  label="Squelch"
+                  data={squelchSelectData}
+                  value={profile.squelch}
+                  onChange={(v) => updateProfile(index, { squelch: v ?? 'default' })}
                 />
-              </Group>
+              </>
             ) : null}
-            <Select
-              label="Squelch"
-              data={squelchSelectData}
-              value={profile.squelch}
-              onChange={(v) => updateProfile(index, { squelch: v ?? 'default' })}
-            />
             {isDmrMode(profile.mode) ? (
               <>
                 <Group grow>

@@ -13,13 +13,13 @@ export function channelSectionAnchorId(title: string): string {
     .replace(/^-|-$/g, '');
 }
 
-/** Form and detail field groups (Identity … Scan / APRS). */
+/** Form and detail field groups (channel config … location). */
 export const CHANNEL_FORM_SECTIONS: ChannelPageSectionLink[] = [
-  { id: channelSectionAnchorId('Identity'), label: 'Identity' },
+  { id: channelSectionAnchorId('Channel config'), label: 'Channel config' },
   { id: channelSectionAnchorId('RF'), label: 'RF' },
-  { id: channelSectionAnchorId('DMR'), label: 'DMR' },
   { id: channelSectionAnchorId('Location'), label: 'Location' },
-  { id: channelSectionAnchorId('Scan / APRS'), label: 'Scan / APRS' },
+  { id: channelSectionAnchorId('Mode profiles'), label: 'Mode profiles' },
+  { id: channelSectionAnchorId('DMR'), label: 'DMR' },
 ];
 
 /** Extra blocks on the channel detail page below DetailSections. */

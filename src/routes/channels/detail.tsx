@@ -17,7 +17,7 @@ import {
 import { entityRefDisplayName } from '../../lib/entityRefs.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 import { useOperatorPosition } from '../../state/operatorPosition.tsx';
-import { modeLabel } from '../../lib/channelModes.ts';
+import { modeLabel, isAnalogMode, isDmrMode } from '../../lib/channelModes.ts';
 import { percentLabel } from '../../lib/channelFields/index.ts';
 import { formatFrequencyHz } from '../../lib/formatFrequency.ts';
 import { formatOffsetMhz, frequencyOffsetMhz } from '../../lib/bands.ts';
@@ -124,7 +124,7 @@ export default function ChannelDetail() {
 
   const sections = [
     {
-      title: 'Identity',
+      title: 'Channel config',
       fields: [
         { label: 'Name', value: channel.name },
         { label: 'Callsign', value: channel.callsign },
@@ -141,10 +141,13 @@ export default function ChannelDetail() {
             modeLabel(channel.mode)
           ),
         },
-        ...(channel.multiMode
-          ? [{ label: 'Multi-mode', value: 'Yes — expands on OpenGD77 export' }]
-          : []),
         { label: 'Band', value: <BandPillForChannel channel={channel} /> },
+        { label: 'Scan skip', value: channel.scanSkip ? 'Yes' : 'No' },
+        {
+          label: 'Transmit timeout',
+          value: channel.transmitTimeout != null ? String(channel.transmitTimeout) : '—',
+        },
+        { label: 'VOX', value: channel.voxEnabled ? 'Yes' : 'No' },
       ],
     },
     {
@@ -165,20 +168,24 @@ export default function ChannelDetail() {
         ...(channel.multiMode
           ? []
           : [
-              {
-                label: 'Bandwidth',
-                value: channel.bandwidthKHz != null ? `${channel.bandwidthKHz} kHz` : '',
-              },
+              ...(isAnalogMode(channel.mode)
+                ? [
+                    {
+                      label: 'Bandwidth',
+                      value: channel.bandwidthKHz != null ? `${channel.bandwidthKHz} kHz` : '',
+                    },
+                    {
+                      label: 'RX tone',
+                      value: channel.rxTone === 'none' ? '—' : channel.rxTone,
+                    },
+                    {
+                      label: 'TX tone',
+                      value: channel.txTone === 'none' ? '—' : channel.txTone,
+                    },
+                    { label: 'Squelch', value: percentLabel(channel.squelch) },
+                  ]
+                : []),
               { label: 'Power', value: percentLabel(channel.power) },
-              {
-                label: 'RX tone',
-                value: channel.rxTone === 'none' ? '—' : channel.rxTone,
-              },
-              {
-                label: 'TX tone',
-                value: channel.txTone === 'none' ? '—' : channel.txTone,
-              },
-              { label: 'Squelch', value: percentLabel(channel.squelch) },
             ]),
         { label: 'RX only', value: channel.rxOnly ? 'Yes' : 'No' },
         ...(channel.multiMode ? [{ label: 'Power', value: percentLabel(channel.power) }] : []),
@@ -188,43 +195,55 @@ export default function ChannelDetail() {
       ? modeProfiles.map((profile) => ({
           title: `${modeLabel(profile.mode)} profile`,
           fields: [
-            {
-              label: 'Bandwidth',
-              value: profile.bandwidthKHz != null ? `${profile.bandwidthKHz} kHz` : '—',
-            },
-            {
-              label: 'RX tone',
-              value: profile.rxTone === 'none' ? '—' : profile.rxTone,
-            },
-            {
-              label: 'TX tone',
-              value: profile.txTone === 'none' ? '—' : profile.txTone,
-            },
-            { label: 'Squelch', value: percentLabel(profile.squelch) },
-            {
-              label: 'Colour code',
-              value: profile.colourCode != null ? String(profile.colourCode) : '—',
-            },
-            {
-              label: 'Timeslot',
-              value: profile.timeslot != null ? String(profile.timeslot) : '—',
-            },
-            {
-              label: 'DMR ID',
-              value: profile.dmrId != null ? String(profile.dmrId) : '—',
-            },
-            {
-              label: 'TX contact',
-              value:
-                entityRefDisplayName(profile.contactRef, codeplug.talkGroups, codeplug.contacts) ||
-                '—',
-            },
-            {
-              label: 'RX group list',
-              value: profile.rxGroupListId
-                ? (codeplug.rxGroupLists.find((r) => r.id === profile.rxGroupListId)?.name ?? '—')
-                : '—',
-            },
+            ...(isAnalogMode(profile.mode)
+              ? [
+                  {
+                    label: 'Bandwidth',
+                    value: profile.bandwidthKHz != null ? `${profile.bandwidthKHz} kHz` : '—',
+                  },
+                  {
+                    label: 'RX tone',
+                    value: profile.rxTone === 'none' ? '—' : profile.rxTone,
+                  },
+                  {
+                    label: 'TX tone',
+                    value: profile.txTone === 'none' ? '—' : profile.txTone,
+                  },
+                  { label: 'Squelch', value: percentLabel(profile.squelch) },
+                ]
+              : []),
+            ...(isDmrMode(profile.mode)
+              ? [
+                  {
+                    label: 'Colour code',
+                    value: profile.colourCode != null ? String(profile.colourCode) : '—',
+                  },
+                  {
+                    label: 'Timeslot',
+                    value: profile.timeslot != null ? String(profile.timeslot) : '—',
+                  },
+                  {
+                    label: 'DMR ID',
+                    value: profile.dmrId != null ? String(profile.dmrId) : '—',
+                  },
+                  {
+                    label: 'TX contact',
+                    value:
+                      entityRefDisplayName(
+                        profile.contactRef,
+                        codeplug.talkGroups,
+                        codeplug.contacts,
+                      ) || '—',
+                  },
+                  {
+                    label: 'RX group list',
+                    value: profile.rxGroupListId
+                      ? (codeplug.rxGroupLists.find((r) => r.id === profile.rxGroupListId)?.name ??
+                        '—')
+                      : '—',
+                  },
+                ]
+              : []),
           ],
         }))
       : []),
@@ -277,18 +296,6 @@ export default function ChannelDetail() {
     {
       title: 'Location',
       fields: locationFields,
-    },
-    {
-      title: 'Scan / APRS',
-      fields: [
-        { label: 'Scan skip', value: channel.scanSkip ? 'Yes' : 'No' },
-        { label: 'APRS config', value: channel.aprsConfigName },
-        {
-          label: 'Transmit timeout',
-          value: channel.transmitTimeout != null ? String(channel.transmitTimeout) : '',
-        },
-        { label: 'VOX', value: channel.voxEnabled ? 'Yes' : 'No' },
-      ],
     },
     ...(vendorExtraFields.length
       ? [
