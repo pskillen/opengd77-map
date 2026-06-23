@@ -1,5 +1,5 @@
 import { resolveContactRefByWireName, resolveRxGroupListIdByName } from '../entityRefs.ts';
-import { isAnalogMode, type ChannelMode } from '../channelModes.ts';
+import { CHANNEL_MODES, isAnalogMode, type ChannelMode } from '../channelModes.ts';
 import type {
   Channel,
   ChannelModeProfile,
@@ -232,8 +232,26 @@ export interface MergeImportChannelsResult {
   merged: { sourceNames: string[]; resultName: string }[];
 }
 
+/** Mode display labels longest-first for trailing suffix stripping. */
+const TRAILING_MODE_LABELS = [...CHANNEL_MODES]
+  .map((m) => m.label)
+  .sort((a, b) => b.length - a.length);
+
 export function channelNameStem(name: string): string {
   return stripModeExportSuffix(name);
+}
+
+/** Post-hoc merge candidate stem — also strips trailing space + mode label (e.g. ` FM`, ` DMR`). */
+export function channelMergeNameStem(name: string): string {
+  let stem = stripModeExportSuffix(name);
+  for (const label of TRAILING_MODE_LABELS) {
+    const suffix = ` ${label}`;
+    if (stem.endsWith(suffix)) {
+      stem = stem.slice(0, -suffix.length);
+      break;
+    }
+  }
+  return stem;
 }
 
 /** Normalised Levenshtein distance ratio in [0, 1] — 0 means identical. */
@@ -261,6 +279,8 @@ export function levenshteinRatio(a: string, b: string): number {
 export interface ChannelMergeCandidateOptions {
   /** Max normalised Levenshtein ratio for name stems (0 = exact match). Default 0. */
   nameFuzzyThreshold?: number;
+  /** Strip trailing mode labels (` FM`, ` DMR`, …) when comparing stems. Default false. */
+  stripTrailingModeLabel?: boolean;
 }
 
 export function channelFrequenciesMatch(a: Channel, b: Channel): boolean {
@@ -273,9 +293,15 @@ export function channelLocationsMatch(a: Channel, b: Channel): boolean {
   return a.location.lat === b.location.lat && a.location.lon === b.location.lon;
 }
 
-function channelNameStemsMatch(a: Channel, b: Channel, threshold: number): boolean {
-  const stemA = channelNameStem(a.name);
-  const stemB = channelNameStem(b.name);
+function channelNameStemsMatch(
+  a: Channel,
+  b: Channel,
+  threshold: number,
+  stripTrailingModeLabel: boolean,
+): boolean {
+  const stem = stripTrailingModeLabel ? channelMergeNameStem : channelNameStem;
+  const stemA = stem(a.name);
+  const stemB = stem(b.name);
   if (threshold <= 0) return stemA === stemB;
   return levenshteinRatio(stemA, stemB) <= threshold;
 }
@@ -288,7 +314,8 @@ export function channelsAreMultiModeMergeCandidates(
 ): boolean {
   if (a.mode === b.mode) return false;
   const threshold = options.nameFuzzyThreshold ?? 0;
-  if (!channelNameStemsMatch(a, b, threshold)) return false;
+  const stripTrailingModeLabel = options.stripTrailingModeLabel ?? false;
+  if (!channelNameStemsMatch(a, b, threshold, stripTrailingModeLabel)) return false;
   if (!channelFrequenciesMatch(a, b)) return false;
   if (!channelLocationsMatch(a, b)) return false;
   return true;

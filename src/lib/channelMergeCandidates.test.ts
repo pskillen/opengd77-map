@@ -33,6 +33,26 @@ describe('channelMergeCandidates', () => {
     expect(groups[0].suggestedName).toBe('GB7GL');
   });
 
+  it('findChannelMergeCandidates strips trailing mode words from suggested name', () => {
+    const fm = buildChannel({
+      id: 'fm',
+      name: 'GB123 Meep FM',
+      mode: 'fm',
+      rxFrequency: 430_000_000,
+      txFrequency: 430_000_000,
+    });
+    const dmr = buildChannel({
+      id: 'dmr',
+      name: 'GB123 Meep DMR',
+      mode: 'dmr',
+      rxFrequency: 430_000_000,
+      txFrequency: 430_000_000,
+    });
+    const groups = findChannelMergeCandidates(buildCodeplug({ channels: [fm, dmr] }));
+    expect(groups).toHaveLength(1);
+    expect(groups[0].suggestedName).toBe('GB123 Meep');
+  });
+
   it('findChannelMergeCandidates skips existing multi-mode channels', () => {
     const multi = buildChannel({
       id: 'mm',

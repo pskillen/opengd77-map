@@ -1,7 +1,7 @@
 import {
   channelFrequenciesMatch,
   channelLocationsMatch,
-  channelNameStem,
+  channelMergeNameStem,
   channelsAreMultiModeMergeCandidates,
   levenshteinRatio,
   mergeChannelsToMultiMode,
@@ -52,6 +52,9 @@ export interface ChannelMergeApplyReport {
 }
 
 const DEFAULT_NAME_FUZZY_THRESHOLD = 0.15;
+const MERGE_CANDIDATE_MATCH_OPTIONS: ChannelMergeCandidateOptions = {
+  stripTrailingModeLabel: true,
+};
 
 function freqKey(ch: Channel): string | null {
   if (ch.rxFrequency == null || ch.txFrequency == null) return null;
@@ -64,6 +67,10 @@ function stemsAreCompatible(stems: string[], threshold: number): boolean {
   return stems.every((stem) =>
     threshold <= 0 ? stem === canonical : levenshteinRatio(stem, canonical) <= threshold,
   );
+}
+
+function mergeNameStem(name: string): string {
+  return channelMergeNameStem(name);
 }
 
 function hasLocationConflict(channels: Channel[]): boolean {
@@ -111,6 +118,7 @@ function buildGroupsInBucket(bucket: Channel[], threshold: number): ChannelMerge
       const matchesAll = members.every((member) =>
         channelsAreMultiModeMergeCandidates(member, candidate, {
           nameFuzzyThreshold: threshold,
+          ...MERGE_CANDIDATE_MATCH_OPTIONS,
         }),
       );
       if (matchesAll) {
@@ -121,11 +129,11 @@ function buildGroupsInBucket(bucket: Channel[], threshold: number): ChannelMerge
 
     if (members.length < 2) continue;
 
-    const stems = members.map((ch) => channelNameStem(ch.name));
+    const stems = members.map((ch) => mergeNameStem(ch.name));
     if (!stemsAreCompatible(stems, threshold)) continue;
 
     const { mergeKind, ambiguousReason } = classifyGroup(members);
-    const suggestedName = channelNameStem(members[0].name);
+    const suggestedName = mergeNameStem(members[0].name);
     groups.push({
       id: members
         .map((ch) => ch.id)
@@ -211,7 +219,7 @@ export function previewChannelMerges(
     const survivorId = sources[0].id;
     const mergedChannel = mergeChannelsToMultiMode(sources, {
       survivorId,
-      resultName: selection.resultName.trim() || channelNameStem(sources[0].name),
+      resultName: selection.resultName.trim() || mergeNameStem(sources[0].name),
     });
 
     const absorbedIds = sources.slice(1).map((ch) => ch.id);

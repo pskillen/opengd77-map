@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { buildChannel } from '../../test/builders/codeplug.ts';
 import {
+  channelMergeNameStem,
+  channelNameStem,
   channelsAreMultiModeMergeCandidates,
   expandAllChannelsForExport,
   expandChannelForExport,
@@ -65,6 +67,17 @@ describe('channelExpansion', () => {
     expect(stripModeExportSuffix('GB7GL-F')).toBe('GB7GL');
     expect(stripModeExportSuffix('GB7GL-D')).toBe('GB7GL');
     expect(stripModeExportSuffix('GB7GL')).toBe('GB7GL');
+  });
+
+  it('channelMergeNameStem strips trailing space + mode label', () => {
+    expect(channelMergeNameStem('GB7GL-F')).toBe('GB7GL');
+    expect(channelMergeNameStem('GB123 Meep FM')).toBe('GB123 Meep');
+    expect(channelMergeNameStem('GB123 Meep DMR')).toBe('GB123 Meep');
+    expect(channelMergeNameStem('GB7GL')).toBe('GB7GL');
+  });
+
+  it('channelNameStem does not strip trailing mode words (import-safe)', () => {
+    expect(channelNameStem('GB123 Meep DMR')).toBe('GB123 Meep DMR');
   });
 
   it('expandAllChannelsForExport avoids name collisions', () => {

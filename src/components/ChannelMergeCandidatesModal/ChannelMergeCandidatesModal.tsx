@@ -1,14 +1,4 @@
-import {
-  Alert,
-  Badge,
-  Button,
-  Checkbox,
-  Group,
-  Modal,
-  Stack,
-  Text,
-  TextInput,
-} from '@mantine/core';
+import { Alert, Badge, Button, Group, Modal, Stack, Text, TextInput } from '@mantine/core';
 import { useCallback, useMemo, useState } from 'react';
 import ModePill from '../crud/ModePill.tsx';
 import {
@@ -29,19 +19,8 @@ export interface ChannelMergeCandidatesModalProps {
   onClose: () => void;
 }
 
-function channelById(codeplug: Codeplug, id: string): Channel | undefined {
-  return codeplug.channels.find((ch) => ch.id === id);
-}
-
-function selectionsFromCandidates(
-  candidates: ChannelMergeCandidateGroup[],
-): ChannelMergeSelection[] {
-  return candidates.map((group) => ({
-    groupId: group.id,
-    sourceChannelIds: group.sourceChannelIds,
-    resultName: group.suggestedName,
-    enabled: group.mergeKind === 'multiMode',
-  }));
+function channelById(channels: Channel[], id: string): Channel | undefined {
+  return channels.find((ch) => ch.id === id);
 }
 
 function SourceChannelSummary({ channel, codeplug }: { channel: Channel; codeplug: Codeplug }) {
@@ -74,142 +53,171 @@ export default function ChannelMergeCandidatesModal({
   onClose,
 }: ChannelMergeCandidatesModalProps) {
   const { codeplug, applyChannelMerges: applyMerges } = useCodeplug();
-  const candidates = useMemo(() => findChannelMergeCandidates(codeplug), [codeplug]);
-  const [selections, setSelections] = useState(() => selectionsFromCandidates(candidates));
-  const [appliedSummary, setAppliedSummary] = useState<string | null>(null);
-
-  const enabledSelections = selections.filter((s) => s.enabled);
-  const previews = useMemo(
-    () => previewChannelMerges(codeplug, enabledSelections),
-    [codeplug, enabledSelections],
+  const [candidates] = useState(() => findChannelMergeCandidates(codeplug));
+  const [snapshotChannels] = useState(() => codeplug.channels);
+  const [resultNames, setResultNames] = useState<Record<string, string>>(() =>
+    Object.fromEntries(candidates.map((g) => [g.id, g.suggestedName])),
   );
-
-  const toggleGroup = useCallback((groupId: string, enabled: boolean) => {
-    setSelections((prev) => prev.map((s) => (s.groupId === groupId ? { ...s, enabled } : s)));
-  }, []);
+  const [mergedGroupIds, setMergedGroupIds] = useState<Set<string>>(() => new Set());
+  const [lastMergeNote, setLastMergeNote] = useState<string | null>(null);
 
   const setResultName = useCallback((groupId: string, resultName: string) => {
-    setSelections((prev) => prev.map((s) => (s.groupId === groupId ? { ...s, resultName } : s)));
+    setResultNames((prev) => ({ ...prev, [groupId]: resultName }));
   }, []);
 
-  const handleApply = useCallback(() => {
-    const { report } = applyChannelMerges(codeplug, selections, candidates);
-    applyMerges(selections, candidates);
-    const lines = formatChannelMergeReportLines(report);
-    setAppliedSummary(lines.length > 0 ? lines.join(' · ') : 'No merges applied');
-    onClose();
-  }, [applyMerges, candidates, codeplug, onClose, selections]);
+  const previewForGroup = useCallback(
+    (group: ChannelMergeCandidateGroup) => {
+      const resultName = resultNames[group.id]?.trim() || group.suggestedName;
+      const selection: ChannelMergeSelection = {
+        groupId: group.id,
+        sourceChannelIds: group.sourceChannelIds,
+        resultName,
+        enabled: true,
+      };
+      return previewChannelMerges(codeplug, [selection])[0];
+    },
+    [codeplug, resultNames],
+  );
 
-  const applyCount = enabledSelections.filter((s) => {
-    const group = candidates.find((g) => g.id === s.groupId);
-    return group?.mergeKind === 'multiMode';
-  }).length;
+  const handleMergeOne = useCallback(
+    (group: ChannelMergeCandidateGroup) => {
+      if (mergedGroupIds.has(group.id) || group.mergeKind !== 'multiMode') return;
 
-  const hasValidationErrors = previews.some((p) =>
-    p.validationIssues.some((i) => i.severity === 'error'),
+      const resultName = resultNames[group.id]?.trim() || group.suggestedName;
+      const selection: ChannelMergeSelection = {
+        groupId: group.id,
+        sourceChannelIds: group.sourceChannelIds,
+        resultName,
+        enabled: true,
+      };
+
+      const preview = previewForGroup(group);
+      if (preview?.validationIssues.some((i) => i.severity === 'error')) return;
+
+      const { report } = applyChannelMerges(codeplug, [selection], [group]);
+      applyMerges([selection], [group]);
+      setMergedGroupIds((prev) => new Set([...prev, group.id]));
+      const lines = formatChannelMergeReportLines(report);
+      setLastMergeNote(lines.join(' · ') || `Merged into "${resultName}"`);
+    },
+    [applyMerges, codeplug, mergedGroupIds, previewForGroup, resultNames],
+  );
+
+  const displayCodeplug = useMemo(
+    () => ({ ...codeplug, channels: snapshotChannels }),
+    [codeplug, snapshotChannels],
   );
 
   return (
-    <>
-      {appliedSummary ? (
-        <Text size="sm" c="dimmed">
-          Merge applied: {appliedSummary}
-        </Text>
-      ) : null}
+    <Modal opened={opened} onClose={onClose} title="Merge channel candidates" size="lg">
+      <Stack gap="md">
+        {lastMergeNote ? (
+          <Alert color="green" variant="light">
+            {lastMergeNote}
+          </Alert>
+        ) : null}
 
-      <Modal opened={opened} onClose={onClose} title="Merge channel candidates" size="lg">
-        <Stack gap="md">
-          {candidates.length === 0 ? (
-            <Alert color="blue">No merge candidates found in this codeplug.</Alert>
-          ) : (
-            candidates.map((group) => {
-              const selection = selections.find((s) => s.groupId === group.id);
-              const sources = group.sourceChannelIds
-                .map((id) => channelById(codeplug, id))
-                .filter((ch): ch is Channel => ch != null);
-              const preview = previews.find((p) => p.groupId === group.id);
-              const isActionable = group.mergeKind === 'multiMode';
+        {candidates.length === 0 ? (
+          <Alert color="blue">No merge candidates found in this codeplug.</Alert>
+        ) : (
+          candidates.map((group) => {
+            const merged = mergedGroupIds.has(group.id);
+            const sources = group.sourceChannelIds
+              .map((id) => channelById(snapshotChannels, id))
+              .filter((ch): ch is Channel => ch != null);
+            const isActionable = group.mergeKind === 'multiMode';
+            const preview = !merged && isActionable ? previewForGroup(group) : undefined;
+            const hasErrors = preview?.validationIssues.some((i) => i.severity === 'error');
 
-              return (
-                <Stack
-                  key={group.id}
-                  gap="xs"
-                  p="sm"
-                  style={{ border: '1px solid var(--mantine-color-gray-3)', borderRadius: 8 }}
-                >
-                  <Group justify="space-between" align="flex-start">
-                    <Checkbox
-                      label="Apply this merge"
-                      checked={selection?.enabled ?? false}
-                      disabled={!isActionable}
-                      onChange={(e) => toggleGroup(group.id, e.currentTarget.checked)}
-                    />
-                    {isActionable ? (
-                      <Badge color="teal" variant="light">
-                        Multi-mode
-                      </Badge>
-                    ) : group.mergeKind === 'multiTalkgroup' ? (
-                      <Badge color="gray" variant="light">
-                        Multi-talkgroup (not yet supported)
-                      </Badge>
-                    ) : (
-                      <Badge color="orange" variant="light">
-                        Ambiguous
-                      </Badge>
-                    )}
-                  </Group>
-
-                  {group.ambiguousReason ? (
-                    <Text size="xs" c="orange">
-                      {group.ambiguousReason}
+            return (
+              <Stack
+                key={group.id}
+                gap="xs"
+                p="sm"
+                style={{
+                  border: '1px solid var(--mantine-color-gray-3)',
+                  borderRadius: 8,
+                  opacity: merged ? 0.55 : 1,
+                  background: merged ? 'var(--mantine-color-gray-0)' : undefined,
+                }}
+              >
+                <Group justify="space-between" align="flex-start">
+                  {merged ? (
+                    <Text size="sm" c="dimmed" fw={500}>
+                      Merged
                     </Text>
                   ) : null}
-
-                  {sources.map((ch) => (
-                    <SourceChannelSummary key={ch.id} channel={ch} codeplug={codeplug} />
-                  ))}
-
                   {isActionable ? (
-                    <TextInput
-                      label="Result name"
-                      value={selection?.resultName ?? group.suggestedName}
-                      onChange={(e) => setResultName(group.id, e.currentTarget.value)}
-                      size="sm"
-                    />
-                  ) : null}
+                    <Badge color="teal" variant="light">
+                      Multi-mode
+                    </Badge>
+                  ) : group.mergeKind === 'multiTalkgroup' ? (
+                    <Badge color="gray" variant="light">
+                      Multi-talkgroup (not yet supported)
+                    </Badge>
+                  ) : (
+                    <Badge color="orange" variant="light">
+                      Ambiguous
+                    </Badge>
+                  )}
+                </Group>
 
-                  {preview?.validationIssues.some((i) => i.severity === 'error') ? (
-                    <Alert color="red" title="Validation">
-                      {preview.validationIssues
-                        .filter((i) => i.severity === 'error')
-                        .map((i) => (
-                          <Text key={i.field} size="sm">
-                            {i.message}
-                          </Text>
-                        ))}
-                    </Alert>
-                  ) : null}
-                </Stack>
-              );
-            })
-          )}
+                {group.ambiguousReason ? (
+                  <Text size="xs" c="orange">
+                    {group.ambiguousReason}
+                  </Text>
+                ) : null}
 
-          {hasValidationErrors ? (
-            <Alert color="yellow">
-              One or more selected merges have validation errors and will be skipped on apply.
-            </Alert>
-          ) : null}
+                {sources.map((ch) => (
+                  <SourceChannelSummary
+                    key={ch.id}
+                    channel={ch}
+                    codeplug={displayCodeplug}
+                  />
+                ))}
 
-          <Group justify="flex-end">
-            <Button variant="default" onClick={onClose}>
-              Cancel
-            </Button>
-            <Button onClick={handleApply} disabled={applyCount === 0}>
-              Apply {applyCount} merge{applyCount === 1 ? '' : 's'}
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
-    </>
+                {isActionable && !merged ? (
+                  <TextInput
+                    label="Result name"
+                    value={resultNames[group.id] ?? group.suggestedName}
+                    onChange={(e) => setResultName(group.id, e.currentTarget.value)}
+                    size="sm"
+                  />
+                ) : null}
+
+                {hasErrors ? (
+                  <Alert color="red" title="Validation">
+                    {preview!.validationIssues
+                      .filter((i) => i.severity === 'error')
+                      .map((i) => (
+                        <Text key={i.field} size="sm">
+                          {i.message}
+                        </Text>
+                      ))}
+                  </Alert>
+                ) : null}
+
+                {isActionable ? (
+                  <Group justify="flex-end">
+                    <Button
+                      onClick={() => handleMergeOne(group)}
+                      disabled={merged || hasErrors}
+                    >
+                      {merged ? 'Merged' : 'Merge'}
+                    </Button>
+                  </Group>
+                ) : null}
+              </Stack>
+            );
+          })
+        )}
+
+        <Group justify="flex-end">
+          <Button variant="default" onClick={onClose}>
+            Close
+          </Button>
+        </Group>
+      </Stack>
+    </Modal>
   );
 }
