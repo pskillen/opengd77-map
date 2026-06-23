@@ -12,7 +12,6 @@ import {
   deleteZone,
   mergeChannelsIntoOne,
   normalizeChannelForSave,
-  OPENGD77_MAX_ZONE_MEMBERS,
   setRxGroupListMembers,
   setZoneMembers,
   updateChannel,
@@ -150,15 +149,17 @@ describe('codeplugMutations', () => {
     expect(getMemberWireNames(next.zones[0])).toEqual(['B']);
   });
 
-  it('setZoneMembers enforces 80 cap', () => {
+  it('setZoneMembers accepts more than 80 members', () => {
+    const channels = Array.from({ length: 81 }, (_, i) => makeChannel(`ch-${i}`, `Ch${i}`));
     const cp = {
       ...emptyCodeplug(),
-      channels: [makeChannel('ch-1', 'A')],
+      channels,
       zones: [buildZone({ id: 'z-1', name: 'Z' })],
     };
 
-    const ids = Array.from({ length: OPENGD77_MAX_ZONE_MEMBERS + 1 }, (_, i) => `ch-${i}`);
-    expect(() => setZoneMembers(cp, 'z-1', ids)).toThrow(/80/);
+    const ids = channels.map((ch) => ch.id);
+    const next = setZoneMembers(cp, 'z-1', ids);
+    expect(next.zones[0].memberChannelIds).toHaveLength(81);
   });
 
   it('setZoneMembers rejects unknown channel ids', () => {

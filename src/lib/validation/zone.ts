@@ -1,5 +1,4 @@
 import type { Codeplug } from '../../models/codeplug.ts';
-import { OPENGD77_MAX_ZONE_MEMBERS } from '../codeplugMutations.ts';
 import type { ValidationIssue } from './channel.ts';
 
 export function validateZone(
@@ -24,14 +23,6 @@ export function validateZone(
 
   const members = input.memberChannelIds;
   if (members) {
-    if (members.length > OPENGD77_MAX_ZONE_MEMBERS) {
-      issues.push({
-        field: 'memberChannelIds',
-        message: `Zone cannot have more than ${OPENGD77_MAX_ZONE_MEMBERS} members`,
-        severity: 'error',
-      });
-    }
-
     const channelIds = new Set(codeplug.channels.map((ch) => ch.id));
     for (const id of members) {
       if (!channelIds.has(id)) {

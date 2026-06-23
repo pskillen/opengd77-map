@@ -6,6 +6,7 @@ import {
   type OpenGd77ExportFiles,
 } from './serialise.ts';
 import { buildOpenGd77Zip, downloadOpenGd77File, downloadOpenGd77Zip } from './download.ts';
+import { collectOpenGd77ExportWarnings } from './warnings.ts';
 
 export type OpenGd77ExportFileName = keyof OpenGd77ExportFiles;
 
@@ -21,6 +22,7 @@ export const opengd77ExportAdapter = {
   buildZip: buildOpenGd77Zip,
   downloadFile: downloadOpenGd77File,
   downloadZip: downloadOpenGd77Zip,
+  collectWarnings: collectOpenGd77ExportWarnings,
 } satisfies import('../../import-export/exportAdapter.ts').MultiFileExportAdapter & {
   serialiseChannels: typeof serialiseChannels;
   serialiseZones: typeof serialiseZones;

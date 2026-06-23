@@ -134,7 +134,9 @@ This change is **independent** of #52 and can land first as a focused PR.
 
 ## 6. Remove vendor cardinality from CRUD
 
-`OPENGD77_MAX_ZONE_MEMBERS = 80` (`src/lib/codeplugMutations.ts`) is enforced in:
+**Status (2026-06):** Resolved in [#132](https://github.com/pskillen/codeplug-tool/issues/132) — cap removed from mutations/validation/UI; `collectOpenGd77ExportWarnings` warns at export.
+
+Previously, `OPENGD77_MAX_ZONE_MEMBERS = 80` (`src/lib/codeplugMutations.ts`) was enforced in:
 
 - `addZone` / `setZoneMembers` — throws on > 80 members,
 - `validateZone` (`src/lib/validation/zone.ts`) — validation error,

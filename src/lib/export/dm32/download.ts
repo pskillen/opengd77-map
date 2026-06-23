@@ -1,6 +1,6 @@
 import { zipSync, strToU8 } from 'fflate';
 import type { Codeplug } from '../../../models/codeplug.ts';
-import type { ExportOptions } from '../../import-export/types.ts';
+import type { ExportOptions, ExportResult } from '../../import-export/types.ts';
 import { serialiseDm32Files, type Dm32ExportFiles } from './serialise.ts';
 import type { Dm32ExportFileName } from '../../import/dm32/columns.ts';
 
@@ -26,17 +26,19 @@ export function downloadDm32File(
   codeplug: Codeplug,
   fileName: Dm32ExportFileName,
   options?: ExportOptions,
-): void {
+): ExportResult {
   const files = serialiseDm32Files(codeplug, options);
   const blob = new Blob([files[fileName]], { type: 'text/csv;charset=utf-8' });
   downloadBlob(blob, fileName);
+  return { warnings: [] };
 }
 
-export function downloadDm32Zip(codeplug: Codeplug, options?: ExportOptions): void {
+export function downloadDm32Zip(codeplug: Codeplug, options?: ExportOptions): ExportResult {
   const zipName = options?.fileName ?? 'dm32-export.zip';
   const zip = buildDm32Zip(codeplug, options);
   const blob = new Blob([new Uint8Array(zip)], { type: 'application/zip' });
   downloadBlob(blob, zipName);
+  return { warnings: [] };
 }
 
 export type { Dm32ExportFiles };

@@ -14,8 +14,10 @@ export interface BaseExportAdapter {
 export interface MultiFileExportAdapter extends BaseExportAdapter {
   readonly delivery: 'multi-file';
   readonly fileNames: readonly string[];
-  downloadFile(codeplug: Codeplug, fileName: string, options?: ExportOptions): void;
-  downloadZip(codeplug: Codeplug, options?: ExportOptions): void;
+  downloadFile(codeplug: Codeplug, fileName: string, options?: ExportOptions): ExportResult;
+  downloadZip(codeplug: Codeplug, options?: ExportOptions): ExportResult;
+  /** Optional export-time warnings (e.g. profile cardinality limits). */
+  collectWarnings?(codeplug: Codeplug, options?: ExportOptions): string[];
 }
 
 export interface SingleFileExportAdapter extends BaseExportAdapter {

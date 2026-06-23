@@ -15,4 +15,4 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not th
 ## Known debt
 
 - [ ] Import `mergeImportChannelsBestEffort` still stamps `meta.imported.multiModeProfileWire` (wire-stash round-trip violation per [no-wire-stash-roundtrip](../../../.cursor/rules/no-wire-stash-roundtrip.mdc)) — CRUD path uses profile `opengd77Extras` instead; import path remediation follow-up
-- [ ] `OPENGD77_MAX_ZONE_MEMBERS` in `codeplugMutations.ts` — pre-existing vendor leakage; not extended by this work
+- [x] `OPENGD77_MAX_ZONE_MEMBERS` in `codeplugMutations.ts` — fixed in [#132](https://github.com/pskillen/codeplug-tool/issues/132)

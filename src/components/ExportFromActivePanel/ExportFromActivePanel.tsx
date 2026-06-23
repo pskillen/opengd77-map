@@ -94,7 +94,10 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
               variant="default"
               disabled={!hasData}
               leftSection={<IconDownload size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-              onClick={() => adapter.downloadFile(codeplug, fileName, exportOptions)}
+              onClick={() => {
+                const result = adapter.downloadFile(codeplug, fileName, exportOptions);
+                setExportWarnings(result.warnings);
+              }}
             >
               Download {fileName}
             </Button>
@@ -102,11 +105,24 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
           <Button
             disabled={!hasData}
             leftSection={<IconPackage size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-            onClick={() => adapter.downloadZip(codeplug, exportOptions)}
+            onClick={() => {
+              const result = adapter.downloadZip(codeplug, exportOptions);
+              setExportWarnings(result.warnings);
+            }}
           >
             Download all (.zip)
           </Button>
         </Stack>
+
+        {exportWarnings.length > 0 ? (
+          <Alert color="yellow" title="Export notes">
+            {exportWarnings.map((warning) => (
+              <Text key={warning} size="sm">
+                {warning}
+              </Text>
+            ))}
+          </Alert>
+        ) : null}
         {vendorFormat.id === 'opengd77' ? (
           <Text size="sm" c="dimmed">
             The ZIP also includes header-only <code>DTMF.csv</code> and <code>APRS.csv</code> so the

@@ -34,7 +34,7 @@ OpenGD77 CSV was first shipped; **DM32, qDMR, CHIRP, native YAML** are siblings.
 Explicit, labelled escape hatches are OK when unlikely to generalise:
 
 - `vendorExtras` (planned rename: `opengd77Extras`) — opaque wire columns for one format
-- Document **known leakage** to fix (e.g. `OPENGD77_MAX_ZONE_MEMBERS` in mutations) — do not copy into new code
+- Document **known leakage** to fix (e.g. wire-name FKs in validation) — do not copy into new code
 
 ## Anti-patterns
 

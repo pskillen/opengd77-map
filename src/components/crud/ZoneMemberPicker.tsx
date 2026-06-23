@@ -10,7 +10,6 @@ import {
 } from '@mantine/core';
 import { IconArrowLeft, IconArrowRight } from '@tabler/icons-react';
 import { useMemo, useState } from 'react';
-import { OPENGD77_MAX_ZONE_MEMBERS } from '../../lib/codeplugMutations.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { sortByName } from '../../lib/reportLookup.ts';
 import type { Channel } from '../../models/codeplug.ts';
@@ -94,7 +93,6 @@ export default function ZoneMemberPicker({
   const [availableSelected, setAvailableSelected] = useState<string[]>([]);
   const [inZoneSelected, setInZoneSelected] = useState<string[]>([]);
 
-  const atCap = selectedIds.length >= OPENGD77_MAX_ZONE_MEMBERS;
   const selectedSet = new Set(selectedIds);
   const availableFilterLower = availableFilter.trim().toLowerCase();
   const inZoneFilterLower = inZoneFilter.trim().toLowerCase();
@@ -131,8 +129,7 @@ export default function ZoneMemberPicker({
   const addSelected = () => {
     const toAdd = availableSelected.filter((id) => !selectedSet.has(id));
     if (!toAdd.length) return;
-    const room = OPENGD77_MAX_ZONE_MEMBERS - selectedIds.length;
-    onChange([...selectedIds, ...toAdd.slice(0, room)]);
+    onChange([...selectedIds, ...toAdd]);
     setAvailableSelected([]);
   };
 
@@ -157,7 +154,7 @@ export default function ZoneMemberPicker({
   return (
     <Stack gap="sm">
       <Text size="sm" c="dimmed">
-        {selectedIds.length} / {OPENGD77_MAX_ZONE_MEMBERS} members
+        {selectedIds.length} member{selectedIds.length === 1 ? '' : 's'}
       </Text>
 
       <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
@@ -194,7 +191,7 @@ export default function ZoneMemberPicker({
             type="button"
             variant="light"
             onClick={addSelected}
-            disabled={!availableSelected.length || atCap}
+            disabled={!availableSelected.length}
             rightSection={<IconArrowRight size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
           >
             Add

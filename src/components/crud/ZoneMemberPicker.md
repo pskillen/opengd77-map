@@ -16,7 +16,7 @@ Multi-select channel membership editor for zone create/edit forms. Preserves mem
 
 - Selected list shows reorder controls (↑/↓); order is preserved through to export.
 - Uses internal channel **ids**; names displayed for UI only.
-- Currently enforces an 80-member cap via `OPENGD77_MAX_ZONE_MEMBERS` in `setZoneMembers`. This is **known vendor leakage** — per [AGENTS.md vendor boundaries](../../../AGENTS.md#vendor-boundaries), CRUD should stay uncapped and cardinality limits should apply only at export. Tracked in [#95](https://github.com/pskillen/codeplug-tool/issues/95).
+- No member-count cap in the internal model — OpenGD77 export warns and truncates per radio profile ([#132](https://github.com/pskillen/codeplug-tool/issues/132)).
 
 ## Related
 

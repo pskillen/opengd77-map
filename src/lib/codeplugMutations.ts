@@ -14,8 +14,6 @@ import { getMemberWireNames, setMemberWireNames } from './entityProvenance.ts';
 import type { EntityRef, EntityRefKind } from './entityRefs.ts';
 import { entityRefKey, memberRefsToWireNames } from './entityRefs.ts';
 
-export const OPENGD77_MAX_ZONE_MEMBERS = 80;
-
 export type ChannelInput = Omit<Channel, 'id' | 'callsign'> & { name: string };
 
 export type ZoneInput = Pick<Zone, 'name'> & { memberChannelIds?: string[] };
@@ -170,9 +168,6 @@ export function mergeChannelsIntoOne(
 
 export function addZone(codeplug: Codeplug, input: ZoneInput): Codeplug {
   const memberChannelIds = input.memberChannelIds ?? [];
-  if (memberChannelIds.length > OPENGD77_MAX_ZONE_MEMBERS) {
-    throw new Error(`Zone cannot have more than ${OPENGD77_MAX_ZONE_MEMBERS} members`);
-  }
   const channelIds = new Set(codeplug.channels.map((ch) => ch.id));
   for (const id of memberChannelIds) {
     if (!channelIds.has(id)) {
@@ -213,10 +208,6 @@ export function setZoneMembers(
   zoneId: string,
   memberChannelIds: string[],
 ): Codeplug {
-  if (memberChannelIds.length > OPENGD77_MAX_ZONE_MEMBERS) {
-    throw new Error(`Zone cannot have more than ${OPENGD77_MAX_ZONE_MEMBERS} members`);
-  }
-
   const channelIds = new Set(codeplug.channels.map((ch) => ch.id));
   for (const id of memberChannelIds) {
     if (!channelIds.has(id)) {

@@ -27,7 +27,7 @@ The internal data model and feature docs describe **our** codeplug — not any s
 - "CSVs are mapped by the import/export layer (e.g. OpenGD77 → internal format)."
 - "Import any supported CPS export (OpenGD77, DM32, …) or start a blank project."
 - "See [OpenGD77 reference](../../docs/reference/opengd77/README.md) for OpenGD77 column mapping" — scoped to that format.
-- "Known vendor leakage: `OPENGD77_MAX_ZONE_MEMBERS` in `setZoneMembers` — to be removed."
+- "Known vendor leakage: wire-name FKs in validation — migrate to id-based refs."
 - Documenting approved leakage fields (`vendorExtras`, planned `opengd77Extras`).
 
 ## Quick check

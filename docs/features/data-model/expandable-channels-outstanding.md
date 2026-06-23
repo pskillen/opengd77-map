@@ -8,7 +8,7 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not th
 
 ## Vendor leakage
 
-- [ ] `OPENGD77_MAX_ZONE_MEMBERS` in `src/lib/codeplugMutations.ts` — pre-existing; do not extend into new internal-model code
+- [x] `OPENGD77_MAX_ZONE_MEMBERS` in `src/lib/codeplugMutations.ts` — moved to export-only validation ([#132](https://github.com/pskillen/codeplug-tool/issues/132))
 
 ## Deferred to other issues
 
