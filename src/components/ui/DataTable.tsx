@@ -35,7 +35,6 @@ export default function DataTable<T>({
   emptyState,
   caption,
   toolbar,
-  mobileColumnPolicy: _mobileColumnPolicy = 'none',
 }: DataTableProps<T>) {
   const colSpan = columns.length + 1;
   const defaultEmpty = <EmptyState message="No items" />;
@@ -56,9 +55,7 @@ export default function DataTable<T>({
           <Table.Tbody>
             {rows.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={colSpan}>
-                  {emptyState ?? defaultEmpty}
-                </Table.Td>
+                <Table.Td colSpan={colSpan}>{emptyState ?? defaultEmpty}</Table.Td>
               </Table.Tr>
             ) : (
               rows.map((row) => (

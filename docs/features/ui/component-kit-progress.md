@@ -7,22 +7,22 @@
 
 | Slice | Status | Notes |
 | --- | --- | --- |
-| 1 Kickoff — tokens + docs | In progress | `uiTokens.ts`, theme defaults, progress files |
-| 2 Layout primitives | Pending | `Page`, `PageHeader`, `PageSection`, `PageSectionGrid` |
-| 3 DataTable + EmptyState | Pending | Wrap `EntityTable` |
-| 4 Composites | Pending | `ListPage`, `FormPage`, `FormSection` |
-| 5 Nav primitives | Pending | `AppHeader` |
-| 6 Styleguide | Pending | `/#/styleguide` |
-| 7 Import/export migrate | Pending | Reference layout |
-| 8 List routes migrate | Pending | Five entity lists |
-| 9 Detail routes migrate | Pending | + `DetailSections` |
-| 10 Edit routes migrate | Pending | `FormPage` |
-| 11 Remaining routes | Pending | Home, Summary, Settings, reference, project |
-| 12 Cleanup + PR | Pending | Deprecate `ReportPage` |
+| 1 Kickoff — tokens + docs | Complete | `tokens.ts`, theme defaults |
+| 2 Layout primitives | Complete | `Page`, `PageHeader`, `PageSection`, `PageSectionGrid` |
+| 3 DataTable + EmptyState | Complete | `EntityTable` re-exports `DataTable` |
+| 4 Composites | Complete | `ListPage`, `FormPage`, `FormSection` |
+| 5 Nav primitives | Complete | `AppHeader` |
+| 6 Styleguide | Complete | `/#/styleguide` (unlinked) |
+| 7 Import/export migrate | Complete | Reference layout |
+| 8 List routes migrate | Complete | Five entity lists |
+| 9 Detail routes migrate | Complete | + `DetailSections` → `PageSection` |
+| 10 Edit routes migrate | Complete | `FormPage` sticky footer |
+| 11 Remaining routes | Complete | Home, Summary, Settings, reference, project |
+| 12 Cleanup + PR | Complete | `ReportPage` deprecated |
 
 ## Verify
 
-- `npm run lint && npm run test && npm run build`
+- `npm run format:check && npm run lint && npm run test && npm run build`
 - `npm run dev` — `/#/styleguide` + spot-check routes
 
 ## PR

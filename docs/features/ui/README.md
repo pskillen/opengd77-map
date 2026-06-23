@@ -10,7 +10,7 @@ Contributor docs for shared UI conventions in the SPA.
 | Shared size constants | Shipped | `src/lib/iconSizes.ts` |
 | Display conventions | Shipped | [display-conventions.md](../../reference/display-conventions.md) |
 | Two-section navigation | Shipped | [#81](https://github.com/pskillen/codeplug-tool/issues/81) — `AppNav`, `SectionNav`, `src/nav/` |
-| Layout & component kit | In progress | [#105](https://github.com/pskillen/codeplug-tool/issues/105) — `src/components/ui/` |
+| Layout & component kit | Shipped | [#105](https://github.com/pskillen/codeplug-tool/issues/105) — `src/components/ui/`, `/#/styleguide` |
 | CRUD actions | Shipped | List/detail/edit routes, ConfirmDeleteModal, ZoneMemberPicker |
 | Import/export/workflows | Shipped | ImportDropzone, Export, SummaryCard, ProjectList |
 | Map/location | Shipped | MapControls, UseMyLocationButton |

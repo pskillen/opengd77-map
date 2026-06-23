@@ -87,7 +87,10 @@ export default function ContactEdit() {
           <Button component={Link} to={cancelPath} variant="default">
             Cancel
           </Button>
-          <Button type="submit" leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+          <Button
+            type="submit"
+            leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+          >
             Save
           </Button>
         </>

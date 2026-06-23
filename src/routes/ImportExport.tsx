@@ -1,11 +1,6 @@
 import ExportFromActivePanel from '../components/ExportFromActivePanel/ExportFromActivePanel.tsx';
 import ImportIntoActivePanel from '../components/ImportIntoActivePanel/ImportIntoActivePanel.tsx';
-import {
-  Page,
-  PageHeader,
-  PageSection,
-  PageSectionGrid,
-} from '../components/ui/index.ts';
+import { Page, PageHeader, PageSection, PageSectionGrid } from '../components/ui/index.ts';
 import { useVendorFormatParam } from '../hooks/useVendorFormatParam.ts';
 
 export default function ImportExport() {
@@ -33,10 +28,7 @@ export default function ImportExport() {
           <ImportIntoActivePanel key={vendorFormat.id} vendorFormat={vendorFormat} />
         </PageSection>
 
-        <PageSection
-          title="Export"
-          description="Download the active codeplug as vendor CPS files."
-        >
+        <PageSection title="Export" description="Download the active codeplug as vendor CPS files.">
           <ExportFromActivePanel vendorFormat={vendorFormat} />
         </PageSection>
       </PageSectionGrid>

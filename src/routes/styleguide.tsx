@@ -26,6 +26,7 @@ import {
   PageSection,
   PageSectionGrid,
 } from '../components/ui/index.ts';
+import { UK_BANDS } from '../lib/bands.ts';
 import { channelFieldDefaults } from '../models/codeplug.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
 
@@ -35,10 +36,11 @@ const SAMPLE_ROWS = [
 ];
 
 const sampleChannel = {
-  ...channelFieldDefaults,
+  ...channelFieldDefaults(),
   id: 'demo',
   name: 'Demo FM',
-  mode: 'FM' as const,
+  callsign: '',
+  mode: 'fm' as const,
   rxFrequency: 145_575_000,
   txFrequency: 145_175_000,
 };
@@ -65,7 +67,10 @@ export default function Styleguide() {
       </PageSection>
 
       <PageSection title="ListPage sample">
-        <ListPage title="Channels (sample)" description="Composed list shell inside a section for demo.">
+        <ListPage
+          title="Channels (sample)"
+          description="Composed list shell inside a section for demo."
+        >
           <DataTable
             rows={SAMPLE_ROWS}
             rowKey={(row) => row.id}
@@ -98,11 +103,17 @@ export default function Styleguide() {
             <Button variant="light">Light</Button>
             <Button variant="subtle">Subtle</Button>
             <Button variant="outline">Outline</Button>
-            <Button color="red" leftSection={<IconTrash size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+            <Button
+              color="red"
+              leftSection={<IconTrash size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+            >
               Delete
             </Button>
           </Group>
-          <FormSection title="Sample fields" description="Native Mantine inputs — canonical variants.">
+          <FormSection
+            title="Sample fields"
+            description="Native Mantine inputs — canonical variants."
+          >
             <TextInput label="Name" placeholder="Channel name" />
             <Select label="Mode" data={['FM', 'DMR', 'P25']} defaultValue="FM" />
           </FormSection>
@@ -126,9 +137,9 @@ export default function Styleguide() {
 
       <PageSection title="Pills & badges">
         <Group>
-          <ModePill mode="DMR" />
-          <ModePill mode="FM" />
-          <BandPill band="2m" />
+          <ModePill mode="dmr" />
+          <ModePill mode="fm" />
+          <BandPill band={UK_BANDS.find((b) => b.id === '2m') ?? null} />
           <BandPillForChannel channel={sampleChannel} />
           <Badge variant="outline">Outline badge</Badge>
         </Group>

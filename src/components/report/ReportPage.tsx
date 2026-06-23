@@ -1,18 +1,19 @@
-import { Container, Stack, Title } from '@mantine/core';
 import type { ReactNode } from 'react';
+import Page from '../ui/Page.tsx';
+import PageHeader from '../ui/PageHeader.tsx';
 
 export interface ReportPageProps {
   title: string;
   children: ReactNode;
+  description?: ReactNode;
 }
 
-export default function ReportPage({ title, children }: ReportPageProps) {
+/** @deprecated Use `Page` + `PageHeader` from `src/components/ui/` */
+export default function ReportPage({ title, description, children }: ReportPageProps) {
   return (
-    <Container size="lg" py="md">
-      <Stack gap="lg">
-        <Title order={1}>{title}</Title>
-        {children}
-      </Stack>
-    </Container>
+    <Page>
+      <PageHeader title={title} description={description} />
+      {children}
+    </Page>
   );
 }
