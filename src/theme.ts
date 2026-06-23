@@ -26,6 +26,9 @@ const dark: MantineColorsTuple = [
   '#05070a',
 ];
 
+/** Above Leaflet map panes (`.leaflet-top` uses z-index 1000). */
+export const MODAL_ABOVE_MAP_Z_INDEX = 1200;
+
 export const theme = createTheme({
   primaryColor: 'brand',
   primaryShade: 6,
@@ -40,6 +43,16 @@ export const theme = createTheme({
     xl: '2rem',
   },
   components: {
+    Modal: {
+      defaultProps: {
+        zIndex: MODAL_ABOVE_MAP_Z_INDEX,
+      },
+    },
+    Drawer: {
+      defaultProps: {
+        zIndex: MODAL_ABOVE_MAP_Z_INDEX,
+      },
+    },
     Paper: {
       defaultProps: {
         radius: 'md',
