@@ -33,7 +33,9 @@ export default function DetailSections({ sections }: DetailSectionsProps) {
                 <Text size="sm" c="dimmed">
                   {field.label}
                 </Text>
-                <Text size="sm">{field.value || '—'}</Text>
+                <Text size="sm" component="div">
+                  {field.value || '—'}
+                </Text>
               </Stack>
             ))}
           </SimpleGrid>
