@@ -8,7 +8,7 @@ Authoritative reference for **Baofeng DM-32UV stock CPS** CSV exports (v1.60+). 
 
 | File | Reference | #67 import | #67 export | Modelled |
 | --- | --- | --- | --- | --- |
-| `Channels.csv` | [channels.md](channels.md) | Yes | Yes | `Channel[]` |
+| `Channels.csv` | [channels.md](channels.md) | Yes | Yes | `Channel[]` (`multiMode` / `modeProfiles`) |
 | `Zones.csv` | [zones.md](zones.md) | Yes | Yes | `Zone[]` |
 | `Talkgroups.csv` | [talkgroups.md](talkgroups.md) | Yes | Yes | `TalkGroup[]` |
 | `Contacts.csv` | [contacts.md](contacts.md) | Yes | Yes | `Contact[]` (`signalingMode: dmr`) |

@@ -17,9 +17,9 @@
 
 | Slice | Status |
 | --- | --- |
-| 0: Fixture + scaffold | In progress |
-| 0.b: Contact model refactor | Not started |
-| 1: Wire reference + radio profile | Not started |
+| 0: Fixture + scaffold | Done |
+| 0.b: Contact model refactor | Done |
+| 1: Wire reference + radio profile | Done |
 | 2.5: `expandModes` on channelExpansion | Not started |
 | 3: DM32 import adapter | Not started |
 | 4: DM32 export adapter | Not started |
