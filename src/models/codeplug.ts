@@ -24,6 +24,8 @@ export interface ChannelModeProfile {
   squelch: number | null;
   contactRef: EntityRef | null;
   rxGroupListId: string | null;
+  /** Per-profile OpenGD77-only wire columns when promoted from a merged source channel. */
+  opengd77Extras?: Record<string, string>;
 }
 
 export function channelModeProfileDefaults(mode: ChannelMode = 'fm'): ChannelModeProfile {

@@ -26,13 +26,18 @@
 
 ## Slice 2: Refactor merge primitives
 
-**Status:** Not started
+**Status:** Complete
+
+**Delivered**
+
+- `mergeChannelsToMultiMode`, `channelsAreMultiModeMergeCandidates`, fuzzy name helpers
+- `ChannelModeProfile.opengd77Extras` for CRUD merge path
 
 ---
 
 ## Slice 3: Detection + preview lib
 
-**Status:** Not started
+**Status:** In progress
 
 ---
 

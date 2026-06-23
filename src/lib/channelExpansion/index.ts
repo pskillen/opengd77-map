@@ -47,7 +47,7 @@ export interface ExpandChannelOptions {
 
 /** Build a profile from top-level channel mode-specific fields (single-mode path). */
 export function profileFromChannelFields(channel: Channel): ChannelModeProfile {
-  return {
+  const profile: ChannelModeProfile = {
     mode: channel.mode,
     bandwidthKHz: channel.bandwidthKHz,
     colourCode: channel.colourCode,
@@ -59,6 +59,10 @@ export function profileFromChannelFields(channel: Channel): ChannelModeProfile {
     contactRef: channel.contactRef,
     rxGroupListId: channel.rxGroupListId,
   };
+  if (Object.keys(channel.opengd77Extras).length > 0) {
+    profile.opengd77Extras = { ...channel.opengd77Extras };
+  }
+  return profile;
 }
 
 /** Effective mode profiles for a channel — synthetic from top-level when not multi-mode. */
@@ -93,6 +97,9 @@ function profileOpenGd77Extras(
   channel: Channel,
   profile: ChannelModeProfile,
 ): Record<string, string> {
+  if (profile.opengd77Extras && Object.keys(profile.opengd77Extras).length > 0) {
+    return { ...profile.opengd77Extras };
+  }
   const wire = channel.meta?.imported?.multiModeProfileWire?.find((w) => w.mode === profile.mode);
   if (wire?.opengd77Extras) {
     return { ...channel.opengd77Extras, ...wire.opengd77Extras };
@@ -225,59 +232,150 @@ export interface MergeImportChannelsResult {
   merged: { sourceNames: string[]; resultName: string }[];
 }
 
-function frequenciesMatch(a: Channel, b: Channel): boolean {
+export function channelNameStem(name: string): string {
+  return stripModeExportSuffix(name);
+}
+
+/** Normalised Levenshtein distance ratio in [0, 1] — 0 means identical. */
+export function levenshteinRatio(a: string, b: string): number {
+  if (a === b) return 0;
+  const m = a.length;
+  const n = b.length;
+  if (m === 0) return 1;
+  if (n === 0) return 1;
+  const row = new Array<number>(n + 1);
+  for (let j = 0; j <= n; j++) row[j] = j;
+  for (let i = 1; i <= m; i++) {
+    let prev = row[0];
+    row[0] = i;
+    for (let j = 1; j <= n; j++) {
+      const temp = row[j];
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      row[j] = Math.min(row[j] + 1, row[j - 1] + 1, prev + cost);
+      prev = temp;
+    }
+  }
+  return row[n] / Math.max(m, n);
+}
+
+export interface ChannelMergeCandidateOptions {
+  /** Max normalised Levenshtein ratio for name stems (0 = exact match). Default 0. */
+  nameFuzzyThreshold?: number;
+}
+
+export function channelFrequenciesMatch(a: Channel, b: Channel): boolean {
   return a.rxFrequency === b.rxFrequency && a.txFrequency === b.txFrequency;
 }
 
-function locationsMatch(a: Channel, b: Channel): boolean {
+export function channelLocationsMatch(a: Channel, b: Channel): boolean {
   if (a.location == null && b.location == null) return true;
   if (a.location == null || b.location == null) return false;
   return a.location.lat === b.location.lat && a.location.lon === b.location.lon;
 }
 
-function canMergePair(a: Channel, b: Channel): boolean {
+function channelNameStemsMatch(
+  a: Channel,
+  b: Channel,
+  threshold: number,
+): boolean {
+  const stemA = channelNameStem(a.name);
+  const stemB = channelNameStem(b.name);
+  if (threshold <= 0) return stemA === stemB;
+  return levenshteinRatio(stemA, stemB) <= threshold;
+}
+
+/** Whether two single-mode channels are candidates for a multi-mode merge. */
+export function channelsAreMultiModeMergeCandidates(
+  a: Channel,
+  b: Channel,
+  options: ChannelMergeCandidateOptions = {},
+): boolean {
   if (a.mode === b.mode) return false;
-  const baseA = stripModeExportSuffix(a.name);
-  const baseB = stripModeExportSuffix(b.name);
-  if (baseA !== baseB) return false;
-  if (!frequenciesMatch(a, b)) return false;
-  if (!locationsMatch(a, b)) return false;
-  const aAnalog = isAnalogMode(a.mode);
-  const bAnalog = isAnalogMode(b.mode);
-  return aAnalog !== bAnalog;
+  const threshold = options.nameFuzzyThreshold ?? 0;
+  if (!channelNameStemsMatch(a, b, threshold)) return false;
+  if (!channelFrequenciesMatch(a, b)) return false;
+  if (!channelLocationsMatch(a, b)) return false;
+  return true;
+}
+
+export interface MergeChannelsToMultiModeOptions {
+  resultName?: string;
+  survivorId?: string;
+  /** Import-only: stamp legacy multiModeProfileWire provenance for round-trip. */
+  importProvenance?: {
+    formatId: string;
+    sourceFile: string;
+    importedAt: string;
+  };
+}
+
+function pickPrimarySource(sources: Channel[]): Channel {
+  const analog = sources.find((ch) => isAnalogMode(ch.mode));
+  return analog ?? sources[0];
+}
+
+/** Merge N single-mode sources (≥2, unique modes) into one multi-mode channel. */
+export function mergeChannelsToMultiMode(
+  sources: Channel[],
+  options: MergeChannelsToMultiModeOptions = {},
+): Channel {
+  if (sources.length < 2) {
+    throw new Error('mergeChannelsToMultiMode requires at least two source channels');
+  }
+  const modes = new Set(sources.map((ch) => ch.mode));
+  if (modes.size !== sources.length) {
+    throw new Error('mergeChannelsToMultiMode requires unique modes per source');
+  }
+
+  const primary = pickPrimarySource(sources);
+  const survivorId = options.survivorId ?? primary.id;
+  const resultName =
+    options.resultName ?? channelNameStem(primary.name);
+  const modeProfiles = sources.map((ch) => profileFromChannelFields(ch));
+
+  const base: Channel = {
+    ...primary,
+    id: survivorId,
+    name: resultName,
+    multiMode: true,
+    mode: primary.mode,
+    modeProfiles,
+    opengd77Extras: {},
+  };
+
+  if (options.importProvenance) {
+    const prov = options.importProvenance;
+    base.meta = {
+      imported: {
+        formatId: prov.formatId,
+        sourceFile: prov.sourceFile,
+        importedAt: prov.importedAt,
+        multiModeProfileWire: sources.map((ch) => ({
+          mode: ch.mode,
+          contactWireName: ch.meta?.imported?.contactWireName,
+          rxGroupListWireName: ch.meta?.imported?.rxGroupListWireName,
+          opengd77Extras: ch.opengd77Extras,
+        })),
+      },
+    };
+  }
+
+  return syncChannelFromPrimaryProfile(base);
+}
+
+function canMergePair(a: Channel, b: Channel): boolean {
+  return channelsAreMultiModeMergeCandidates(a, b, { nameFuzzyThreshold: 0 });
 }
 
 function mergeTwoChannels(primary: Channel, secondary: Channel): Channel {
   const fmSource = isAnalogMode(primary.mode) ? primary : secondary;
   const dmrSource = isAnalogMode(primary.mode) ? secondary : primary;
-  const modeProfiles = [profileFromChannelFields(fmSource), profileFromChannelFields(dmrSource)];
   const imported = primary.meta?.imported ?? secondary.meta?.imported;
-  return syncChannelFromPrimaryProfile({
-    ...fmSource,
-    name: stripModeExportSuffix(fmSource.name),
-    multiMode: true,
-    mode: 'fm',
-    modeProfiles,
-    meta: {
-      imported: {
-        formatId: imported?.formatId ?? 'opengd77',
-        sourceFile: imported?.sourceFile ?? 'Channels.csv',
-        importedAt: imported?.importedAt ?? new Date().toISOString(),
-        multiModeProfileWire: [
-          {
-            mode: fmSource.mode,
-            contactWireName: fmSource.meta?.imported?.contactWireName,
-            rxGroupListWireName: fmSource.meta?.imported?.rxGroupListWireName,
-            opengd77Extras: fmSource.opengd77Extras,
-          },
-          {
-            mode: dmrSource.mode,
-            contactWireName: dmrSource.meta?.imported?.contactWireName,
-            rxGroupListWireName: dmrSource.meta?.imported?.rxGroupListWireName,
-            opengd77Extras: dmrSource.opengd77Extras,
-          },
-        ],
-      },
+  return mergeChannelsToMultiMode([fmSource, dmrSource], {
+    importProvenance: {
+      formatId: imported?.formatId ?? 'opengd77',
+      sourceFile: imported?.sourceFile ?? 'Channels.csv',
+      importedAt: imported?.importedAt ?? new Date().toISOString(),
     },
   });
 }
