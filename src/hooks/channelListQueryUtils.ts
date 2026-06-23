@@ -3,11 +3,13 @@ import { DISTANCE_FILTER_MARKS_KM } from '../lib/channels.ts';
 export const CHANNEL_LIST_COLUMN_STORAGE_KEY = 'channels-list-columns';
 export const CHANNEL_LIST_COLUMNS_SCHEMA_KEY = 'channels-list-columns-schema';
 /** Bump when adding optional columns that should be merged into existing saved prefs once. */
-export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 4;
+export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 5;
 
 export type ChannelSortMode = 'name' | 'distance';
 
 export const CHANNEL_OPTIONAL_COLUMNS = [
+  { key: 'band', header: 'Band', defaultVisible: true },
+  { key: 'mode', header: 'Mode', defaultVisible: true },
   { key: 'rxTx', header: 'RX/TX', defaultVisible: true },
   { key: 'contact', header: 'Contact', defaultVisible: true },
   { key: 'rgl', header: 'RX group list', defaultVisible: true },
@@ -42,6 +44,20 @@ export function loadChannelVisibleColumns(): string[] {
         if (schema < 4) {
           cols = cols.filter((k) => k !== 'callsign');
           if (!cols.includes('rxTx')) cols = ['rxTx', ...cols];
+        }
+        if (schema < 5 && cols.length > 0) {
+          if (!cols.includes('band')) cols = ['band', ...cols];
+          if (!cols.includes('mode')) {
+            const bandIdx = cols.indexOf('band');
+            cols =
+              bandIdx >= 0
+                ? [
+                    ...cols.slice(0, bandIdx + 1),
+                    'mode',
+                    ...cols.slice(bandIdx + 1).filter((k) => k !== 'mode'),
+                  ]
+                : ['mode', ...cols.filter((k) => k !== 'mode')];
+          }
         }
         localStorage.setItem(CHANNEL_LIST_COLUMN_STORAGE_KEY, JSON.stringify(cols));
         localStorage.setItem(

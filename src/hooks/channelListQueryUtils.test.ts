@@ -9,8 +9,10 @@ import {
 } from './channelListQueryUtils.ts';
 
 describe('defaultChannelVisibleColumns', () => {
-  it('includes power by default and omits squelch', () => {
+  it('includes band, mode, power by default and omits squelch', () => {
     const cols = defaultChannelVisibleColumns();
+    expect(cols).toContain('band');
+    expect(cols).toContain('mode');
     expect(cols).toContain('power');
     expect(cols).not.toContain('squelch');
     expect(cols).toEqual(

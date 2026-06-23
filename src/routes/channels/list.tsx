@@ -81,6 +81,29 @@ export default function ChannelsList() {
         defaultVisible: col.defaultVisible,
       };
 
+      if (col.key === 'band') {
+        return {
+          ...base,
+          render: (ch: Channel) => <BandPillForChannel channel={ch} />,
+          sortValue: (ch: Channel) => ch.rxFrequency ?? ch.txFrequency ?? 0,
+        };
+      }
+      if (col.key === 'mode') {
+        return {
+          ...base,
+          render: (ch: Channel) =>
+            ch.multiMode ? (
+              <Group gap={4}>
+                {resolveChannelModeProfiles(ch).map((p) => (
+                  <ModePill key={p.mode} mode={p.mode} size="xs" />
+                ))}
+              </Group>
+            ) : (
+              <ModePill mode={ch.mode} />
+            ),
+          sortValue: (ch: Channel) => ch.mode,
+        };
+      }
       if (col.key === 'rxTx') {
         return {
           ...base,
@@ -160,33 +183,7 @@ export default function ChannelsList() {
     });
   }, [codeplug.contacts, codeplug.rxGroupLists, codeplug.talkGroups, position]);
 
-  const tableColumns = useMemo(
-    (): DataTableColumn<Channel>[] => [
-      {
-        key: 'band',
-        header: 'Band',
-        render: (ch) => <BandPillForChannel channel={ch} />,
-        sortValue: (ch) => ch.rxFrequency ?? ch.txFrequency ?? 0,
-      },
-      {
-        key: 'mode',
-        header: 'Mode',
-        render: (ch) =>
-          ch.multiMode ? (
-            <Group gap={4}>
-              {resolveChannelModeProfiles(ch).map((p) => (
-                <ModePill key={p.mode} mode={p.mode} size="xs" />
-              ))}
-            </Group>
-          ) : (
-            <ModePill mode={ch.mode} />
-          ),
-        sortValue: (ch) => ch.mode,
-      },
-      ...optionalColumnDefs,
-    ],
-    [optionalColumnDefs],
-  );
+  const tableColumns = optionalColumnDefs;
 
   const sortCtx = useMemo(
     () => ({
