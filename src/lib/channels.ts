@@ -35,6 +35,21 @@ export function channelModeSummary(channel: Channel): string {
   return modeLabel(channel.mode);
 }
 
+/** All RF modes represented on a channel (profiles when multi-mode, else primary mode). */
+export function channelModesForFilter(channel: Channel): ChannelMode[] {
+  if (channel.multiMode && channel.modeProfiles.length > 0) {
+    return channel.modeProfiles.map((p) => p.mode);
+  }
+  return [channel.mode];
+}
+
+/** True when any represented mode matches one of the selected filter values. */
+export function channelMatchesModeFilter(channel: Channel, modeFilter: string[]): boolean {
+  if (!modeFilter.length) return true;
+  const modes = channelModesForFilter(channel);
+  return modeFilter.some((m) => modes.includes(m as ChannelMode));
+}
+
 export function markerLabel(group: Channel[], useFull: boolean): string {
   const ch = group[0];
   if (group.length === 1 && ch.multiMode) {

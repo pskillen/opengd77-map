@@ -10,8 +10,8 @@ import {
 
 describe('channelPageSections', () => {
   it('derives stable anchor ids from section titles', () => {
-    expect(channelSectionAnchorId('Identity')).toBe('identity');
-    expect(channelSectionAnchorId('Scan / APRS')).toBe('scan-aprs');
+    expect(channelSectionAnchorId('Channel config')).toBe('channel-config');
+    expect(channelSectionAnchorId('Mode profiles')).toBe('mode-profiles');
     expect(channelSectionAnchorId('External links')).toBe('external-links');
   });
 

@@ -3,6 +3,7 @@ import { buildGeolocatedChannel, buildImportedZone } from '../test/builders/inde
 import {
   applyFilters,
   buildChannelById,
+  channelMatchesModeFilter,
   dominantMode,
   filterChannelsByDistance,
   groupByCoords,
@@ -150,6 +151,56 @@ describe('zoneGeolocatedPoints', () => {
     });
     expect(points).toHaveLength(1);
     expect(missing.some((m) => m.reason === 'unresolved member')).toBe(true);
+  });
+});
+
+describe('channelMatchesModeFilter', () => {
+  it('matches primary mode on single-mode channels', () => {
+    const channel = ch({ id: '1', name: 'A', mode: 'dmr' });
+    expect(channelMatchesModeFilter(channel, ['dmr'])).toBe(true);
+    expect(channelMatchesModeFilter(channel, ['fm'])).toBe(false);
+  });
+
+  it('matches any profile mode on multi-mode channels', () => {
+    const multi = ch({
+      id: '1',
+      name: 'GB7GL',
+      mode: 'fm',
+      multiMode: true,
+      modeProfiles: [
+        {
+          mode: 'fm',
+          bandwidthKHz: null,
+          colourCode: null,
+          timeslot: null,
+          dmrId: null,
+          rxTone: 'none',
+          txTone: 'none',
+          squelch: null,
+          contactRef: null,
+          rxGroupListId: null,
+        },
+        {
+          mode: 'dmr',
+          bandwidthKHz: null,
+          colourCode: null,
+          timeslot: null,
+          dmrId: null,
+          rxTone: 'none',
+          txTone: 'none',
+          squelch: null,
+          contactRef: null,
+          rxGroupListId: null,
+        },
+      ],
+    });
+    expect(channelMatchesModeFilter(multi, ['dmr'])).toBe(true);
+    expect(channelMatchesModeFilter(multi, ['fm'])).toBe(true);
+    expect(channelMatchesModeFilter(multi, ['ysf'])).toBe(false);
+  });
+
+  it('passes when filter is empty', () => {
+    expect(channelMatchesModeFilter(ch({ id: '1', name: 'A', mode: 'dmr' }), [])).toBe(true);
   });
 });
 

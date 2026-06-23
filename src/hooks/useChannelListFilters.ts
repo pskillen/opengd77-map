@@ -1,5 +1,9 @@
 import { useMemo } from 'react';
-import { channelHasGeolocation, filterChannelsByDistance } from '../lib/channels.ts';
+import {
+  channelHasGeolocation,
+  channelMatchesModeFilter,
+  filterChannelsByDistance,
+} from '../lib/channels.ts';
 import { channelMatchesBandFilter } from '../lib/bands.ts';
 import { formatDistanceM, haversineDistanceM } from '../lib/geoDistance.ts';
 import { sortByName } from '../lib/reportLookup.ts';
@@ -54,7 +58,7 @@ export function filterChannelsForList(
       return false;
     }
     if (!channelMatchesBandFilter(ch.rxFrequency, ch.txFrequency, query.bandFilter)) return false;
-    if (query.modeFilter.length && !query.modeFilter.includes(ch.mode)) return false;
+    if (query.modeFilter.length && !channelMatchesModeFilter(ch, query.modeFilter)) return false;
     if (query.duplexFilter === 'simplex' && !isSimplex(ch.rxFrequency, ch.txFrequency))
       return false;
     if (query.duplexFilter === 'split' && isSimplex(ch.rxFrequency, ch.txFrequency)) return false;
