@@ -25,7 +25,8 @@ import {
 import { getMemberWireNames } from '../../lib/entityProvenance.ts';
 import { entityRefDisplayName } from '../../lib/entityRefs.ts';
 import { formatFrequencyHz } from '../../lib/formatFrequency.ts';
-import { isDmrMode, modeLabel } from '../../lib/channelModes.ts';
+import { isDmrMode } from '../../lib/channelModes.ts';
+import { channelModeSummary } from '../../lib/channels.ts';
 import { convexHullLatLon, zoneColor, type LatLon } from '../../lib/geo.ts';
 import { collectMapPoints, computeMapView } from '../../lib/mapView.ts';
 import type { Channel, Contact, RxGroupList, TalkGroup, Zone } from '../../models/codeplug.ts';
@@ -128,7 +129,7 @@ function ChannelPopup({
             <strong>{ch.name}</strong>
             <br />
             <span style={{ opacity: 0.85 }}>
-              {modeLabel(ch.mode)}
+              {channelModeSummary(ch)}
               {freq ? ` · ${freq}` : ''}
             </span>
             {dmr ? (

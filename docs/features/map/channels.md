@@ -33,6 +33,7 @@ The map consumes these [`Channel`](../data-model/README.md#channel) fields:
 | `useLocation` | Filter — `false` excludes the channel when the Use-Location filter is on |
 | `hideFromMap` | Internal flag — always excludes the channel from markers and hulls |
 | `mode` | Marker colour and popup mode label; see [channel-modes](../../reference/channel-modes.md) |
+| `multiMode`, `modeProfiles` | One marker per logical channel; label shows combined modes (e.g. `GB7GL FM+DMR`) — see [multi-mode](../../reference/opengd77/multi-mode.md) |
 | `rxFrequency`, `txFrequency` | Popup RX/TX MHz line |
 | `contactName`, `rxGroupListName` | Popup DMR rows (hidden when empty or `None`) |
 
@@ -90,6 +91,8 @@ Each skip carries a reason (`missing coordinates`, `0,0 coordinates`, `Use Locat
 Per-mode marker colours are defined in [channel-modes](../../reference/channel-modes.md) (`src/lib/channelModes.ts`). Examples: `fm` `#f0c419`, `dmr` `#e03131`, `dstar` `#7950f2`.
 
 Merged groups (channels at the same lat/lon to 5 decimal places) use the **dominant** mode: the most frequent specific mode in the co-located group (tie → first channel).
+
+**Multi-mode channels** (`multiMode: true`) always plot as **one marker** per logical channel (not per export-expanded row). The label appends combined mode names (e.g. `GB7GL FM+DMR`). Marker colour uses the channel's primary `mode` field.
 
 Markers use a `divIcon` with a dot and permanent label below. Merged sites use a slightly larger dot and a `+N` suffix on the label. `highlightChannelId` emphasises one marker on detail pages.
 

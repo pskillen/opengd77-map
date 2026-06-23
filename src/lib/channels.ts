@@ -3,7 +3,8 @@ import type { LatLon } from './geo.ts';
 import { uniqueLatLon } from './geo.ts';
 import { buildNameToChannelId } from './codeplug.ts';
 import { getMemberWireNames } from './entityProvenance.ts';
-import { modeColor } from './channelModes.ts';
+import { resolveChannelModeProfiles } from './channelExpansion/index.ts';
+import { modeColor, modeLabel } from './channelModes.ts';
 import { haversineDistanceM } from './geoDistance.ts';
 
 export interface FilterOptions {
@@ -25,8 +26,21 @@ export function markerColor(mode: ChannelMode): string {
   return modeColor(mode);
 }
 
+export function channelModeSummary(channel: Channel): string {
+  if (channel.multiMode) {
+    return resolveChannelModeProfiles(channel)
+      .map((p) => modeLabel(p.mode))
+      .join('+');
+  }
+  return modeLabel(channel.mode);
+}
+
 export function markerLabel(group: Channel[], useFull: boolean): string {
   const ch = group[0];
+  if (group.length === 1 && ch.multiMode) {
+    const base = useFull ? ch.name : ch.callsign;
+    return `${base} ${channelModeSummary(ch)}`;
+  }
   if (group.length > 1) {
     const base = useFull ? ch.name : ch.callsign;
     return `${base} +${group.length - 1}`;

@@ -88,6 +88,22 @@ describe('markerLabel', () => {
     const group = [ch({ id: '1', name: 'GB3DA DMR' }), ch({ id: '2', name: 'GB3DA FM' })];
     expect(markerLabel(group, false)).toBe('GB3DA +1');
   });
+
+  it('shows combined mode summary for multi-mode channel', () => {
+    const group = [
+      ch({
+        id: '1',
+        name: 'GB7GL',
+        mode: 'fm',
+        multiMode: true,
+        modeProfiles: [
+          { mode: 'fm', bandwidthKHz: null, colourCode: null, timeslot: null, dmrId: null, rxTone: 'none', txTone: 'none', squelch: null, contactRef: null, rxGroupListId: null },
+          { mode: 'dmr', bandwidthKHz: null, colourCode: null, timeslot: null, dmrId: null, rxTone: 'none', txTone: 'none', squelch: null, contactRef: null, rxGroupListId: null },
+        ],
+      }),
+    ];
+    expect(markerLabel(group, false)).toBe('GB7GL FM+DMR');
+  });
 });
 
 describe('zoneGeolocatedPoints', () => {
