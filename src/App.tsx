@@ -34,6 +34,9 @@ import RxGroupListsList from './routes/RxGroupListsList.tsx';
 import RxGroupListDetail from './routes/RxGroupListDetail.tsx';
 import RxGroupListEdit from './routes/RxGroupListEdit.tsx';
 import Settings from './routes/Settings.tsx';
+import DebugIndex from './routes/debug/index.tsx';
+import DebugLocalStorage from './routes/debug/localStorage.tsx';
+import DebugLocalStorageViewer from './routes/debug/localStorageViewer.tsx';
 import ReferenceIndex from './routes/reference/index.tsx';
 import BandPlan from './routes/reference/band-plan.tsx';
 import MaidenheadConverter from './routes/reference/maidenhead.tsx';
@@ -88,6 +91,9 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/debug" element={<DebugIndex />} />
+          <Route path="/debug/local-storage" element={<DebugLocalStorage />} />
+          <Route path="/debug/local-storage/:storageKey" element={<DebugLocalStorageViewer />} />
           <Route path="/reference" element={<ReferenceIndex />} />
           <Route path="/reference/band-plan" element={<BandPlan />} />
           <Route path="/reference/maidenhead" element={<MaidenheadConverter />} />

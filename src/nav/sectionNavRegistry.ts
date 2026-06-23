@@ -1,3 +1,4 @@
+import DebugSectionNav from '../components/SectionNav/sections/DebugSectionNav.tsx';
 import ReferenceSectionNav from '../components/SectionNav/sections/ReferenceSectionNav.tsx';
 import ChannelsSectionNav from '../components/SectionNav/sections/ChannelsSectionNav.tsx';
 import SettingsSectionNav from '../components/SectionNav/sections/SettingsSectionNav.tsx';
@@ -12,6 +13,7 @@ import type { SectionNavEntry } from './sectionNavTypes.ts';
 /** Longest prefix first — more specific routes win. */
 const registry: SectionNavEntry[] = [
   { title: 'Reference', prefix: '/reference', Component: ReferenceSectionNav },
+  { title: 'Debug', prefix: '/debug', Component: DebugSectionNav },
   { title: 'Settings', prefix: '/settings', Component: SettingsSectionNav },
   { title: 'Channels', prefix: '/channels', Component: ChannelsSectionNav },
   { title: 'Zones', prefix: '/zones', Component: ZonesSectionNav },
@@ -35,7 +37,13 @@ export function shouldShowSecondaryNav(pathname: string, hasActiveProject: boole
   if (pathname === '/') return false;
   const entry = resolveSectionNav(pathname);
   if (!entry || entry.Component === NullSectionNav) return false;
-  if (pathname.startsWith('/reference') || pathname.startsWith('/settings')) return true;
+  if (
+    pathname.startsWith('/reference') ||
+    pathname.startsWith('/debug') ||
+    pathname.startsWith('/settings')
+  ) {
+    return true;
+  }
   return hasActiveProject;
 }
 
