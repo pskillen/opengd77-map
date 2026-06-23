@@ -123,6 +123,55 @@ export function deleteChannel(codeplug: Codeplug, channelId: string): Codeplug {
   return { ...codeplug, channels, zones };
 }
 
+function replaceZoneMemberIds(
+  memberChannelIds: string[],
+  survivorId: string,
+  absorbedIds: Set<string>,
+): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const id of memberChannelIds) {
+    const next = absorbedIds.has(id) ? survivorId : id;
+    if (seen.has(next)) continue;
+    seen.add(next);
+    result.push(next);
+  }
+  return result;
+}
+
+/** Replace absorbed channel ids with survivor in zones, delete absorbed channels. */
+export function mergeChannelsIntoOne(
+  codeplug: Codeplug,
+  survivorId: string,
+  absorbedIds: string[],
+  mergedChannel: Channel,
+): Codeplug {
+  const absorbed = new Set(absorbedIds);
+  if (absorbed.has(survivorId)) {
+    throw new Error('Survivor id cannot be among absorbed ids');
+  }
+
+  const normalized = normalizeChannelForSave({ ...mergedChannel, id: survivorId });
+  const channels = codeplug.channels
+    .filter((ch) => !absorbed.has(ch.id))
+    .map((ch) => (ch.id === survivorId ? normalized : ch));
+
+  const zones = codeplug.zones.map((zone) => {
+    const memberChannelIds = replaceZoneMemberIds(
+      zone.memberChannelIds,
+      survivorId,
+      absorbed,
+    );
+    return zoneWithMemberIds(zone, memberChannelIds, channels);
+  });
+
+  const withChannels = { ...codeplug, channels, zones };
+  return {
+    ...withChannels,
+    zones: refreshAllZoneSourceNames(withChannels),
+  };
+}
+
 export function addZone(codeplug: Codeplug, input: ZoneInput): Codeplug {
   const memberChannelIds = input.memberChannelIds ?? [];
   if (memberChannelIds.length > OPENGD77_MAX_ZONE_MEMBERS) {

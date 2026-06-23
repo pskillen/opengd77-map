@@ -10,6 +10,7 @@ import {
   deleteRxGroupList,
   deleteTalkGroup,
   deleteZone,
+  mergeChannelsIntoOne,
   normalizeChannelForSave,
   OPENGD77_MAX_ZONE_MEMBERS,
   setRxGroupListMembers,
@@ -330,5 +331,33 @@ describe('codeplugMutations', () => {
       expect(next.rxGroupLists[0].memberRefs).toHaveLength(40);
       expect(next.rxGroupLists[0].memberRefs[0].id).toBe('tg-0');
     });
+  });
+
+  it('mergeChannelsIntoOne rewires two zones referencing different absorbed ids', () => {
+    const fm = makeChannel('fm', 'GB7GL-F');
+    const dmr = makeChannel('dmr', 'GB7GL-D');
+    const merged = normalizeChannelForSave({
+      ...fm,
+      name: 'GB7GL',
+      multiMode: true,
+      modeProfiles: [
+        channelModeProfileDefaults('fm'),
+        { ...channelModeProfileDefaults('dmr'), colourCode: 1 },
+      ],
+    });
+    const cp = {
+      ...emptyCodeplug(),
+      channels: [fm, dmr],
+      zones: [
+        buildZone({ id: 'z1', name: 'Zone A', memberChannelIds: ['fm'] }),
+        buildZone({ id: 'z2', name: 'Zone B', memberChannelIds: ['dmr'] }),
+      ],
+    };
+
+    const next = mergeChannelsIntoOne(cp, 'fm', ['dmr'], merged);
+    expect(next.channels).toHaveLength(1);
+    expect(next.channels[0].name).toBe('GB7GL');
+    expect(next.zones[0].memberChannelIds).toEqual(['fm']);
+    expect(next.zones[1].memberChannelIds).toEqual(['fm']);
   });
 });

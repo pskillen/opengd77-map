@@ -48,13 +48,18 @@
 
 ## Slice 4: Mutations + store
 
-**Status:** In progress
+**Status:** Complete
+
+**Delivered**
+
+- `mergeChannelsIntoOne` with zone id rewire and `refreshAllZoneSourceNames`
+- `APPLY_CHANNEL_MERGES` store action + `useCodeplug().applyChannelMerges`
 
 ---
 
 ## Slice 5: Review UI
 
-**Status:** Not started
+**Status:** In progress
 
 ---
 

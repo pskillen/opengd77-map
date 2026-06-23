@@ -7,6 +7,7 @@ import {
   mergeChannelsToMultiMode,
   type ChannelMergeCandidateOptions,
 } from './channelExpansion/index.ts';
+import { mergeChannelsIntoOne } from './codeplugMutations.ts';
 import type { Channel, Codeplug } from '../models/codeplug.ts';
 import { validateChannel, type ValidationIssue } from './validation/channel.ts';
 
@@ -231,23 +232,7 @@ export function previewChannelMerges(
   return previews;
 }
 
-function replaceZoneMemberIds(
-  memberChannelIds: string[],
-  survivorId: string,
-  absorbedIds: Set<string>,
-): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const id of memberChannelIds) {
-    const next = absorbedIds.has(id) ? survivorId : id;
-    if (seen.has(next)) continue;
-    seen.add(next);
-    result.push(next);
-  }
-  return result;
-}
-
-/** Apply selected merges — caller should use mergeChannelsIntoOne from mutations when available. */
+/** Apply selected merges into the active codeplug. */
 export function applyChannelMerges(
   codeplug: Codeplug,
   selections: ChannelMergeSelection[],
@@ -283,21 +268,6 @@ export function applyChannelMerges(
 
     const survivorId = preview.mergedChannel.id;
     const absorbedIds = selection.sourceChannelIds.filter((id) => id !== survivorId);
-    const absorbedSet = new Set(absorbedIds);
-
-    const channels = next.channels
-      .filter((ch) => !absorbedSet.has(ch.id))
-      .map((ch) => (ch.id === survivorId ? preview.mergedChannel : ch));
-
-    const zones = next.zones.map((zone) => {
-      const memberChannelIds = replaceZoneMemberIds(
-        zone.memberChannelIds,
-        survivorId,
-        absorbedSet,
-      );
-      if (memberChannelIds === zone.memberChannelIds) return zone;
-      return { ...zone, memberChannelIds };
-    });
 
     for (const impact of preview.zoneImpacts) {
       report.zoneNotes.push(
@@ -305,7 +275,7 @@ export function applyChannelMerges(
       );
     }
 
-    next = { ...next, channels, zones };
+    next = mergeChannelsIntoOne(next, survivorId, absorbedIds, preview.mergedChannel);
     report.mergedCount++;
     report.mergedNames.push(preview.resultName);
   }
