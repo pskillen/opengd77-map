@@ -17,7 +17,10 @@ import {
   resolveChannelRxGroupListIds,
   resolveRxGroupListMemberRefs,
 } from './entityRefs.ts';
-import { resolveMultiModeChannelProfiles } from './channelExpansion/index.ts';
+import {
+  resolveMultiModeChannelProfiles,
+  mergeImportChannelsMultiTalkgroupBestEffort,
+} from './channelExpansion/index.ts';
 import {
   newId,
   type Channel,
@@ -355,9 +358,7 @@ function applyImportInternal(
     formatId,
   );
 
-  const nameToId = buildNameToChannelId(channels);
-  const { zones, unresolved } = resolveZones(mergedZones, nameToId);
-  const resolvedChannels = resolveChannelContactRefs(
+  const resolvedChannelsBeforeCollapse = resolveChannelContactRefs(
     resolveMultiModeChannelProfiles(
       resolveChannelRxGroupListIds(channels, resolvedRxGroupLists),
       talkGroups,
@@ -367,6 +368,27 @@ function applyImportInternal(
     talkGroups,
     contacts,
   );
+
+  const tgCollapsed = mergeImportChannelsMultiTalkgroupBestEffort(
+    resolvedChannelsBeforeCollapse,
+    talkGroups,
+    contacts,
+    resolvedRxGroupLists,
+  );
+  const resolvedChannels = tgCollapsed.channels;
+  const finalRxGroupLists = tgCollapsed.rxGroupLists;
+
+  const nameToId = buildNameToChannelId(resolvedChannels, {
+    codeplug: {
+      ...codeplug,
+      channels: resolvedChannels,
+      talkGroups,
+      contacts,
+      rxGroupLists: finalRxGroupLists,
+    },
+    expandTalkGroups: true,
+  });
+  const { zones, unresolved } = resolveZones(mergedZones, nameToId);
 
   const reportBase = {
     mode,
@@ -385,7 +407,7 @@ function applyImportInternal(
       zones,
       contacts,
       talkGroups,
-      rxGroupLists: resolvedRxGroupLists,
+      rxGroupLists: finalRxGroupLists,
       meta: updateMeta(codeplug, result),
     },
     report: {

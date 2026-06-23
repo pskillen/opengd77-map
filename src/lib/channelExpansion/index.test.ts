@@ -16,6 +16,7 @@ import {
   levenshteinRatio,
   mergeChannelsToMultiMode,
   mergeImportChannelsBestEffort,
+  mergeImportChannelsMultiTalkgroupBestEffort,
   modeExportNameSuffix,
   resolveChannelModeProfiles,
   stripModeExportSuffix,
@@ -363,5 +364,43 @@ describe('channelExpansion', () => {
       codeplug,
     });
     expect(names).toEqual(['GB7GL Scotland TS1', 'GB7GL Local 9']);
+  });
+
+  it('mergeImportChannelsMultiTalkgroupBestEffort collapses flat per-TG rows', () => {
+    const tg1 = buildTalkGroup({ id: 'tg1', name: 'Scotland TS1' });
+    const tg2 = buildTalkGroup({ id: 'tg2', name: 'Local 9' });
+    const ch1 = buildChannel({
+      id: '1',
+      name: 'GB7GL Scotland TS1',
+      mode: 'dmr',
+      rxFrequency: 430_850_000,
+      txFrequency: 438_450_000,
+      colourCode: 7,
+      timeslot: 2,
+      contactRef: { kind: 'talkGroup', id: 'tg1' },
+    });
+    const ch2 = buildChannel({
+      id: '2',
+      name: 'GB7GL Local 9',
+      mode: 'dmr',
+      rxFrequency: 430_850_000,
+      txFrequency: 438_450_000,
+      colourCode: 7,
+      timeslot: 2,
+      contactRef: { kind: 'talkGroup', id: 'tg2' },
+    });
+    const { channels, merged, rxGroupLists } = mergeImportChannelsMultiTalkgroupBestEffort(
+      [ch1, ch2],
+      [tg1, tg2],
+      [],
+      [],
+    );
+    expect(channels).toHaveLength(1);
+    expect(channels[0].name).toBe('GB7GL');
+    expect(channels[0].contactRef).toBeNull();
+    expect(channels[0].rxGroupListId).toBeTruthy();
+    expect(rxGroupLists).toHaveLength(1);
+    expect(rxGroupLists[0].memberRefs).toHaveLength(2);
+    expect(merged).toHaveLength(1);
   });
 });

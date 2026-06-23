@@ -1,9 +1,11 @@
+import type { EntityRef } from '../entityRefs.ts';
 import {
   entityRefDisplayName,
+  entityRefKey,
+  entityRefsEqual,
   resolveContactRefByWireName,
   resolveRxGroupListIdByName,
 } from '../entityRefs.ts';
-import type { EntityRef } from '../entityRefs.ts';
 import { CHANNEL_MODES, isAnalogMode, isDmrMode, type ChannelMode } from '../channelModes.ts';
 import type {
   Channel,
@@ -14,7 +16,7 @@ import type {
   TalkGroup,
   Zone,
 } from '../../models/codeplug.ts';
-import { channelModeProfileDefaults } from '../../models/codeplug.ts';
+import { channelModeProfileDefaults, newId } from '../../models/codeplug.ts';
 
 /** Resolved export row — shared channel fields merged with one mode profile. */
 export interface ExpandedChannelRow {
@@ -186,10 +188,7 @@ export function expandChannelForExport(
   return rows;
 }
 
-function filterRglMemberRefs(
-  memberRefs: EntityRef[],
-  filter: TalkGroupMemberFilter,
-): EntityRef[] {
+function filterRglMemberRefs(memberRefs: EntityRef[], filter: TalkGroupMemberFilter): EntityRef[] {
   if (filter === 'all') return memberRefs;
   return memberRefs.filter((ref) => ref.kind === 'talkGroup');
 }
@@ -346,6 +345,205 @@ export function expandZoneMemberWireNames(
 export interface MergeImportChannelsResult {
   channels: Channel[];
   merged: { sourceNames: string[]; resultName: string }[];
+}
+
+export interface MergeImportMultiTalkgroupResult extends MergeImportChannelsResult {
+  rxGroupLists: RxGroupList[];
+}
+
+function knownMemberWireNames(talkGroups: TalkGroup[], contacts: Contact[]): string[] {
+  return [...talkGroups.map((t) => t.name), ...contacts.map((c) => c.name)];
+}
+
+/** Stem for multi-talkgroup grouping — strips mode and TG member suffixes. */
+export function channelTalkGroupStem(
+  name: string,
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+): string {
+  return stripTalkGroupExportSuffix(
+    channelMergeNameStem(name),
+    knownMemberWireNames(talkGroups, contacts),
+  );
+}
+
+function memberRefsSetEqual(a: EntityRef[], b: EntityRef[]): boolean {
+  if (a.length !== b.length) return false;
+  const keysA = a.map(entityRefKey).sort();
+  const keysB = b.map(entityRefKey).sort();
+  return keysA.every((k, i) => k === keysB[i]);
+}
+
+function findRxGroupListByMembers(
+  memberRefs: EntityRef[],
+  rxGroupLists: RxGroupList[],
+): RxGroupList | null {
+  return rxGroupLists.find((rgl) => memberRefsSetEqual(rgl.memberRefs, memberRefs)) ?? null;
+}
+
+function digitalRfContextMatch(a: Channel, b: Channel): boolean {
+  if (a.colourCode !== b.colourCode) return false;
+  if (a.timeslot !== b.timeslot) return false;
+  return true;
+}
+
+/** Whether two single-mode DMR channels differ only by TX talk group. */
+export function channelsAreMultiTalkgroupMergeCandidates(
+  a: Channel,
+  b: Channel,
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+  options: ChannelMergeCandidateOptions = {},
+): boolean {
+  if (a.multiMode || b.multiMode) return false;
+  if (a.mode !== b.mode || !isDmrMode(a.mode)) return false;
+  const threshold = options.nameFuzzyThreshold ?? 0;
+  const stripTrailingModeLabel = options.stripTrailingModeLabel ?? false;
+  if (!channelFrequenciesMatchWithOptions(a, b, options)) return false;
+  if (!channelLocationsMatch(a, b)) return false;
+  if (!digitalRfContextMatch(a, b)) return false;
+
+  const refA = a.contactRef;
+  const refB = b.contactRef;
+  if (!refA || !refB || refA.kind !== 'talkGroup' || refB.kind !== 'talkGroup') return false;
+  if (entityRefsEqual(refA, refB)) return false;
+
+  const stem = stripTrailingModeLabel ? channelMergeNameStem : channelNameStem;
+  const stemA = channelTalkGroupStem(stem(a.name), talkGroups, contacts);
+  const stemB = channelTalkGroupStem(stem(b.name), talkGroups, contacts);
+  if (threshold <= 0) return stemA === stemB;
+  return levenshteinRatio(stemA, stemB) <= threshold;
+}
+
+export interface MergeChannelsToMultiTalkgroupOptions {
+  resultName?: string;
+  survivorId?: string;
+  talkGroups: TalkGroup[];
+  contacts: Contact[];
+  rxGroupLists: RxGroupList[];
+}
+
+/** Merge N same-site DMR channels (distinct TX talk groups) into one logical channel + RGL. */
+export function mergeChannelsToMultiTalkgroup(
+  sources: Channel[],
+  options: MergeChannelsToMultiTalkgroupOptions,
+): { channel: Channel; rxGroupLists: RxGroupList[] } {
+  if (sources.length < 2) {
+    throw new Error('mergeChannelsToMultiTalkgroup requires at least two source channels');
+  }
+
+  const primary = sources[0];
+  const memberRefs: EntityRef[] = [];
+  const seen = new Set<string>();
+  for (const ch of sources) {
+    const ref = ch.contactRef;
+    if (ref?.kind === 'talkGroup') {
+      const key = entityRefKey(ref);
+      if (!seen.has(key)) {
+        seen.add(key);
+        memberRefs.push(ref);
+      }
+    }
+  }
+
+  const stem =
+    options.resultName ?? channelTalkGroupStem(primary.name, options.talkGroups, options.contacts);
+
+  let rxGroupLists = [...options.rxGroupLists];
+  const existing = findRxGroupListByMembers(memberRefs, rxGroupLists);
+  let rxGroupListId: string;
+  if (existing) {
+    rxGroupListId = existing.id;
+  } else {
+    const newList: RxGroupList = { id: newId(), name: stem, memberRefs };
+    rxGroupLists = [...rxGroupLists, newList];
+    rxGroupListId = newList.id;
+  }
+
+  const channel: Channel = {
+    ...primary,
+    id: options.survivorId ?? primary.id,
+    name: stem,
+    contactRef: null,
+    rxGroupListId,
+  };
+
+  return { channel, rxGroupLists };
+}
+
+function canMergeMultiTalkgroupPair(
+  a: Channel,
+  b: Channel,
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+): boolean {
+  return channelsAreMultiTalkgroupMergeCandidates(a, b, talkGroups, contacts, {
+    nameFuzzyThreshold: 0,
+  });
+}
+
+function mergeMultiTalkgroupGroup(
+  sources: Channel[],
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+  rxGroupLists: RxGroupList[],
+): { channel: Channel; rxGroupLists: RxGroupList[] } {
+  return mergeChannelsToMultiTalkgroup(sources, {
+    survivorId: sources[0].id,
+    talkGroups,
+    contacts,
+    rxGroupLists,
+  });
+}
+
+/** Best-effort collapse of flat per-TG import rows into logical channels + RGL. */
+export function mergeImportChannelsMultiTalkgroupBestEffort(
+  channels: Channel[],
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+  rxGroupLists: RxGroupList[],
+): MergeImportMultiTalkgroupResult {
+  const merged: MergeImportChannelsResult['merged'] = [];
+  const used = new Set<string>();
+  const result: Channel[] = [];
+  let lists = [...rxGroupLists];
+
+  for (let i = 0; i < channels.length; i++) {
+    if (used.has(channels[i].id)) continue;
+
+    const group: Channel[] = [channels[i]];
+    used.add(channels[i].id);
+
+    for (let j = i + 1; j < channels.length; j++) {
+      if (used.has(channels[j].id)) continue;
+      const matchesAll = group.every((member) =>
+        canMergeMultiTalkgroupPair(member, channels[j], talkGroups, contacts),
+      );
+      if (matchesAll) {
+        group.push(channels[j]);
+        used.add(channels[j].id);
+      }
+    }
+
+    if (group.length >= 2) {
+      const { channel, rxGroupLists: nextLists } = mergeMultiTalkgroupGroup(
+        group,
+        talkGroups,
+        contacts,
+        lists,
+      );
+      lists = nextLists;
+      merged.push({
+        sourceNames: group.map((ch) => ch.name),
+        resultName: channel.name,
+      });
+      result.push(channel);
+    } else {
+      result.push(channels[i]);
+    }
+  }
+
+  return { channels: result, merged, rxGroupLists: lists };
 }
 
 /** Mode display labels longest-first for trailing suffix stripping. */
