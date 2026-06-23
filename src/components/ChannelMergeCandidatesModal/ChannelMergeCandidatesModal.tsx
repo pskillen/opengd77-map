@@ -169,11 +169,7 @@ export default function ChannelMergeCandidatesModal({
                 ) : null}
 
                 {sources.map((ch) => (
-                  <SourceChannelSummary
-                    key={ch.id}
-                    channel={ch}
-                    codeplug={displayCodeplug}
-                  />
+                  <SourceChannelSummary key={ch.id} channel={ch} codeplug={displayCodeplug} />
                 ))}
 
                 {isActionable && !merged ? (
@@ -199,10 +195,7 @@ export default function ChannelMergeCandidatesModal({
 
                 {isActionable ? (
                   <Group justify="flex-end">
-                    <Button
-                      onClick={() => handleMergeOne(group)}
-                      disabled={merged || hasErrors}
-                    >
+                    <Button onClick={() => handleMergeOne(group)} disabled={merged || hasErrors}>
                       {merged ? 'Merged' : 'Merge'}
                     </Button>
                   </Group>
