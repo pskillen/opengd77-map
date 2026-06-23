@@ -8,7 +8,7 @@
 | Slice | Status | Notes |
 | --- | --- | --- |
 | 1 Core DataTable | Complete | Mantine Table extension; tests + styleguide |
-| 2 Simple entity lists | Pending | |
+| 2 Simple entity lists | Complete | Search in table toolbar; `?q=` preserved |
 | 3 Embedded detail tables | Pending | |
 | 4 Channels + section nav | Pending | |
 | 5 Documentation | Pending | |

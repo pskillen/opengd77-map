@@ -5,22 +5,26 @@ import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts
 import {
   channelsWithRxGroupListId,
   formatReferenceCount,
-  sortByName,
 } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 
 export default function RxGroupListsList() {
   const { codeplug } = useCodeplug();
   const { channels, rxGroupLists } = codeplug;
-  const { nameFilter } = useListNameQuery();
-  const sorted = useMemo(() => {
-    return filterRowsByName(sortByName(rxGroupLists), nameFilter, (r) => r.name);
+  const { nameFilter, setNameFilter } = useListNameQuery();
+  const filtered = useMemo(() => {
+    return filterRowsByName(rxGroupLists, nameFilter, (r) => r.name);
   }, [rxGroupLists, nameFilter]);
 
   return (
     <ListPage title="RX Group Lists">
       <DataTable
-        rows={sorted}
+        variant="list"
+        rows={filtered}
+        totalRowCount={rxGroupLists.length}
+        search={nameFilter}
+        onSearchChange={setNameFilter}
+        searchPlaceholder="Filter name…"
         rowKey={(r) => r.id}
         nameColumn={{
           getName: (r) => r.name,
@@ -31,11 +35,13 @@ export default function RxGroupListsList() {
             key: 'members',
             header: 'Members',
             render: (r) => formatReferenceCount(getMemberWireNames(r).length),
+            sortValue: (r) => getMemberWireNames(r).length,
           },
           {
             key: 'channels',
             header: 'Channels using',
             render: (r) => formatReferenceCount(channelsWithRxGroupListId(r.id, channels).length),
+            sortValue: (r) => channelsWithRxGroupListId(r.id, channels).length,
           },
         ]}
       />

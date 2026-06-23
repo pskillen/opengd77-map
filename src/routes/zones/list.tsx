@@ -4,7 +4,6 @@ import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import { DataTable, ListPage } from '../../components/ui/index.ts';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import { filterRowsByName, useListNameQuery } from '../../hooks/useListNameQuery.ts';
-import { sortByName } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 import { useOperatorPosition } from '../../state/operatorPosition.tsx';
 
@@ -12,16 +11,21 @@ export default function ZonesList() {
   const { codeplug } = useCodeplug();
   const { channels, zones } = codeplug;
   const { position, setPosition, clearPosition } = useOperatorPosition();
-  const { nameFilter } = useListNameQuery();
-  const sorted = useMemo(() => {
-    return filterRowsByName(sortByName(zones), nameFilter, (z) => z.name);
+  const { nameFilter, setNameFilter } = useListNameQuery();
+  const filtered = useMemo(() => {
+    return filterRowsByName(zones, nameFilter, (z) => z.name);
   }, [zones, nameFilter]);
 
   return (
     <ListPage title="Zones">
       <Stack gap="lg">
         <DataTable
-          rows={sorted}
+          variant="list"
+          rows={filtered}
+          totalRowCount={zones.length}
+          search={nameFilter}
+          onSearchChange={setNameFilter}
+          searchPlaceholder="Filter name…"
           rowKey={(z) => z.id}
           nameColumn={{
             getName: (z) => z.name,
@@ -32,6 +36,7 @@ export default function ZonesList() {
               key: 'members',
               header: 'Members',
               render: (z) => z.memberChannelIds.length,
+              sortValue: (z) => z.memberChannelIds.length,
             },
           ]}
         />
