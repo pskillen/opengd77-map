@@ -25,6 +25,12 @@ function isOpenGd77HeaderOnlyFile(fileName: string, headers: string[]): boolean 
   return headerKey === DTMF_HEADERS.join(',') || headerKey === APRS_HEADERS.join(',');
 }
 
+/** DM32 Scan.csv and DMR-ID.csv are deferred — skip on import. */
+function isDm32SkippedFile(fileName: string): boolean {
+  const lower = fileName.toLowerCase();
+  return lower === 'scan.csv' || lower.includes('scanlist') || lower === 'dmr-id.csv';
+}
+
 function parseEntity(
   adapter: ReturnType<typeof getImportAdapter>,
   kind: ImportEntityKind,
@@ -46,6 +52,18 @@ function parseEntity(
       }
       const parsed = adapter.parseContacts(text, ctx);
       return { contacts: parsed.contacts, talkGroups: parsed.talkGroups };
+    }
+    case 'talkGroups': {
+      if (!adapter.parseTalkGroups) {
+        throw new Error('Adapter does not support talk group import');
+      }
+      return { talkGroups: adapter.parseTalkGroups(text, ctx) };
+    }
+    case 'dtmfContacts': {
+      if (!adapter.parseDtmfContacts) {
+        throw new Error('Adapter does not support DTMF contact import');
+      }
+      return { contacts: adapter.parseDtmfContacts(text, ctx) };
     }
     case 'rxGroupLists': {
       if (!adapter.parseRxGroupLists) {
@@ -146,6 +164,13 @@ export async function importFiles(
         });
         continue;
       }
+      if (strictFormat && adapter.id === 'dm32' && isDm32SkippedFile(fileName)) {
+        result.skipped.push({
+          fileName,
+          message: 'Deferred CPS file not imported into codeplug',
+        });
+        continue;
+      }
       if (strictFormat) {
         result.errors.push({ fileName, message });
       } else {
@@ -166,8 +191,12 @@ export async function importFiles(
       const parsed = parseEntity(adapter, kind, text, parseCtx);
       if (parsed.channels !== undefined) result.channels = parsed.channels;
       if (parsed.zones !== undefined) result.zones = parsed.zones;
-      if (parsed.contacts !== undefined) result.contacts = parsed.contacts;
-      if (parsed.talkGroups !== undefined) result.talkGroups = parsed.talkGroups;
+      if (parsed.contacts !== undefined) {
+        result.contacts = [...(result.contacts ?? []), ...parsed.contacts];
+      }
+      if (parsed.talkGroups !== undefined) {
+        result.talkGroups = [...(result.talkGroups ?? []), ...parsed.talkGroups];
+      }
       if (parsed.rxGroupLists !== undefined) result.rxGroupLists = parsed.rxGroupLists;
       result.recognised.push(fileName);
     } catch (err) {

@@ -25,6 +25,8 @@ export interface ImportAdapter {
     text: string,
     ctx?: ImportParseContext,
   ): { contacts: Contact[]; talkGroups: TalkGroup[] };
+  parseTalkGroups?(text: string, ctx?: ImportParseContext): TalkGroup[];
+  parseDtmfContacts?(text: string, ctx?: ImportParseContext): Contact[];
   parseRxGroupLists?(text: string, ctx?: ImportParseContext): ParsedRxGroupList[];
 }
 
