@@ -88,6 +88,7 @@ export default function ZoneDetail() {
         <Stack gap="sm">
           <Title order={3}>Member channels</Title>
           <DataTable
+            variant="embedded"
             rows={members}
             rowKey={(ch) => ch.id}
             nameColumn={{
@@ -95,12 +96,18 @@ export default function ZoneDetail() {
               getPath: (ch) => `/channels/${ch.id}`,
             }}
             columns={[
-              { key: 'mode', header: 'Mode', render: (ch) => modeLabel(ch.mode) },
+              {
+                key: 'mode',
+                header: 'Mode',
+                render: (ch) => modeLabel(ch.mode),
+                sortValue: (ch) => modeLabel(ch.mode),
+              },
               {
                 key: 'rx',
                 header: 'RX MHz',
                 render: (ch) =>
                   ch.rxFrequency ? formatFrequencyHz(ch.rxFrequency).replace(' MHz', '') : '—',
+                sortValue: (ch) => ch.rxFrequency,
               },
             ]}
           />

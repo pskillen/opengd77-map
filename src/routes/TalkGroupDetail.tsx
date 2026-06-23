@@ -113,6 +113,7 @@ export default function TalkGroupDetail() {
             </Text>
           ) : (
             <DataTable
+              variant="embedded"
               rows={usingChannels}
               rowKey={(ch) => ch.id}
               nameColumn={{
@@ -120,12 +121,18 @@ export default function TalkGroupDetail() {
                 getPath: (ch) => `/channels/${ch.id}`,
               }}
               columns={[
-                { key: 'mode', header: 'Mode', render: (ch) => modeLabel(ch.mode) },
+                {
+                  key: 'mode',
+                  header: 'Mode',
+                  render: (ch) => modeLabel(ch.mode),
+                  sortValue: (ch) => modeLabel(ch.mode),
+                },
                 {
                   key: 'rx',
                   header: 'RX MHz',
                   render: (ch) =>
                     ch.rxFrequency ? formatFrequencyHz(ch.rxFrequency).replace(' MHz', '') : '—',
+                  sortValue: (ch) => ch.rxFrequency,
                 },
               ]}
             />
@@ -140,6 +147,7 @@ export default function TalkGroupDetail() {
             </Text>
           ) : (
             <DataTable
+              variant="embedded"
               rows={usingLists}
               rowKey={(rgl) => rgl.id}
               nameColumn={{
@@ -151,6 +159,7 @@ export default function TalkGroupDetail() {
                   key: 'members',
                   header: 'Members',
                   render: (rgl) => formatReferenceCount(getMemberWireNames(rgl).length),
+                  sortValue: (rgl) => getMemberWireNames(rgl).length,
                 },
               ]}
             />

@@ -91,6 +91,7 @@ export default function RxGroupListDetail() {
         <Stack gap="sm">
           <Title order={3}>Members</Title>
           <DataTable
+            variant="embedded"
             rows={members}
             rowKey={(m) => m.name}
             nameColumn={{
@@ -124,6 +125,7 @@ export default function RxGroupListDetail() {
                     </Badge>
                   );
                 },
+                sortValue: (m) => m.kind,
               },
             ]}
           />
@@ -137,6 +139,7 @@ export default function RxGroupListDetail() {
             </Text>
           ) : (
             <DataTable
+              variant="embedded"
               rows={usingChannels}
               rowKey={(ch) => ch.id}
               nameColumn={{
@@ -148,8 +151,14 @@ export default function RxGroupListDetail() {
                   key: 'band',
                   header: 'Band',
                   render: (ch) => <BandPillForChannel channel={ch} />,
+                  sortValue: (ch) => ch.rxFrequency ?? 0,
                 },
-                { key: 'mode', header: 'Mode', render: (ch) => <ModePill mode={ch.mode} /> },
+                {
+                  key: 'mode',
+                  header: 'Mode',
+                  render: (ch) => <ModePill mode={ch.mode} />,
+                  sortValue: (ch) => ch.mode,
+                },
               ]}
             />
           )}
