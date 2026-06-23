@@ -15,7 +15,16 @@ Implementation: `formatFrequencyMhz()` in `src/lib/formatFrequency.ts`.
 
 ## Bands
 
-UK amateur band pills use definitions in [bands.md](./bands.md). When RX and TX fall on different bands, show one pill per band (split operation).
+Band pills use definitions in [bands.md](./bands.md). Lookup covers UK amateur allocations and common non-amateur receive services (broadcast, airband, marine, PMR446).
+
+| Category | Pill style | When shown |
+| --- | --- | --- |
+| Amateur (`amateur`) | Solid fill, white label text | Frequency in an Ofcom amateur allocation |
+| Non-amateur (`broadcast`, `airband`, `marine`, `pmr`) | Outline, coloured border and label | Frequency in a documented service range |
+
+When RX and TX fall on different bands, show one pill per band (split operation). Unknown frequency: no pill.
+
+**Disambiguation:** broadcast LW (148.5–285 kHz) and amateur 136 kHz (135.7–137.8 kHz) use different IDs and colours — see the disambiguation table in [bands.md](./bands.md).
 
 ## Channel modes
 

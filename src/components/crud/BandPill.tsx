@@ -1,5 +1,5 @@
 import { Badge, Group } from '@mantine/core';
-import { bandsFromFrequencies, type BandDefinition } from '../../lib/bands.ts';
+import { bandsFromFrequencies, isAmateurBand, type BandDefinition } from '../../lib/bands.ts';
 import type { Channel } from '../../models/codeplug.ts';
 
 export interface BandPillProps {
@@ -9,8 +9,25 @@ export interface BandPillProps {
 
 export default function BandPill({ band, size = 'sm' }: BandPillProps) {
   if (!band) return null;
+
+  if (isAmateurBand(band)) {
+    return (
+      <Badge size={size} style={{ backgroundColor: band.color, color: '#fff' }}>
+        {band.label}
+      </Badge>
+    );
+  }
+
   return (
-    <Badge size={size} style={{ backgroundColor: band.color, color: '#fff' }}>
+    <Badge
+      size={size}
+      variant="outline"
+      style={{
+        borderColor: band.color,
+        color: band.color,
+        backgroundColor: `${band.color}18`,
+      }}
+    >
       {band.label}
     </Badge>
   );

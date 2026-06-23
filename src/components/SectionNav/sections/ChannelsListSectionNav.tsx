@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import ChannelMergeCandidatesModal from '../../ChannelMergeCandidatesModal/ChannelMergeCandidatesModal.tsx';
 import UseMyLocationButton from '../../UseMyLocationButton/UseMyLocationButton.tsx';
 import { DISTANCE_FILTER_MARKS_KM } from '../../../lib/channels.ts';
-import { bandsFromFrequencies, UK_BANDS } from '../../../lib/bands.ts';
+import { ALL_BANDS, bandsFromFrequencies } from '../../../lib/bands.ts';
 import { modeFilterOptions } from '../../../lib/channelModes.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../../lib/iconSizes.ts';
 import { CHANNEL_OPTIONAL_COLUMNS } from '../../../hooks/channelListQueryUtils.ts';
@@ -34,7 +34,7 @@ export default function ChannelsListSectionNav({ variant }: SectionNavProps) {
         ids.add(band.id);
       }
     }
-    return UK_BANDS.filter((b) => ids.has(b.id)).map((b) => ({ value: b.id, label: b.label }));
+    return ALL_BANDS.filter((b) => ids.has(b.id)).map((b) => ({ value: b.id, label: b.label }));
   }, [channels]);
 
   const distanceSortPending = query.sortMode === 'distance' && !position;

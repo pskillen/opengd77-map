@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Displays a coloured pill for a UK amateur band derived from channel RX/TX frequency.
+Displays a coloured pill for a band or receive service derived from channel RX/TX frequency. Amateur bands use solid fill; non-amateur services (broadcast, airband, marine, PMR446) use outline styling.
 
 ## Props — `BandPill`
 

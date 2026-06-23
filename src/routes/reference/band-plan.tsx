@@ -12,7 +12,9 @@ export default function BandPlan() {
         title="Band plan"
         description={
           <>
-            UK Ofcom licence allocation ranges (not RSGB sub-band usage segments). Source:{' '}
+            UK Ofcom amateur licence allocations plus common non-amateur receive services
+            (broadcast, airband, marine, PMR446). Amateur ranges are licence allocations, not RSGB
+            sub-band usage segments. Source:{' '}
             <Anchor href={RSGB_BAND_PLAN_URL} target="_blank" rel="noopener noreferrer">
               RSGB Band Plan (effective 1 Jan 2024)
             </Anchor>
@@ -25,7 +27,7 @@ export default function BandPlan() {
         <BandPlanTable />
         <Alert color="gray" variant="light" mt="md">
           For programming convenience only. Not authoritative for on-air operation. Licence class,
-          power, and geographic restrictions apply.
+          power, geographic restrictions, and non-amateur TX prohibitions apply.
         </Alert>
       </PageSection>
     </Page>

@@ -20,7 +20,7 @@ Agent skills for documentation and execution tracking:
 | Report | `src/routes/`, `src/components/report/` | [report/](report/) | Shipped ([#6](https://github.com/pskillen/codeplug-tool/issues/6)) |
 | CRUD | `src/routes/channels/`, `src/routes/zones/`, `src/lib/codeplugMutations.ts` | [crud/](crud/) | In progress ([#11](https://github.com/pskillen/codeplug-tool/issues/11), [#12](https://github.com/pskillen/codeplug-tool/issues/12)) |
 | Maidenhead | `src/lib/maidenhead.ts`, `src/routes/reference/maidenhead.tsx` | [maidenhead.md](maidenhead.md) | Shipped ([#11](https://github.com/pskillen/codeplug-tool/issues/11) CRUD, [#47](https://github.com/pskillen/codeplug-tool/issues/47) converter) |
-| Reference | `src/routes/reference/` | [reference/bands.md](../reference/bands.md) | Shipped ([#44](https://github.com/pskillen/codeplug-tool/issues/44)) |
+| Reference | `src/routes/reference/` | [reference/bands.md](../reference/bands.md) | Shipped ([#44](https://github.com/pskillen/codeplug-tool/issues/44), [#139](https://github.com/pskillen/codeplug-tool/issues/139) non-amateur services) |
 | UI (icons) | `src/lib/iconSizes.ts`, routes/components | [ui/](ui/) | Shipped ([#64](https://github.com/pskillen/codeplug-tool/issues/64)) |
 | UI (two-section nav) | `src/components/AppNav/`, `src/components/SectionNav/`, `src/nav/` | [ui/nav-progress.md](ui/nav-progress.md) | Shipped ([#81](https://github.com/pskillen/codeplug-tool/issues/81)) |
 | UI (component kit) | `src/components/ui/` | [ui/component-kit-progress.md](ui/component-kit-progress.md) | Shipped ([#105](https://github.com/pskillen/codeplug-tool/issues/105)) |
@@ -31,7 +31,7 @@ Agent skills for documentation and execution tracking:
 
 | Topic | Docs |
 | --- | --- |
-| UK amateur bands | [reference/bands.md](../reference/bands.md) |
+| UK bands and receive services | [reference/bands.md](../reference/bands.md) — amateur allocations + broadcast, airband, marine, PMR446 |
 | Channel modes | [reference/channel-modes.md](../reference/channel-modes.md) |
 | OpenGD77 CPS CSV (one format of several) | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + per-radio [variant profiles](../reference/opengd77/radios/README.md) |
 | CHIRP CSV (analogue FM/AM) | [reference/chirp/](../reference/chirp/README.md) — shipped ([#103](https://github.com/pskillen/codeplug-tool/issues/103)) |
