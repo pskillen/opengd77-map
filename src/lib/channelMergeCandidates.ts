@@ -52,13 +52,63 @@ export interface ChannelMergeApplyReport {
 }
 
 const DEFAULT_NAME_FUZZY_THRESHOLD = 0.15;
-const MERGE_CANDIDATE_MATCH_OPTIONS: ChannelMergeCandidateOptions = {
-  stripTrailingModeLabel: true,
-};
+const MERGE_NAME_THRESHOLD_MIN = 0;
+const MERGE_NAME_THRESHOLD_MAX = 0.35;
 
-function freqKey(ch: Channel): string | null {
-  if (ch.rxFrequency == null || ch.txFrequency == null) return null;
-  return `${ch.rxFrequency}:${ch.txFrequency}`;
+const MERGE_CANDIDATE_MATCH_OPTIONS: Pick<ChannelMergeCandidateOptions, 'stripTrailingModeLabel'> =
+  {
+    stripTrailingModeLabel: true,
+  };
+
+/** Ephemeral find settings for one merge-modal session. */
+export interface ChannelMergeFindSettings {
+  nameFuzzyThreshold: number;
+  matchRxFrequency: boolean;
+  matchTxFrequency: boolean;
+}
+
+export function defaultChannelMergeFindSettings(): ChannelMergeFindSettings {
+  return {
+    nameFuzzyThreshold: DEFAULT_NAME_FUZZY_THRESHOLD,
+    matchRxFrequency: true,
+    matchTxFrequency: true,
+  };
+}
+
+/** Map slider position 0–100 to name fuzzy threshold (no numeric labels in UI). */
+export function nameSimilaritySliderToThreshold(slider: number): number {
+  const t = slider / 100;
+  return MERGE_NAME_THRESHOLD_MIN + t * (MERGE_NAME_THRESHOLD_MAX - MERGE_NAME_THRESHOLD_MIN);
+}
+
+export function nameSimilarityThresholdToSlider(threshold: number): number {
+  const span = MERGE_NAME_THRESHOLD_MAX - MERGE_NAME_THRESHOLD_MIN;
+  if (span <= 0) return 0;
+  return Math.round(((threshold - MERGE_NAME_THRESHOLD_MIN) / span) * 100);
+}
+
+function findOptionsFromSettings(settings: ChannelMergeFindSettings): ChannelMergeCandidateOptions {
+  return {
+    nameFuzzyThreshold: settings.nameFuzzyThreshold,
+    matchRxFrequency: settings.matchRxFrequency,
+    matchTxFrequency: settings.matchTxFrequency,
+    ...MERGE_CANDIDATE_MATCH_OPTIONS,
+  };
+}
+
+function bucketKey(ch: Channel, settings: ChannelMergeFindSettings): string | null {
+  const { matchRxFrequency, matchTxFrequency } = settings;
+  if (!matchRxFrequency && !matchTxFrequency) return 'all';
+  if (matchRxFrequency && matchTxFrequency) {
+    if (ch.rxFrequency == null || ch.txFrequency == null) return null;
+    return `${ch.rxFrequency}:${ch.txFrequency}`;
+  }
+  if (matchRxFrequency) {
+    if (ch.rxFrequency == null) return null;
+    return `rx:${ch.rxFrequency}`;
+  }
+  if (ch.txFrequency == null) return null;
+  return `tx:${ch.txFrequency}`;
 }
 
 function stemsAreCompatible(stems: string[], threshold: number): boolean {
@@ -103,7 +153,11 @@ function classifyGroup(channels: Channel[]): {
   return { mergeKind: 'multiMode' };
 }
 
-function buildGroupsInBucket(bucket: Channel[], threshold: number): ChannelMergeCandidateGroup[] {
+function buildGroupsInBucket(
+  bucket: Channel[],
+  options: ChannelMergeCandidateOptions,
+): ChannelMergeCandidateGroup[] {
+  const threshold = options.nameFuzzyThreshold ?? DEFAULT_NAME_FUZZY_THRESHOLD;
   const groups: ChannelMergeCandidateGroup[] = [];
   const used = new Set<string>();
 
@@ -116,10 +170,7 @@ function buildGroupsInBucket(bucket: Channel[], threshold: number): ChannelMerge
     for (const candidate of bucket) {
       if (used.has(candidate.id)) continue;
       const matchesAll = members.every((member) =>
-        channelsAreMultiModeMergeCandidates(member, candidate, {
-          nameFuzzyThreshold: threshold,
-          ...MERGE_CANDIDATE_MATCH_OPTIONS,
-        }),
+        channelsAreMultiModeMergeCandidates(member, candidate, options),
       );
       if (matchesAll) {
         members.push(candidate);
@@ -152,24 +203,24 @@ function buildGroupsInBucket(bucket: Channel[], threshold: number): ChannelMerge
 /** Scan active channels for post-hoc multi-mode merge candidate groups. */
 export function findChannelMergeCandidates(
   codeplug: Codeplug,
-  options: ChannelMergeCandidateOptions = {},
+  settings: ChannelMergeFindSettings = defaultChannelMergeFindSettings(),
 ): ChannelMergeCandidateGroup[] {
-  const threshold = options.nameFuzzyThreshold ?? DEFAULT_NAME_FUZZY_THRESHOLD;
+  const options = findOptionsFromSettings(settings);
   const eligible = codeplug.channels.filter((ch) => !ch.multiMode);
-  const byFreq = new Map<string, Channel[]>();
+  const byBucket = new Map<string, Channel[]>();
 
   for (const ch of eligible) {
-    const key = freqKey(ch);
+    const key = bucketKey(ch, settings);
     if (key == null) continue;
-    const bucket = byFreq.get(key) ?? [];
+    const bucket = byBucket.get(key) ?? [];
     bucket.push(ch);
-    byFreq.set(key, bucket);
+    byBucket.set(key, bucket);
   }
 
   const groups: ChannelMergeCandidateGroup[] = [];
-  for (const bucket of byFreq.values()) {
+  for (const bucket of byBucket.values()) {
     if (bucket.length < 2) continue;
-    groups.push(...buildGroupsInBucket(bucket, threshold));
+    groups.push(...buildGroupsInBucket(bucket, options));
   }
 
   return groups.sort((a, b) => a.suggestedName.localeCompare(b.suggestedName));

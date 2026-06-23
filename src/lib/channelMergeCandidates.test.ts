@@ -3,6 +3,7 @@ import { buildChannel, buildCodeplug, buildZone } from '../test/builders/codeplu
 import {
   applyChannelMerges,
   findChannelMergeCandidates,
+  nameSimilaritySliderToThreshold,
   previewChannelMerges,
   type ChannelMergeSelection,
 } from './channelMergeCandidates.ts';
@@ -109,6 +110,38 @@ describe('channelMergeCandidates', () => {
     });
     const groups = findChannelMergeCandidates(buildCodeplug({ channels: [a, b] }));
     expect(groups).toHaveLength(0);
+  });
+
+  it('findChannelMergeCandidates pairs FM+DMR when only RX must match', () => {
+    const dmr = buildChannel({
+      id: 'dmr',
+      name: 'FIRE Repeaters/P',
+      mode: 'dmr',
+      rxFrequency: 462_587_500,
+      txFrequency: 457_037_500,
+    });
+    const fm = buildChannel({
+      id: 'fm',
+      name: 'FIRE Repeaters-F',
+      mode: 'fm',
+      rxFrequency: 462_587_500,
+      txFrequency: 462_587_500,
+    });
+    const strict = findChannelMergeCandidates(buildCodeplug({ channels: [dmr, fm] }));
+    expect(strict).toHaveLength(0);
+
+    const rxOnly = findChannelMergeCandidates(buildCodeplug({ channels: [dmr, fm] }), {
+      nameFuzzyThreshold: 0.15,
+      matchRxFrequency: true,
+      matchTxFrequency: false,
+    });
+    expect(rxOnly).toHaveLength(1);
+    expect(rxOnly[0].mergeKind).toBe('multiMode');
+  });
+
+  it('nameSimilaritySliderToThreshold maps slider ends', () => {
+    expect(nameSimilaritySliderToThreshold(0)).toBe(0);
+    expect(nameSimilaritySliderToThreshold(100)).toBe(0.35);
   });
 
   it('previewChannelMerges builds multi-mode survivor and zone impacts', () => {

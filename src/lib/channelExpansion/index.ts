@@ -281,10 +281,30 @@ export interface ChannelMergeCandidateOptions {
   nameFuzzyThreshold?: number;
   /** Strip trailing mode labels (` FM`, ` DMR`, …) when comparing stems. Default false. */
   stripTrailingModeLabel?: boolean;
+  /** Require equal RX frequency Hz. Default true. */
+  matchRxFrequency?: boolean;
+  /** Require equal TX frequency Hz. Default true. */
+  matchTxFrequency?: boolean;
 }
 
 export function channelFrequenciesMatch(a: Channel, b: Channel): boolean {
-  return a.rxFrequency === b.rxFrequency && a.txFrequency === b.txFrequency;
+  return channelFrequenciesMatchWithOptions(a, b, {
+    matchRxFrequency: true,
+    matchTxFrequency: true,
+  });
+}
+
+export function channelFrequenciesMatchWithOptions(
+  a: Channel,
+  b: Channel,
+  options: Pick<ChannelMergeCandidateOptions, 'matchRxFrequency' | 'matchTxFrequency'> = {},
+): boolean {
+  const matchRx = options.matchRxFrequency ?? true;
+  const matchTx = options.matchTxFrequency ?? true;
+  if (!matchRx && !matchTx) return true;
+  if (matchRx && a.rxFrequency !== b.rxFrequency) return false;
+  if (matchTx && a.txFrequency !== b.txFrequency) return false;
+  return true;
 }
 
 export function channelLocationsMatch(a: Channel, b: Channel): boolean {
@@ -316,7 +336,7 @@ export function channelsAreMultiModeMergeCandidates(
   const threshold = options.nameFuzzyThreshold ?? 0;
   const stripTrailingModeLabel = options.stripTrailingModeLabel ?? false;
   if (!channelNameStemsMatch(a, b, threshold, stripTrailingModeLabel)) return false;
-  if (!channelFrequenciesMatch(a, b)) return false;
+  if (!channelFrequenciesMatchWithOptions(a, b, options)) return false;
   if (!channelLocationsMatch(a, b)) return false;
   return true;
 }
