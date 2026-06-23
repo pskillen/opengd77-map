@@ -75,7 +75,7 @@ describe('reportLookup', () => {
       ],
     });
     const talkGroups = [buildTalkGroup({ id: 'tg1', name: 'Scotland', number: '950' })];
-    const contacts = [buildContact({ id: 'ct1', name: 'MM9PDY', number: '123' })];
+    const contacts = [buildContact({ id: 'ct1', name: 'MM9PDY', identifier: '123' })];
     const resolved = resolveRxGroupListMembers(rgl, talkGroups, contacts);
     expect(resolved.map((m) => m.kind)).toEqual(['talkGroup', 'contact', 'unresolved']);
   });
@@ -87,7 +87,7 @@ describe('reportLookup', () => {
       'Missing',
     ]);
     const talkGroups = [buildTalkGroup({ id: 'tg1', name: 'Scotland', number: '950' })];
-    const contacts = [buildContact({ id: 'ct1', name: 'MM9PDY', number: '123' })];
+    const contacts = [buildContact({ id: 'ct1', name: 'MM9PDY', identifier: '123' })];
     const resolved = resolveRxGroupListMembers(rgl, talkGroups, contacts);
     expect(resolved.map((m) => m.kind)).toEqual(['talkGroup', 'contact', 'unresolved']);
   });

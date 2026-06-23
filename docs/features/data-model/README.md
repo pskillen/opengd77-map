@@ -153,11 +153,14 @@ DMR group call.
 
 ### `Contact`
 
-DMR private call.
+DMR private call or DTMF signalling contact.
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `id`, `name`, `number`, `timeslotOverride` | | (`number` is the DMR ID) |
+| `id`, `name` | | |
+| `identifier` | `string` | DMR ID or DTMF code (wire string) |
+| `signalingMode` | `'dmr' \| 'dtmf'` | Signalling family — not RF channel mode |
+| `timeslotOverride` | `string` | Optional slot hint for vendor export |
 | `meta` | `EntityMeta` | Optional import provenance |
 
 ### `RxGroupList`
@@ -174,7 +177,7 @@ Named RX (receive) group list driving promiscuous receive. Members are ordered `
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (9) after migration |
+| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (10) after migration |
 | `importedAt` | `string \| null` | |
 | `sourceFiles` | `string[]` | |
 

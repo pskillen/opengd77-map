@@ -8,8 +8,10 @@
 | --- | --- | --- |
 | `src/test/opengd77/` | Yes | Synthetic bundles for system and component tests |
 | `src/test/chirp/` | Yes | Minimal CHIRP CSV bundles for parse/round-trip |
+| `src/test/dm32/` | Yes | Synthetic DM32 bundles + `testData.ts` loader |
 | `test-data/chirp/<version>/<radio>/` | Yes | Committed real CHIRP CPS exports for file-level system tests |
 | `test-data/opengd77/<cps-version>/` | Yes | Real OpenGD77 CPS export folders for file-level system tests |
+| `test-data/baofeng-dm32/<version>/` | Yes | Real DM32 CPS v1.60 export (operator layout; RGL wire normalised) |
 | `sample-exports/` | Mixed | Operator/manual testing — personal codeplugs stay gitignored; reference subsets (e.g. CHIRP samples from #101) may be committed for local realism |
 | `e2e/fixtures/` (future) | Yes when [#40](https://github.com/pskillen/codeplug-tool/issues/40) lands | Minimal bundle for Playwright import → export |
 
@@ -41,6 +43,15 @@ src/test/chirp/
 
 test-data/chirp/<version>/<radio>/
   *.csv            # real CHIRP memory exports (file-level system tests)
+```
+
+```
+src/test/dm32/
+  bundles.ts       # Synthetic strict round-trip bundle
+  testData.ts      # load committed test-data/baofeng-dm32 fixtures
+
+test-data/baofeng-dm32/v1.60/
+  Channels.csv … DTMFContacts.csv   # 6 in-scope files (+ Scan.csv, DMR-ID.csv deferred)
 ```
 
 Per-vendor layout as adapters grow:

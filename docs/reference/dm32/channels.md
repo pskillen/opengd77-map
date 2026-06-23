@@ -1,0 +1,66 @@
+# DM32 — Channels.csv
+
+Baofeng DM-32UV stock CPS `Channels.csv` (40 columns, v1.60). Cardinality and ladders: [radios/baofeng-dm32uv.md](radios/baofeng-dm32uv.md).
+
+**Code:** [`columns.ts`](../../../src/lib/import/dm32/columns.ts) · [`parse.ts`](../../../src/lib/import/dm32/parse.ts) · [`serialise.ts`](../../../src/lib/export/dm32/serialise.ts)
+
+## Required headers (app import)
+
+| Header | Reason |
+| --- | --- |
+| `Channel Name` | Identity; rows without a name are skipped |
+| `Channel Type` | Mode / dual-mode mapping |
+
+## Channel Type
+
+| Wire | Internal |
+| --- | --- |
+| `Analog` | `mode: fm`, `multiMode: false` |
+| `Digital` | `mode: dmr`, `multiMode: false` |
+| `Fixed Analog` | `multiMode: true`, primary TX analog (`fm` profile) |
+| `Fixed Digital` | `multiMode: true`, primary TX digital (`dmr` profile) |
+
+Some CPS builds spell analogue `Anlaog` — accept on import; export uses fixture spelling from model.
+
+## Column reference
+
+| Vendor header | Internal field | Import | Export | Round-trip | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `No.` | _(export only)_ | Ignored | Sequential `1…n` | **Excluded** | |
+| `Channel Name` | `Channel.name` | Trim | As stored | Yes | Case-sensitive FK |
+| `Channel Type` | `mode` / `multiMode` / `modeProfiles` | See above | From profiles | Yes | |
+| `RX Frequency[MHz]` | `rxFrequency` | MHz → Hz | Hz → MHz (5 dp) | Yes | |
+| `TX Frequency[MHz]` | `txFrequency` | MHz → Hz; empty → `null` | Hz → MHz or empty | Yes | RX-only airband |
+| `Power` | `power` | Wire → % via ladder | % → `High`/`Middle`/`Low` | Yes | |
+| `Band Width` | `bandwidthKHz` | `12.5KHz` → 12.5; `25KHz` → 25 | Reverse | Yes | |
+| `Scan List` | — | **Ignored** | `None` | **Lossy** — [#125](https://github.com/pskillen/codeplug-tool/issues/125) | |
+| `TX Admit` | `txAdmit` | Trim | As stored | Yes | `Channel Idle` / `Allow TX` |
+| `Emergency System` | — | Ignored | `None` | Constant default | |
+| `Squelch Level` | `squelch` | 0–9 → % via ladder | % → 0–9 | Yes | |
+| `APRS Report Type` | `aprsReportType` | Trim | As stored | Yes | `Off` / `Digital` |
+| `Forbid TX` | `forbidTransmit` | 0/1 | 0/1 | Yes | |
+| `APRS Receive` | `aprsReceiveEnabled` | 0/1 | 0/1 | Yes | |
+| `Forbid Talkaround` | `forbidTalkaround` | 0/1 | 0/1 | Yes | |
+| `Auto Scan` … `Digital APRS PTT Mode` | — | Ignored | Fixture defaults (`0`) | Constant | |
+| `TX Contact` | `contactRef` | Name → ref | Ref → name or `None` | Yes | FK → Talkgroups / Contacts |
+| `RX Group List` | `rxGroupListId` | Name or `ALL` → ref | Ref → name; `ALL` sentinel | Yes | See [multi-talkgroup.md](multi-talkgroup.md) |
+| `Color Code` | `colourCode` | Parse int | As string | Yes | `0` analogue |
+| `Time Slot` | `timeslot` | `Slot 1`/`Slot 2` → 1/2 | Reverse | Yes | |
+| `Encryption` / `Encryption ID` | — | Ignored | `0` / `None` | Constant | |
+| `APRS Report Channel` | `aprsReportChannel` | Parse int | As string | Yes | `1` digital; `256` analogue default |
+| `Direct Dual Mode` | `directDualMode` | 0/1 | 0/1 | Yes | |
+| `Private Confirm` / `Short Data Confirm` | — | Ignored | `0` | Constant | |
+| `DMR ID` | — | **Ignored** | Fixture default `Paddy MM7IGV` | **Lossy** | Accepted gap |
+| `CTC/DCS Decode` / `Encode` | `rxTone` / `txTone` | Wire → tone | Tone → wire | Yes | `None` when off |
+| `Scramble` … `PTT ID Display` | — | Ignored | Fixture defaults | Constant | |
+
+`Channel.callsign` is derived from the first word of `Channel Name` on import.
+
+## Export expansion (DM32 adapter)
+
+| Flag | Value | Reason |
+| --- | --- | --- |
+| `expandModes` | `false` | Native `Fixed Analog` / `Fixed Digital` on one row |
+| `expandRxGroupLists` | `true` with guards | Expand only merged logical channels; skip when TX contact + RGL both set; skip `ALL` list |
+
+See [multi-mode.md](multi-mode.md) and [multi-talkgroup.md](multi-talkgroup.md).

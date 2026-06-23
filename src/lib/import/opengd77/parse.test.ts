@@ -168,7 +168,8 @@ Scotland TS1,2355,Group,1`;
     expect(contacts[0]).toMatchObject({
       id: 'c-2',
       name: 'Parrot 9990',
-      number: '9990',
+      identifier: '9990',
+      signalingMode: 'dmr',
     });
   });
 

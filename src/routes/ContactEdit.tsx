@@ -10,17 +10,18 @@ import type { Contact } from '../models/codeplug.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
 
-type FormValues = Pick<Contact, 'name' | 'number' | 'timeslotOverride'>;
+type FormValues = Pick<Contact, 'name' | 'identifier' | 'signalingMode' | 'timeslotOverride'>;
 
 function emptyForm(): FormValues {
-  return { name: '', number: '', timeslotOverride: '' };
+  return { name: '', identifier: '', signalingMode: 'dmr', timeslotOverride: '' };
 }
 
 function contactToForm(contact: Contact): FormValues {
   return {
     name: contact.name,
-    number: contact.number,
-    timeslotOverride: contact.timeslotOverride,
+    identifier: contact.identifier,
+    signalingMode: contact.signalingMode,
+    timeslotOverride: contact.timeslotOverride ?? '',
   };
 }
 
@@ -57,10 +58,12 @@ export default function ContactEdit() {
     e.preventDefault();
     setFormError(null);
 
+    const ts = values.timeslotOverride?.trim() ?? '';
     const input = {
       name: values.name.trim(),
-      number: values.number.trim(),
-      timeslotOverride: values.timeslotOverride.trim(),
+      identifier: values.identifier.trim(),
+      signalingMode: values.signalingMode,
+      ...(ts !== '' ? { timeslotOverride: ts } : {}),
     };
 
     const issues = validateContact(input, codeplug, existing?.id);
@@ -122,14 +125,14 @@ export default function ContactEdit() {
             onChange={(e) => set('name', e.currentTarget.value)}
           />
           <TextInput
-            label="DMR ID"
-            value={values.number}
-            onChange={(e) => set('number', e.currentTarget.value)}
+            label={values.signalingMode === 'dtmf' ? 'DTMF code' : 'DMR ID'}
+            value={values.identifier}
+            onChange={(e) => set('identifier', e.currentTarget.value)}
           />
           <TextInput
             label="Timeslot override"
             description="Optional slot hint for vendor export"
-            value={values.timeslotOverride}
+            value={values.timeslotOverride ?? ''}
             onChange={(e) => set('timeslotOverride', e.currentTarget.value)}
           />
         </FormSection>

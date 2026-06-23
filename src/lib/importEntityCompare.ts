@@ -84,7 +84,12 @@ export function memberNamesEqual(a: string[], b: string[]): boolean {
 }
 
 export function contactsImportEqual(a: Contact, b: Contact): boolean {
-  return a.name === b.name && a.number === b.number && a.timeslotOverride === b.timeslotOverride;
+  return (
+    a.name === b.name &&
+    a.identifier === b.identifier &&
+    a.signalingMode === b.signalingMode &&
+    (a.timeslotOverride ?? '') === (b.timeslotOverride ?? '')
+  );
 }
 
 export function talkGroupsImportEqual(a: TalkGroup, b: TalkGroup): boolean {

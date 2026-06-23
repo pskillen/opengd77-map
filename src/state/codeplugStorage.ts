@@ -227,13 +227,26 @@ function migrateRxGroupLists(
   return [];
 }
 
-function migrateContact(raw: Partial<Contact>): Contact {
+function migrateContact(raw: Record<string, unknown>): Contact {
+  const legacy = raw as Partial<Contact> & { number?: string };
+  const identifier =
+    typeof legacy.identifier === 'string'
+      ? legacy.identifier
+      : typeof legacy.number === 'string'
+        ? legacy.number
+        : '';
+  const timeslotOverride =
+    typeof legacy.timeslotOverride === 'string' && legacy.timeslotOverride.trim() !== ''
+      ? legacy.timeslotOverride
+      : undefined;
+  const signalingMode: Contact['signalingMode'] = legacy.signalingMode === 'dtmf' ? 'dtmf' : 'dmr';
   return {
-    id: raw.id ?? '',
-    name: raw.name ?? '',
-    number: raw.number ?? '',
-    timeslotOverride: raw.timeslotOverride ?? '',
-    meta: raw.meta,
+    id: legacy.id ?? '',
+    name: legacy.name ?? '',
+    identifier,
+    signalingMode,
+    ...(timeslotOverride !== undefined ? { timeslotOverride } : {}),
+    meta: legacy.meta,
   };
 }
 
@@ -243,6 +256,7 @@ function migrateTalkGroup(raw: Partial<TalkGroup>): TalkGroup {
     name: raw.name ?? '',
     number: raw.number ?? '',
     timeslotOverride: raw.timeslotOverride ?? '',
+    callType: raw.callType ?? 'group',
     meta: raw.meta,
   };
 }
@@ -267,7 +281,7 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
     ? (raw.talkGroups as Partial<TalkGroup>[]).map(migrateTalkGroup)
     : [];
   const contacts = Array.isArray(raw.contacts)
-    ? (raw.contacts as Partial<Contact>[]).map(migrateContact)
+    ? (raw.contacts as Record<string, unknown>[]).map(migrateContact)
     : [];
 
   const rxGroupLists = resolveRxGroupListMemberRefs(

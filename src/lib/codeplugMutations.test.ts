@@ -255,7 +255,7 @@ describe('codeplugMutations', () => {
     it('updateContact rename propagates RGL wire names; channel refs stay id-based', () => {
       const cp = {
         ...emptyCodeplug(),
-        contacts: [{ id: 'ct-1', name: 'Old', number: '123', timeslotOverride: '' }],
+        contacts: [{ id: 'ct-1', name: 'Old', identifier: '123', signalingMode: 'dmr' as const }],
         channels: [
           makeChannel('ch-1', 'GB3DA', {
             contactRef: { kind: 'contact', id: 'ct-1' },
@@ -269,7 +269,9 @@ describe('codeplugMutations', () => {
     it('deleteContact clears contactRef by id', () => {
       const cp = {
         ...emptyCodeplug(),
-        contacts: [{ id: 'ct-1', name: 'MM9PDY', number: '123', timeslotOverride: '' }],
+        contacts: [
+          { id: 'ct-1', name: 'MM9PDY', identifier: '123', signalingMode: 'dmr' as const },
+        ],
         channels: [
           makeChannel('ch-1', 'GB3DA', {
             contactRef: { kind: 'contact', id: 'ct-1' },

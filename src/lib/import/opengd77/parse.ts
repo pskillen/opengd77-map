@@ -171,7 +171,13 @@ export function parseContacts(text: string): ParsedContacts {
       const base: TalkGroup = { id: newId(), name, number, timeslotOverride };
       talkGroups.push(stamp(base));
     } else {
-      const base: Contact = { id: newId(), name, number, timeslotOverride };
+      const base: Contact = {
+        id: newId(),
+        name,
+        identifier: number,
+        signalingMode: 'dmr',
+        ...(timeslotOverride.trim() !== '' ? { timeslotOverride } : {}),
+      };
       contacts.push(stamp(base));
     }
   }

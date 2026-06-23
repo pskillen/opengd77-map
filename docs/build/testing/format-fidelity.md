@@ -95,11 +95,12 @@ Harness: [`runActiveImportWorkflow`](../../../src/test/system/importWorkflow.ts)
 
 Extend this table as vendors ship. Each **cell** lists required test types for that import×export pair.
 
-| Import ↓ / Export → | OpenGD77 CSV | CHIRP CSV | qDMR YAML (future) |
-| --- | --- | --- | --- |
-| **OpenGD77 CSV** | Unit parse/serialise, `roundtrip.test.ts`, `opengd77RoundTrip.system.test.ts` (test-data file diff), system merge scenarios | `crossFormat.test.ts` — analogue channels only | Cross-format golden (future) |
-| **CHIRP CSV** | `roundtrip.test.ts`, `chirpRoundTrip.system.test.ts` (test-data file diff) | Cross-format golden (future) |
-| **qDMR YAML (future)** | Cross-format golden (future) | Cross-format golden (future) | Vendor-specific round-trip |
+| Import ↓ / Export → | OpenGD77 CSV | CHIRP CSV | DM32 CSV | qDMR YAML (future) |
+| --- | --- | --- | --- | --- |
+| **OpenGD77 CSV** | Unit parse/serialise, `roundtrip.test.ts`, `opengd77RoundTrip.system.test.ts` (test-data file diff), system merge scenarios | `crossFormat.test.ts` — analogue channels only | Cross-format golden (future) | Cross-format golden (future) |
+| **CHIRP CSV** | `roundtrip.test.ts`, `chirpRoundTrip.system.test.ts` (test-data file diff) | Cross-format golden (future) | Cross-format golden (future) | Cross-format golden (future) |
+| **DM32 CSV** | Cross-format golden (future) | Cross-format golden (future) | `parse.test.ts`, `roundtrip.test.ts` (synthetic), `dm32RoundTrip.system.test.ts` (v1.60) | Cross-format golden (future) |
+| **qDMR YAML (future)** | Cross-format golden (future) | Cross-format golden (future) | Cross-format golden (future) | Vendor-specific round-trip |
 
 ### New vendor checklist
 
@@ -120,6 +121,8 @@ Document known non-round-trip behaviour in reference docs; assert it in fidelity
 | `vendorExtras` | Opaque columns round-trip via map on channel | [file-format.md](../../reference/opengd77/file-format.md) |
 | App-only fields | e.g. `hideFromMap` — preserved on merge, not in CSV | [importMerge.ts](../../../src/lib/importMerge.ts) |
 | `Comment` (CHIRP) | Not on internal `Channel` model — dropped on import | [channels.md](../../reference/chirp/channels.md) |
+| DM32 `Scan List` / `DMR ID` | Export `None` / profile default; excluded from v1.60 system compare | [channels.md](../../reference/dm32/channels.md) |
+| DM32 `Scan.csv` / `DMR-ID.csv` | Skipped on import; omitted from export ZIP | [dm32/README.md](../../reference/dm32/README.md) |
 | Internal ids | Stripped from semantic compare; reassigned on overwrite | `stripIds` in round-trip tests |
 
 ## Normalisation for compares

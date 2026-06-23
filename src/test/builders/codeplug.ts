@@ -62,8 +62,8 @@ export function buildTalkGroup(
 
 export function buildContact(overrides: Partial<Contact> & Pick<Contact, 'id' | 'name'>): Contact {
   return {
-    number: '',
-    timeslotOverride: '',
+    identifier: '',
+    signalingMode: 'dmr',
     ...overrides,
   };
 }

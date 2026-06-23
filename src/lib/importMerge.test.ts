@@ -185,7 +185,7 @@ describe('importMerge', () => {
       const populated = {
         ...cp,
         zones: [buildImportedZone({ id: 'z-old', name: 'Old', memberChannelIds: ['ch-1'] }, ['A'])],
-        contacts: [{ id: 'c1', name: 'Local', number: '9', timeslotOverride: '' }],
+        contacts: [{ id: 'c1', name: 'Local', identifier: '9', signalingMode: 'dmr' as const }],
       };
 
       const { codeplug, report } = applyImportToCodeplug(

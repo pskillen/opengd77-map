@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { opengd77Adapter } from '../import/opengd77/adapter.ts';
 import { chirpAdapter } from '../import/chirp/adapter.ts';
+import { dm32Adapter } from '../import/dm32/adapter.ts';
 import { opengd77ExportAdapter } from '../export/opengd77/adapter.ts';
 import { chirpExportAdapter } from '../export/chirp/adapter.ts';
+import { dm32ExportAdapter } from '../export/dm32/adapter.ts';
 import { isMultiFileExportAdapter, isSingleFileExportAdapter } from './exportAdapter.ts';
 import { adapterSupportsKind } from './importAdapter.ts';
 
@@ -41,5 +43,17 @@ describe('adapter contracts', () => {
     expect(isSingleFileExportAdapter(chirpExportAdapter)).toBe(true);
     expect(chirpExportAdapter.defaultFileName).toContain('.csv');
     expect(typeof chirpExportAdapter.download).toBe('function');
+  });
+
+  it('dm32 import adapter has required metadata and parsers', () => {
+    expect(dm32Adapter.id).toBe('dm32');
+    expect(dm32Adapter.capabilities.entityKinds).toContain('talkGroups');
+    expect(typeof dm32Adapter.parseTalkGroups).toBe('function');
+    expect(typeof dm32Adapter.parseDtmfContacts).toBe('function');
+  });
+
+  it('dm32 export adapter is multi-file', () => {
+    expect(isMultiFileExportAdapter(dm32ExportAdapter)).toBe(true);
+    expect(dm32ExportAdapter.fileNames).toContain('Channels.csv');
   });
 });

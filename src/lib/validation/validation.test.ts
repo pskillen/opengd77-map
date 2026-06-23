@@ -68,7 +68,7 @@ describe('validateTalkGroup', () => {
   it('rejects cross-name collision with contact', () => {
     const cp = {
       ...emptyCodeplug(),
-      contacts: [{ id: 'c1', name: 'Shared', number: '1', timeslotOverride: '' }],
+      contacts: [{ id: 'c1', name: 'Shared', identifier: '1', signalingMode: 'dmr' as const }],
     };
     const issues = validateTalkGroup({ name: 'Shared' }, cp);
     expect(hasValidationErrors(issues)).toBe(true);

@@ -27,8 +27,8 @@ export default function ContactsList() {
           getPath: (c) => `/contacts/${c.id}`,
         }}
         columns={[
-          { key: 'number', header: 'DMR ID', render: (c) => c.number || '—' },
-          { key: 'ts', header: 'Timeslot', render: (c) => c.timeslotOverride || '—' },
+          { key: 'identifier', header: 'ID', render: (c) => c.identifier || '—' },
+          { key: 'ts', header: 'Timeslot', render: (c) => c.timeslotOverride ?? '—' },
           {
             key: 'channels',
             header: 'Channels using',

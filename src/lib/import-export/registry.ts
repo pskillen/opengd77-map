@@ -1,10 +1,13 @@
 import { parseCsv } from '../csv.ts';
 import { chirpProfileSelectData, DEFAULT_CHIRP_PROFILE_ID } from '../chirp/profiles.ts';
+import { DEFAULT_DM32_PROFILE_ID, dm32ProfileSelectData } from '../dm32/profiles.ts';
 import { DEFAULT_OPENGD77_PROFILE_ID, opengd77ProfileSelectData } from '../opengd77/profiles.ts';
 import { opengd77Adapter } from '../import/opengd77/adapter.ts';
 import { chirpAdapter } from '../import/chirp/adapter.ts';
+import { dm32Adapter } from '../import/dm32/adapter.ts';
 import { opengd77ExportAdapter } from '../export/opengd77/adapter.ts';
 import { chirpExportAdapter } from '../export/chirp/adapter.ts';
+import { dm32ExportAdapter } from '../export/dm32/adapter.ts';
 import type { ImportAdapter } from './importAdapter.ts';
 import type { ExportAdapter } from './exportAdapter.ts';
 import type { VendorFormatId } from './types.ts';
@@ -15,9 +18,17 @@ export interface FormatProfilesInfo {
   required: boolean;
 }
 
-export const importAdapters: readonly ImportAdapter[] = [opengd77Adapter, chirpAdapter];
+export const importAdapters: readonly ImportAdapter[] = [
+  opengd77Adapter,
+  chirpAdapter,
+  dm32Adapter,
+];
 
-export const exportAdapters: readonly ExportAdapter[] = [opengd77ExportAdapter, chirpExportAdapter];
+export const exportAdapters: readonly ExportAdapter[] = [
+  opengd77ExportAdapter,
+  chirpExportAdapter,
+  dm32ExportAdapter,
+];
 
 export function getImportAdapter(id: VendorFormatId): ImportAdapter {
   const adapter = importAdapters.find((a) => a.id === id);
@@ -44,6 +55,13 @@ export function getFormatProfiles(formatId: VendorFormatId): FormatProfilesInfo 
     return {
       options: opengd77ProfileSelectData(),
       defaultId: DEFAULT_OPENGD77_PROFILE_ID,
+      required: true,
+    };
+  }
+  if (formatId === 'dm32') {
+    return {
+      options: dm32ProfileSelectData(),
+      defaultId: DEFAULT_DM32_PROFILE_ID,
       required: true,
     };
   }

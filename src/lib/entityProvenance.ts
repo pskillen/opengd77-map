@@ -72,6 +72,7 @@ export interface StampImportedInput {
   rxGroupListWireName?: string;
   chirpDuplexWire?: string;
   chirpOffsetWire?: string;
+  multiModeProfileWire?: ImportedProvenance['multiModeProfileWire'];
 }
 
 export function getMemberWireNames(entity: WithEntityMeta): string[] {
@@ -117,6 +118,9 @@ export function stampImported<T extends WithEntityMeta>(entity: T, input: StampI
           : {}),
         ...(input.chirpDuplexWire !== undefined ? { chirpDuplexWire: input.chirpDuplexWire } : {}),
         ...(input.chirpOffsetWire !== undefined ? { chirpOffsetWire: input.chirpOffsetWire } : {}),
+        ...(input.multiModeProfileWire !== undefined
+          ? { multiModeProfileWire: input.multiModeProfileWire }
+          : {}),
       },
     },
   };

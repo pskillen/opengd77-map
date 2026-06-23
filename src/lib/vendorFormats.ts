@@ -53,8 +53,9 @@ export const vendorFormatOptions: VendorFormatOption[] = [
     id: 'dm32',
     label: 'Baofeng DM-32 CPS',
     hint: 'Baofeng DM-32UV customer programming export',
-    importStatus: 'planned',
-    exportStatus: 'planned',
+    importStatus: 'shipped',
+    exportStatus: 'shipped',
+    issue: '#67',
   },
 ];
 

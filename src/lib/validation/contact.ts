@@ -1,8 +1,13 @@
-import type { Codeplug } from '../../models/codeplug.ts';
+import type { Codeplug, Contact } from '../../models/codeplug.ts';
 import type { ValidationIssue } from './channel.ts';
 
 export function validateContact(
-  input: { name: string; number?: string; timeslotOverride?: string },
+  input: {
+    name: string;
+    identifier?: string;
+    signalingMode?: Contact['signalingMode'];
+    timeslotOverride?: string;
+  },
   codeplug: Codeplug,
   contactId?: string,
 ): ValidationIssue[] {

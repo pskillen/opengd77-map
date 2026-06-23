@@ -98,8 +98,8 @@ export default function ContactDetail() {
               title: 'Details',
               fields: [
                 { label: 'Name', value: contact.name },
-                { label: 'DMR ID', value: contact.number },
-                { label: 'Timeslot override', value: contact.timeslotOverride },
+                { label: 'DMR ID', value: contact.identifier },
+                { label: 'Timeslot override', value: contact.timeslotOverride ?? '—' },
               ],
             },
           ]}

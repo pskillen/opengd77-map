@@ -129,9 +129,9 @@ export function serialiseContacts(codeplug: Codeplug): string {
     rows.push(
       padRow(CONTACT_HEADERS, {
         [CONTACT_COL.name]: contact.name,
-        [CONTACT_COL.id]: contact.number,
+        [CONTACT_COL.id]: contact.identifier,
         [CONTACT_COL.idType]: 'Private',
-        [CONTACT_COL.tsOverride]: contact.timeslotOverride,
+        [CONTACT_COL.tsOverride]: contact.timeslotOverride ?? '',
       }),
     );
   }
