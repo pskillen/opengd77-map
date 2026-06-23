@@ -9,8 +9,11 @@ export function expandOptionsFromExport(
   warnings?: string[],
 ): ExpandChannelOptions {
   return {
+    expandModes: options?.expandModes ?? true,
     expandTalkGroups: options?.expandRxGroupLists === true,
     talkGroupMembers: options?.expandRxGroupListMembers ?? 'all',
+    skipExpandWhenTxContactSet: options?.skipExpandWhenTxContactSet === true,
+    nonExpandableRxGroupListNames: options?.nonExpandableRxGroupListNames,
     codeplug,
     warnings,
   };

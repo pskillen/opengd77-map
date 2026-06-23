@@ -53,8 +53,14 @@ export interface ExpandChannelOptions {
   /** Max display length before export warning (e.g. 1701 LCD). */
   maxNameLength?: number;
   warnings?: string[];
+  /** When false, keep multi-mode channels on one wire name (DM32 native dual-mode). Default true. */
+  expandModes?: boolean;
   /** Expand RX group list members into per-TG rows (formats without native RGL). */
   expandTalkGroups?: boolean;
+  /** Skip TG expansion when row has both TX contact and RGL (DM32 native Scotland-style rows). */
+  skipExpandWhenTxContactSet?: boolean;
+  /** RGL wire names that must not fan out on export (e.g. DM32 `ALL`). */
+  nonExpandableRxGroupListNames?: readonly string[];
   /** Which RX list members to expand. Default `all`. */
   talkGroupMembers?: TalkGroupMemberFilter;
   /** Required when expandTalkGroups is true — resolves RGL member refs. */
@@ -163,6 +169,7 @@ export function expandChannelForExport(
   const reserved = new Set(options.reservedWireNames ?? []);
   const warnings = options.warnings;
   const profiles = resolveChannelModeProfiles(channel);
+  const expandModes = options.expandModes ?? true;
 
   if (!channel.multiMode || profiles.length <= 1) {
     const name = uniqueWireName(channel.name, reserved);
@@ -171,6 +178,38 @@ export function expandChannelForExport(
       warnings?.push(`Channel name "${name}" exceeds ${options.maxNameLength} characters`);
     }
     return [rowFromProfile(channel, profiles[0], name)];
+  }
+
+  if (!expandModes) {
+    const name = uniqueWireName(channel.name, reserved);
+    reserved.add(name);
+    if (options.maxNameLength != null && name.length > options.maxNameLength) {
+      warnings?.push(`Channel name "${name}" exceeds ${options.maxNameLength} characters`);
+    }
+
+    let tgFanOut = false;
+    const dmrProfile = profiles.find((p) => isDmrMode(p.mode));
+    const fmProfile = profiles.find((p) => isAnalogMode(p.mode));
+    if (
+      options.expandTalkGroups &&
+      options.codeplug &&
+      dmrProfile?.rxGroupListId &&
+      !(options.skipExpandWhenTxContactSet && channel.contactRef && dmrProfile.rxGroupListId)
+    ) {
+      const rgl = options.codeplug.rxGroupLists.find((r) => r.id === dmrProfile.rxGroupListId);
+      if (rgl && !options.nonExpandableRxGroupListNames?.includes(rgl.name)) {
+        const filter = options.talkGroupMembers ?? 'all';
+        const members = filterRglMemberRefs(rgl.memberRefs, filter);
+        tgFanOut = members.length > 0;
+      }
+    }
+
+    if (tgFanOut && fmProfile && dmrProfile) {
+      return [rowFromProfile(channel, fmProfile, name), rowFromProfile(channel, dmrProfile, name)];
+    }
+
+    const primary = profiles.find((p) => p.mode === channel.mode) ?? profiles[0];
+    return [rowFromProfile(channel, primary, name)];
   }
 
   const rows: ExpandedChannelRow[] = [];
@@ -248,11 +287,24 @@ export function expandTalkGroupsForExport(
       continue;
     }
 
+    if (options.skipExpandWhenTxContactSet && row.contactRef && row.rxGroupListId) {
+      result.push(row);
+      reserved.add(row.wireName);
+      continue;
+    }
+
     const members = expandableRglMembers(row, codeplug, filter, warnings);
     if (members.length === 0) {
       if (row.rxGroupListId) {
         warnings?.push(`Channel "${row.wireName}" has no expandable RX list members`);
       }
+      result.push(row);
+      reserved.add(row.wireName);
+      continue;
+    }
+
+    const rgl = codeplug.rxGroupLists.find((r) => r.id === row.rxGroupListId);
+    if (rgl && options.nonExpandableRxGroupListNames?.includes(rgl.name)) {
       result.push(row);
       reserved.add(row.wireName);
       continue;

@@ -66,6 +66,19 @@ describe('channelExpansion', () => {
     expect(rows.find((r) => r.wireName === 'GB7GL-D')?.colourCode).toBe(1);
   });
 
+  it('expandChannelForExport keeps one row for multi-mode when expandModes is false', () => {
+    const ch = buildChannel({
+      id: '1',
+      name: 'GB3FE',
+      mode: 'dmr',
+      multiMode: true,
+      modeProfiles: [channelModeProfileDefaults('fm'), channelModeProfileDefaults('dmr')],
+    });
+    const rows = expandChannelForExport(ch, { expandModes: false });
+    expect(rows).toHaveLength(1);
+    expect(rows[0].wireName).toBe('GB3FE');
+  });
+
   it('modeExportNameSuffix uses -F for analog and -D for digital', () => {
     expect(modeExportNameSuffix('fm')).toBe('-F');
     expect(modeExportNameSuffix('dmr')).toBe('-D');
