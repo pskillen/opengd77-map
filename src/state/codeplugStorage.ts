@@ -256,6 +256,7 @@ function migrateTalkGroup(raw: Partial<TalkGroup>): TalkGroup {
     name: raw.name ?? '',
     number: raw.number ?? '',
     timeslotOverride: raw.timeslotOverride ?? '',
+    callType: raw.callType ?? 'group',
     meta: raw.meta,
   };
 }

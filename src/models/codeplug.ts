@@ -67,6 +67,13 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     scanSkip: false,
     hideFromMap: false,
     comment: '',
+    txAdmit: 'Channel Idle',
+    aprsReportType: 'Off',
+    forbidTransmit: false,
+    aprsReceiveEnabled: true,
+    forbidTalkaround: false,
+    directDualMode: false,
+    aprsReportChannel: null,
     opengd77Extras: {},
     multiMode: false,
     modeProfiles: [],
@@ -109,6 +116,16 @@ export interface Channel {
   hideFromMap: boolean;
   /** Operator comment — CHIRP `Comment` column and general notes. */
   comment: string;
+  /** CPS transmit admit policy wire label (DM32 and similar). */
+  txAdmit: string;
+  /** APRS report type wire label — e.g. Off, Digital. */
+  aprsReportType: string;
+  forbidTransmit: boolean;
+  aprsReceiveEnabled: boolean;
+  forbidTalkaround: boolean;
+  directDualMode: boolean;
+  /** APRS report channel number; null → profile default on export. */
+  aprsReportChannel: number | null;
   /** OpenGD77-only columns keyed by canonical CSV header name. */
   opengd77Extras: Record<string, string>;
   /** When true, mode-specific fields live in modeProfiles (2+ entries). */
@@ -131,6 +148,8 @@ export interface TalkGroup {
   name: string;
   number: string;
   timeslotOverride: string;
+  /** DMR call type on CPS wire — group vs private (DM32 Talkgroups.csv). */
+  callType?: 'group' | 'private';
   meta?: EntityMeta;
 }
 
@@ -170,7 +189,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 10;
+export const CODEPLUG_SCHEMA_VERSION = 11;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 
