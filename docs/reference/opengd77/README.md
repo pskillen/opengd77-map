@@ -68,6 +68,7 @@ See [file-format.md](file-format.md) for header-name parsing, case-sensitive for
 | [tg-lists.md](tg-lists.md) | `TG_Lists.csv` columns |
 | [dtmf-aprs.md](dtmf-aprs.md) | Deferred files + radio availability |
 | [multi-talkgroup.md](multi-talkgroup.md) | Planned denormalisation ([#36](https://github.com/pskillen/codeplug-tool/issues/36)) |
+| [multi-mode.md](multi-mode.md) | Multi-mode channel expansion ([#46](https://github.com/pskillen/codeplug-tool/issues/46)) |
 | [radios/README.md](radios/README.md) | Radio profile concept and index |
 
 ## Sources

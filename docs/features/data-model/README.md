@@ -31,7 +31,7 @@ Internal relationships use **UUID id** foreign keys. `EntityRef` is a discrimina
 
 Wire-format mapping lives in the [import/export hub](../import-export/README.md) and per-format references under `docs/reference/<format>/` — not here. Radio-specific limits (zone member caps, feature availability) are format/profile concerns that apply at export time, not in the internal model.
 
-**Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **7**
+**Source:** [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) · schema version **9** (multi-mode channels)
 
 ## Design principles
 
@@ -68,7 +68,9 @@ Typed scalar fields use vendor-neutral semantics in the model; CPS wire strings 
 | `id` | `string` | Internal |
 | `name` | `string` | Display name; currently also the resolution key for zone members (transitional — see name-FK note) |
 | `callsign` | `string` | Derived — first word of `name` |
-| `mode` | `ChannelMode` | Specific mode — see [channel-modes reference](../../reference/channel-modes.md) (`fm`, `dmr`, `ysf`, …) |
+| `mode` | `ChannelMode` | Primary/display mode — see [channel-modes reference](../../reference/channel-modes.md) (`fm`, `dmr`, `ysf`, …) |
+| `multiMode` | `boolean` | When `true`, channel carries multiple RF mode profiles (opt-in; default `false`) |
+| `modeProfiles` | `ChannelModeProfile[]` | Per-mode settings when `multiMode` is enabled; empty when off — see below |
 | `rxFrequency`, `txFrequency` | `number \| null` | Integer **Hz**; `null` when unset |
 | `contactRef` | `EntityRef \| null` | TX talk group or private contact, by id |
 | `rxGroupListId` | `string \| null` | RX group list id |
@@ -92,6 +94,28 @@ Typed scalar fields use vendor-neutral semantics in the model; CPS wire strings 
 | `meta` | `EntityMeta` | Optional per-entity metadata (see below) |
 
 Channel numbering (a CPS slot index) is **not** stored — it is assigned at export per target format.
+
+#### Multi-mode channels ([#46](https://github.com/pskillen/codeplug-tool/issues/46))
+
+When `multiMode` is `false` (default), behaviour is unchanged: top-level mode-specific fields on `Channel` are authoritative.
+
+When `multiMode` is `true`, shared identity and RF context live on the channel; mode-specific fields live in `modeProfiles`:
+
+| `ChannelModeProfile` field | Type | Notes |
+| --- | --- | --- |
+| `mode` | `ChannelMode` | Profile mode id |
+| `bandwidthKHz` | `number \| null` | |
+| `colourCode` | `number \| null` | DMR only |
+| `timeslot` | `1 \| 2 \| null` | DMR only |
+| `dmrId` | `number \| null` | |
+| `rxTone`, `txTone` | `ChannelTone` | Analog modes |
+| `squelch` | `number \| null` | |
+| `contactRef` | `EntityRef \| null` | |
+| `rxGroupListId` | `string \| null` | |
+
+Shared on `Channel`: `name`, `callsign`, `rxFrequency`, `txFrequency`, `location`, `useLocation`, `power`, `rxOnly`, `voxEnabled`, `transmitTimeout`, `scanSkip`, `comment`, `hideFromMap`, `opengd77Extras`, `meta`.
+
+Export adapters expand multi-mode logical channels into vendor-specific rows at the boundary (OpenGD77: separate `Analogue` / `Digital` rows — [multi-mode.md](../../reference/opengd77/multi-mode.md)). DM32 native dual-mode mapping: [#67](https://github.com/pskillen/codeplug-tool/issues/67).
 
 ### `Zone`
 

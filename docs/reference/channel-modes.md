@@ -49,6 +49,10 @@ OpenGD77 `Channel Type` wire mapping (`Analogue` / `Digital` / passthrough): [op
 
 YSF, D-STAR, M17, and Tetra are digital but may lack format-specific CPS columns for some adapters. OpenGD77 mode wire rules: [opengd77/channels.md](opengd77/channels.md).
 
+## Multi-mode composition
+
+A logical channel may opt into **multi-mode** (`multiMode: true`) and carry multiple `ChannelModeProfile` entries (e.g. FM + DMR sharing name and frequencies). Field applicability above applies **per profile**. Format-specific export rules (expand vs collapse) live in per-format reference docs — OpenGD77: [opengd77/multi-mode.md](opengd77/multi-mode.md).
+
 ## Related
 
 - [Display conventions](./display-conventions.md)
