@@ -19,6 +19,7 @@
 | 10 Edit routes migrate | Complete | `FormPage` sticky footer |
 | 11 Remaining routes | Complete | Home, Summary, Settings, reference, project |
 | 12 Cleanup + PR | Complete | `ReportPage` deprecated |
+| 13 DataTable depth ([#138](https://github.com/pskillen/codeplug-tool/issues/138)) | Complete | See [datatable-progress.md](datatable-progress.md) |
 
 ## Verify
 

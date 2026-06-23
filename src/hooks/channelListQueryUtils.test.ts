@@ -9,8 +9,10 @@ import {
 } from './channelListQueryUtils.ts';
 
 describe('defaultChannelVisibleColumns', () => {
-  it('includes power by default and omits squelch', () => {
+  it('includes band, mode, power by default and omits squelch', () => {
     const cols = defaultChannelVisibleColumns();
+    expect(cols).toContain('band');
+    expect(cols).toContain('mode');
     expect(cols).toContain('power');
     expect(cols).not.toContain('squelch');
     expect(cols).toEqual(
@@ -55,6 +57,24 @@ describe('loadChannelVisibleColumns', () => {
       const cols = loadChannelVisibleColumns();
       expect(cols).not.toContain('power');
       expect(cols).not.toContain('distance');
+    } finally {
+      if (previous == null) localStorage.removeItem(key);
+      else localStorage.setItem(key, previous);
+      if (previousSchema == null) localStorage.removeItem(schemaKey);
+      else localStorage.setItem(schemaKey, previousSchema);
+    }
+  });
+
+  it('persists an explicitly empty column selection', () => {
+    const key = CHANNEL_LIST_COLUMN_STORAGE_KEY;
+    const schemaKey = CHANNEL_LIST_COLUMNS_SCHEMA_KEY;
+    const previous = localStorage.getItem(key);
+    const previousSchema = localStorage.getItem(schemaKey);
+    localStorage.setItem(key, JSON.stringify([]));
+    localStorage.setItem(schemaKey, String(CHANNEL_LIST_COLUMNS_SCHEMA_VERSION));
+
+    try {
+      expect(loadChannelVisibleColumns()).toEqual([]);
     } finally {
       if (previous == null) localStorage.removeItem(key);
       else localStorage.setItem(key, previous);

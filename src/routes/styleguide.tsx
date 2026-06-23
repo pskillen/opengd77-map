@@ -12,6 +12,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconTrash } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { useMemo, useState } from 'react';
 import BandPill, { BandPillForChannel } from '../components/crud/BandPill.tsx';
 import ConfirmDeleteModal from '../components/crud/ConfirmDeleteModal.tsx';
 import ModePill from '../components/crud/ModePill.tsx';
@@ -35,6 +36,17 @@ const SAMPLE_ROWS = [
   { id: '2', name: 'GB3IV Inverness' },
 ];
 
+const STICKY_DEMO_ROWS = Array.from({ length: 24 }, (_, i) => ({
+  id: String(i + 1),
+  name: `Channel ${String(i + 1).padStart(2, '0')}`,
+  score: (i * 7) % 100,
+}));
+
+const COLUMN_PICKER_ROWS = [
+  { id: '1', name: 'Alpha', score: 3, note: 'A' },
+  { id: '2', name: 'Bravo', score: 9, note: 'B' },
+];
+
 const sampleChannel = {
   ...channelFieldDefaults(),
   id: 'demo',
@@ -47,6 +59,13 @@ const sampleChannel = {
 
 export default function Styleguide() {
   const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
+  const [search, setSearch] = useState('');
+  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const filteredStickyRows = useMemo(() => {
+    if (!search) return STICKY_DEMO_ROWS;
+    const q = search.toLowerCase();
+    return STICKY_DEMO_ROWS.filter((r) => r.name.toLowerCase().includes(q));
+  }, [search]);
 
   return (
     <Page width="default">
@@ -93,6 +112,100 @@ export default function Styleguide() {
           }}
           columns={[]}
           emptyState={<EmptyState message="No channels yet" />}
+        />
+      </PageSection>
+
+      <PageSection
+        title="DataTable — sort, sticky header, search"
+        description="Scroll inside the table; click Name or Score to sort."
+      >
+        <DataTable
+          rows={filteredStickyRows}
+          totalRowCount={STICKY_DEMO_ROWS.length}
+          rowKey={(row) => row.id}
+          search={search}
+          onSearchChange={setSearch}
+          searchPlaceholder="Filter demo channels…"
+          nameColumn={{
+            getName: (row) => row.name,
+            getPath: (row) => `#channel-${row.id}`,
+          }}
+          columns={[
+            {
+              key: 'score',
+              header: 'Score',
+              render: (row) => row.score,
+              sortValue: (row) => row.score,
+            },
+          ]}
+        />
+      </PageSection>
+
+      <PageSection title="DataTable — column picker">
+        <DataTable
+          rows={COLUMN_PICKER_ROWS}
+          rowKey={(row) => row.id}
+          nameColumn={{
+            getName: (row) => row.name,
+            getPath: (row) => `#${row.id}`,
+          }}
+          columns={[
+            {
+              key: 'score',
+              header: 'Score',
+              render: (row) => row.score,
+              sortValue: (row) => row.score,
+              hideable: true,
+              defaultVisible: true,
+            },
+            {
+              key: 'note',
+              header: 'Note',
+              render: (row) => row.note,
+              hideable: true,
+              defaultVisible: false,
+            },
+          ]}
+          columnVisibilityStorageKey="styleguide-datatable-columns"
+        />
+      </PageSection>
+
+      <PageSection title="DataTable — selection">
+        <DataTable
+          rows={COLUMN_PICKER_ROWS}
+          rowKey={(row) => row.id}
+          selectable
+          selectedKeys={selectedKeys}
+          onSelectedKeysChange={setSelectedKeys}
+          nameColumn={{
+            getName: (row) => row.name,
+            getPath: (row) => `#${row.id}`,
+          }}
+          columns={[
+            {
+              key: 'score',
+              header: 'Score',
+              render: (row) => row.score,
+              sortValue: (row) => row.score,
+            },
+          ]}
+        />
+        <Text size="sm" c="dimmed" mt="xs">
+          Selected: {selectedKeys.length ? selectedKeys.join(', ') : 'none'}
+        </Text>
+      </PageSection>
+
+      <PageSection title="DataTable — filtered empty">
+        <DataTable
+          rows={[]}
+          totalRowCount={12}
+          rowKey={(row: { id: string }) => row.id}
+          nameColumn={{
+            getName: (row: { id: string; name: string }) => row.name,
+            getPath: () => '#',
+          }}
+          columns={[]}
+          filteredEmptyMessage="No matches for current filter"
         />
       </PageSection>
 

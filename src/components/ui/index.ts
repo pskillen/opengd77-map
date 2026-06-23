@@ -9,7 +9,14 @@ export type { PageSectionGridProps } from './PageSectionGrid.tsx';
 export { default as EmptyState } from './EmptyState.tsx';
 export type { EmptyStateProps } from './EmptyState.tsx';
 export { default as DataTable } from './DataTable.tsx';
-export type { DataTableColumn, DataTableMobileColumnPolicy, DataTableProps } from './DataTable.tsx';
+export type {
+  DataTableColumn,
+  DataTableLinkedColumn,
+  DataTableMobileColumnPolicy,
+  DataTableProps,
+  DataTableSortState,
+  DataTableVariant,
+} from './DataTable.tsx';
 export { default as ListPage } from './ListPage.tsx';
 export type { ListPageProps } from './ListPage.tsx';
 export { default as FormPage } from './FormPage.tsx';

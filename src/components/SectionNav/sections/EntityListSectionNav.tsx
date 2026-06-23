@@ -1,8 +1,7 @@
-import { Button, NavLink, Stack, TextInput } from '@mantine/core';
+import { Button, NavLink, Stack } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../../lib/iconSizes.ts';
-import { useListNameQuery } from '../../../hooks/useListNameQuery.ts';
 import type { SectionNavProps } from '../../../nav/sectionNavTypes.ts';
 
 export interface EntityListSectionNavProps extends SectionNavProps {
@@ -16,7 +15,6 @@ export default function EntityListSectionNav({
   newLabel,
 }: EntityListSectionNavProps) {
   const isSidebar = variant === 'sidebar';
-  const { nameFilter, setNameFilter } = useListNameQuery();
 
   return (
     <Stack gap="sm">
@@ -28,13 +26,6 @@ export default function EntityListSectionNav({
       >
         {newLabel}
       </Button>
-      <TextInput
-        label="Search"
-        placeholder="Filter name…"
-        value={nameFilter}
-        onChange={(e) => setNameFilter(e.currentTarget.value)}
-        size={isSidebar ? 'sm' : 'md'}
-      />
     </Stack>
   );
 }

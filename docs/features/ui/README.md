@@ -11,6 +11,7 @@ Contributor docs for shared UI conventions in the SPA.
 | Display conventions | Shipped | [display-conventions.md](../../reference/display-conventions.md) |
 | Two-section navigation | Shipped | [#81](https://github.com/pskillen/codeplug-tool/issues/81) — `AppNav`, `SectionNav`, `src/nav/` |
 | Layout & component kit | Shipped | [#105](https://github.com/pskillen/codeplug-tool/issues/105) — `src/components/ui/`, `/#/styleguide` |
+| Standardised datatables | Shipped | [#138](https://github.com/pskillen/codeplug-tool/issues/138) — sort, sticky header, toolbar |
 | CRUD actions | Shipped | List/detail/edit routes, ConfirmDeleteModal, ZoneMemberPicker |
 | Import/export/workflows | Shipped | ImportDropzone, Export, SummaryCard, ProjectList |
 | Map/location | Shipped | MapControls, UseMyLocationButton |
@@ -25,6 +26,8 @@ Contributor docs for shared UI conventions in the SPA.
 | [nav-outstanding.md](nav-outstanding.md) | Nav debt discovered during #81 |
 | [component-kit-progress.md](component-kit-progress.md) | Component kit execution log ([#105](https://github.com/pskillen/codeplug-tool/issues/105)) |
 | [component-kit-outstanding.md](component-kit-outstanding.md) | Kit debt discovered during #105 |
+| [datatable-progress.md](datatable-progress.md) | DataTable depth pass ([#138](https://github.com/pskillen/codeplug-tool/issues/138)) |
+| [datatable-outstanding.md](datatable-outstanding.md) | DataTable debt discovered during #138 |
 | [display-conventions.md](../../reference/display-conventions.md) | Icons, badges, nav layout |
 
 ## Layout & component kit
@@ -65,8 +68,21 @@ Hidden dev route (no nav link): `/#/styleguide` — demos every kit primitive.
 | `ListPage` | List-route shell |
 | `FormPage` | Edit-route shell with sticky mobile footer |
 | `FormSection` | Titled field group |
-| `DataTable` | Entity list table with empty state |
+| `DataTable` | Entity list table — sort, sticky header, toolbar, optional selection |
 | `EmptyState` | Zero-row / empty project placeholder |
+
+### List datatable contract ([#138](https://github.com/pskillen/codeplug-tool/issues/138))
+
+[`DataTable`](../../src/components/ui/DataTable.tsx) sidecar: [`DataTable.md`](../../src/components/ui/DataTable.md).
+
+| Variant | Toolbar | Sort | Typical routes |
+| --- | --- | --- | --- |
+| `list` | Search (`?q=` via `useListNameQuery` on simple lists), optional-column picker (`localStorage` key per list), result count | Click column headers; channels also sync name/distance with URL `sort` | Entity list routes |
+| `embedded` | None | Header sort only | Detail-page member/usage tables |
+
+**Channels:** band/mode/duplex/distance filters stay in `ChannelsListSectionNav`; optional columns use `channels-list-columns` in `localStorage` via `columnVisibilityStorageKey`.
+
+**Simple lists:** name search moved from section nav into the table toolbar; `EntityListSectionNav` keeps only the New action.
 
 ## Two-section navigation architecture
 
@@ -88,7 +104,7 @@ Hidden dev route (no nav link): `/#/styleguide` — demos every kit primitive.
 
 **Summary** (`/summary`) has no registry entry — secondary column hidden.
 
-**State:** URL search params for shareable filters (`useChannelListQuery`, `useListNameQuery`, `useVendorFormatParam`); channel column visibility stays in `localStorage`.
+**State:** URL search params for shareable filters (`useChannelListQuery`, `useListNameQuery`, `useVendorFormatParam`); list column visibility in `localStorage` (`channels-list-columns`, per-list keys as added).
 
 ## Concepts
 
@@ -112,5 +128,5 @@ Icons aid **scanning and primary actions** (nav, New/Edit/Delete, import/export)
 
 ## Related
 
-- Tracking: [codeplug-tool#64](https://github.com/pskillen/codeplug-tool/issues/64) (icons), [#81](https://github.com/pskillen/codeplug-tool/issues/81) (nav)
-- Component sidecars: `AppNav.md`, `SectionNav.md`
+- Tracking: [codeplug-tool#64](https://github.com/pskillen/codeplug-tool/issues/64) (icons), [#81](https://github.com/pskillen/codeplug-tool/issues/81) (nav), [#138](https://github.com/pskillen/codeplug-tool/issues/138) (datatables)
+- Component sidecars: `AppNav.md`, `SectionNav.md`, `DataTable.md`

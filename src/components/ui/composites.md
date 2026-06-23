@@ -6,6 +6,8 @@ Higher-level shells built from layout primitives.
 
 Standard list-route layout: `Page` + `PageHeader` + optional toolbar + children (typically `DataTable`).
 
+Entity lists use `DataTable` with `variant="list"` — search and column picker live in the table toolbar when configured. Section nav retains richer filters (e.g. channels band/mode/distance).
+
 | Prop          | Type        | Notes                                                 |
 | ------------- | ----------- | ----------------------------------------------------- |
 | `title`       | `string`    | Page heading                                          |

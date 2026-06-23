@@ -24,6 +24,7 @@ Agent skills for documentation and execution tracking:
 | UI (icons) | `src/lib/iconSizes.ts`, routes/components | [ui/](ui/) | Shipped ([#64](https://github.com/pskillen/codeplug-tool/issues/64)) |
 | UI (two-section nav) | `src/components/AppNav/`, `src/components/SectionNav/`, `src/nav/` | [ui/nav-progress.md](ui/nav-progress.md) | Shipped ([#81](https://github.com/pskillen/codeplug-tool/issues/81)) |
 | UI (component kit) | `src/components/ui/` | [ui/component-kit-progress.md](ui/component-kit-progress.md) | Shipped ([#105](https://github.com/pskillen/codeplug-tool/issues/105)) |
+| UI (datatables) | `src/components/ui/DataTable.tsx`, `src/lib/dataTable/` | [ui/datatable-progress.md](ui/datatable-progress.md) | Shipped ([#138](https://github.com/pskillen/codeplug-tool/issues/138)) |
 | Operator distance | `src/lib/geoDistance.ts`, `src/state/operatorPosition.tsx` | [operator-distance/](operator-distance/) | Shipped ([#70](https://github.com/pskillen/codeplug-tool/issues/70)) |
 | Repeater directories | `src/lib/repeaterDirectories/` | [repeater-directories/](repeater-directories/) | In progress ([#92](https://github.com/pskillen/codeplug-tool/issues/92) ukrepeater) |
 

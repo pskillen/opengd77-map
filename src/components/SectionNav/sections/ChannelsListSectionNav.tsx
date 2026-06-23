@@ -1,4 +1,4 @@
-import { Button, MultiSelect, Select, Slider, Stack, Switch, Text, TextInput } from '@mantine/core';
+import { Button, MultiSelect, Slider, Stack, Switch, Text, TextInput } from '@mantine/core';
 import { IconGitMerge, IconPlus, IconWorldSearch } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
@@ -8,8 +8,6 @@ import { DISTANCE_FILTER_MARKS_KM } from '../../../lib/channels.ts';
 import { ALL_BANDS, bandsFromFrequencies } from '../../../lib/bands.ts';
 import { modeFilterOptions } from '../../../lib/channelModes.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../../lib/iconSizes.ts';
-import { CHANNEL_OPTIONAL_COLUMNS } from '../../../hooks/channelListQueryUtils.ts';
-import { useChannelListColumns } from '../../../hooks/useChannelListColumns.ts';
 import { useChannelListQuery } from '../../../hooks/useChannelListQuery.ts';
 import { useFilteredChannels } from '../../../hooks/useChannelListFilters.ts';
 import type { SectionNavProps } from '../../../nav/sectionNavTypes.ts';
@@ -25,7 +23,6 @@ export default function ChannelsListSectionNav({ variant }: SectionNavProps) {
   const { position, setPosition, clearPosition } = useOperatorPosition();
   const query = useChannelListQuery();
   const filtered = useFilteredChannels(channels, query, position);
-  const [visibleCols, setVisibleCols] = useChannelListColumns();
 
   const bandOptions = useMemo(() => {
     const ids = new Set<string>();
@@ -37,19 +34,12 @@ export default function ChannelsListSectionNav({ variant }: SectionNavProps) {
     return ALL_BANDS.filter((b) => ids.has(b.id)).map((b) => ({ value: b.id, label: b.label }));
   }, [channels]);
 
-  const distanceSortPending = query.sortMode === 'distance' && !position;
   const distanceFilterPending = query.distanceFilterEnabled && !position;
 
   const distanceFilterMarks = DISTANCE_FILTER_MARKS_KM.map((km) => ({
     value: km,
     label: `${km}`,
   }));
-
-  const saveColumns = (cols: string[]) => {
-    setVisibleCols(cols);
-  };
-
-  const controlWidth = isSidebar ? undefined : { minWidth: 140 };
 
   return (
     <Stack gap="sm">
@@ -98,20 +88,6 @@ export default function ChannelsListSectionNav({ variant }: SectionNavProps) {
         size={isSidebar ? 'sm' : 'md'}
       />
 
-      <Select
-        label="Sort"
-        data={[
-          { value: 'name', label: 'Name' },
-          { value: 'distance', label: 'Distance from me' },
-        ]}
-        value={query.sortMode}
-        onChange={(value) => {
-          if (value === 'name' || value === 'distance') query.setSortMode(value);
-        }}
-        size={isSidebar ? 'sm' : 'md'}
-        style={controlWidth}
-      />
-
       <MultiSelect
         label="Band"
         data={bandOptions}
@@ -142,27 +118,6 @@ export default function ChannelsListSectionNav({ variant }: SectionNavProps) {
         maxValues={1}
         size={isSidebar ? 'sm' : 'md'}
       />
-
-      <MultiSelect
-        label="Columns"
-        data={CHANNEL_OPTIONAL_COLUMNS.map((c) => ({ value: c.key, label: c.header }))}
-        value={visibleCols}
-        onChange={saveColumns}
-        size={isSidebar ? 'sm' : 'md'}
-      />
-
-      {distanceSortPending ? (
-        <Stack gap="xs">
-          <Text size="xs" c="dimmed">
-            Distance sort needs your location. Sorted by name until set.
-          </Text>
-          <UseMyLocationButton
-            onLocation={(lat, lon, accuracyMeters) =>
-              setPosition({ lat, lon, accuracyMeters: accuracyMeters ?? null })
-            }
-          />
-        </Stack>
-      ) : null}
 
       {position ? (
         <Stack gap={4}>

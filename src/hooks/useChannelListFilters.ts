@@ -52,6 +52,7 @@ export function filterChannelsForList(
     | 'sortMode'
   >,
   position: OperatorPosition | null,
+  options?: { skipSort?: boolean },
 ): Channel[] {
   const nameFiltered = channels.filter((ch) => {
     if (query.nameFilter) {
@@ -74,6 +75,7 @@ export function filterChannelsForList(
     maxDistanceKm: query.maxDistanceKm,
   });
 
+  if (options?.skipSort) return distanceFiltered;
   return sortChannelsByMode(distanceFiltered, query.sortMode, position);
 }
 
@@ -81,9 +83,10 @@ export function useFilteredChannels(
   channels: Channel[],
   query: ChannelListQuery,
   position: OperatorPosition | null,
+  options?: { skipSort?: boolean },
 ): Channel[] {
   return useMemo(
-    () => filterChannelsForList(channels, query, position),
+    () => filterChannelsForList(channels, query, position, options),
     [
       channels,
       query.nameFilter,
@@ -94,6 +97,7 @@ export function useFilteredChannels(
       query.maxDistanceKm,
       query.sortMode,
       position,
+      options?.skipSort,
     ],
   );
 }
