@@ -12,13 +12,30 @@ import { validateTalkGroup } from './talkGroup.ts';
 import { validateZone } from './zone.ts';
 
 describe('validateChannel', () => {
-  it('requires unique name', () => {
+  it('warns on duplicate export wire name', () => {
     const cp = {
       ...emptyCodeplug(),
-      channels: [buildChannel({ id: 'c1', name: 'Dup', callsign: 'Dup' })],
+      channels: [
+        buildChannel({
+          id: 'c1',
+          name: 'Glasgow',
+          callsign: 'GB7GL',
+          exportNameMode: 'callsign_name',
+        }),
+      ],
     };
-    const issues = validateChannel({ name: 'Dup', ...channelFieldDefaults(), mode: 'dmr' }, cp);
-    expect(hasValidationErrors(issues)).toBe(true);
+    const issues = validateChannel(
+      {
+        ...channelFieldDefaults(),
+        name: 'Glasgow',
+        callsign: 'GB7GL',
+        exportNameMode: 'callsign_name',
+        mode: 'dmr',
+      },
+      cp,
+    );
+    expect(issues.some((i) => i.field === 'exportNameMode' && i.severity === 'warning')).toBe(true);
+    expect(hasValidationErrors(issues)).toBe(false);
   });
 
   it('warns on missing contactRef target', () => {

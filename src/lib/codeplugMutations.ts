@@ -1,4 +1,4 @@
-import { extractCallsign } from './csv.ts';
+import { composeChannelWireName } from './channelNaming.ts';
 import { syncChannelFromPrimaryProfile } from './channelExpansion/index.ts';
 import {
   channelFieldDefaults,
@@ -14,7 +14,7 @@ import { getMemberWireNames, setMemberWireNames } from './entityProvenance.ts';
 import type { EntityRef, EntityRefKind } from './entityRefs.ts';
 import { entityRefKey, memberRefsToWireNames } from './entityRefs.ts';
 
-export type ChannelInput = Omit<Channel, 'id' | 'callsign'> & { name: string };
+export type ChannelInput = Omit<Channel, 'id'>;
 
 export type ZoneInput = Pick<Zone, 'name'> & { memberChannelIds?: string[] };
 
@@ -33,7 +33,7 @@ export function channelNamesForIds(channels: Channel[], ids: string[]): string[]
   const names: string[] = [];
   for (const id of ids) {
     const ch = channelById(channels, id);
-    if (ch) names.push(ch.name);
+    if (ch) names.push(composeChannelWireName(ch));
   }
   return names;
 }
@@ -56,10 +56,6 @@ export function refreshAllZoneSourceNames(codeplug: Codeplug): Zone[] {
   );
 }
 
-export function deriveCallsignFromName(name: string): string {
-  return extractCallsign(name);
-}
-
 /** Normalise multi-mode flags and sync primary profile ↔ top-level fields. */
 export function normalizeChannelForSave(channel: Channel): Channel {
   if (!channel.multiMode) {
@@ -76,7 +72,6 @@ export function addChannel(codeplug: Codeplug, input: ChannelInput): Codeplug {
     ...channelFieldDefaults(),
     ...input,
     id: newId(),
-    callsign: deriveCallsignFromName(input.name),
   });
   return {
     ...codeplug,
@@ -93,13 +88,10 @@ export function updateChannel(
   if (index < 0) return codeplug;
 
   const existing = codeplug.channels[index];
-  const name = patch.name ?? existing.name;
   const updated = normalizeChannelForSave({
     ...existing,
     ...patch,
     id: channelId,
-    name,
-    callsign: deriveCallsignFromName(name),
   });
 
   const channels = [...codeplug.channels];

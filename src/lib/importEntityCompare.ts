@@ -42,6 +42,7 @@ export function channelsImportEqual(a: Channel, b: Channel): boolean {
   return (
     a.name === b.name &&
     a.callsign === b.callsign &&
+    a.exportNameMode === b.exportNameMode &&
     a.mode === b.mode &&
     a.rxFrequency === b.rxFrequency &&
     a.txFrequency === b.txFrequency &&

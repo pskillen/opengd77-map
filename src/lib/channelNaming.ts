@@ -126,6 +126,6 @@ export function channelImportMergeKeys(channel: Channel): string[] {
   return keys;
 }
 
-export function incomingChannelWireName(channel: Pick<Channel, 'name'>): string {
-  return channel.name.trim();
+export function incomingChannelMergeKey(channel: Channel): string {
+  return channel.meta?.imported?.channelWireName ?? composeChannelWireName(channel);
 }

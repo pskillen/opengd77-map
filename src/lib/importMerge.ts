@@ -1,4 +1,5 @@
 import { buildNameToChannelId, resolveZoneMembers } from './codeplug.ts';
+import { incomingChannelMergeKey, channelImportMergeKeys } from './channelNaming.ts';
 import {
   channelsImportEqual,
   contactsImportEqual,
@@ -141,19 +142,77 @@ function mergeNamedEntities<T extends { id: string; name: string }>(
   return { items: result, stats };
 }
 
+function buildChannelMergeLookup(channels: Channel[]): Map<string, Channel> {
+  const map = new Map<string, Channel>();
+  for (const ch of channels) {
+    for (const key of channelImportMergeKeys(ch)) {
+      if (!map.has(key)) map.set(key, ch);
+    }
+  }
+  return map;
+}
+
+function dedupeIncomingChannelsByMergeKey(channels: Channel[]): Channel[] {
+  const result: Channel[] = [];
+  const seen = new Set<string>();
+  for (let i = channels.length - 1; i >= 0; i--) {
+    const ch = channels[i];
+    const key = incomingChannelMergeKey(ch);
+    if (!seen.has(key)) {
+      result.unshift(ch);
+      seen.add(key);
+    }
+  }
+  return result;
+}
+
 function mergeChannels(
   existing: Channel[],
   incoming: Channel[] | undefined,
   mode: ImportApplyMode,
 ): { channels: Channel[]; stats: EntityImportStats } {
-  const { items, stats } = mergeNamedEntities(
-    existing,
-    incoming,
-    mode,
-    channelsImportEqual,
-    mergeChannelOntoExisting,
-  );
-  return { channels: items, stats };
+  if (!incoming) {
+    return { channels: existing, stats: emptyEntityStats() };
+  }
+
+  if (mode === 'overwrite') {
+    return {
+      channels: incoming,
+      stats: {
+        added: incoming.length,
+        updated: 0,
+        unchanged: 0,
+        removed: existing.length,
+      },
+    };
+  }
+
+  const byKey = buildChannelMergeLookup(existing);
+  const deduped = dedupeIncomingChannelsByMergeKey(incoming);
+  const stats = emptyEntityStats();
+  const result = [...existing];
+
+  for (const inc of deduped) {
+    const key = incomingChannelMergeKey(inc);
+    const ex = byKey.get(key);
+    if (ex) {
+      if (channelsImportEqual(ex, inc)) {
+        stats.unchanged++;
+      } else {
+        const idx = result.findIndex((item) => item.id === ex.id);
+        result[idx] = mergeChannelOntoExisting(ex, inc);
+        stats.updated++;
+      }
+    } else {
+      result.push(inc);
+      stats.added++;
+      for (const mergeKey of channelImportMergeKeys(inc)) {
+        if (!byKey.has(mergeKey)) byKey.set(mergeKey, inc);
+      }
+    }
+  }
+
+  return { channels: result, stats };
 }
 
 function mergeContacts(

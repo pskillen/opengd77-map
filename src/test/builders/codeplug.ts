@@ -11,8 +11,6 @@ import {
 } from '../../models/codeplug.ts';
 import { setMemberWireNames, stampImported } from '../../lib/entityProvenance.ts';
 
-import { channelFieldDefaults, type Channel } from '../../models/codeplug.ts';
-
 export function buildChannel(overrides: Partial<Channel> & Pick<Channel, 'id' | 'name'>): Channel {
   const {
     id,

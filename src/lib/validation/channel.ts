@@ -1,5 +1,6 @@
 import type { Channel, ChannelModeProfile, Codeplug } from '../../models/codeplug.ts';
 import { isDmrMode } from '../channelModes.ts';
+import { composeChannelWireName } from '../channelNaming.ts';
 
 export interface ValidationIssue {
   field: string;
@@ -14,15 +15,43 @@ export function validateChannel(
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
-  if (!input.name.trim()) {
-    issues.push({ field: 'name', message: 'Channel name is required', severity: 'error' });
-  } else {
-    const duplicate = codeplug.channels.find((ch) => ch.name === input.name && ch.id !== channelId);
-    if (duplicate) {
+  const callsign = (input.callsign ?? '').trim();
+  const name = (input.name ?? '').trim();
+
+  if (!name && !callsign) {
+    issues.push({
+      field: 'name',
+      message: 'Enter a channel name or callsign',
+      severity: 'error',
+    });
+  }
+
+  const wirePreview = composeChannelWireName({
+    callsign,
+    name,
+    exportNameMode: input.exportNameMode ?? 'name_only',
+  });
+
+  if (wirePreview) {
+    const duplicateWire = codeplug.channels.find(
+      (ch) => composeChannelWireName(ch) === wirePreview && ch.id !== channelId,
+    );
+    if (duplicateWire) {
+      issues.push({
+        field: 'exportNameMode',
+        message: `Another channel already exports as "${wirePreview}"`,
+        severity: 'warning',
+      });
+    }
+  }
+
+  if (name) {
+    const duplicateName = codeplug.channels.find((ch) => ch.name === name && ch.id !== channelId);
+    if (duplicateName) {
       issues.push({
         field: 'name',
         message: 'Another channel already uses this name',
-        severity: 'error',
+        severity: 'warning',
       });
     }
   }
