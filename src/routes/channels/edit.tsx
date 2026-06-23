@@ -12,7 +12,7 @@ import {
 import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, useMemo, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import ReportPage from '../../components/report/ReportPage.tsx';
+import { FormPage } from '../../components/ui/index.ts';
 import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import {
@@ -349,12 +349,12 @@ export default function ChannelEdit() {
 
   if (!isNew && !existing) {
     return (
-      <ReportPage title="Edit channel">
+      <FormPage title="Edit channel">
         <Text>Channel not found.</Text>
         <Button component={Link} to="/channels" mt="md" variant="light">
           Back to channels
         </Button>
-      </ReportPage>
+      </FormPage>
     );
   }
 
@@ -442,20 +442,34 @@ export default function ChannelEdit() {
   const showSingleModeAnalogFields = !values.multiMode && isAnalogMode(values.mode);
   const showDmrFields = !values.multiMode && isDmrMode(values.mode);
 
+  const cancelPath = isNew ? '/channels' : `/channels/${existing?.id}`;
+
   return (
-    <ReportPage title={isNew ? 'New channel' : `Edit ${existing?.name ?? 'channel'}`}>
-      <form onSubmit={handleSubmit}>
-        <Stack gap="lg">
-          <Button
-            component={Link}
-            to={isNew ? '/channels' : `/channels/${existing?.id}`}
-            variant="subtle"
-            size="compact-sm"
-            style={{ alignSelf: 'flex-start' }}
-            leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          >
-            Back
+    <FormPage
+      title={isNew ? 'New channel' : `Edit ${existing?.name ?? 'channel'}`}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <Button component={Link} to={cancelPath} variant="default">
+            Cancel
           </Button>
+          <Button type="submit" leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <Stack gap="lg">
+        <Button
+          component={Link}
+          to={cancelPath}
+          variant="subtle"
+          size="compact-sm"
+          style={{ alignSelf: 'flex-start' }}
+          leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+        >
+          Back
+        </Button>
 
           {formError ? (
             <Text c="red" size="sm">
@@ -737,23 +751,15 @@ export default function ChannelEdit() {
             </Stack>
           ) : null}
 
-          <Group>
-            <Button
-              type="submit"
-              leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-            >
-              Save
-            </Button>
-            <Button
-              variant="default"
-              component={Link}
-              to={isNew ? '/channels' : `/channels/${existing?.id}`}
-            >
-              Cancel
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </ReportPage>
+          <Stack gap="sm" id={channelSectionAnchorId('Scan / APRS')}>
+            <Title order={4}>Scan / APRS</Title>
+            <TextInput
+              label="APRS config"
+              value={values.aprsConfigName}
+              onChange={(e) => set('aprsConfigName', e.currentTarget.value)}
+            />
+          </Stack>
+      </Stack>
+    </FormPage>
   );
 }

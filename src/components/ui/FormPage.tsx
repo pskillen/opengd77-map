@@ -13,6 +13,23 @@ export interface FormPageProps {
   width?: PageProps['width'];
 }
 
+function FormFooter({ footer, sticky }: { footer: ReactNode; sticky: boolean }) {
+  if (sticky) {
+    return (
+      <Paper withBorder p="sm" radius="md" pos="sticky" bottom={0} style={{ zIndex: 10 }}>
+        <Group justify="flex-end" gap="sm">
+          {footer}
+        </Group>
+      </Paper>
+    );
+  }
+  return (
+    <Group justify="flex-end" gap="sm" mt="md">
+      {footer}
+    </Group>
+  );
+}
+
 export default function FormPage({
   title,
   description,
@@ -22,31 +39,18 @@ export default function FormPage({
   width = 'default',
 }: FormPageProps) {
   const isMobile = useMediaQuery('(max-width: 48em)');
-  const formBody = (
+
+  const body = (
     <>
       {children}
-      {footer && !isMobile ? footer : null}
+      {footer ? <FormFooter footer={footer} sticky={Boolean(isMobile)} /> : null}
     </>
   );
 
   return (
     <Page width={width}>
       <PageHeader title={title} description={description} />
-      {onSubmit ? <form onSubmit={onSubmit}>{formBody}</form> : formBody}
-      {footer && isMobile ? (
-        <Paper
-          withBorder
-          p="sm"
-          radius="md"
-          pos="sticky"
-          bottom={0}
-          style={{ zIndex: 10 }}
-        >
-          <Group justify="flex-end" gap="sm">
-            {footer}
-          </Group>
-        </Paper>
-      ) : null}
+      {onSubmit ? <form onSubmit={onSubmit}>{body}</form> : body}
     </Page>
   );
 }

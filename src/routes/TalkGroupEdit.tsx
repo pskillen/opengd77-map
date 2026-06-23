@@ -1,8 +1,8 @@
-import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Stack, Text, TextInput } from '@mantine/core';
 import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import ReportPage from '../components/report/ReportPage.tsx';
+import { FormPage, FormSection } from '../components/ui/index.ts';
 import { findEntityById } from '../lib/reportLookup.ts';
 import { hasValidationErrors } from '../lib/validation/channel.ts';
 import { validateTalkGroup } from '../lib/validation/talkGroup.ts';
@@ -38,14 +38,16 @@ export default function TalkGroupEdit() {
 
   if (!isNew && !existing) {
     return (
-      <ReportPage title="Edit talk group">
+      <FormPage title="Edit talk group">
         <Text>Talk group not found.</Text>
         <Button component={Link} to="/talk-groups" mt="md" variant="light">
           Back to talk groups
         </Button>
-      </ReportPage>
+      </FormPage>
     );
   }
+
+  const cancelPath = isNew ? '/talk-groups' : `/talk-groups/${existing?.id}`;
 
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -77,26 +79,39 @@ export default function TalkGroupEdit() {
   };
 
   return (
-    <ReportPage title={isNew ? 'New talk group' : `Edit ${existing?.name ?? 'talk group'}`}>
-      <form onSubmit={handleSubmit}>
-        <Stack gap="lg">
-          <Button
-            component={Link}
-            to={isNew ? '/talk-groups' : `/talk-groups/${existing?.id}`}
-            variant="subtle"
-            size="compact-sm"
-            style={{ alignSelf: 'flex-start' }}
-            leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          >
-            Back
+    <FormPage
+      title={isNew ? 'New talk group' : `Edit ${existing?.name ?? 'talk group'}`}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <Button component={Link} to={cancelPath} variant="default">
+            Cancel
           </Button>
+          <Button type="submit" leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <Stack gap="lg">
+        <Button
+          component={Link}
+          to={cancelPath}
+          variant="subtle"
+          size="compact-sm"
+          style={{ alignSelf: 'flex-start' }}
+          leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+        >
+          Back
+        </Button>
 
-          {formError ? (
-            <Text c="red" size="sm">
-              {formError}
-            </Text>
-          ) : null}
+        {formError ? (
+          <Text c="red" size="sm">
+            {formError}
+          </Text>
+        ) : null}
 
+        <FormSection title="Talk group details">
           <TextInput
             label="Name"
             required
@@ -114,24 +129,8 @@ export default function TalkGroupEdit() {
             value={values.timeslotOverride}
             onChange={(e) => set('timeslotOverride', e.currentTarget.value)}
           />
-
-          <Group>
-            <Button
-              type="submit"
-              leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-            >
-              Save
-            </Button>
-            <Button
-              component={Link}
-              to={isNew ? '/talk-groups' : `/talk-groups/${existing?.id}`}
-              variant="default"
-            >
-              Cancel
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </ReportPage>
+        </FormSection>
+      </Stack>
+    </FormPage>
   );
 }

@@ -1,8 +1,8 @@
-import { Button, Group, Stack, Text, TextInput } from '@mantine/core';
+import { Button, Stack, Text, TextInput } from '@mantine/core';
 import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import ReportPage from '../components/report/ReportPage.tsx';
+import { FormPage, FormSection } from '../components/ui/index.ts';
 import { findEntityById } from '../lib/reportLookup.ts';
 import { hasValidationErrors } from '../lib/validation/channel.ts';
 import { validateContact } from '../lib/validation/contact.ts';
@@ -38,14 +38,16 @@ export default function ContactEdit() {
 
   if (!isNew && !existing) {
     return (
-      <ReportPage title="Edit contact">
+      <FormPage title="Edit contact">
         <Text>Contact not found.</Text>
         <Button component={Link} to="/contacts" mt="md" variant="light">
           Back to contacts
         </Button>
-      </ReportPage>
+      </FormPage>
     );
   }
+
+  const cancelPath = isNew ? '/contacts' : `/contacts/${existing?.id}`;
 
   const set = <K extends keyof FormValues>(key: K, value: FormValues[K]) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -77,26 +79,39 @@ export default function ContactEdit() {
   };
 
   return (
-    <ReportPage title={isNew ? 'New contact' : `Edit ${existing?.name ?? 'contact'}`}>
-      <form onSubmit={handleSubmit}>
-        <Stack gap="lg">
-          <Button
-            component={Link}
-            to={isNew ? '/contacts' : `/contacts/${existing?.id}`}
-            variant="subtle"
-            size="compact-sm"
-            style={{ alignSelf: 'flex-start' }}
-            leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          >
-            Back
+    <FormPage
+      title={isNew ? 'New contact' : `Edit ${existing?.name ?? 'contact'}`}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <Button component={Link} to={cancelPath} variant="default">
+            Cancel
           </Button>
+          <Button type="submit" leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <Stack gap="lg">
+        <Button
+          component={Link}
+          to={cancelPath}
+          variant="subtle"
+          size="compact-sm"
+          style={{ alignSelf: 'flex-start' }}
+          leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+        >
+          Back
+        </Button>
 
-          {formError ? (
-            <Text c="red" size="sm">
-              {formError}
-            </Text>
-          ) : null}
+        {formError ? (
+          <Text c="red" size="sm">
+            {formError}
+          </Text>
+        ) : null}
 
+        <FormSection title="Contact details">
           <TextInput
             label="Name"
             required
@@ -114,24 +129,8 @@ export default function ContactEdit() {
             value={values.timeslotOverride}
             onChange={(e) => set('timeslotOverride', e.currentTarget.value)}
           />
-
-          <Group>
-            <Button
-              type="submit"
-              leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-            >
-              Save
-            </Button>
-            <Button
-              component={Link}
-              to={isNew ? '/contacts' : `/contacts/${existing?.id}`}
-              variant="default"
-            >
-              Cancel
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </ReportPage>
+        </FormSection>
+      </Stack>
+    </FormPage>
   );
 }

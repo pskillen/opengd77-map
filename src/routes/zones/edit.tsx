@@ -1,9 +1,9 @@
-import { Button, Group, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Stack, Text, TextInput } from '@mantine/core';
 import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ZoneMemberPicker from '../../components/crud/ZoneMemberPicker.tsx';
-import ReportPage from '../../components/report/ReportPage.tsx';
+import { FormPage, FormSection } from '../../components/ui/index.ts';
 import { findEntityById } from '../../lib/reportLookup.ts';
 import { hasValidationErrors } from '../../lib/validation/channel.ts';
 import { validateZone } from '../../lib/validation/zone.ts';
@@ -23,14 +23,16 @@ export default function ZoneEdit() {
 
   if (!isNew && !existing) {
     return (
-      <ReportPage title="Edit zone">
+      <FormPage title="Edit zone">
         <Text>Zone not found.</Text>
         <Button component={Link} to="/zones" mt="md" variant="light">
           Back to zones
         </Button>
-      </ReportPage>
+      </FormPage>
     );
   }
+
+  const cancelPath = isNew ? '/zones' : `/zones/${existing?.id}`;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -59,59 +61,55 @@ export default function ZoneEdit() {
   };
 
   return (
-    <ReportPage title={isNew ? 'New zone' : `Edit ${existing?.name ?? 'zone'}`}>
-      <form onSubmit={handleSubmit}>
-        <Stack gap="lg">
-          <Button
-            component={Link}
-            to={isNew ? '/zones' : `/zones/${existing?.id}`}
-            variant="subtle"
-            size="compact-sm"
-            style={{ alignSelf: 'flex-start' }}
-            leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          >
-            Back
+    <FormPage
+      title={isNew ? 'New zone' : `Edit ${existing?.name ?? 'zone'}`}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <Button component={Link} to={cancelPath} variant="default">
+            Cancel
           </Button>
+          <Button type="submit" leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <Stack gap="lg">
+        <Button
+          component={Link}
+          to={cancelPath}
+          variant="subtle"
+          size="compact-sm"
+          style={{ alignSelf: 'flex-start' }}
+          leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+        >
+          Back
+        </Button>
 
-          {formError ? (
-            <Text c="red" size="sm">
-              {formError}
-            </Text>
-          ) : null}
+        {formError ? (
+          <Text c="red" size="sm">
+            {formError}
+          </Text>
+        ) : null}
 
+        <FormSection title="Zone details">
           <TextInput
             label="Zone name"
             required
             value={name}
             onChange={(e) => setName(e.currentTarget.value)}
           />
+        </FormSection>
 
-          <Stack gap="sm">
-            <Title order={4}>Member channels</Title>
-            <ZoneMemberPicker
-              channels={codeplug.channels}
-              selectedIds={memberIds}
-              onChange={setMemberIds}
-            />
-          </Stack>
-
-          <Group>
-            <Button
-              type="submit"
-              leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-            >
-              Save
-            </Button>
-            <Button
-              variant="default"
-              component={Link}
-              to={isNew ? '/zones' : `/zones/${existing?.id}`}
-            >
-              Cancel
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </ReportPage>
+        <FormSection title="Member channels">
+          <ZoneMemberPicker
+            channels={codeplug.channels}
+            selectedIds={memberIds}
+            onChange={setMemberIds}
+          />
+        </FormSection>
+      </Stack>
+    </FormPage>
   );
 }

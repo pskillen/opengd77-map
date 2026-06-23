@@ -1,9 +1,9 @@
-import { Button, Group, Stack, Text, TextInput, Title } from '@mantine/core';
+import { Button, Stack, Text, TextInput } from '@mantine/core';
 import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import RxGroupListMemberPicker from '../components/crud/RxGroupListMemberPicker.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
+import { FormPage, FormSection } from '../components/ui/index.ts';
 import type { EntityRef } from '../models/codeplug.ts';
 import { findEntityById } from '../lib/reportLookup.ts';
 import { hasValidationErrors } from '../lib/validation/channel.ts';
@@ -24,14 +24,16 @@ export default function RxGroupListEdit() {
 
   if (!isNew && !existing) {
     return (
-      <ReportPage title="Edit RX group list">
+      <FormPage title="Edit RX group list">
         <Text>RX group list not found.</Text>
         <Button component={Link} to="/rx-group-lists" mt="md" variant="light">
           Back to RX group lists
         </Button>
-      </ReportPage>
+      </FormPage>
     );
   }
+
+  const cancelPath = isNew ? '/rx-group-lists' : `/rx-group-lists/${existing?.id}`;
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -61,60 +63,56 @@ export default function RxGroupListEdit() {
   };
 
   return (
-    <ReportPage title={isNew ? 'New RX group list' : `Edit ${existing?.name ?? 'list'}`}>
-      <form onSubmit={handleSubmit}>
-        <Stack gap="lg">
-          <Button
-            component={Link}
-            to={isNew ? '/rx-group-lists' : `/rx-group-lists/${existing?.id}`}
-            variant="subtle"
-            size="compact-sm"
-            style={{ alignSelf: 'flex-start' }}
-            leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          >
-            Back
+    <FormPage
+      title={isNew ? 'New RX group list' : `Edit ${existing?.name ?? 'list'}`}
+      onSubmit={handleSubmit}
+      footer={
+        <>
+          <Button component={Link} to={cancelPath} variant="default">
+            Cancel
           </Button>
+          <Button type="submit" leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}>
+            Save
+          </Button>
+        </>
+      }
+    >
+      <Stack gap="lg">
+        <Button
+          component={Link}
+          to={cancelPath}
+          variant="subtle"
+          size="compact-sm"
+          style={{ alignSelf: 'flex-start' }}
+          leftSection={<IconArrowLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+        >
+          Back
+        </Button>
 
-          {formError ? (
-            <Text c="red" size="sm">
-              {formError}
-            </Text>
-          ) : null}
+        {formError ? (
+          <Text c="red" size="sm">
+            {formError}
+          </Text>
+        ) : null}
 
+        <FormSection title="List details">
           <TextInput
             label="List name"
             required
             value={name}
             onChange={(e) => setName(e.currentTarget.value)}
           />
+        </FormSection>
 
-          <Stack gap="sm">
-            <Title order={4}>Members</Title>
-            <RxGroupListMemberPicker
-              talkGroups={codeplug.talkGroups}
-              contacts={codeplug.contacts}
-              selectedRefs={memberRefs}
-              onChange={setMemberRefs}
-            />
-          </Stack>
-
-          <Group>
-            <Button
-              type="submit"
-              leftSection={<IconDeviceFloppy size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-            >
-              Save
-            </Button>
-            <Button
-              component={Link}
-              to={isNew ? '/rx-group-lists' : `/rx-group-lists/${existing?.id}`}
-              variant="default"
-            >
-              Cancel
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </ReportPage>
+        <FormSection title="Members">
+          <RxGroupListMemberPicker
+            talkGroups={codeplug.talkGroups}
+            contacts={codeplug.contacts}
+            selectedRefs={memberRefs}
+            onChange={setMemberRefs}
+          />
+        </FormSection>
+      </Stack>
+    </FormPage>
   );
 }
