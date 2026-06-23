@@ -3,10 +3,10 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconArrowLeft, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ConfirmDeleteModal from '../components/crud/ConfirmDeleteModal.tsx';
-import EntityTable from '../components/report/EntityTable.tsx';
+import { DataTable, Page, PageHeader } from '../components/ui/index.ts';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
+
 import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { formatFrequencyHz } from '../lib/formatFrequency.ts';
 import {
@@ -28,9 +28,10 @@ export default function ContactDetail() {
 
   if (!contact) {
     return (
-      <ReportPage title="Contact">
+      <Page>
+        <PageHeader title="Contact" />
         <NotFoundEntity entityLabel="Contact" listPath="/contacts" />
-      </ReportPage>
+      </Page>
     );
   }
 
@@ -59,7 +60,8 @@ export default function ContactDetail() {
   };
 
   return (
-    <ReportPage title={contact.name}>
+    <Page>
+      <PageHeader title={contact.name} />
       <Stack gap="lg">
         <Group justify="space-between">
           <Anchor component={Link} to="/contacts" size="sm">
@@ -110,7 +112,7 @@ export default function ContactDetail() {
               No channels reference this contact.
             </Text>
           ) : (
-            <EntityTable
+            <DataTable
               rows={usingChannels}
               rowKey={(ch) => ch.id}
               nameColumn={{
@@ -137,7 +139,7 @@ export default function ContactDetail() {
               No RX group lists include this contact.
             </Text>
           ) : (
-            <EntityTable
+            <DataTable
               rows={usingLists}
               rowKey={(rgl) => rgl.id}
               nameColumn={{
@@ -164,6 +166,6 @@ export default function ContactDetail() {
         entityName={contact.name}
         warning={deleteWarningParts.length > 0 ? deleteWarningParts.join(' ') : undefined}
       />
-    </ReportPage>
+    </Page>
   );
 }

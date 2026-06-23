@@ -3,10 +3,10 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconArrowLeft, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import ConfirmDeleteModal from '../components/crud/ConfirmDeleteModal.tsx';
-import EntityTable from '../components/report/EntityTable.tsx';
+import { DataTable, Page, PageHeader } from '../components/ui/index.ts';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
+
 import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { formatFrequencyHz } from '../lib/formatFrequency.ts';
 import {
@@ -28,9 +28,10 @@ export default function TalkGroupDetail() {
 
   if (!talkGroup) {
     return (
-      <ReportPage title="Talk group">
+      <Page>
+        <PageHeader title="Talk group" />
         <NotFoundEntity entityLabel="Talk group" listPath="/talk-groups" />
-      </ReportPage>
+      </Page>
     );
   }
 
@@ -59,7 +60,8 @@ export default function TalkGroupDetail() {
   };
 
   return (
-    <ReportPage title={talkGroup.name}>
+    <Page>
+      <PageHeader title={talkGroup.name} />
       <Stack gap="lg">
         <Group justify="space-between">
           <Anchor component={Link} to="/talk-groups" size="sm">
@@ -110,7 +112,7 @@ export default function TalkGroupDetail() {
               No channels reference this talk group.
             </Text>
           ) : (
-            <EntityTable
+            <DataTable
               rows={usingChannels}
               rowKey={(ch) => ch.id}
               nameColumn={{
@@ -137,7 +139,7 @@ export default function TalkGroupDetail() {
               No RX group lists include this talk group.
             </Text>
           ) : (
-            <EntityTable
+            <DataTable
               rows={usingLists}
               rowKey={(rgl) => rgl.id}
               nameColumn={{
@@ -164,6 +166,6 @@ export default function TalkGroupDetail() {
         entityName={talkGroup.name}
         warning={deleteWarningParts.length > 0 ? deleteWarningParts.join(' ') : undefined}
       />
-    </ReportPage>
+    </Page>
   );
 }

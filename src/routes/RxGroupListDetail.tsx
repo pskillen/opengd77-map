@@ -5,10 +5,10 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import ConfirmDeleteModal from '../components/crud/ConfirmDeleteModal.tsx';
 import { BandPillForChannel } from '../components/crud/BandPill.tsx';
 import ModePill from '../components/crud/ModePill.tsx';
-import EntityTable from '../components/report/EntityTable.tsx';
+import { DataTable, Page, PageHeader } from '../components/ui/index.ts';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
-import ReportPage from '../components/report/ReportPage.tsx';
+
 import {
   channelsReferencingRxGroupListId,
   findEntityById,
@@ -27,9 +27,10 @@ export default function RxGroupListDetail() {
 
   if (!rgl) {
     return (
-      <ReportPage title="RX Group List">
+      <Page>
+        <PageHeader title="RX Group List" />
         <NotFoundEntity entityLabel="RX Group List" listPath="/rx-group-lists" />
-      </ReportPage>
+      </Page>
     );
   }
 
@@ -43,7 +44,8 @@ export default function RxGroupListDetail() {
   };
 
   return (
-    <ReportPage title={rgl.name}>
+    <Page>
+      <PageHeader title={rgl.name} />
       <Stack gap="lg">
         <Group justify="space-between">
           <Anchor component={Link} to="/rx-group-lists" size="sm">
@@ -88,7 +90,7 @@ export default function RxGroupListDetail() {
 
         <Stack gap="sm">
           <Title order={3}>Members</Title>
-          <EntityTable
+          <DataTable
             rows={members}
             rowKey={(m) => m.name}
             nameColumn={{
@@ -134,7 +136,7 @@ export default function RxGroupListDetail() {
               No channels reference this RX group list.
             </Text>
           ) : (
-            <EntityTable
+            <DataTable
               rows={usingChannels}
               rowKey={(ch) => ch.id}
               nameColumn={{
@@ -166,6 +168,6 @@ export default function RxGroupListDetail() {
             : undefined
         }
       />
-    </ReportPage>
+    </Page>
   );
 }

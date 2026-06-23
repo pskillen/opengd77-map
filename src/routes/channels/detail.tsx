@@ -7,7 +7,7 @@ import ConfirmDeleteModal from '../../components/crud/ConfirmDeleteModal.tsx';
 import { BandPillForChannel } from '../../components/crud/BandPill.tsx';
 import DetailSections, { DetailLinkList } from '../../components/report/DetailSections.tsx';
 import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
-import ReportPage from '../../components/report/ReportPage.tsx';
+import { Page, PageHeader } from '../../components/ui/index.ts';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import {
   externalChannelLinks,
@@ -44,9 +44,10 @@ export default function ChannelDetail() {
 
   if (!channel) {
     return (
-      <ReportPage title="Channel">
+      <Page>
+        <PageHeader title="Channel" />
         <NotFoundEntity entityLabel="Channel" listPath="/channels" />
-      </ReportPage>
+      </Page>
     );
   }
 
@@ -321,7 +322,8 @@ export default function ChannelDetail() {
   };
 
   return (
-    <ReportPage title={channel.name}>
+    <Page>
+      <PageHeader title={channel.name} />
       <Stack gap="lg">
         <Group justify="space-between">
           <Anchor component={Link} to="/channels" size="sm">
@@ -418,6 +420,6 @@ export default function ChannelDetail() {
         entityName={channel.name}
         warning={zoneWarning}
       />
-    </ReportPage>
+    </Page>
   );
 }

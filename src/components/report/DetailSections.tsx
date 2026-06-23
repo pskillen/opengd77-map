@@ -1,6 +1,7 @@
-import { Anchor, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import { Anchor, SimpleGrid, Stack, Text } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import type { ReactNode } from 'react';
+import { PageSection } from '../ui/index.ts';
 import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 
 export interface DetailField {
@@ -21,9 +22,12 @@ export default function DetailSections({ sections }: DetailSectionsProps) {
   return (
     <Stack gap="lg">
       {sections.map((section) => (
-        <Stack key={section.title} id={channelSectionAnchorId(section.title)} gap="sm">
-          <Title order={3}>{section.title}</Title>
-          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+        <PageSection key={section.title} title={section.title}>
+          <SimpleGrid
+            cols={{ base: 1, sm: 2 }}
+            spacing="sm"
+            id={channelSectionAnchorId(section.title)}
+          >
             {section.fields.map((field) => (
               <Stack key={field.label} gap={2}>
                 <Text size="sm" c="dimmed">
@@ -33,7 +37,7 @@ export default function DetailSections({ sections }: DetailSectionsProps) {
               </Stack>
             ))}
           </SimpleGrid>
-        </Stack>
+        </PageSection>
       ))}
     </Stack>
   );
@@ -49,21 +53,22 @@ export function DetailLinkList({
   id?: string;
 }) {
   return (
-    <Stack gap="sm" id={id ?? channelSectionAnchorId(title)}>
-      <Title order={3}>{title}</Title>
-      {items.length === 0 ? (
-        <Text size="sm" c="dimmed">
-          None
-        </Text>
-      ) : (
-        <Stack gap={4}>
-          {items.map((item) => (
-            <Anchor key={item.id} component={Link} to={item.path}>
-              {item.name}
-            </Anchor>
-          ))}
-        </Stack>
-      )}
-    </Stack>
+    <PageSection title={title}>
+      <Stack gap="sm" id={id ?? channelSectionAnchorId(title)}>
+        {items.length === 0 ? (
+          <Text size="sm" c="dimmed">
+            None
+          </Text>
+        ) : (
+          <Stack gap={4}>
+            {items.map((item) => (
+              <Anchor key={item.id} component={Link} to={item.path}>
+                {item.name}
+              </Anchor>
+            ))}
+          </Stack>
+        )}
+      </Stack>
+    </PageSection>
   );
 }

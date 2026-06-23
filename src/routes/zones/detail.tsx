@@ -4,10 +4,9 @@ import { IconArrowLeft, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import ConfirmDeleteModal from '../../components/crud/ConfirmDeleteModal.tsx';
-import EntityTable from '../../components/report/EntityTable.tsx';
+import { DataTable, Page, PageHeader } from '../../components/ui/index.ts';
 import DetailSections from '../../components/report/DetailSections.tsx';
 import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
-import ReportPage from '../../components/report/ReportPage.tsx';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import { channelsForZone, findEntityById } from '../../lib/reportLookup.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
@@ -26,9 +25,10 @@ export default function ZoneDetail() {
 
   if (!zone) {
     return (
-      <ReportPage title="Zone">
+      <Page>
+        <PageHeader title="Zone" />
         <NotFoundEntity entityLabel="Zone" listPath="/zones" />
-      </ReportPage>
+      </Page>
     );
   }
 
@@ -41,7 +41,8 @@ export default function ZoneDetail() {
   };
 
   return (
-    <ReportPage title={zone.name}>
+    <Page>
+      <PageHeader title={zone.name} />
       <Stack gap="lg">
         <Group justify="space-between">
           <Anchor component={Link} to="/zones" size="sm">
@@ -86,7 +87,7 @@ export default function ZoneDetail() {
 
         <Stack gap="sm">
           <Title order={3}>Member channels</Title>
-          <EntityTable
+          <DataTable
             rows={members}
             rowKey={(ch) => ch.id}
             nameColumn={{
@@ -143,6 +144,6 @@ export default function ZoneDetail() {
         title="Delete zone"
         entityName={zone.name}
       />
-    </ReportPage>
+    </Page>
   );
 }
