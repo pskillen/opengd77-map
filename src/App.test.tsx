@@ -128,7 +128,9 @@ describe('App', () => {
     renderApp(`/debug/local-storage/${encodeURIComponent(CODEPLUG_STORAGE_KEY)}`);
 
     expect(screen.getByRole('heading', { name: 'Codeplug projects' })).toBeInTheDocument();
-    expect(screen.getByText('Test repeaters')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Expand all' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Collapse to default' })).toBeInTheDocument();
+    expect(screen.getByText('activeProjectId')).toBeInTheDocument();
   });
 
   it('renders the reference index without an active project', () => {
