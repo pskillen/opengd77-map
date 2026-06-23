@@ -1,3 +1,5 @@
+import { parseChannelWireName } from './channelNaming.ts';
+
 export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
@@ -56,5 +58,5 @@ export function parseCsv(text: string): string[][] {
 }
 
 export function extractCallsign(channelName: string): string {
-  return channelName.split(/\s+/)[0] || channelName;
+  return parseChannelWireName(channelName).callsign;
 }
