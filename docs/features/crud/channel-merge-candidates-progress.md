@@ -37,13 +37,18 @@
 
 ## Slice 3: Detection + preview lib
 
-**Status:** In progress
+**Status:** Complete
+
+**Delivered**
+
+- `src/lib/channelMergeCandidates.ts` — find, preview, apply
+- Unit tests with GB7GL-style fixtures
 
 ---
 
 ## Slice 4: Mutations + store
 
-**Status:** Not started
+**Status:** In progress
 
 ---
 
