@@ -13,6 +13,7 @@ import {
 } from '../../hooks/useExportSettings.ts';
 import { STORAGE_KEY_MAIDENHEAD_GRID, STORAGE_KEY_TILE, STORAGE_KEY_TOKEN } from '../mapTiles.ts';
 import { CODEPLUG_STORAGE_KEY } from '../../state/codeplugStorage.ts';
+import { GOOGLE_DRIVE_TOKEN_STORAGE_KEY } from '../cloud/googleDrive/config.ts';
 import { parseStorageRaw, redactParsedValue } from './parseStorageValue.ts';
 
 const APP_STORAGE_PREFIX = 'mm9pdy-codeplug-tool.';
@@ -37,6 +38,7 @@ export interface StorageEntry {
 
 const KNOWN_STORAGE_KEYS: StorageKeyDescriptor[] = [
   { key: CODEPLUG_STORAGE_KEY, label: 'Codeplug projects', redact: false },
+  { key: GOOGLE_DRIVE_TOKEN_STORAGE_KEY, label: 'Google Drive OAuth tokens', redact: true },
   { key: STORAGE_KEY_TOKEN, label: 'Mapbox token', redact: true },
   { key: STORAGE_KEY_TILE, label: 'Map tile provider', redact: false },
   { key: STORAGE_KEY_MAIDENHEAD_GRID, label: 'Maidenhead grid mode', redact: false },
