@@ -15,4 +15,6 @@ After parse, `mergeImportChannelsMultiTalkgroupBestEffort` collapses rows that m
 
 Otherwise expand collapsed logical channels back to flat per-TG rows for formats that need it.
 
+Per-member `timeslotOverride` on expanded rows becomes `Time Slot` on each `Channels.csv` row — see [multi-talkgroup expansion](../multi-talkgroup-expansion.md#expanded-row-semantics).
+
 Zone member lists use the same expansion flags so pipe lists match `Channels.csv` wire names.

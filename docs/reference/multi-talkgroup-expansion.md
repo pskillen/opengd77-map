@@ -49,6 +49,7 @@ Each expanded row is one site × one member:
 - **Wire name:** composed by `multiTalkGroupExportNameMode` (default `callsign_tg_abbrev`) — see [Wire name modes](#wire-name-modes). Legacy `append` mode uses `{baseWireName} {memberWireName}`.
 - **Contact / TX ref:** the member (`contactRef` on the expanded row)
 - **RX group list:** `null` — single-TG row; no RGL on wire
+- **Timeslot:** when the member has `timeslotOverride`, expanded row `timeslot` reflects it; otherwise inherits lean channel / mode-profile slot. Relevant for formats that store slot on the channel row (e.g. DM32 `Time Slot`).
 
 **Collisions:** if a derived name already exists, append ` 2`, ` 3`, … until unique (same rule as multi-mode). TG-first modes aim to keep talk-group identity in the name so disambiguation suffixes are not needed.
 
