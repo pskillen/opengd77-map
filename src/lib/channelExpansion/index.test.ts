@@ -6,6 +6,7 @@ import {
   buildTalkGroup,
 } from '../../test/builders/codeplug.ts';
 import {
+  canonicalOpenGd77ChannelWireForCompare,
   channelMergeNameStem,
   channelNameStem,
   channelsAreMultiModeMergeCandidates,
@@ -91,6 +92,13 @@ describe('channelExpansion', () => {
     expect(stripModeExportSuffix('GB7GL')).toBe('GB7GL');
   });
 
+  it('canonicalOpenGd77ChannelWireForCompare normalizes FM/DMR word suffix to -F/-D', () => {
+    expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan FM")).toBe("GB7GX P'pan-F");
+    expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan DMR")).toBe("GB7GX P'pan-D");
+    expect(canonicalOpenGd77ChannelWireForCompare("GB7DG Ppatrick-F")).toBe('GB7DG Ppatrick-F');
+    expect(canonicalOpenGd77ChannelWireForCompare("FIRE Serv Def'd")).toBe("FIRE Serv Def'd");
+  });
+
   it('channelMergeNameStem strips trailing space + mode label', () => {
     expect(channelMergeNameStem('GB7GL-F')).toBe('GB7GL');
     expect(channelMergeNameStem('GB123 Meep FM')).toBe('GB123 Meep');
@@ -145,6 +153,54 @@ describe('channelExpansion', () => {
     expect(channels[0].multiMode).toBe(true);
     expect(channels[0].name).toBe('GB7GL');
     expect(channels[0].modeProfiles).toHaveLength(2);
+    expect(merged).toHaveLength(1);
+  });
+
+  it('mergeImportChannelsBestEffort merges apostrophe FM/DMR word-suffix pairs', () => {
+    const loc = { lat: 55.86, lon: -4.25 };
+    const fm = buildChannel({
+      id: '1',
+      name: "GB7GX P'pan FM",
+      mode: 'fm',
+      rxFrequency: 439_362_500,
+      txFrequency: 430_362_500,
+      location: loc,
+    });
+    const dmr = buildChannel({
+      id: '2',
+      name: "GB7GX P'pan DMR",
+      mode: 'dmr',
+      rxFrequency: 439_362_500,
+      txFrequency: 430_362_500,
+      location: loc,
+    });
+    const { channels, merged } = mergeImportChannelsBestEffort([fm, dmr]);
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
+    expect(merged).toHaveLength(1);
+  });
+
+  it('mergeImportChannelsBestEffort merges apostrophe -F/-D suffix pairs', () => {
+    const loc = { lat: 54.9, lon: -5.05 };
+    const fm = buildChannel({
+      id: '1',
+      name: "GB7RG Stran'r-F",
+      mode: 'fm',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: loc,
+    });
+    const dmr = buildChannel({
+      id: '2',
+      name: "GB7RG Stran'r-D",
+      mode: 'dmr',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: loc,
+    });
+    const { channels, merged } = mergeImportChannelsBestEffort([fm, dmr]);
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
     expect(merged).toHaveLength(1);
   });
 

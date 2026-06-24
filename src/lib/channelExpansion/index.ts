@@ -134,6 +134,21 @@ export function stripModeExportSuffix(name: string): string {
   return name;
 }
 
+/**
+ * Canonical OpenGD77 channel wire name for multiset round-trip compare.
+ * Treats trailing ` FM` / ` DMR` / ` DM` and `-F` / `-D` as equivalent.
+ */
+export function canonicalOpenGd77ChannelWireForCompare(wire: string): string {
+  const trimmed = wire.trim();
+  const stem = channelMergeNameStem(trimmed);
+  if (stem === trimmed) return trimmed;
+  if (trimmed.endsWith('-F') || /\sFM$/i.test(trimmed)) return `${stem}-F`;
+  if (trimmed.endsWith('-D') || /\sDMR$/i.test(trimmed) || /\sDM$/i.test(trimmed)) {
+    return `${stem}-D`;
+  }
+  return trimmed;
+}
+
 function channelForWireName(
   channel: Channel,
   options: ExpandChannelOptions,
@@ -858,7 +873,7 @@ export function mergeChannelsToMultiMode(
 
   const primary = pickPrimarySource(sources);
   const survivorId = options.survivorId ?? primary.id;
-  const resultName = options.resultName ?? channelNameStem(primary.name);
+  const resultName = options.resultName ?? channelMergeNameStem(primary.name);
   const modeProfiles = sources.map((ch) => profileFromChannelFields(ch));
 
   const base: Channel = {
@@ -891,8 +906,13 @@ export function mergeChannelsToMultiMode(
   return syncChannelFromPrimaryProfile(withMergedChannelWireProvenance(base, sources));
 }
 
+const IMPORT_MERGE_MATCH_OPTIONS: ChannelMergeCandidateOptions = {
+  stripTrailingModeLabel: true,
+  nameFuzzyThreshold: 0,
+};
+
 function canMergePair(a: Channel, b: Channel, options: ChannelMergeCandidateOptions = {}): boolean {
-  return channelsAreMultiModeMergeCandidates(a, b, { nameFuzzyThreshold: 0, ...options });
+  return channelsAreMultiModeMergeCandidates(a, b, { ...IMPORT_MERGE_MATCH_OPTIONS, ...options });
 }
 
 function mergeTwoChannels(primary: Channel, secondary: Channel): Channel {

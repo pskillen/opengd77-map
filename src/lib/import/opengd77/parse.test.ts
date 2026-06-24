@@ -107,6 +107,34 @@ describe('parseChannels', () => {
     expect(channels[0].modeProfiles).toHaveLength(2);
     expect(channels[0].modeProfiles.map((p) => p.mode).sort()).toEqual(['dmr', 'fm']);
   });
+
+  it('merges apostrophe FM/DMR word-suffix rows into one multi-mode channel', () => {
+    const csv = `${header}
+1,GB7GX P'pan FM,Analogue,439.36250,430.36250,12.5,,,,,,,,None,88.5,Disabled,Master,No,No,No,0,Off,No,No,None,55.86,-4.25,Yes
+2,GB7GX P'pan DMR,Digital,439.36250,430.36250,,2,1,Local 9,Scotland,,Off,Off,,,75%,Master,No,No,No,0,Off,No,No,None,55.86,-4.25,Yes`;
+
+    const channels = normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX));
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
+    expect(channels[0].callsign).toBe('GB7GX');
+    expect(channels[0].name).toBe("P'pan");
+    expect(channels[0].meta?.imported?.channelWireNames).toEqual([
+      "GB7GX P'pan FM",
+      "GB7GX P'pan DMR",
+    ]);
+  });
+
+  it('merges apostrophe -F/-D suffix rows into one multi-mode channel', () => {
+    const csv = `${header}
+1,GB7DG Ppatrick-F,Analogue,430.90000,438.50000,12.5,,,,,,,,None,None,Disabled,Master,No,No,No,0,Off,No,No,None,54.69,-4.89,Yes
+2,GB7DG Ppatrick-D,Digital,430.90000,438.50000,,7,1,None,GB7DG,None,Off,Off,,,,Master,No,No,No,0,Off,No,No,None,54.69,-4.89,Yes`;
+
+    const channels = normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX));
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
+    expect(channels[0].callsign).toBe('GB7DG');
+    expect(channels[0].name).toBe('Ppatrick');
+  });
 });
 
 describe('parseZones', () => {

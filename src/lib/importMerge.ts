@@ -50,7 +50,10 @@ const DEFAULT_IMPORT_MERGE_OPTIONS: ImportMergeOptions = {
 };
 
 function mergeCandidateOptions(options: ImportMergeOptions): ChannelMergeCandidateOptions {
-  return options.relaxedChannelMatch ? { ignoreNameMatch: true } : {};
+  return {
+    stripTrailingModeLabel: true,
+    ...(options.relaxedChannelMatch ? { ignoreNameMatch: true } : {}),
+  };
 }
 
 function findRelaxedChannelMatch(incoming: Channel, existing: Channel[]): Channel | undefined {

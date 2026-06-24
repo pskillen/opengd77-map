@@ -1,4 +1,4 @@
-import { stripModeExportSuffix } from './channelExpansion/index.ts';
+import { stripModeExportSuffix, channelMergeNameStem } from './channelExpansion/index.ts';
 import type { Channel, ChannelExportNameMode } from '../models/codeplug.ts';
 import { CALLSIGN_TOKEN_PATTERNS } from './channelNaming/patterns.ts';
 
@@ -116,8 +116,8 @@ export function normalizeImportedChannelNaming(channels: Channel[]): Channel[] {
     const wire = channel.meta?.imported?.channelWireName ?? channel.name;
     const parsed = parseChannelWireName(wire);
     let name = parsed.name;
-    if (channel.multiMode && (name.endsWith('-F') || name.endsWith('-D'))) {
-      name = stripModeExportSuffix(name);
+    if (channel.multiMode) {
+      name = channelMergeNameStem(name);
     }
     return {
       ...channel,

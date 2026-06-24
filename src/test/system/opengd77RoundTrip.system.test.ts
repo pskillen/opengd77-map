@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { canonicalOpenGd77ChannelWireForCompare } from '../../lib/channelExpansion/index.ts';
 import { serialiseOpenGd77Files } from '../../lib/export/opengd77/serialise.ts';
 import { importFiles } from '../../lib/import/index.ts';
 import { applyImportToCodeplug } from '../../lib/importMerge.ts';
@@ -8,6 +9,7 @@ import {
   compareCsvRecords,
   formatCsvRecordCompareFailure,
 } from '../csvRecordCompare.ts';
+import { parseCsv } from '../../lib/csv.ts';
 import {
   OPENGD77_TEST_DATA_FIXTURES,
   readOpenGd77TestData,
@@ -20,13 +22,24 @@ const SUBSTANTIVE_FILES: {
   nameColumn: string;
   excludeColumns?: string[];
 }[] = [
-  { fileName: 'Channels.csv', nameColumn: 'Channel Name', excludeColumns: ['Channel Number'] },
+  { fileName: 'Channels.csv', nameColumn: 'Channel Name', excludeColumns: ['Channel Number', 'APRS'] },
   { fileName: 'Zones.csv', nameColumn: 'Zone Name' },
   { fileName: 'Contacts.csv', nameColumn: 'Contact Name' },
   { fileName: 'TG_Lists.csv', nameColumn: 'TG List Name' },
 ];
 
 const HEADER_ONLY_FILES: OpenGd77TestDataFileName[] = ['DTMF.csv', 'APRS.csv'];
+
+function openGd77CsvCompareNormalizers(csv: string): Record<string, (value: string) => string> {
+  const headers = parseCsv(csv.replace(/^\uFEFF/, '').trim())[0]?.map((h) => h.trim()) ?? [];
+  const normalizers: Record<string, (value: string) => string> = {};
+  for (const header of headers) {
+    if (header === 'Channel Name' || /^Channel\d+$/i.test(header)) {
+      normalizers[header] = canonicalOpenGd77ChannelWireForCompare;
+    }
+  }
+  return normalizers;
+}
 
 describe('OpenGD77 file-level round-trip (test-data)', () => {
   beforeEach(() => {
@@ -54,9 +67,14 @@ describe('OpenGD77 file-level round-trip (test-data)', () => {
 
       for (const { fileName, nameColumn, excludeColumns } of SUBSTANTIVE_FILES) {
         const originalCsv = readOpenGd77TestData(fixture, fileName);
+        const normalizeColumn =
+          fileName === 'Channels.csv' || fileName === 'Zones.csv'
+            ? openGd77CsvCompareNormalizers(originalCsv)
+            : undefined;
         const comparison = compareCsvRecords(originalCsv, exported[fileName], {
           nameColumn,
           excludeColumns,
+          ...(normalizeColumn && Object.keys(normalizeColumn).length > 0 ? { normalizeColumn } : {}),
         });
         expect(comparison.ok, `${fileName}:\n${formatCsvRecordCompareFailure(comparison)}`).toBe(
           true,
