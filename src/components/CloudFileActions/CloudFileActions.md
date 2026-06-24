@@ -38,7 +38,7 @@ Google Drive **open** (import) and **save** (export) actions for Home and Import
 - Hidden when `GOOGLE_OAUTH_CLIENT_ID` was not injected at build time.
 - **Connect** uses Google Identity Services token client (`drive.file` scope).
 - Import: YAML single-file pick; CPS multi-file via folder CSV batch.
-- Export: uploads one or more `ExportPayload` files via multipart create.
+- Export: opens a save modal — pick destination folder, edit dated file/subfolder name, then upload.
 
 ## Related
 

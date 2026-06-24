@@ -6,6 +6,7 @@ export {
   isGoogleDriveConnected,
 } from './auth.ts';
 export {
+  createDriveFolder,
   createDriveTextFile,
   listDriveCsvInFolder,
   listDriveFolder,

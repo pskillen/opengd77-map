@@ -1,12 +1,20 @@
 import { Alert, Button, Stack, Text } from '@mantine/core';
 import { IconBrandGoogleDrive, IconCloudUpload } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
+import { DEFAULT_CHIRP_PROFILE_ID, getChirpProfile } from '../../lib/chirp/profiles.ts';
+import {
+  defaultMultiFileCpsFolderName,
+  defaultNativeYamlDriveFileName,
+  defaultSingleFileDriveFileName,
+  exportDateStamp,
+} from '../../lib/export/exportFileName.ts';
 import { getExportAdapter } from '../../lib/import-export/registry.ts';
 import { buildExportPayload } from '../../lib/fileDelivery/index.ts';
 import { importFromSources } from '../../lib/fileDelivery/importFromSources.ts';
 import type { ImportResult } from '../../lib/import/types.ts';
 import {
+  createDriveFolder,
   createDriveTextFile,
   getGoogleDriveAccessToken,
   listDriveCsvInFolder,
@@ -20,6 +28,7 @@ import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import type { CodeplugProject } from '../../models/codeplugProject.ts';
 import type { Codeplug } from '../../models/codeplug.ts';
 import CloudDriveBrowserModal from './CloudDriveBrowserModal.tsx';
+import CloudDriveSaveModal from './CloudDriveSaveModal.tsx';
 
 export interface CloudFileActionsImportProps {
   mode: 'import';
@@ -47,12 +56,45 @@ function isMultiFileCps(formatId: VendorFormatId): boolean {
   return formatId === 'opengd77' || formatId === 'dm32';
 }
 
+function driveExportDefaults(props: CloudFileActionsExportProps) {
+  if (isMultiFileCps(props.vendorFormatId)) {
+    return {
+      defaultSubfolderName: defaultMultiFileCpsFolderName(
+        props.vendorFormatId,
+        props.project?.name,
+      ),
+    };
+  }
+  if (props.vendorFormatId === 'native-yaml') {
+    return { defaultFileName: defaultNativeYamlDriveFileName(props.project?.name) };
+  }
+  if (props.vendorFormatId === 'chirp') {
+    const profileId = props.exportOptions?.profileId ?? DEFAULT_CHIRP_PROFILE_ID;
+    const profile = getChirpProfile(profileId);
+    return { defaultFileName: defaultSingleFileDriveFileName(profile.defaultFileName) };
+  }
+  return { defaultFileName: `export-${exportDateStamp()}.csv` };
+}
+
 export default function CloudFileActions(props: CloudFileActionsProps) {
   const { configured, connected, connect, busy: connectBusy } = useGoogleDriveConnection();
   const [pickerOpen, { open: openPicker, close: closePicker }] = useDisclosure(false);
+  const [saveSession, setSaveSession] = useState(0);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const [saveOpen, { open: openSaveModal, close: closeSave }] = useDisclosure(false);
+
+  const openSave = () => {
+    setSaveSession((session) => session + 1);
+    openSaveModal();
+  };
+
+  const exportDefaults = useMemo(
+    () => (props.mode === 'export' ? driveExportDefaults(props) : null),
+    [props],
+  );
 
   if (!configured) {
     return (
@@ -121,29 +163,55 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
     }
   };
 
-  const handleExport = async () => {
+  const handleDriveSave = async (input: {
+    parentFolderId: string;
+    parentFolderName: string;
+    fileName?: string;
+    subfolderName?: string;
+  }) => {
     if (props.mode !== 'export') return;
     setLoading(true);
     setError(null);
     try {
       const adapter = getExportAdapter(props.vendorFormatId);
+      const isMulti = isMultiFileCps(props.vendorFormatId);
+      const exportOptions = {
+        ...props.exportOptions,
+        ...(isMulti ? {} : { fileName: input.fileName }),
+      };
       const { payloads, warnings } = buildExportPayload(adapter, {
         codeplug: props.codeplug,
         project: props.project ?? undefined,
-        options: props.exportOptions,
+        options: exportOptions,
       });
       const token = await getGoogleDriveAccessToken();
+
+      let targetFolderId = input.parentFolderId;
+      let destinationLabel = input.parentFolderName;
+
+      if (isMulti && input.subfolderName) {
+        const folder = await createDriveFolder(token, {
+          name: input.subfolderName,
+          parentFolderId: input.parentFolderId,
+        });
+        targetFolderId = folder.id;
+        destinationLabel = `${input.parentFolderName}/${folder.name}`;
+      }
+
       for (const payload of payloads) {
         await createDriveTextFile(token, {
           name: payload.fileName,
           content: payload.content,
           mimeType: payload.mimeType,
+          parentFolderId: targetFolderId,
         });
       }
+
       const warnText = warnings.length ? ` (${warnings.join('; ')})` : '';
-      const message = `Saved ${payloads.length} file(s) to Google Drive${warnText}`;
+      const message = `Saved ${payloads.length} file(s) to ${destinationLabel}${warnText}`;
       setStatus(message);
       props.onComplete?.(message);
+      closeSave();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -178,7 +246,7 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
           variant="light"
           leftSection={<IconCloudUpload size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
           loading={loading}
-          onClick={() => void handleExport()}
+          onClick={openSave}
         >
           Save to Google Drive
         </Button>
@@ -214,6 +282,19 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
             }
             return lower.endsWith('.csv');
           }}
+        />
+      ) : null}
+
+      {props.mode === 'export' && connected && exportDefaults ? (
+        <CloudDriveSaveModal
+          key={saveSession}
+          opened={saveOpen}
+          onClose={closeSave}
+          isMultiFile={isMultiFileCps(props.vendorFormatId)}
+          defaultFileName={exportDefaults.defaultFileName}
+          defaultSubfolderName={exportDefaults.defaultSubfolderName}
+          saving={loading}
+          onSave={(input) => void handleDriveSave(input)}
         />
       ) : null}
     </Stack>

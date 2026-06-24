@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import {
+  createDriveFolder,
   createDriveTextFile,
   listDriveCsvInFolder,
   readDriveTextFile,
@@ -46,6 +47,26 @@ describe('googleDrive api', () => {
 
     const files = await listDriveCsvInFolder('token', 'folder-1');
     expect(files.map((f) => f.name)).toEqual(['Channels.csv']);
+  });
+
+  it('creates a folder', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          id: 'folder-1',
+          name: 'opengd77-export-2026-06-24',
+          mimeType: 'application/vnd.google-apps.folder',
+        }),
+        { status: 200 },
+      ),
+    );
+
+    const ref = await createDriveFolder('token', {
+      name: 'opengd77-export-2026-06-24',
+      parentFolderId: 'root',
+    });
+    expect(ref.id).toBe('folder-1');
+    expect(ref.name).toBe('opengd77-export-2026-06-24');
   });
 
   it('creates a text file via multipart upload', async () => {

@@ -56,7 +56,7 @@ Disconnect in **Settings** clears tokens; project data in LocalStorage is untouc
 | **Connect** | Settings → Connect Google Drive (GIS OAuth popup) |
 | **Open YAML** | Home / Import & export → Open from Google Drive → pick `.yaml` |
 | **Open CPS** | Pick a Drive folder (multi-file) or CSV (CHIRP) |
-| **Save export** | Export panel → Save to Google Drive |
+| **Save export** | Export panel → Save to Google Drive → pick folder, confirm dated file/subfolder name |
 
 ## Related
 

@@ -77,6 +77,29 @@ export async function readDriveTextFile(
   return { ref: toFileRef(meta), content };
 }
 
+export async function createDriveFolder(
+  accessToken: string,
+  input: { name: string; parentFolderId?: string },
+): Promise<RemoteFolderRef> {
+  const metadata: Record<string, unknown> = {
+    name: input.name,
+    mimeType: 'application/vnd.google-apps.folder',
+  };
+  if (input.parentFolderId) metadata.parents = [input.parentFolderId];
+
+  const file = await driveJson<DriveFileMetadata>(
+    `${DRIVE_API_BASE}/files?fields=id,name,mimeType`,
+    accessToken,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(metadata),
+    },
+  );
+
+  return { provider: 'google-drive', id: file.id, name: file.name };
+}
+
 export async function createDriveTextFile(
   accessToken: string,
   input: { name: string; content: string; mimeType: string; parentFolderId?: string },
