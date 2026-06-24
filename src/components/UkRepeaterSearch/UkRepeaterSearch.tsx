@@ -263,9 +263,7 @@ export default function UkRepeaterSearch() {
                             size="sm"
                             c={isOperationalStatus(row.listing.status) ? undefined : 'orange'}
                           >
-                            {titleCaseNames
-                              ? toTitleCase(row.listing.status)
-                              : row.listing.status}
+                            {titleCaseNames ? toTitleCase(row.listing.status) : row.listing.status}
                           </Text>
                         </Table.Td>
                         <Table.Td>{formatModeCodesSummary(row.listing.modeCodes ?? [])}</Table.Td>

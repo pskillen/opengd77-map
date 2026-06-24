@@ -27,11 +27,7 @@ export interface UkRepeaterVerifyProps {
 }
 
 function formatListingLabel(listing: EtccListing, titleCaseNames: boolean): string {
-  const town = listing.town
-    ? titleCaseNames
-      ? toTitleCase(listing.town)
-      : listing.town
-    : '—';
+  const town = listing.town ? (titleCaseNames ? toTitleCase(listing.town) : listing.town) : '—';
   const status = titleCaseNames ? toTitleCase(listing.status) : listing.status;
   return `${listing.repeater} — ${listing.band} — ${town} (${status})`;
 }

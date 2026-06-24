@@ -243,8 +243,7 @@ function buildMultiModeGroupsInBucket(
     if (members.length < 2) continue;
 
     const stems = members.map((ch) => mergeNameStem(ch.name));
-    const stemsOk =
-      stemsAreCompatible(stems, threshold) || membersShareCallsignTypo(members);
+    const stemsOk = stemsAreCompatible(stems, threshold) || membersShareCallsignTypo(members);
     if (!stemsOk) continue;
 
     const { mergeKind, ambiguousReason } = classifyGroup(members);

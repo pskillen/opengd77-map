@@ -896,7 +896,10 @@ export function channelsAreMultiModeMergeCandidates(
   if (a.mode === b.mode) return false;
   const threshold = options.nameFuzzyThreshold ?? 0;
   const stripTrailingModeLabel = options.stripTrailingModeLabel ?? false;
-  if (!options.ignoreNameMatch && !channelMergeIdentityMatch(a, b, threshold, stripTrailingModeLabel)) {
+  if (
+    !options.ignoreNameMatch &&
+    !channelMergeIdentityMatch(a, b, threshold, stripTrailingModeLabel)
+  ) {
     return false;
   }
   if (!channelFrequenciesMatchWithOptions(a, b, options)) return false;

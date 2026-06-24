@@ -109,7 +109,7 @@ describe('channelExpansion', () => {
   it('canonicalOpenGd77ChannelWireForCompare normalizes FM/DMR word suffix to -F/-D', () => {
     expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan FM")).toBe('GB7GX-F');
     expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan DMR")).toBe('GB7GX-D');
-    expect(canonicalOpenGd77ChannelWireForCompare("GB7DG Ppatrick-F")).toBe('GB7DG-F');
+    expect(canonicalOpenGd77ChannelWireForCompare('GB7DG Ppatrick-F')).toBe('GB7DG-F');
     expect(canonicalOpenGd77ChannelWireForCompare("FIRE Serv Def'd")).toBe("FIRE Serv Def'd");
   });
 

@@ -117,7 +117,7 @@ describe('channelMergeCandidates', () => {
     expect(groups).toHaveLength(0);
   });
 
-  it('findChannelMergeCandidates pairs FM+DMR when CPS coords differ slightly (GB3OH L\'gow)', () => {
+  it("findChannelMergeCandidates pairs FM+DMR when CPS coords differ slightly (GB3OH L'gow)", () => {
     const fm = buildChannel({
       id: 'fm',
       name: "L'gow FM",

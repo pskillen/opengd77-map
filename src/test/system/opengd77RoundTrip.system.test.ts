@@ -22,7 +22,11 @@ const SUBSTANTIVE_FILES: {
   nameColumn: string;
   excludeColumns?: string[];
 }[] = [
-  { fileName: 'Channels.csv', nameColumn: 'Channel Name', excludeColumns: ['Channel Number', 'APRS'] },
+  {
+    fileName: 'Channels.csv',
+    nameColumn: 'Channel Name',
+    excludeColumns: ['Channel Number', 'APRS'],
+  },
   { fileName: 'Zones.csv', nameColumn: 'Zone Name' },
   { fileName: 'Contacts.csv', nameColumn: 'Contact Name' },
   { fileName: 'TG_Lists.csv', nameColumn: 'TG List Name' },
@@ -83,7 +87,9 @@ describe('OpenGD77 file-level round-trip (test-data)', () => {
         const comparison = compareCsvRecords(originalCsv, exported[fileName], {
           nameColumn,
           excludeColumns,
-          ...(normalizeColumn && Object.keys(normalizeColumn).length > 0 ? { normalizeColumn } : {}),
+          ...(normalizeColumn && Object.keys(normalizeColumn).length > 0
+            ? { normalizeColumn }
+            : {}),
           ...(fileName === 'Zones.csv' ? { sortColumnPattern: /^Channel\d+$/i } : {}),
         });
         expect(comparison.ok, `${fileName}:\n${formatCsvRecordCompareFailure(comparison)}`).toBe(
