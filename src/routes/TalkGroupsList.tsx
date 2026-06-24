@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { DataTable, ListPage } from '../components/ui/index.ts';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
+import { usePersistedEntityListSort } from '../hooks/usePersistedEntityListSort.ts';
+import { DATATABLE_NAME_SORT_KEY } from '../lib/dataTable/sort.ts';
 import {
   channelsReferencingTalkGroupId,
   rxGroupListsContainingMemberRef,
@@ -10,7 +12,11 @@ import { useCodeplug } from '../state/codeplugStore.tsx';
 export default function TalkGroupsList() {
   const { codeplug } = useCodeplug();
   const { channels, talkGroups, rxGroupLists } = codeplug;
-  const { nameFilter, setNameFilter } = useListNameQuery();
+  const { nameFilter, setNameFilter } = useListNameQuery('talk-groups');
+  const [sort, setSort] = usePersistedEntityListSort('talk-groups', {
+    columnKey: DATATABLE_NAME_SORT_KEY,
+    direction: 'asc',
+  });
   const filtered = useMemo(() => {
     return filterRowsByName(talkGroups, nameFilter, (tg) => tg.name);
   }, [talkGroups, nameFilter]);
@@ -24,6 +30,8 @@ export default function TalkGroupsList() {
         search={nameFilter}
         onSearchChange={setNameFilter}
         searchPlaceholder="Filter name…"
+        sort={sort}
+        onSortChange={setSort}
         rowKey={(tg) => tg.id}
         nameColumn={{
           getName: (tg) => tg.name,

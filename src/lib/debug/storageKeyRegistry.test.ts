@@ -34,6 +34,20 @@ describe('storageKeyRegistry', () => {
     );
   });
 
+  it('listStorageKeys labels list prefs keys by entity', () => {
+    localStorage.setItem('mm9pdy-codeplug-tool.list.channels.proj-1', '{}');
+    localStorage.setItem('mm9pdy-codeplug-tool.list.zones.proj-1', '{}');
+    localStorage.setItem('mm9pdy-codeplug-tool.extra', '1');
+    const rows = listStorageKeys();
+    expect(rows.find((row) => row.key === 'mm9pdy-codeplug-tool.list.channels.proj-1')?.label).toBe(
+      'List prefs (channels)',
+    );
+    expect(rows.find((row) => row.key === 'mm9pdy-codeplug-tool.list.zones.proj-1')?.label).toBe(
+      'List prefs (zones)',
+    );
+    expect(rows.find((row) => row.key === 'mm9pdy-codeplug-tool.extra')?.label).toBe('Unknown key');
+  });
+
   it('listStorageKeys includes known keys and app-prefix extras', () => {
     localStorage.setItem('mm9pdy-codeplug-tool.extra', '1');
     const rows = listStorageKeys();

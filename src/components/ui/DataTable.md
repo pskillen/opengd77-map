@@ -18,7 +18,8 @@ Standardised entity list table: sticky header, column sort, optional toolbar (se
 | `search` / `onSearchChange`                     | `string`                   | —                                | Controlled search; pair with `showSearch`                |
 | `showSearch`                                    | `boolean`                  | `true` when `onSearchChange` set | Toolbar search input                                     |
 | `columnVisibility` / `onColumnVisibilityChange` | `string[]`                 | —                                | Controlled hideable column keys                          |
-| `columnVisibilityStorageKey`                    | `string`                   | —                                | Persist hideable columns in `localStorage`               |
+| `columnVisibilityStorageKey`                    | `string`                   | —                                | Per-project `localStorage` key for hideable columns      |
+| `columnVisibilityLoad`                          | `() => string[]`           | —                                | Custom load (schema migration, legacy key copy)          |
 | `selectable`                                    | `boolean`                  | `false`                          | Checkbox column for bulk selection                       |
 | `selectedKeys` / `onSelectedKeysChange`         | `string[]`                 | internal                         | Controlled selection                                     |
 | `totalRowCount`                                 | `number`                   | —                                | Unfiltered count; enables filtered-empty copy            |
@@ -42,7 +43,7 @@ Standardised entity list table: sticky header, column sort, optional toolbar (se
 import { DataTable } from '../components/ui/index.ts';
 import { useListNameQuery, filterRowsByName } from '../hooks/useListNameQuery.ts';
 
-const { nameFilter, setNameFilter } = useListNameQuery();
+const { nameFilter, setNameFilter } = useListNameQuery('contacts');
 const filtered = useMemo(
   () => filterRowsByName(contacts, nameFilter, (c) => c.name),
   [contacts, nameFilter],
@@ -72,7 +73,7 @@ const filtered = useMemo(
 
 - **Sort:** click header toggles asc/desc on same column; new column starts asc. Name/callsign use internal sort keys.
 - **Sticky header:** `Table.Th` sticks inside bounded `ScrollArea` (`mah` 60vh list, 40vh embedded).
-- **Column picker:** `MultiSelect` for columns with `hideable: true`.
+- **Column picker:** `MultiSelect` for columns with `hideable: true`. Pass a per-project `columnVisibilityStorageKey` (e.g. `channelListColumnsKey(activeProjectId)`) and optional `columnVisibilityLoad` for schema migration.
 - **Selection:** header checkbox selects all visible rows; row checkboxes do not block link navigation.
 - **Empty states:** `rows.length === 0` with `totalRowCount > 0` shows `filteredEmptyMessage`; otherwise `emptyState`.
 

@@ -4,6 +4,8 @@ import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import { DataTable, ListPage } from '../../components/ui/index.ts';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import { filterRowsByName, useListNameQuery } from '../../hooks/useListNameQuery.ts';
+import { usePersistedEntityListSort } from '../../hooks/usePersistedEntityListSort.ts';
+import { DATATABLE_NAME_SORT_KEY } from '../../lib/dataTable/sort.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 import { useOperatorPosition } from '../../state/operatorPosition.tsx';
 
@@ -11,7 +13,11 @@ export default function ZonesList() {
   const { codeplug } = useCodeplug();
   const { channels, zones } = codeplug;
   const { position, setPosition, clearPosition } = useOperatorPosition();
-  const { nameFilter, setNameFilter } = useListNameQuery();
+  const { nameFilter, setNameFilter } = useListNameQuery('zones');
+  const [sort, setSort] = usePersistedEntityListSort('zones', {
+    columnKey: DATATABLE_NAME_SORT_KEY,
+    direction: 'asc',
+  });
   const filtered = useMemo(() => {
     return filterRowsByName(zones, nameFilter, (z) => z.name);
   }, [zones, nameFilter]);
@@ -26,6 +32,8 @@ export default function ZonesList() {
           search={nameFilter}
           onSearchChange={setNameFilter}
           searchPlaceholder="Filter name…"
+          sort={sort}
+          onSortChange={setSort}
           rowKey={(z) => z.id}
           nameColumn={{
             getName: (z) => z.name,

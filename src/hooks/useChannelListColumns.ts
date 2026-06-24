@@ -1,6 +1,7 @@
+import { useProjects } from '../state/codeplugStore.tsx';
 import {
-  CHANNEL_LIST_COLUMN_STORAGE_KEY,
   CHANNEL_OPTIONAL_COLUMNS,
+  channelListColumnsKey,
   loadChannelVisibleColumns,
 } from './channelListQueryUtils.ts';
 import { useDataTableColumnVisibility } from './useDataTableColumnVisibility.ts';
@@ -12,7 +13,11 @@ const columnDefs = CHANNEL_OPTIONAL_COLUMNS.map((c) => ({
 }));
 
 export function useChannelListColumns(): [string[], (cols: string[]) => void] {
-  return useDataTableColumnVisibility(CHANNEL_LIST_COLUMN_STORAGE_KEY, columnDefs, {
-    load: loadChannelVisibleColumns,
+  const { activeProjectId } = useProjects();
+  const storageKey = activeProjectId ? channelListColumnsKey(activeProjectId) : '__channels-noop__';
+
+  return useDataTableColumnVisibility(storageKey, columnDefs, {
+    enabled: !!activeProjectId,
+    load: activeProjectId ? () => loadChannelVisibleColumns(activeProjectId) : undefined,
   });
 }

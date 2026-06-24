@@ -65,6 +65,7 @@ export interface DataTableProps<T> {
   columnVisibility?: string[];
   onColumnVisibilityChange?: (keys: string[]) => void;
   columnVisibilityStorageKey?: string;
+  columnVisibilityLoad?: () => string[];
   selectable?: boolean;
   selectedKeys?: string[];
   onSelectedKeysChange?: (keys: string[]) => void;
@@ -145,6 +146,7 @@ export default function DataTable<T>({
   columnVisibility: controlledVisibility,
   onColumnVisibilityChange,
   columnVisibilityStorageKey,
+  columnVisibilityLoad,
   selectable: selectableProp,
   selectedKeys: controlledSelectedKeys,
   onSelectedKeysChange,
@@ -175,7 +177,7 @@ export default function DataTable<T>({
   const [storedVisibility, setStoredVisibility] = useDataTableColumnVisibility(
     columnVisibilityStorageKey ?? '__datatable-noop__',
     hideableDefs,
-    { enabled: !!columnVisibilityStorageKey },
+    { enabled: !!columnVisibilityStorageKey, load: columnVisibilityLoad },
   );
 
   const visibleHideableKeys = useMemo(() => {

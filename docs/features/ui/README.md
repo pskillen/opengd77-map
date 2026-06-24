@@ -12,6 +12,7 @@ Contributor docs for shared UI conventions in the SPA.
 | Two-section navigation | Shipped | [#81](https://github.com/pskillen/codeplug-tool/issues/81) — `AppNav`, `SectionNav`, `src/nav/` |
 | Layout & component kit | Shipped | [#105](https://github.com/pskillen/codeplug-tool/issues/105) — `src/components/ui/`, `/#/styleguide` |
 | Standardised datatables | Shipped | [#138](https://github.com/pskillen/codeplug-tool/issues/138) — sort, sticky header, toolbar |
+| List table persistence | Shipped | [#146](https://github.com/pskillen/codeplug-tool/issues/146) — filters, sort, columns in `localStorage` |
 | CRUD actions | Shipped | List/detail/edit routes, ConfirmDeleteModal, ZoneMemberPicker |
 | Import/export/workflows | Shipped | ImportDropzone, Export, SummaryCard, ProjectList |
 | Map/location | Shipped | MapControls, UseMyLocationButton |
@@ -28,6 +29,8 @@ Contributor docs for shared UI conventions in the SPA.
 | [component-kit-outstanding.md](component-kit-outstanding.md) | Kit debt discovered during #105 |
 | [datatable-progress.md](datatable-progress.md) | DataTable depth pass ([#138](https://github.com/pskillen/codeplug-tool/issues/138)) |
 | [datatable-outstanding.md](datatable-outstanding.md) | DataTable debt discovered during #138 |
+| [list-prefs-progress.md](list-prefs-progress.md) | List table persistence log ([#146](https://github.com/pskillen/codeplug-tool/issues/146)) |
+| [list-prefs-outstanding.md](list-prefs-outstanding.md) | List prefs debt discovered during #146 |
 | [display-conventions.md](../../reference/display-conventions.md) | Icons, badges, nav layout |
 
 ## Layout & component kit
@@ -80,9 +83,25 @@ Hidden dev route (no nav link): `/#/styleguide` — demos every kit primitive.
 | `list` | Search (`?q=` via `useListNameQuery` on simple lists), optional-column picker (`localStorage` key per list), result count | Click column headers; channels also sync name/distance with URL `sort` | Entity list routes |
 | `embedded` | None | Header sort only | Detail-page member/usage tables |
 
-**Channels:** band/mode/duplex/distance filters stay in `ChannelsListSectionNav`; optional columns use `channels-list-columns` in `localStorage` via `columnVisibilityStorageKey`.
+**Channels:** band/mode/duplex/distance filters stay in `ChannelsListSectionNav`; optional columns use per-project `mm9pdy-codeplug-tool.list.channels.{projectId}.columns` via `columnVisibilityStorageKey`.
 
 **Simple lists:** name search moved from section nav into the table toolbar; `EntityListSectionNav` keeps only the New action.
+
+### List table state ([#146](https://github.com/pskillen/codeplug-tool/issues/146))
+
+Entity list filters, column sort, and channel optional columns persist in browser `localStorage`, **scoped per active project** (`mm9pdy-codeplug-tool.list.<entity>.<projectId>`).
+
+| State | Storage | Notes |
+| --- | --- | --- |
+| Name search, channel filters | URL + `localStorage` write-through | `useChannelListQuery`, `useListNameQuery(entity)` |
+| Column header sort | `localStorage` only | `usePersistedEntityListSort`, `usePersistedChannelColumnSort` |
+| Channel optional columns | Per-project `localStorage` | `columnVisibilityStorageKey` + `columnVisibilityLoad` |
+
+**Restore:** when a list route loads with **no** relevant URL params, hooks hydrate the URL from stored prefs for that project.
+
+**URL wins:** landing with query params (bookmark/shared link) uses URL values for that visit; subsequent edits update storage.
+
+**Code:** [`src/lib/listPrefs/`](../../src/lib/listPrefs/), [`useChannelListQuery`](../../src/hooks/useChannelListQuery.ts), [`useListNameQuery`](../../src/hooks/useListNameQuery.ts).
 
 ## Two-section navigation architecture
 
@@ -104,7 +123,7 @@ Hidden dev route (no nav link): `/#/styleguide` — demos every kit primitive.
 
 **Summary** (`/summary`) has no registry entry — secondary column hidden.
 
-**State:** URL search params for shareable filters (`useChannelListQuery`, `useListNameQuery`, `useVendorFormatParam`); list column visibility in `localStorage` (`channels-list-columns`, per-list keys as added).
+**State:** URL search params for shareable filters (`useChannelListQuery`, `useListNameQuery`, `useVendorFormatParam`); list filters/sort/columns also in per-project `localStorage` ([#146](https://github.com/pskillen/codeplug-tool/issues/146) — see [List table state](#list-table-state-146)).
 
 ## Concepts
 
@@ -128,5 +147,5 @@ Icons aid **scanning and primary actions** (nav, New/Edit/Delete, import/export)
 
 ## Related
 
-- Tracking: [codeplug-tool#64](https://github.com/pskillen/codeplug-tool/issues/64) (icons), [#81](https://github.com/pskillen/codeplug-tool/issues/81) (nav), [#138](https://github.com/pskillen/codeplug-tool/issues/138) (datatables)
+- Tracking: [codeplug-tool#64](https://github.com/pskillen/codeplug-tool/issues/64) (icons), [#81](https://github.com/pskillen/codeplug-tool/issues/81) (nav), [#138](https://github.com/pskillen/codeplug-tool/issues/138) (datatables), [#146](https://github.com/pskillen/codeplug-tool/issues/146) (list persistence)
 - Component sidecars: `AppNav.md`, `SectionNav.md`, `DataTable.md`

@@ -1,7 +1,18 @@
 import { DISTANCE_FILTER_MARKS_KM } from '../lib/channels.ts';
+import {
+  LEGACY_CHANNEL_LIST_COLUMNS_SCHEMA_KEY,
+  LEGACY_CHANNEL_LIST_COLUMN_STORAGE_KEY,
+  channelListColumnsKey,
+  channelListColumnsSchemaKey,
+} from '../lib/listPrefs/keys.ts';
 
-export const CHANNEL_LIST_COLUMN_STORAGE_KEY = 'channels-list-columns';
-export const CHANNEL_LIST_COLUMNS_SCHEMA_KEY = 'channels-list-columns-schema';
+/** @deprecated Use channelListColumnsKey(projectId) — kept for legacy registry entry. */
+export const CHANNEL_LIST_COLUMN_STORAGE_KEY = LEGACY_CHANNEL_LIST_COLUMN_STORAGE_KEY;
+/** @deprecated Use channelListColumnsSchemaKey(projectId). */
+export const CHANNEL_LIST_COLUMNS_SCHEMA_KEY = LEGACY_CHANNEL_LIST_COLUMNS_SCHEMA_KEY;
+
+export { channelListColumnsKey, channelListColumnsSchemaKey } from '../lib/listPrefs/keys.ts';
+
 /** Bump when adding optional columns that should be merged into existing saved prefs once. */
 export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 6;
 
@@ -25,20 +36,35 @@ export function defaultChannelVisibleColumns(): string[] {
   return CHANNEL_OPTIONAL_COLUMNS.filter((c) => c.defaultVisible).map((c) => c.key);
 }
 
-export function loadChannelVisibleColumns(): string[] {
+export function migrateLegacyChannelColumns(projectId: string): void {
+  const storageKey = channelListColumnsKey(projectId);
+  if (localStorage.getItem(storageKey) !== null) return;
+
+  const legacyRaw = localStorage.getItem(LEGACY_CHANNEL_LIST_COLUMN_STORAGE_KEY);
+  if (legacyRaw === null) return;
+
+  localStorage.setItem(storageKey, legacyRaw);
+  const legacySchema = localStorage.getItem(LEGACY_CHANNEL_LIST_COLUMNS_SCHEMA_KEY);
+  if (legacySchema !== null) {
+    localStorage.setItem(channelListColumnsSchemaKey(projectId), legacySchema);
+  }
+}
+
+export function loadChannelVisibleColumns(projectId: string): string[] {
+  migrateLegacyChannelColumns(projectId);
+
+  const storageKey = channelListColumnsKey(projectId);
+  const schemaKey = channelListColumnsSchemaKey(projectId);
   const validKeys = new Set(CHANNEL_OPTIONAL_COLUMNS.map((c) => c.key));
 
   try {
-    const raw = localStorage.getItem(CHANNEL_LIST_COLUMN_STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey);
     if (raw !== null) {
       let cols = (JSON.parse(raw) as string[]).filter((k) =>
         validKeys.has(k as (typeof CHANNEL_OPTIONAL_COLUMNS)[number]['key']),
       );
 
-      const schema = Number.parseInt(
-        localStorage.getItem(CHANNEL_LIST_COLUMNS_SCHEMA_KEY) ?? '0',
-        10,
-      );
+      const schema = Number.parseInt(localStorage.getItem(schemaKey) ?? '0', 10);
       if (schema < CHANNEL_LIST_COLUMNS_SCHEMA_VERSION) {
         if (!cols.includes('distance')) cols = [...cols, 'distance'];
         if (!cols.includes('power')) cols = [...cols, 'power'];
@@ -60,11 +86,8 @@ export function loadChannelVisibleColumns(): string[] {
                 : ['mode', ...cols.filter((k) => k !== 'mode')];
           }
         }
-        localStorage.setItem(CHANNEL_LIST_COLUMN_STORAGE_KEY, JSON.stringify(cols));
-        localStorage.setItem(
-          CHANNEL_LIST_COLUMNS_SCHEMA_KEY,
-          String(CHANNEL_LIST_COLUMNS_SCHEMA_VERSION),
-        );
+        localStorage.setItem(storageKey, JSON.stringify(cols));
+        localStorage.setItem(schemaKey, String(CHANNEL_LIST_COLUMNS_SCHEMA_VERSION));
       }
 
       return cols;

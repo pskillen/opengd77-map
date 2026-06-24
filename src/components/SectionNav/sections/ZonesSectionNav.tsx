@@ -8,7 +8,7 @@ import EntityListSectionNav, { EntityZoneLinks } from './EntityListSectionNav.ts
 
 export default function ZonesSectionNav({ variant }: SectionNavProps) {
   const { codeplug } = useCodeplug();
-  const { nameFilter } = useListNameQuery();
+  const { nameFilter } = useListNameQuery('zones');
   const zones = useMemo(() => {
     const sorted = sortByName(codeplug.zones);
     return filterRowsByName(sorted, nameFilter, (z) => z.name);

@@ -37,6 +37,9 @@ Each `codeplug` object is a full [`Codeplug`](../../src/models/codeplug.ts) (cha
 | `mm9pdy-codeplug-tool.codeplug` | Projects envelope (`CODEPLUG_STORAGE_KEY`) |
 | `mm9pdy-codeplug-tool.channel-map.mapboxToken` | Mapbox token — separate, map-only |
 | `mm9pdy-codeplug-tool.channel-map.tileProvider` | Tile provider preference — separate |
+| `mm9pdy-codeplug-tool.list.*.{projectId}` | Entity list filters/sort prefs — see [UI list table state](../ui/README.md#list-table-state-146) |
+
+Legacy (migrated on read): `channels-list-columns`, `channels-list-columns-schema`.
 
 ## Versioning
 

@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { DataTable, ListPage } from '../components/ui/index.ts';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
+import { usePersistedEntityListSort } from '../hooks/usePersistedEntityListSort.ts';
+import { DATATABLE_NAME_SORT_KEY } from '../lib/dataTable/sort.ts';
 import {
   channelsReferencingContactId,
   formatReferenceCount,
@@ -11,7 +13,11 @@ import { useCodeplug } from '../state/codeplugStore.tsx';
 export default function ContactsList() {
   const { codeplug } = useCodeplug();
   const { channels, contacts, rxGroupLists } = codeplug;
-  const { nameFilter, setNameFilter } = useListNameQuery();
+  const { nameFilter, setNameFilter } = useListNameQuery('contacts');
+  const [sort, setSort] = usePersistedEntityListSort('contacts', {
+    columnKey: DATATABLE_NAME_SORT_KEY,
+    direction: 'asc',
+  });
   const filtered = useMemo(() => {
     return filterRowsByName(contacts, nameFilter, (c) => c.name);
   }, [contacts, nameFilter]);
@@ -25,6 +31,8 @@ export default function ContactsList() {
         search={nameFilter}
         onSearchChange={setNameFilter}
         searchPlaceholder="Filter name…"
+        sort={sort}
+        onSortChange={setSort}
         rowKey={(c) => c.id}
         nameColumn={{
           getName: (c) => c.name,
