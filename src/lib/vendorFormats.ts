@@ -76,3 +76,26 @@ export function vendorFormatSelectData(): { value: string; label: string }[] {
         : `${option.label} (coming soon)`,
   }));
 }
+
+export function isVendorFormatShipped(option: VendorFormatOption): boolean {
+  return option.importStatus === 'shipped' || option.exportStatus === 'shipped';
+}
+
+/** Shipped formats first (array order), then planned — for import/export section nav. */
+export function vendorFormatNavGroups(): {
+  shipped: VendorFormatOption[];
+  planned: VendorFormatOption[];
+} {
+  const shipped: VendorFormatOption[] = [];
+  const planned: VendorFormatOption[] = [];
+  for (const option of vendorFormatOptions) {
+    if (isVendorFormatShipped(option)) shipped.push(option);
+    else planned.push(option);
+  }
+  return { shipped, planned };
+}
+
+export function vendorFormatHref(id: VendorFormatId): string {
+  if (id === defaultVendorFormatId) return '/export';
+  return `/export?format=${id}`;
+}
