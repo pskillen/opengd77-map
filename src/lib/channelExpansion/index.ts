@@ -18,6 +18,14 @@ import type {
 } from '../../models/codeplug.ts';
 import { channelModeProfileDefaults, newId } from '../../models/codeplug.ts';
 import { composeChannelWireName, withMergedChannelWireProvenance } from '../channelNaming.ts';
+export {
+  disambiguationSuffixLength,
+  finalizeWireName,
+  shortenWireName,
+  uniqueWireName,
+  type ShortenWireNameOptions,
+  type TalkGroupMemberSuffixReplacement,
+} from './shortenName.ts';
 
 /** Resolved export row — shared channel fields merged with one mode profile. */
 export interface ExpandedChannelRow {

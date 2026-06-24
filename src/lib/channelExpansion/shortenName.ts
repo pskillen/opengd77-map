@@ -1,0 +1,206 @@
+import type { ChannelExportNameMode } from '../../models/codeplug.ts';
+import { isCallsignToken } from '../channelNaming.ts';
+import { abbreviateWord } from './abbreviations.ts';
+
+export interface TalkGroupMemberSuffixReplacement {
+  /** Full talk-group member wire label (without leading space). */
+  full: string;
+  /** Shorter export label from `TalkGroup.abbreviation`. */
+  abbreviated: string;
+}
+
+export interface ShortenWireNameOptions {
+  /** Apply progressive dictionary abbreviation. Default true. */
+  useDictionary?: boolean;
+  /** Apply vowel-squeeze on longest words. Default true. */
+  useVowelSqueeze?: boolean;
+  /** Allow `callsign_name` → `callsign_suffix` downgrade for this export row only. Default true. */
+  allowCallsignSuffixDowngrade?: boolean;
+  /** Stored export name mode — suffix downgrade runs only for `callsign_name`. */
+  exportNameMode?: ChannelExportNameMode;
+  /** Recompose the wire name with a different export name mode (suffix downgrade). */
+  recomposeWithMode?: (mode: ChannelExportNameMode) => string;
+  /** Replace a trailing multi-talkgroup member suffix before other strategies. */
+  talkGroupMemberSuffix?: TalkGroupMemberSuffixReplacement;
+}
+
+const MAX_DICTIONARY_LEVELS = 12;
+
+/** Append ` 2`, ` 3`, … when `base` is already reserved. */
+export function uniqueWireName(base: string, reserved: ReadonlySet<string>): string {
+  if (!reserved.has(base)) return base;
+  let n = 2;
+  while (reserved.has(`${base} ${n}`)) n++;
+  return `${base} ${n}`;
+}
+
+/** Length of the disambiguation suffix `uniqueWireName` would add for `base`. */
+export function disambiguationSuffixLength(
+  base: string,
+  reserved: ReadonlySet<string>,
+): number {
+  if (!reserved.has(base)) return 0;
+  let n = 2;
+  while (reserved.has(`${base} ${n}`)) n++;
+  return ` ${n}`.length;
+}
+
+function peelModeSuffix(name: string): { stem: string; suffix: string } {
+  if (name.endsWith('-F') || name.endsWith('-D')) {
+    return { stem: name.slice(0, -2), suffix: name.slice(-2) };
+  }
+  return { stem: name, suffix: '' };
+}
+
+function isTimeslotToken(token: string): boolean {
+  return /^TS\d+$/i.test(token) || /^T\d+$/i.test(token);
+}
+
+function isProtectedToken(token: string): boolean {
+  if (!token) return true;
+  if (token === '-F' || token === '-D') return true;
+  if (isCallsignToken(token)) return true;
+  if (isTimeslotToken(token)) return true;
+  return false;
+}
+
+function tokenizeName(stem: string): string[] {
+  return stem.trim().split(/\s+/).filter(Boolean);
+}
+
+function joinTokens(tokens: string[]): string {
+  return tokens.join(' ');
+}
+
+function applyDictionaryAtLevel(tokens: string[], level: number): string[] {
+  return tokens.map((token) => (isProtectedToken(token) ? token : abbreviateWord(token, level)));
+}
+
+function applyDictionaryProgressive(stem: string, maxLen: number): string {
+  let tokens = tokenizeName(stem);
+  for (let level = 0; level < MAX_DICTIONARY_LEVELS; level++) {
+    const prev = tokens;
+    const next = applyDictionaryAtLevel(tokens, level);
+    const candidate = joinTokens(next);
+    tokens = next;
+    if (candidate.length <= maxLen) return candidate;
+    if (next.every((token, i) => token === prev[i])) break;
+  }
+  return joinTokens(tokens);
+}
+
+function vowelSqueezeWord(word: string): string {
+  return word.replace(/[aeiou]/g, '');
+}
+
+function applyVowelSqueezeProgressive(stem: string, maxLen: number): string {
+  const tokens = tokenizeName(stem);
+  const squeezed = [...tokens];
+
+  while (joinTokens(squeezed).length > maxLen) {
+    let bestIndex = -1;
+    let bestLength = -1;
+    for (let i = 0; i < squeezed.length; i++) {
+      const token = squeezed[i]!;
+      if (isProtectedToken(token)) continue;
+      const next = vowelSqueezeWord(token);
+      if (next === token) continue;
+      if (token.length > bestLength) {
+        bestLength = token.length;
+        bestIndex = i;
+      }
+    }
+    if (bestIndex < 0) break;
+    squeezed[bestIndex] = vowelSqueezeWord(squeezed[bestIndex]!);
+  }
+
+  return joinTokens(squeezed);
+}
+
+function applyTalkGroupMemberSuffix(
+  name: string,
+  replacement: TalkGroupMemberSuffixReplacement,
+): string {
+  const suffix = ` ${replacement.full}`;
+  if (!name.endsWith(suffix)) return name;
+  return `${name.slice(0, -suffix.length)} ${replacement.abbreviated}`;
+}
+
+/**
+ * Shorten a composed CPS wire name to fit `maxLen` using progressively lossy strategies.
+ * Returns the input unchanged when already within budget.
+ */
+export function shortenWireName(
+  name: string,
+  maxLen: number,
+  opts: ShortenWireNameOptions = {},
+): string {
+  if (maxLen < 1 || name.length <= maxLen) return name;
+
+  const { stem, suffix } = peelModeSuffix(name);
+  let current = stem;
+
+  if (opts.talkGroupMemberSuffix) {
+    current = applyTalkGroupMemberSuffix(current, opts.talkGroupMemberSuffix);
+    if (`${current}${suffix}`.length <= maxLen) return `${current}${suffix}`;
+  }
+
+  if (opts.useDictionary !== false) {
+    current = applyDictionaryProgressive(current, maxLen - suffix.length);
+    if (`${current}${suffix}`.length <= maxLen) return `${current}${suffix}`;
+  }
+
+  if (opts.useVowelSqueeze !== false) {
+    current = applyVowelSqueezeProgressive(current, maxLen - suffix.length);
+    if (`${current}${suffix}`.length <= maxLen) return `${current}${suffix}`;
+  }
+
+  if (
+    opts.allowCallsignSuffixDowngrade !== false &&
+    opts.exportNameMode === 'callsign_name' &&
+    opts.recomposeWithMode
+  ) {
+    const downgraded = peelModeSuffix(opts.recomposeWithMode('callsign_suffix'));
+    if (downgraded.stem !== current || downgraded.suffix !== suffix) {
+      current = downgraded.stem;
+      const modeSuffix = downgraded.suffix || suffix;
+      const downgradedCombined = `${current}${modeSuffix}`;
+      if (downgradedCombined.length <= maxLen) return downgradedCombined;
+      const stemMax = Math.max(0, maxLen - modeSuffix.length);
+      return `${current.slice(0, stemMax)}${modeSuffix}`;
+    }
+  }
+
+  const combined = `${current}${suffix}`;
+  if (combined.length > maxLen) {
+    const stemMax = Math.max(0, maxLen - suffix.length);
+    return `${current.slice(0, stemMax)}${suffix}`;
+  }
+  return combined;
+}
+
+/**
+ * Shorten, disambiguate against `reserved`, and warn when the final name still exceeds `maxLen`.
+ * Reserves the returned name in `reserved` when the set is mutable.
+ */
+export function finalizeWireName(
+  base: string,
+  reserved: ReadonlySet<string>,
+  maxLen: number,
+  opts: ShortenWireNameOptions = {},
+  warnings?: string[],
+): string {
+  let name = shortenWireName(base, maxLen, opts);
+  const suffixRoom = disambiguationSuffixLength(name, reserved);
+  if (suffixRoom > 0 && name.length + suffixRoom > maxLen) {
+    name = shortenWireName(base, Math.max(1, maxLen - suffixRoom), opts);
+  }
+  name = uniqueWireName(name, reserved);
+  if (name.length > maxLen) {
+    warnings?.push(`Channel name "${name}" exceeds ${maxLen} characters after shortening`);
+  }
+  if (reserved instanceof Set) {
+    reserved.add(name);
+  }
+  return name;
+}

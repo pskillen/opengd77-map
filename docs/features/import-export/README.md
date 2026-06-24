@@ -38,12 +38,14 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | Multi-talkgroup expansion (shared lib) | Shipped | [#36](https://github.com/pskillen/codeplug-tool/issues/36) — `channelExpansion/`; OpenGD77 export unchanged |
 | CHIRP CSV (analogue FM/AM) | Shipped | [#103](https://github.com/pskillen/codeplug-tool/issues/103) — [chirp/](chirp/README.md) |
 | Channel wire name split + export composition | Shipped | [#54](https://github.com/pskillen/codeplug-tool/issues/54) — [channel-name-parsing.md](channel-name-parsing.md) |
+| Export name shortening | In progress | [#130](https://github.com/pskillen/codeplug-tool/issues/130) — [name-shortening-progress.md](name-shortening-progress.md) |
 
 ## Documentation map
 
 | Doc | Contents |
 | --- | --- |
 | [channel-name-parsing.md](channel-name-parsing.md) | CPS wire name → `callsign` + `name` split ([#54](https://github.com/pskillen/codeplug-tool/issues/54)) |
+| [name-shortening-progress.md](name-shortening-progress.md) | Export-time channel/zone name shortening ([#130](https://github.com/pskillen/codeplug-tool/issues/130)) |
 | [data-model/README.md](../data-model/README.md) | Entity definitions (canonical, vendor-neutral) |
 | [opengd77/README.md](opengd77/README.md) | OpenGD77 adapter behaviour; columns in [reference/opengd77/](../../reference/opengd77/README.md) |
 | [adding-a-new-vendor.md](adding-a-new-vendor.md) | Contributor checklist for new formats |
