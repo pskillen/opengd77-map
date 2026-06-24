@@ -124,6 +124,18 @@ describe('parseChannels', () => {
     ]);
   });
 
+  it('merges FM+DMR rows when CPS coordinates differ by one decimal place', () => {
+    const csv = `${header}
+1,GB3OH L'gow FM,Analogue,430.95000,438.55000,12.5,,,,,,,,94.8,94.8,Disabled,Master,No,No,No,0,Off,No,No,None,55.997,-3.646,Yes
+2,GB3OH L'gow DMR,Digital,430.95000,438.55000,,1,1,None,GB3OH,None,Off,Off,,,,Master,No,No,No,0,Off,No,No,APRSFM,55.996,-3.646,Yes`;
+
+    const channels = normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX));
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
+    expect(channels[0].callsign).toBe('GB3OH');
+    expect(channels[0].name).toBe("L'gow");
+  });
+
   it('merges apostrophe -F/-D suffix rows into one multi-mode channel', () => {
     const csv = `${header}
 1,GB7DG Ppatrick-F,Analogue,430.90000,438.50000,12.5,,,,,,,,None,None,Disabled,Master,No,No,No,0,Off,No,No,None,54.69,-4.89,Yes

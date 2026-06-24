@@ -20,6 +20,7 @@ import type {
 } from '../../models/codeplug.ts';
 import { channelModeProfileDefaults, newId } from '../../models/codeplug.ts';
 import { composeChannelWireName, withMergedChannelWireProvenance } from '../channelNaming.ts';
+import { haversineDistanceM } from '../geoDistance.ts';
 import {
   finalizeWireName,
   uniqueWireName,
@@ -796,10 +797,22 @@ export function channelFrequenciesMatchWithOptions(
   return true;
 }
 
+/**
+ * Max great-circle distance (m) to treat two channel locations as the same site for merge.
+ * CPS FM/DMR rows for one repeater often differ by one lat/lon decimal place.
+ */
+export const CHANNEL_MERGE_LOCATION_TOLERANCE_M = 250;
+
 export function channelLocationsMatch(a: Channel, b: Channel): boolean {
   if (a.location == null && b.location == null) return true;
   if (a.location == null || b.location == null) return false;
-  return a.location.lat === b.location.lat && a.location.lon === b.location.lon;
+  const distanceM = haversineDistanceM(
+    a.location.lat,
+    a.location.lon,
+    b.location.lat,
+    b.location.lon,
+  );
+  return distanceM <= CHANNEL_MERGE_LOCATION_TOLERANCE_M;
 }
 
 function channelNameStemsMatch(

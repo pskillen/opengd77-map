@@ -7,6 +7,7 @@ import {
 } from '../../test/builders/codeplug.ts';
 import {
   canonicalOpenGd77ChannelWireForCompare,
+  channelLocationsMatch,
   channelMergeNameStem,
   channelNameStem,
   channelsAreMultiModeMergeCandidates,
@@ -90,6 +91,18 @@ describe('channelExpansion', () => {
     expect(stripModeExportSuffix('GB7GL-F')).toBe('GB7GL');
     expect(stripModeExportSuffix('GB7GL-D')).toBe('GB7GL');
     expect(stripModeExportSuffix('GB7GL')).toBe('GB7GL');
+  });
+
+  it('channelLocationsMatch allows small CPS coordinate drift between FM and DMR rows', () => {
+    const a = buildChannel({ location: { lat: 55.997, lon: -3.646 } });
+    const b = buildChannel({ location: { lat: 55.996, lon: -3.646 } });
+    expect(channelLocationsMatch(a, b)).toBe(true);
+  });
+
+  it('channelLocationsMatch rejects clearly different sites', () => {
+    const a = buildChannel({ location: { lat: 55.997, lon: -3.646 } });
+    const b = buildChannel({ location: { lat: 55.9, lon: -3.646 } });
+    expect(channelLocationsMatch(a, b)).toBe(false);
   });
 
   it('canonicalOpenGd77ChannelWireForCompare normalizes FM/DMR word suffix to -F/-D', () => {

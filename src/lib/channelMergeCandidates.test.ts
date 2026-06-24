@@ -117,6 +117,31 @@ describe('channelMergeCandidates', () => {
     expect(groups).toHaveLength(0);
   });
 
+  it('findChannelMergeCandidates pairs FM+DMR when CPS coords differ slightly (GB3OH L\'gow)', () => {
+    const fm = buildChannel({
+      id: 'fm',
+      name: "L'gow FM",
+      callsign: 'GB3OH',
+      mode: 'fm',
+      rxFrequency: 430_950_000,
+      txFrequency: 438_550_000,
+      location: { lat: 55.997, lon: -3.646 },
+    });
+    const dmr = buildChannel({
+      id: 'dmr',
+      name: "L'gow DMR",
+      callsign: 'GB3OH',
+      mode: 'dmr',
+      rxFrequency: 430_950_000,
+      txFrequency: 438_550_000,
+      location: { lat: 55.996, lon: -3.646 },
+    });
+    const groups = findChannelMergeCandidates(buildCodeplug({ channels: [fm, dmr] }));
+    expect(groups).toHaveLength(1);
+    expect(groups[0].mergeKind).toBe('multiMode');
+    expect(groups[0].suggestedName).toBe("L'gow");
+  });
+
   it('findChannelMergeCandidates pairs FM+DMR when only RX must match', () => {
     const dmr = buildChannel({
       id: 'dmr',

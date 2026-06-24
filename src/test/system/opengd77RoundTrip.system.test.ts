@@ -30,12 +30,21 @@ const SUBSTANTIVE_FILES: {
 
 const HEADER_ONLY_FILES: OpenGd77TestDataFileName[] = ['DTMF.csv', 'APRS.csv'];
 
+function normalizeCpsCoordinate(value: string): string {
+  const n = parseFloat(value.trim());
+  if (!Number.isFinite(n)) return value.trim();
+  return n.toFixed(2);
+}
+
 function openGd77CsvCompareNormalizers(csv: string): Record<string, (value: string) => string> {
   const headers = parseCsv(csv.replace(/^\uFEFF/, '').trim())[0]?.map((h) => h.trim()) ?? [];
   const normalizers: Record<string, (value: string) => string> = {};
   for (const header of headers) {
     if (header === 'Channel Name' || /^Channel\d+$/i.test(header)) {
       normalizers[header] = canonicalOpenGd77ChannelWireForCompare;
+    }
+    if (header === 'Latitude' || header === 'Longitude') {
+      normalizers[header] = normalizeCpsCoordinate;
     }
   }
   return normalizers;
