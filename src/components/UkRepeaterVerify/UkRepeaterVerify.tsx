@@ -9,9 +9,14 @@ import {
   isMapListingSkip,
   mapListingToChannelInput,
 } from '../../lib/repeaterDirectories/registry.ts';
-import type { ChannelDiffField, ChannelDiffRow } from '../../lib/repeaterDirectories/registry.ts';
+import type {
+  ChannelDiffField,
+  ChannelDiffRow,
+  MapListingOptions,
+} from '../../lib/repeaterDirectories/registry.ts';
 import type { EtccListing } from '../../lib/repeaterDirectories/registry.ts';
 import { matchListingForChannel } from '../../lib/repeaterDirectories/ukrepeater/matchListing.ts';
+import { toTitleCase } from '../../lib/titleCase.ts';
 import { validateChannel } from '../../lib/validation/channel.ts';
 import type { Channel } from '../../models/codeplug.ts';
 import { listingToSnapshot } from '../../lib/repeaterDirectories/ukrepeater/types.ts';
@@ -19,6 +24,12 @@ import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 export interface UkRepeaterVerifyProps {
   channel: Channel;
+}
+
+function formatListingLabel(listing: EtccListing, titleCaseNames: boolean): string {
+  const town = listing.town ? (titleCaseNames ? toTitleCase(listing.town) : listing.town) : '—';
+  const status = titleCaseNames ? toTitleCase(listing.status) : listing.status;
+  return `${listing.repeater} — ${listing.band} — ${town} (${status})`;
 }
 
 export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
@@ -31,17 +42,23 @@ export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
   const [selectedListing, setSelectedListing] = useState<EtccListing | null>(null);
   const [selectedFields, setSelectedFields] = useState<Set<ChannelDiffField>>(new Set());
   const [applyError, setApplyError] = useState<string | null>(null);
+  const [titleCaseNames, setTitleCaseNames] = useState(true);
+
+  const mapOptions: MapListingOptions = useMemo(
+    () => ({ titleCaseText: titleCaseNames }),
+    [titleCaseNames],
+  );
 
   const diffRows: ChannelDiffRow[] = useMemo(() => {
     if (!selectedListing) return [];
-    return diffChannelFromListing(channel, selectedListing);
-  }, [channel, selectedListing]);
+    return diffChannelFromListing(channel, selectedListing, mapOptions);
+  }, [channel, selectedListing, mapOptions]);
 
   const changedRows = useMemo(() => diffRows.filter((r) => r.changed), [diffRows]);
 
   const openDiffForListing = (listing: EtccListing) => {
     setSelectedListing(listing);
-    const rows = diffChannelFromListing(channel, listing);
+    const rows = diffChannelFromListing(channel, listing, mapOptions);
     const changed = rows.filter((r) => r.changed).map((r) => r.field);
     setSelectedFields(new Set(changed));
     setApplyError(null);
@@ -91,7 +108,7 @@ export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
     setApplyError(null);
 
     const fields = [...selectedFields];
-    const patch = buildPatchFromDiff(channel, selectedListing, fields);
+    const patch = buildPatchFromDiff(channel, selectedListing, fields, mapOptions);
 
     if (fields.includes('name') && patch.name) {
       const issues = validateChannel(
@@ -106,7 +123,7 @@ export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
       }
     }
 
-    const mapped = mapListingToChannelInput(selectedListing);
+    const mapped = mapListingToChannelInput(selectedListing, undefined, mapOptions);
     if (isMapListingSkip(mapped)) {
       setApplyError(mapped.reason);
       return;
@@ -148,6 +165,12 @@ export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
         title="Select repeater listing"
         size="lg"
       >
+        <Checkbox
+          label="Title case names"
+          checked={titleCaseNames}
+          onChange={(e) => setTitleCaseNames(e.currentTarget.checked)}
+          mb="sm"
+        />
         <Radio.Group
           value={selectedListing ? String(selectedListing.id) : null}
           onChange={(value) => {
@@ -160,7 +183,7 @@ export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
               <Radio
                 key={listing.id}
                 value={String(listing.id)}
-                label={`${listing.repeater} — ${listing.band} — ${listing.town ?? '—'} (${listing.status})`}
+                label={formatListingLabel(listing, titleCaseNames)}
               />
             ))}
           </Stack>
@@ -189,6 +212,12 @@ export default function UkRepeaterVerify({ channel }: UkRepeaterVerifyProps) {
         title="ukrepeater.net vs local"
         size="lg"
       >
+        <Checkbox
+          label="Title case names"
+          checked={titleCaseNames}
+          onChange={(e) => setTitleCaseNames(e.currentTarget.checked)}
+          mb="sm"
+        />
         {!diffHasChanges(diffRows) ? (
           <Text size="sm">Local channel matches the remote listing.</Text>
         ) : (

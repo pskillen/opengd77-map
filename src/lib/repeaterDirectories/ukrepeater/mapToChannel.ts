@@ -10,6 +10,12 @@ import {
 import type { EtccListing } from './types.ts';
 import { listingToSnapshot } from './types.ts';
 import { parseModeCodes, primaryModeFromCodes } from './modeCodes.ts';
+import { toTitleCase } from '../../titleCase.ts';
+
+export interface MapListingOptions {
+  /** Title-case town/status text (ETCC returns upper case). Default false. */
+  titleCaseText?: boolean;
+}
 
 export interface MapListingResult {
   input: ChannelInput;
@@ -27,17 +33,27 @@ function ctcssToTone(ctcss: number): ChannelTone {
   return normalizeToneValue(String(ctcss));
 }
 
-function buildComment(listing: EtccListing): string {
+function formatListingText(value: string | undefined, titleCaseText: boolean): string {
+  const trimmed = value?.trim() ?? '';
+  if (!trimmed) return '';
+  return titleCaseText ? toTitleCase(trimmed) : trimmed;
+}
+
+function buildComment(listing: EtccListing, titleCaseText: boolean): string {
   const parts: string[] = [];
-  if (listing.town?.trim()) parts.push(listing.town.trim());
-  if (listing.status?.trim()) parts.push(listing.status.trim());
+  const town = formatListingText(listing.town, titleCaseText);
+  const status = formatListingText(listing.status, titleCaseText);
+  if (town) parts.push(town);
+  if (status) parts.push(status);
   return parts.join(' — ');
 }
 
 export function mapListingToChannelInput(
   listing: EtccListing,
   fetchedAt = new Date().toISOString(),
+  options: MapListingOptions = {},
 ): MapListingResult | MapListingSkip {
+  const titleCaseText = options.titleCaseText ?? false;
   const parsed = parseModeCodes(listing.modeCodes ?? []);
   const warnings: string[] = [];
 
@@ -59,6 +75,7 @@ export function mapListingToChannelInput(
   const coords = listing.locator ? locatorToCoords(listing.locator) : null;
   const location = coords ?? null;
   const useLocation = location != null;
+  const qualifierName = formatListingText(listing.town, titleCaseText);
 
   const shared = {
     rxFrequency,
@@ -68,7 +85,7 @@ export function mapListingToChannelInput(
     bandwidthKHz,
     location,
     useLocation,
-    comment: buildComment(listing),
+    comment: buildComment(listing, titleCaseText),
   };
 
   let input: ChannelInput;
@@ -90,7 +107,7 @@ export function mapListingToChannelInput(
     input = {
       ...channelFieldDefaults(),
       callsign: listing.repeater,
-      name: listing.town?.trim() ?? '',
+      name: qualifierName,
       exportNameMode: 'callsign_name',
       mode: 'fm',
       multiMode: true,
@@ -103,7 +120,7 @@ export function mapListingToChannelInput(
     input = {
       ...channelFieldDefaults(),
       callsign: listing.repeater,
-      name: listing.town?.trim() ?? '',
+      name: qualifierName,
       exportNameMode: 'callsign_name',
       mode,
       multiMode: false,

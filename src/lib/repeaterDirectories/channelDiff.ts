@@ -5,6 +5,7 @@ import type { Channel } from '../../models/codeplug.ts';
 import type { ChannelInput } from '../codeplugMutations.ts';
 import type { EtccListing } from './ukrepeater/types.ts';
 import { mapListingToChannelInput, isMapListingSkip } from './ukrepeater/mapToChannel.ts';
+import type { MapListingOptions } from './ukrepeater/mapToChannel.ts';
 
 export type ChannelDiffField =
   | 'callsign'
@@ -81,8 +82,12 @@ function locationEqual(a: Channel['location'], b: ChannelInput['location']): boo
   return Math.abs(a.lat - b.lat) < 0.0001 && Math.abs(a.lon - b.lon) < 0.0001;
 }
 
-export function diffChannelFromListing(channel: Channel, listing: EtccListing): ChannelDiffRow[] {
-  const mapped = mapListingToChannelInput(listing);
+export function diffChannelFromListing(
+  channel: Channel,
+  listing: EtccListing,
+  options?: MapListingOptions,
+): ChannelDiffRow[] {
+  const mapped = mapListingToChannelInput(listing, undefined, options);
   if (isMapListingSkip(mapped)) return [];
 
   const remote = mapped.input;
@@ -176,8 +181,9 @@ export function buildPatchFromDiff(
   _channel: Channel,
   listing: EtccListing,
   selectedFields: ChannelDiffField[],
+  options?: MapListingOptions,
 ): Partial<ChannelInput> {
-  const mapped = mapListingToChannelInput(listing);
+  const mapped = mapListingToChannelInput(listing, undefined, options);
   if (isMapListingSkip(mapped)) return {};
 
   const remote = mapped.input;

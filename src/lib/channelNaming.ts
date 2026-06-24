@@ -1,4 +1,4 @@
-import { stripModeExportSuffix } from './channelExpansion/index.ts';
+import { stripModeExportSuffix, channelMergeNameStem } from './channelExpansion/index.ts';
 import type { Channel, ChannelExportNameMode } from '../models/codeplug.ts';
 import { CALLSIGN_TOKEN_PATTERNS } from './channelNaming/patterns.ts';
 
@@ -110,14 +110,29 @@ function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/** Callsign for merge pairing — uses model field or parses import wire name. */
+export function channelCallsignForMerge(channel: Channel): string {
+  const stamped = (channel.callsign ?? '').trim();
+  if (stamped) return normalizeCallsignToken(stamped);
+  const wire = channel.meta?.imported?.channelWireName ?? channel.name;
+  return parseChannelWireName(wire.trim()).callsign;
+}
+
+/** Non-empty matching callsigns — strong same-site identity for merge pairing. */
+export function channelCallsignsMatch(a: Channel, b: Channel): boolean {
+  const csA = channelCallsignForMerge(a);
+  const csB = channelCallsignForMerge(b);
+  return Boolean(csA && csB && csA === csB);
+}
+
 /** Post-import pass: split wire name into callsign + qualifier; preserve channelWireName in meta. */
 export function normalizeImportedChannelNaming(channels: Channel[]): Channel[] {
   return channels.map((channel) => {
     const wire = channel.meta?.imported?.channelWireName ?? channel.name;
     const parsed = parseChannelWireName(wire);
     let name = parsed.name;
-    if (channel.multiMode && (name.endsWith('-F') || name.endsWith('-D'))) {
-      name = stripModeExportSuffix(name);
+    if (channel.multiMode) {
+      name = channelMergeNameStem(name);
     }
     return {
       ...channel,

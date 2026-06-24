@@ -60,4 +60,27 @@ describe('mapListingToChannelInput', () => {
     const result = mapListingToChannelInput(dstar);
     expect(isMapListingSkip(result)).toBe(true);
   });
+
+  it('title-cases town and comment when requested', () => {
+    const result = mapListingToChannelInput(GB7DC, undefined, { titleCaseText: true });
+    if (isMapListingSkip(result)) throw new Error('unexpected skip');
+    expect(result.input.name).toBe('Derby');
+    expect(result.input.comment).toBe('Derby — Operational');
+    expect(result.input.callsign).toBe('GB7DC');
+  });
+
+  it('preserves dotted abbreviations when title-casing', () => {
+    const niListing: EtccListing = { ...GB7DC, town: 'BELFAST N.I.' };
+    const result = mapListingToChannelInput(niListing, undefined, { titleCaseText: true });
+    if (isMapListingSkip(result)) throw new Error('unexpected skip');
+    expect(result.input.name).toBe('Belfast N.I.');
+    expect(result.input.comment).toBe('Belfast N.I. — Operational');
+  });
+
+  it('leaves ETCC casing when title case is off', () => {
+    const result = mapListingToChannelInput(GB7DC);
+    if (isMapListingSkip(result)) throw new Error('unexpected skip');
+    expect(result.input.name).toBe('DERBY');
+    expect(result.input.comment).toBe('DERBY — OPERATIONAL');
+  });
 });

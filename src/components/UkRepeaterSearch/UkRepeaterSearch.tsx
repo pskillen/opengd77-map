@@ -18,6 +18,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { FormPage } from '../ui/index.ts';
 import { formatFrequencyHz } from '../../lib/formatFrequency.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
+import { toTitleCase } from '../../lib/titleCase.ts';
 import {
   formatModeCodesSummary,
   isMapListingSkip,
@@ -46,6 +47,9 @@ export default function UkRepeaterSearch() {
   const search = useUkRepeaterSearch();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [addMessage, setAddMessage] = useState<string | null>(null);
+  const [titleCaseNames, setTitleCaseNames] = useState(true);
+
+  const mapOptions = useMemo(() => ({ titleCaseText: titleCaseNames }), [titleCaseNames]);
 
   const existingNames = useMemo(
     () => new Set(codeplug.channels.map((ch) => ch.name)),
@@ -54,7 +58,7 @@ export default function UkRepeaterSearch() {
 
   const rows = useMemo(() => {
     return search.listings.map((listing) => {
-      const mapped = mapListingToChannelInput(listing);
+      const mapped = mapListingToChannelInput(listing, undefined, mapOptions);
       const skip = isMapListingSkip(mapped);
       const name = skip ? listing.repeater : mapped.input.name;
       return {
@@ -67,7 +71,7 @@ export default function UkRepeaterSearch() {
         mappable: !skip,
       };
     });
-  }, [search.listings, existingNames]);
+  }, [search.listings, existingNames, mapOptions]);
 
   const toggleRow = (key: string, checked: boolean) => {
     setSelected((prev) => {
@@ -96,7 +100,7 @@ export default function UkRepeaterSearch() {
         skipped++;
         continue;
       }
-      const mapped = mapListingToChannelInput(row.listing);
+      const mapped = mapListingToChannelInput(row.listing, undefined, mapOptions);
       if (isMapListingSkip(mapped)) {
         skipped++;
         continue;
@@ -163,6 +167,11 @@ export default function UkRepeaterSearch() {
             label="Operational only"
             checked={search.operationalOnly}
             onChange={(e) => search.setOperationalOnly(e.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Title case names"
+            checked={titleCaseNames}
+            onChange={(e) => setTitleCaseNames(e.currentTarget.checked)}
           />
           <Button
             leftSection={<IconSearch size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
@@ -242,13 +251,19 @@ export default function UkRepeaterSearch() {
                         </Table.Td>
                         <Table.Td>{row.listing.repeater}</Table.Td>
                         <Table.Td>{row.listing.band}</Table.Td>
-                        <Table.Td>{row.listing.town ?? '—'}</Table.Td>
+                        <Table.Td>
+                          {row.listing.town
+                            ? titleCaseNames
+                              ? toTitleCase(row.listing.town)
+                              : row.listing.town
+                            : '—'}
+                        </Table.Td>
                         <Table.Td>
                           <Text
                             size="sm"
                             c={isOperationalStatus(row.listing.status) ? undefined : 'orange'}
                           >
-                            {row.listing.status}
+                            {titleCaseNames ? toTitleCase(row.listing.status) : row.listing.status}
                           </Text>
                         </Table.Td>
                         <Table.Td>{formatModeCodesSummary(row.listing.modeCodes ?? [])}</Table.Td>

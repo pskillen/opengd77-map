@@ -5,6 +5,10 @@ export interface CsvRecordCompareOptions {
   nameColumn?: string;
   /** Columns excluded from field-by-field compare (e.g. `Location` reassigned on export). */
   excludeColumns?: string[];
+  /** Per-column value normalizers applied before row signature (header name → fn). */
+  normalizeColumn?: Record<string, (value: string) => string>;
+  /** Sort values in matching columns within each row before signature (zone member order). */
+  sortColumnPattern?: RegExp;
 }
 
 export interface CsvFieldDiff {
@@ -25,12 +29,29 @@ export interface CsvRecordCompareResult {
   missingInOriginal: string[];
 }
 
-function rowParts(row: string[], headers: string[], exclude: Set<string>): string[] {
+function rowParts(
+  row: string[],
+  headers: string[],
+  exclude: Set<string>,
+  normalizeColumn?: Record<string, (value: string) => string>,
+  sortColumnPattern?: RegExp,
+): string[] {
   const parts: string[] = [];
+  const sortableIndices: number[] = [];
   for (let index = 0; index < headers.length; index++) {
     const header = headers[index]!;
     if (exclude.has(header)) continue;
-    parts.push((row[index] ?? '').trim());
+    let value = (row[index] ?? '').trim();
+    const normalize = normalizeColumn?.[header];
+    if (normalize) value = normalize(value);
+    if (sortColumnPattern?.test(header)) sortableIndices.push(parts.length);
+    parts.push(value);
+  }
+  if (sortableIndices.length > 1) {
+    const sorted = sortableIndices.map((i) => parts[i]!).sort();
+    sortableIndices.forEach((partIndex, i) => {
+      parts[partIndex] = sorted[i]!;
+    });
   }
   return parts;
 }
@@ -102,6 +123,8 @@ export function compareCsvRecords(
 ): CsvRecordCompareResult {
   const exclude = new Set(options.excludeColumns ?? []);
   const nameColumn = options.nameColumn ?? 'Name';
+  const normalizeColumn = options.normalizeColumn;
+  const sortColumnPattern = options.sortColumnPattern;
 
   const originalRows = parseCsv(originalCsv.replace(/^\uFEFF/, '').trim());
   const exportedRows = parseCsv(exportedCsv.replace(/^\uFEFF/, '').trim());
@@ -124,7 +147,9 @@ export function compareCsvRecords(
       const row = rows[r];
       const name = (row[nameIdx] ?? '').trim();
       if (!name) continue;
-      signatures.push(rowSignature(rowParts(row, headers, exclude)));
+      signatures.push(
+        rowSignature(rowParts(row, headers, exclude, normalizeColumn, sortColumnPattern)),
+      );
     }
     return signatures.sort();
   }

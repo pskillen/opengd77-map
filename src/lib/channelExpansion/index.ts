@@ -19,7 +19,13 @@ import type {
   Zone,
 } from '../../models/codeplug.ts';
 import { channelModeProfileDefaults, newId } from '../../models/codeplug.ts';
-import { composeChannelWireName, withMergedChannelWireProvenance } from '../channelNaming.ts';
+import {
+  composeChannelWireName,
+  withMergedChannelWireProvenance,
+  channelCallsignsMatch,
+  parseChannelWireName,
+} from '../channelNaming.ts';
+import { haversineDistanceM } from '../geoDistance.ts';
 import {
   finalizeWireName,
   uniqueWireName,
@@ -132,6 +138,30 @@ export function stripModeExportSuffix(name: string): string {
     return name.slice(0, -2);
   }
   return name;
+}
+
+function openGd77WireModeTag(wire: string): '' | '-F' | '-D' {
+  const trimmed = wire.trim();
+  if (trimmed.endsWith('-F') || /\sFM$/i.test(trimmed)) return '-F';
+  if (trimmed.endsWith('-D') || /\sDMR$/i.test(trimmed) || /\sDM$/i.test(trimmed)) return '-D';
+  return '';
+}
+
+/**
+ * Canonical OpenGD77 channel wire name for multiset round-trip compare.
+ * Callsign channels with a mode suffix compare by callsign + mode (qualifier typos may merge on import).
+ * Otherwise treats trailing ` FM` / ` DMR` / ` DM` and `-F` / `-D` as equivalent.
+ */
+export function canonicalOpenGd77ChannelWireForCompare(wire: string): string {
+  const trimmed = wire.trim();
+  const modeTag = openGd77WireModeTag(trimmed);
+  const parsed = parseChannelWireName(trimmed);
+  if (parsed.callsign && modeTag) {
+    return `${parsed.callsign}${modeTag}`;
+  }
+  const stem = channelMergeNameStem(trimmed);
+  if (stem !== trimmed && modeTag) return `${stem}${modeTag}`;
+  return trimmed;
 }
 
 function channelForWireName(
@@ -713,9 +743,12 @@ export function channelNameStem(name: string): string {
   return stripModeExportSuffix(name);
 }
 
-/** Post-hoc merge candidate stem — also strips trailing space + mode label (e.g. ` FM`, ` DMR`). */
+/** Post-hoc merge candidate stem — also strips trailing space + mode label (e.g. ` FM`, ` DMR`, ` DM`). */
 export function channelMergeNameStem(name: string): string {
   let stem = stripModeExportSuffix(name);
+  if (/\sDM$/i.test(stem)) {
+    stem = stem.slice(0, -3);
+  }
   for (const label of TRAILING_MODE_LABELS) {
     const suffix = ` ${label}`;
     if (stem.endsWith(suffix)) {
@@ -781,10 +814,22 @@ export function channelFrequenciesMatchWithOptions(
   return true;
 }
 
+/**
+ * Max great-circle distance (m) to treat two channel locations as the same site for merge.
+ * CPS FM/DMR rows for one repeater often differ by one lat/lon decimal place.
+ */
+export const CHANNEL_MERGE_LOCATION_TOLERANCE_M = 250;
+
 export function channelLocationsMatch(a: Channel, b: Channel): boolean {
   if (a.location == null && b.location == null) return true;
   if (a.location == null || b.location == null) return false;
-  return a.location.lat === b.location.lat && a.location.lon === b.location.lon;
+  const distanceM = haversineDistanceM(
+    a.location.lat,
+    a.location.lon,
+    b.location.lat,
+    b.location.lon,
+  );
+  return distanceM <= CHANNEL_MERGE_LOCATION_TOLERANCE_M;
 }
 
 function channelNameStemsMatch(
@@ -800,6 +845,48 @@ function channelNameStemsMatch(
   return levenshteinRatio(stemA, stemB) <= threshold;
 }
 
+function channelQualifierStemForMerge(channel: Channel, stripTrailingModeLabel: boolean): string {
+  const stemFn = stripTrailingModeLabel ? channelMergeNameStem : channelNameStem;
+  const wire = channel.meta?.imported?.channelWireName ?? channel.name;
+  const parsed = parseChannelWireName(wire.trim());
+  if (parsed.callsign && parsed.name) {
+    return stemFn(parsed.name);
+  }
+  const stampedCallsign = (channel.callsign ?? '').trim();
+  const stampedName = (channel.name ?? '').trim();
+  if (stampedCallsign && stampedName) {
+    return stemFn(stampedName);
+  }
+  return stemFn((parsed.name || wire).trim());
+}
+
+/** Max normalised Levenshtein ratio between qualifier stems when callsigns match (CPS typos). */
+export const CALLSIGN_TYPO_QUALIFIER_THRESHOLD = 0.3;
+
+/** Matching callsign plus typo-level qualifier similarity — not unrelated names at the same site. */
+export function channelCallsignTypoMatch(
+  a: Channel,
+  b: Channel,
+  stripTrailingModeLabel: boolean,
+  typoThreshold = CALLSIGN_TYPO_QUALIFIER_THRESHOLD,
+): boolean {
+  if (!channelCallsignsMatch(a, b)) return false;
+  const stemA = channelQualifierStemForMerge(a, stripTrailingModeLabel);
+  const stemB = channelQualifierStemForMerge(b, stripTrailingModeLabel);
+  if (stemA === stemB) return true;
+  return levenshteinRatio(stemA, stemB) <= typoThreshold;
+}
+
+function channelMergeIdentityMatch(
+  a: Channel,
+  b: Channel,
+  threshold: number,
+  stripTrailingModeLabel: boolean,
+): boolean {
+  if (channelCallsignTypoMatch(a, b, stripTrailingModeLabel)) return true;
+  return channelNameStemsMatch(a, b, threshold, stripTrailingModeLabel);
+}
+
 /** Whether two single-mode channels are candidates for a multi-mode merge. */
 export function channelsAreMultiModeMergeCandidates(
   a: Channel,
@@ -809,7 +896,10 @@ export function channelsAreMultiModeMergeCandidates(
   if (a.mode === b.mode) return false;
   const threshold = options.nameFuzzyThreshold ?? 0;
   const stripTrailingModeLabel = options.stripTrailingModeLabel ?? false;
-  if (!options.ignoreNameMatch && !channelNameStemsMatch(a, b, threshold, stripTrailingModeLabel)) {
+  if (
+    !options.ignoreNameMatch &&
+    !channelMergeIdentityMatch(a, b, threshold, stripTrailingModeLabel)
+  ) {
     return false;
   }
   if (!channelFrequenciesMatchWithOptions(a, b, options)) return false;
@@ -858,7 +948,7 @@ export function mergeChannelsToMultiMode(
 
   const primary = pickPrimarySource(sources);
   const survivorId = options.survivorId ?? primary.id;
-  const resultName = options.resultName ?? channelNameStem(primary.name);
+  const resultName = options.resultName ?? channelMergeNameStem(primary.name);
   const modeProfiles = sources.map((ch) => profileFromChannelFields(ch));
 
   const base: Channel = {
@@ -891,8 +981,13 @@ export function mergeChannelsToMultiMode(
   return syncChannelFromPrimaryProfile(withMergedChannelWireProvenance(base, sources));
 }
 
+const IMPORT_MERGE_MATCH_OPTIONS: ChannelMergeCandidateOptions = {
+  stripTrailingModeLabel: true,
+  nameFuzzyThreshold: 0,
+};
+
 function canMergePair(a: Channel, b: Channel, options: ChannelMergeCandidateOptions = {}): boolean {
-  return channelsAreMultiModeMergeCandidates(a, b, { nameFuzzyThreshold: 0, ...options });
+  return channelsAreMultiModeMergeCandidates(a, b, { ...IMPORT_MERGE_MATCH_OPTIONS, ...options });
 }
 
 function mergeTwoChannels(primary: Channel, secondary: Channel): Channel {

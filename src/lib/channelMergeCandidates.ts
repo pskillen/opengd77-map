@@ -1,4 +1,5 @@
 import {
+  channelCallsignTypoMatch,
   channelFrequenciesMatch,
   channelLocationsMatch,
   channelMergeNameStem,
@@ -159,6 +160,12 @@ function stemsAreCompatible(stems: string[], threshold: number): boolean {
   );
 }
 
+function membersShareCallsignTypo(members: Channel[]): boolean {
+  if (members.length < 2) return false;
+  const first = members[0];
+  return members.every((ch) => channelCallsignTypoMatch(first, ch, true));
+}
+
 function mergeNameStem(name: string): string {
   return channelMergeNameStem(name);
 }
@@ -236,7 +243,8 @@ function buildMultiModeGroupsInBucket(
     if (members.length < 2) continue;
 
     const stems = members.map((ch) => mergeNameStem(ch.name));
-    if (!stemsAreCompatible(stems, threshold)) continue;
+    const stemsOk = stemsAreCompatible(stems, threshold) || membersShareCallsignTypo(members);
+    if (!stemsOk) continue;
 
     const { mergeKind, ambiguousReason } = classifyGroup(members);
     if (mergeKind !== 'multiMode') continue;
