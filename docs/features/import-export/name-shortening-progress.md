@@ -33,7 +33,7 @@
 ## Slice 2 — Core shortening helper
 
 **Status:** Complete (committed)
-**Commit:** _(pending)_
+**Commit:** `49a14db` — `feat: add pure channel-name shortening helper`
 
 **Delivered**
 
