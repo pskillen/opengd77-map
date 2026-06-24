@@ -34,7 +34,9 @@ const channel = buildChannel({
 
 const member = { kind: 'talkGroup' as const, id: 'tg1' };
 
-function ctx(overrides: Partial<MultiTalkGroupWireNameContext> = {}): MultiTalkGroupWireNameContext {
+function ctx(
+  overrides: Partial<MultiTalkGroupWireNameContext> = {},
+): MultiTalkGroupWireNameContext {
   return {
     talkGroups: [tgScotland, tgWest],
     contacts: [],
@@ -56,9 +58,9 @@ describe('normaliseTalkGroupTimeslotToken', () => {
 
 describe('composeMultiTalkGroupWireName', () => {
   it('callsign_tg_abbrev uses callsign and TG abbreviation', () => {
-    expect(
-      composeMultiTalkGroupWireName(channel, member, 'callsign_tg_abbrev', ctx()),
-    ).toBe('GB7GL Sco TS2');
+    expect(composeMultiTalkGroupWireName(channel, member, 'callsign_tg_abbrev', ctx())).toBe(
+      'GB7GL Sco TS2',
+    );
   });
 
   it('callsign_name_tg includes name qualifier', () => {
@@ -69,9 +71,14 @@ describe('composeMultiTalkGroupWireName', () => {
 
   it('callsign_name_tg uses channel abbreviation when enabled', () => {
     expect(
-      composeMultiTalkGroupWireName(channel, member, 'callsign_name_tg', ctx({
-        useChannelAbbreviation: true,
-      })),
+      composeMultiTalkGroupWireName(
+        channel,
+        member,
+        'callsign_name_tg',
+        ctx({
+          useChannelAbbreviation: true,
+        }),
+      ),
     ).toBe('GB7GL Glas Scotland TS2');
   });
 

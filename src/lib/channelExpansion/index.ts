@@ -459,7 +459,12 @@ export function expandTalkGroupsForExport(
           if (!next) break;
           effectiveMode = next;
           base = composeMultiTalkGroupWireName(sourceChannel, member, effectiveMode, wireCtx);
-          fixedSuffix = multiTalkGroupProtectedSuffix(sourceChannel, member, effectiveMode, wireCtx);
+          fixedSuffix = multiTalkGroupProtectedSuffix(
+            sourceChannel,
+            member,
+            effectiveMode,
+            wireCtx,
+          );
         }
       }
 

@@ -24,7 +24,11 @@ export const MULTI_TG_EXPORT_NAME_MODE_OPTIONS: {
 }[] = [
   { value: 'callsign_tg_abbrev', label: 'Callsign + TG abbrev', example: 'GB7GL Sco TS2' },
   { value: 'callsign_tg', label: 'Callsign + TG name', example: 'GB7GL Scotland TS2' },
-  { value: 'callsign_name_tg', label: 'Callsign + name + TG', example: 'GB7GL Glasgow Scotland TS2' },
+  {
+    value: 'callsign_name_tg',
+    label: 'Callsign + name + TG',
+    example: 'GB7GL Glasgow Scotland TS2',
+  },
   { value: 'suffix_tg_abbrev', label: '2-letter suffix + TG abbrev', example: 'GL Sco TS2' },
   { value: 'suffix_tg_number', label: '2-letter suffix + TG number', example: 'GL 950/2' },
   { value: 'append', label: 'Legacy (append TG to channel name)', example: 'GL Glas Scotland TS2' },
@@ -57,10 +61,7 @@ function effectiveExportCallsign(
   return '';
 }
 
-function siteCallsignToken(
-  channel: Channel,
-  ctx: MultiTalkGroupWireNameContext,
-): string {
+function siteCallsignToken(channel: Channel, ctx: MultiTalkGroupWireNameContext): string {
   const picked = channelPickForWireExport(channel, {
     nameModeOverride: ctx.nameModeOverride,
     useChannelAbbreviation: ctx.useChannelAbbreviation,
@@ -108,10 +109,7 @@ function talkGroupNumberToken(tg: TalkGroup): string {
   return number;
 }
 
-function channelNameQualifier(
-  channel: Channel,
-  ctx: MultiTalkGroupWireNameContext,
-): string {
+function channelNameQualifier(channel: Channel, ctx: MultiTalkGroupWireNameContext): string {
   const picked = channelPickForWireExport(channel, {
     nameModeOverride: ctx.nameModeOverride,
     useChannelAbbreviation: ctx.useChannelAbbreviation,
@@ -191,7 +189,7 @@ export function composeMultiTalkGroupWireName(
   const contact = member.kind === 'contact' ? findContactById(member.id, ctx.contacts) : null;
   const contactLabel = contact?.name ?? entityRefExportLabel(member, ctx.talkGroups, ctx.contacts);
   if (mode === 'suffix_tg_number' && contact) {
-    const token = contact.number.trim();
+    const token = contact.identifier.trim();
     return token ? joinParts(suffix, token) : joinParts(suffix, contact.name);
   }
   if (mode === 'callsign_tg' || mode === 'callsign_tg_abbrev') {
@@ -201,14 +199,16 @@ export function composeMultiTalkGroupWireName(
     return contactLabel ? joinParts(suffix, contactLabel) : joinParts(suffix, name);
   }
   if (mode === 'callsign_name_tg') {
-    return contactLabel ? joinParts(siteCallsign, name, contactLabel) : joinParts(siteCallsign, name);
+    return contactLabel
+      ? joinParts(siteCallsign, name, contactLabel)
+      : joinParts(siteCallsign, name);
   }
   return contactLabel ? joinParts(siteCallsign, name, contactLabel) : joinParts(siteCallsign, name);
 }
 
 /** Trailing portion of a TG-first composed name that must survive shortening. */
 export function multiTalkGroupProtectedSuffix(
-  channel: Channel,
+  _channel: Channel,
   member: EntityRef,
   mode: MultiTalkGroupExportNameMode,
   ctx: MultiTalkGroupWireNameContext,
@@ -231,7 +231,7 @@ export function multiTalkGroupProtectedSuffix(
 
   const contact = member.kind === 'contact' ? findContactById(member.id, ctx.contacts) : null;
   if (mode === 'suffix_tg_number' && contact) {
-    const token = contact.number.trim();
+    const token = contact.identifier.trim();
     return token ? ` ${token}` : ` ${contact.name}`;
   }
   const contactLabel = contact?.name ?? entityRefExportLabel(member, ctx.talkGroups, ctx.contacts);
