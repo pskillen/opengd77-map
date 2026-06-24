@@ -43,6 +43,10 @@ All other columns are optional at import — missing headers yield empty values.
 | `No Beep` | `Channel.opengd77Extras['No Beep']` | No | Trim → opengd77Extras | From opengd77Extras | opengd77Extras | |
 | `No Eco` | `Channel.opengd77Extras['No Eco']` | No | Trim → opengd77Extras | From opengd77Extras | opengd77Extras | |
 | `APRS` | `Channel.aprsConfigName` | No | Trim | As stored | String pass-through | FK → APRS.csv |
+
+### TX Admit
+
+OpenGD77 `Channels.csv` has **no TX Admit column**. The internal `Channel.txAdmit` enum is retained for cross-format projects (e.g. imported from DM-32) but is **not serialised** on OpenGD77 export.
 | `Latitude` | `Channel.location.lat` | **Column required** | Parse float | String from location | Lossless when valid | Pair with longitude |
 | `Longitude` | `Channel.location.lon` | **Column required** | Parse float | String from location | Lossless when valid | |
 | `Use Location` | `Channel.useLocation` | No | `Yes` → `true` | `wireYesNo(useLocation)` | Lossless boolean | |

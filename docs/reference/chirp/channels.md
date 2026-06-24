@@ -74,6 +74,10 @@ Export uses `88.5` for unused frequency cells.
 
 See per-radio ladders in [radios/](radios/README.md). Internal `power` is 0–100 percent; `null` = radio default (exports as profile high step).
 
+## TX Admit
+
+CHIRP channel CSV has **no TX Admit column**. The internal `Channel.txAdmit` enum is retained for cross-format projects but is **not serialised** on CHIRP export.
+
 ## Round-trip
 
 Model-only serialisation — no `wireColumns` provenance stash. File-level tests: `test-data/chirp/` with matching `profileId`.

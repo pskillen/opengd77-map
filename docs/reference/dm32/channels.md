@@ -34,7 +34,7 @@ Some CPS builds spell analogue `Anlaog` — accept on import; export uses fixtur
 | `Power` | `power` | Wire → % via ladder | % → `High`/`Middle`/`Low` | Yes | |
 | `Band Width` | `bandwidthKHz` | `12.5KHz` → 12.5; `25KHz` → 25 | Reverse | Yes | |
 | `Scan List` | — | **Ignored** | `None` | **Lossy** — [#125](https://github.com/pskillen/codeplug-tool/issues/125) | |
-| `TX Admit` | `txAdmit` | Trim | As stored | Yes | `Channel Idle` / `Allow TX` |
+| `TX Admit` | `txAdmit` | Wire → enum | Enum → wire | Yes | See mapping table below |
 | `Emergency System` | — | Ignored | `None` | Constant default | |
 | `Squelch Level` | `squelch` | 0–9 → % via ladder | % → 0–9; `null` → `1` on analog rows only, else `0` | Yes | |
 | `APRS Report Type` | `aprsReportType` | Trim | As stored | Yes | `Off` / `Digital` |
@@ -53,6 +53,14 @@ Some CPS builds spell analogue `Anlaog` — accept on import; export uses fixtur
 | `DMR ID` | — | **Ignored** | Fixture default `Paddy MM7IGV` | **Lossy** | Accepted gap |
 | `CTC/DCS Decode` / `Encode` | `rxTone` / `txTone` | Wire → tone | Tone → wire | Yes | `None` when off |
 | `Scramble` … `PTT ID Display` | — | Ignored | Fixture defaults | Constant | |
+
+### TX Admit mapping
+
+| Internal `txAdmit` | DM-32 `TX Admit` wire |
+| --- | --- |
+| `channel_idle` | `Channel Idle` |
+| `allow_tx` | `Allow TX` |
+| _(unknown wire on import)_ | → `channel_idle` |
 
 `Channel Name` maps to split internal fields on import and is **composed on export**. Split rules: [channel-name-parsing](../../features/import-export/channel-name-parsing.md).
 

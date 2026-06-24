@@ -86,6 +86,7 @@ Typed scalar fields use vendor-neutral semantics in the model; CPS wire strings 
 | `squelch` | `number \| null` | Percent 0–100; `0` = open/off; `null` = radio default |
 | `power` | `number \| null` | Percent 0–100; `null` = radio default |
 | `forbidTransmit` | `boolean` | Receive-only / TX forbidden |
+| `txAdmit` | `ChannelTxAdmit` | Carrier-idle admit vs always allow TX |
 | `aprsConfigName` | `string` | APRS config, by name |
 | `voxEnabled` | `boolean` | VOX enabled |
 | `transmitTimeout` | `number \| null` | Seconds; `0` = off; `null` when unset |
