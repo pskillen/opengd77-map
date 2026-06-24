@@ -19,6 +19,7 @@ Items **skipped**, **incomplete**, or **discovered during execution** — not fu
 
 ## Open / deferred
 
+- [x] **UV-5R Mini name limit + CHIRP export UI** — [#160](https://github.com/pskillen/codeplug-tool/issues/160) (`nameLimit` 12; hide multi-TG export controls)
 - [ ] **CHIRP DCS / CrossMode** — export constants only; real DCS tone mapping follow-up
 - [ ] **CHIRP → OpenGD77 cross-format** — not in v1
 - [x] **OpenGD77 file-level round-trip** — [#108](https://github.com/pskillen/codeplug-tool/issues/108) (`test-data/opengd77/`, `opengd77RoundTrip.system.test.ts`)

@@ -9,6 +9,7 @@
 | Constraint | Value | Export behaviour |
 | --- | --- | --- |
 | Max memory slots | 128 | Warn when channel count exceeds; truncate lowest-priority rows if forced |
+| Max channel name length | 12 | Shorten or warn when composed wire name exceeds limit |
 | Modes | NFM, AM | Skip non-FM/AM internal modes with warning |
 
 ## Power ladder (wire → percent)

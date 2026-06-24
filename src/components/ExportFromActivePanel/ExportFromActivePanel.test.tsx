@@ -59,6 +59,12 @@ describe('ExportFromActivePanel', () => {
     expect(screen.queryByText('Use talk group abbreviations')).not.toBeInTheDocument();
   });
 
+  it('hides multi-talkgroup export options on CHIRP export', () => {
+    renderPanel(vendorFormatById('chirp'));
+    expect(screen.queryByText('Multi-talkgroup export name style')).not.toBeInTheDocument();
+    expect(screen.queryByText('Use talk group abbreviations')).not.toBeInTheDocument();
+  });
+
   it('shows multi-talkgroup export options on DM32 export', () => {
     renderPanel(vendorFormatById('dm32'));
     expect(screen.getByText('Multi-talkgroup export name style')).toBeInTheDocument();

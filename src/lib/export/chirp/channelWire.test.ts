@@ -51,6 +51,26 @@ describe('export/chirp/channelWire', () => {
     expect(row[4]).toBe('0.000000');
   });
 
+  it('preserves a 10-character name when maxNameLength override exceeds profile limit', () => {
+    const row = channelToChirpRow(
+      {
+        ...channelFieldDefaults(),
+        id: 'ch-4',
+        name: 'TenCharOne',
+        callsign: '',
+        exportNameMode: 'name_only',
+        mode: 'fm',
+        rxFrequency: 145_500_000,
+        txFrequency: 145_500_000,
+        forbidTransmit: false,
+      },
+      4,
+      'baofeng-uv5r-mini',
+      { reserved: new Set<string>(), maxNameLength: 12, shortenNames: true },
+    );
+    expect(row[1]).toBe('TenCharOne');
+  });
+
   it('uses channel abbreviation for export wire name when enabled', () => {
     const row = channelToChirpRow(
       {
