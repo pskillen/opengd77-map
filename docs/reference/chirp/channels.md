@@ -23,7 +23,7 @@ Parse by **header name**, not column index.
 | `Location` | — | ignored | 1-based export index | Excluded from round-trip compare |
 | `Name` | composed wire name | trim; skip empty | `composeChannelWireName(callsign, name, exportNameMode)` | Case-sensitive |
 | `Frequency` | `rxFrequency` | MHz → Hz | Hz → MHz (6 dp) | |
-| `Duplex`+`Offset` | `txFrequency`, `rxOnly` | see duplex table | inverse | `off` = TX disabled (`rxOnly`) |
+| `Duplex`+`Offset` | `txFrequency`, `forbidTransmit` | see duplex table | inverse | `off` = TX disabled (`forbidTransmit`) |
 | `Tone` | derived | see tone table | from `rxTone`/`txTone` | |
 | `rToneFreq` | `txTone` (`Tone` mode) | see tone table | see tone table | Default `88.5` when unused |
 | `cToneFreq` | `rxTone`/`txTone` (`TSQL`) | see tone table | see tone table | Default `88.5` when unused |
@@ -45,12 +45,12 @@ CHIRP `Name` is the composed wire name (`composeChannelWireName`). Profile `name
 
 | `Duplex` | Meaning | Model |
 | --- | --- | --- |
-| empty | Simplex | TX = RX, `rxOnly=false` |
+| empty | Simplex | TX = RX, `forbidTransmit=false` |
 | `+` | Positive split | TX = RX + offset |
 | `-` | Negative split | TX = RX − offset |
-| `off` | TX disabled | TX = RX, `rxOnly=true` |
+| `off` | TX disabled | TX = RX, `forbidTransmit=true` |
 
-Export uses `deriveChirpDuplexAndOffset(rxFrequency, txFrequency, rxOnly)` — the inverse of import. **Lossy:** zero-offset `+`/`-` (offset 0, TX = RX) collapse to simplex in the model and export with an empty `Duplex` column; CHIRP files that used `+`/`-` with offset `0` will not round-trip that wire literally.
+Export uses `deriveChirpDuplexAndOffset(rxFrequency, txFrequency, forbidTransmit)` — the inverse of import. **Lossy:** zero-offset `+`/`-` (offset 0, TX = RX) collapse to simplex in the model and export with an empty `Duplex` column; CHIRP files that used `+`/`-` with offset `0` will not round-trip that wire literally.
 
 ## Tones
 

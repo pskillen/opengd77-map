@@ -35,7 +35,7 @@ All other columns are optional at import — missing headers yield empty values.
 | `TX Tone` | `Channel.txTone` | No | Wire → tone enum | Mode-aware — see below | Lossless | |
 | `Squelch` | `Channel.squelch` | No | Wire → percent | Mode-aware — see below | Lossless | See [power-squelch.md](power-squelch.md) |
 | `Power` | `Channel.power` | No | Wire → percent | Percent → wire | Lossless | See [power-squelch.md](power-squelch.md) |
-| `Rx Only` | `Channel.rxOnly` | No | `Yes`/`No` → boolean | `wireYesNo` | Lossless boolean | |
+| `Rx Only` | `Channel.forbidTransmit` | No | `Yes`/`No` → boolean | `wireYesNo` | Lossless boolean | |
 | `Zone Skip` | `Channel.opengd77Extras['Zone Skip']` | No | Trim → opengd77Extras | From opengd77Extras | opengd77Extras | Not mapped to `scanSkip` |
 | `All Skip` | `Channel.scanSkip` | No | `Yes` → `true` | `wireYesNo(scanSkip)` | Lossless boolean | Global scan skip |
 | `TOT` | `Channel.transmitTimeout` | No | Parse seconds | As integer string | Lossless | `0` = off; CPS step 15 (0–495) |

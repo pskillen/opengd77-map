@@ -38,7 +38,7 @@ Some CPS builds spell analogue `Anlaog` — accept on import; export uses fixtur
 | `Emergency System` | — | Ignored | `None` | Constant default | |
 | `Squelch Level` | `squelch` | 0–9 → % via ladder | % → 0–9 | Yes | |
 | `APRS Report Type` | `aprsReportType` | Trim | As stored | Yes | `Off` / `Digital` |
-| `Forbid TX` | `forbidTransmit` | 0/1 | 0/1 | Yes | |
+| `Forbid TX` | `forbidTransmit` | 0/1 | 0/1 | Yes | Receive-only when `1` |
 | `APRS Receive` | `aprsReceiveEnabled` | 0/1 | 0/1 | Yes | |
 | `Forbid Talkaround` | `forbidTalkaround` | 0/1 | 0/1 | Yes | |
 | `Auto Scan` … `Digital APRS PTT Mode` | — | Ignored | Fixture defaults (`0`) | Constant | |

@@ -85,7 +85,7 @@ Typed scalar fields use vendor-neutral semantics in the model; CPS wire strings 
 | `rxTone`, `txTone` | `ChannelTone` | CTCSS/DCS value or `'none'` |
 | `squelch` | `number \| null` | Percent 0–100; `0` = open/off; `null` = radio default |
 | `power` | `number \| null` | Percent 0–100; `null` = radio default |
-| `rxOnly` | `boolean` | Receive-only channel |
+| `forbidTransmit` | `boolean` | Receive-only / TX forbidden |
 | `aprsConfigName` | `string` | APRS config, by name |
 | `voxEnabled` | `boolean` | VOX enabled |
 | `transmitTimeout` | `number \| null` | Seconds; `0` = off; `null` when unset |
@@ -115,7 +115,7 @@ When `multiMode` is `true`, shared identity and RF context live on the channel; 
 | `contactRef` | `EntityRef \| null` | |
 | `rxGroupListId` | `string \| null` | |
 
-Shared on `Channel`: `name`, `callsign`, `rxFrequency`, `txFrequency`, `location`, `useLocation`, `power`, `rxOnly`, `voxEnabled`, `transmitTimeout`, `scanSkip`, `comment`, `hideFromMap`, `opengd77Extras`, `meta`.
+Shared on `Channel`: `name`, `callsign`, `rxFrequency`, `txFrequency`, `location`, `useLocation`, `power`, `forbidTransmit`, `voxEnabled`, `transmitTimeout`, `scanSkip`, `comment`, `hideFromMap`, `opengd77Extras`, `meta`.
 
 Export adapters expand multi-mode logical channels into vendor-specific rows at the boundary (OpenGD77: separate `Analogue` / `Digital` rows — [multi-mode.md](../../reference/opengd77/multi-mode.md)). DM32 native dual-mode mapping: [#67](https://github.com/pskillen/codeplug-tool/issues/67).
 
