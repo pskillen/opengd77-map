@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import type { EntityListEntity } from '../lib/listPrefs/types.ts';
 import {
   debouncedMergeEntityListPrefs,
@@ -17,23 +17,31 @@ export function useListNameQuery(entity: EntityListEntity): {
 } {
   const { activeProjectId } = useProjects();
   const [searchParams, setSearchParams] = useSearchParams();
-  const hydratedForProject = useRef<string | null>(null);
+  const location = useLocation();
+  const hydratedKey = useRef<string | null>(null);
 
   useEffect(() => {
     if (!activeProjectId) return;
-    if (hydratedForProject.current === activeProjectId) return;
 
-    if (hasEntityListUrlParams(searchParams)) {
-      hydratedForProject.current = activeProjectId;
+    const visitKey = `${entity}:${activeProjectId}:${location.search}`;
+    if (hydratedKey.current === visitKey) return;
+
+    const currentParams = new URLSearchParams(location.search);
+    if (hasEntityListUrlParams(currentParams)) {
+      hydratedKey.current = visitKey;
       return;
     }
 
     const stored = loadEntityListPrefs(entity, activeProjectId);
     if (stored?.q) {
-      setSearchParams(entityListPrefsToSearchParams(stored), { replace: true });
+      const next = entityListPrefsToSearchParams(stored);
+      setSearchParams(
+        (prev) => (prev.toString() === next.toString() ? prev : next),
+        { replace: true },
+      );
     }
-    hydratedForProject.current = activeProjectId;
-  }, [activeProjectId, entity, searchParams, setSearchParams]);
+    hydratedKey.current = visitKey;
+  }, [activeProjectId, entity, location.search, setSearchParams]);
 
   const nameFilter = searchParams.get('q') ?? '';
 

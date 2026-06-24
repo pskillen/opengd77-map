@@ -79,12 +79,24 @@ function getSnapshot(
   customLoad?: () => string[],
 ): string[] {
   const store = getStore(storageKey, defs, customLoad);
-  const raw = customLoad ? null : readStorageValue(storageKey);
-  if (store.cachedSnapshot && raw === store.cachedStorageValue && !customLoad) {
+
+  if (customLoad) {
+    const raw = readStorageValue(storageKey);
+    if (store.cachedSnapshot && raw === store.cachedStorageValue) {
+      return store.cachedSnapshot;
+    }
+    const next = customLoad();
+    store.cachedStorageValue = readStorageValue(storageKey);
+    store.cachedSnapshot = next;
+    return store.cachedSnapshot;
+  }
+
+  const raw = readStorageValue(storageKey);
+  if (store.cachedSnapshot && raw === store.cachedStorageValue) {
     return store.cachedSnapshot;
   }
   store.cachedStorageValue = raw;
-  store.cachedSnapshot = customLoad ? customLoad() : loadFromStorage(storageKey, defs);
+  store.cachedSnapshot = loadFromStorage(storageKey, defs);
   return store.cachedSnapshot;
 }
 

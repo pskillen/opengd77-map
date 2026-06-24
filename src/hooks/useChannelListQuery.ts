@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useLocation } from 'react-router-dom';
 import {
   debouncedMergeChannelListPrefs,
   loadChannelListPrefs,
@@ -45,26 +45,33 @@ function setOrDelete(params: URLSearchParams, key: string, value: string | null)
 export function useChannelListQuery(): ChannelListQuery {
   const { activeProjectId } = useProjects();
   const [searchParams, setSearchParams] = useSearchParams();
-  const hydratedForProject = useRef<string | null>(null);
+  const location = useLocation();
+  const hydratedKey = useRef<string | null>(null);
 
   useEffect(() => {
     if (!activeProjectId) return;
-    if (hydratedForProject.current === activeProjectId) return;
 
-    if (hasChannelListUrlParams(searchParams)) {
-      hydratedForProject.current = activeProjectId;
+    const visitKey = `${activeProjectId}:${location.search}`;
+    if (hydratedKey.current === visitKey) return;
+
+    const currentParams = new URLSearchParams(location.search);
+    if (hasChannelListUrlParams(currentParams)) {
+      hydratedKey.current = visitKey;
       return;
     }
 
     const stored = loadChannelListPrefs(activeProjectId);
     if (stored) {
-      const params = channelListPrefsToSearchParams(stored);
-      if (params.toString()) {
-        setSearchParams(params, { replace: true });
+      const next = channelListPrefsToSearchParams(stored);
+      if (next.toString()) {
+        setSearchParams(
+          (prev) => (prev.toString() === next.toString() ? prev : next),
+          { replace: true },
+        );
       }
     }
-    hydratedForProject.current = activeProjectId;
-  }, [activeProjectId, searchParams, setSearchParams]);
+    hydratedKey.current = visitKey;
+  }, [activeProjectId, location.search, setSearchParams]);
 
   const nameFilter = searchParams.get('q') ?? '';
   const sortMode: ChannelSortMode = searchParams.get('sort') === 'distance' ? 'distance' : 'name';
