@@ -64,10 +64,9 @@ export function useChannelListQuery(): ChannelListQuery {
     if (stored) {
       const next = channelListPrefsToSearchParams(stored);
       if (next.toString()) {
-        setSearchParams(
-          (prev) => (prev.toString() === next.toString() ? prev : next),
-          { replace: true },
-        );
+        setSearchParams((prev) => (prev.toString() === next.toString() ? prev : next), {
+          replace: true,
+        });
       }
     }
     hydratedKey.current = visitKey;

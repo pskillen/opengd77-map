@@ -35,10 +35,9 @@ export function useListNameQuery(entity: EntityListEntity): {
     const stored = loadEntityListPrefs(entity, activeProjectId);
     if (stored?.q) {
       const next = entityListPrefsToSearchParams(stored);
-      setSearchParams(
-        (prev) => (prev.toString() === next.toString() ? prev : next),
-        { replace: true },
-      );
+      setSearchParams((prev) => (prev.toString() === next.toString() ? prev : next), {
+        replace: true,
+      });
     }
     hydratedKey.current = visitKey;
   }, [activeProjectId, entity, location.search, setSearchParams]);
