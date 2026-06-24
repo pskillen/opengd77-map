@@ -134,7 +134,17 @@ export default function ChannelDetail() {
       title: 'Channel config',
       fields: [
         { label: 'Callsign', value: channel.callsign || '—' },
-        { label: 'Name', value: channel.name || '—' },
+        {
+          label: 'Name',
+          value: channel.abbreviation?.trim() ? (
+            <>
+              {channel.name}
+              <br />({channel.abbreviation.trim()})
+            </>
+          ) : (
+            channel.name || '—'
+          ),
+        },
         { label: 'Export name mode', value: exportNameModeLabel(channel.exportNameMode) },
         {
           label: 'Wire name preview',

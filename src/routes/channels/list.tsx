@@ -168,6 +168,13 @@ export default function ChannelsList() {
           sortValue: (ch: Channel) => ch.comment || '',
         };
       }
+      if (col.key === 'abbreviation') {
+        return {
+          ...base,
+          render: (ch: Channel) => ch.abbreviation?.trim() || '—',
+          sortValue: (ch: Channel) => ch.abbreviation?.trim() || '',
+        };
+      }
       return {
         ...base,
         render: (ch: Channel) =>

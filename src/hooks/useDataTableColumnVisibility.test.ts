@@ -11,7 +11,7 @@ describe('useDataTableColumnVisibility storage', () => {
     const previous = localStorage.getItem(key);
     const previousSchema = localStorage.getItem(schemaKey);
     localStorage.setItem(key, JSON.stringify([]));
-    localStorage.setItem(schemaKey, '5');
+    localStorage.setItem(schemaKey, '6');
 
     try {
       expect(loadChannelVisibleColumns()).toEqual([]);

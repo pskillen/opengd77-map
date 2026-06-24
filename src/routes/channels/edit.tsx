@@ -43,6 +43,7 @@ import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import { hasValidationErrors, validateChannel } from '../../lib/validation/channel.ts';
 import { composeChannelWireName, EXPORT_NAME_MODE_OPTIONS } from '../../lib/channelNaming.ts';
+import { channelAbbreviationSuggestions } from '../../lib/channelAbbreviationSuggestions.ts';
 import {
   channelFieldDefaults,
   type Channel,
@@ -56,6 +57,7 @@ import { useCodeplug } from '../../state/codeplugStore.tsx';
 type ChannelFormValues = {
   callsign: string;
   name: string;
+  abbreviation: string;
   exportNameMode: ChannelExportNameMode;
   mode: ChannelMode;
   rxFrequencyMhz: string;
@@ -140,6 +142,7 @@ function channelToForm(ch: Channel): ChannelFormValues {
   return {
     callsign: ch.callsign,
     name: ch.name,
+    abbreviation: ch.abbreviation ?? '',
     exportNameMode: ch.exportNameMode,
     mode: ch.mode,
     rxFrequencyMhz: hzToMhzInput(ch.rxFrequency),
@@ -176,6 +179,7 @@ function emptyForm(): ChannelFormValues {
   return {
     callsign: '',
     name: '',
+    abbreviation: '',
     exportNameMode: defaults.exportNameMode,
     mode: 'dmr',
     rxFrequencyMhz: '',
@@ -217,6 +221,9 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
   const dmrId = values.dmrId.trim() ? parseInt(values.dmrId, 10) : null;
   const bandwidth = values.bandwidthKHz.trim() ? parseFloat(values.bandwidthKHz) : null;
   const modeProfiles = values.multiMode ? values.modeProfiles.map(formProfileToModel) : [];
+  const abbrev = values.abbreviation.trim();
+  const abbreviationFields =
+    abbrev !== '' ? { abbreviation: abbrev } : { abbreviation: undefined };
 
   const base = {
     ...channelFieldDefaults(),
@@ -245,6 +252,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
     const primary = modeProfiles.find((p) => p.mode === values.mode) ?? modeProfiles[0];
     return {
       ...base,
+      ...abbreviationFields,
       bandwidthKHz: primary.bandwidthKHz,
       colourCode: primary.colourCode,
       timeslot: primary.timeslot,
@@ -259,6 +267,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
 
   return {
     ...base,
+    ...abbreviationFields,
     bandwidthKHz: bandwidth != null && Number.isFinite(bandwidth) ? bandwidth : null,
     colourCode:
       colourCode != null && Number.isFinite(colourCode) && colourCode >= 0 && colourCode <= 15
@@ -307,6 +316,10 @@ export default function ChannelEdit() {
     existing ? channelToForm(existing) : emptyForm(),
   );
   const [formError, setFormError] = useState<string | null>(null);
+  const abbreviationSuggestions = useMemo(
+    () => channelAbbreviationSuggestions(values.name),
+    [values.name],
+  );
 
   const mapPreviewChannels = useMemo((): Channel[] => {
     const lat = parseFloat(values.lat);
@@ -502,6 +515,32 @@ export default function ChannelEdit() {
             value={values.name}
             onChange={(e) => set('name', e.currentTarget.value)}
           />
+          <TextInput
+            label="Abbreviation"
+            description="Optional shorter label used when export names are shortened"
+            value={values.abbreviation}
+            onChange={(e) => set('abbreviation', e.currentTarget.value)}
+          />
+          {abbreviationSuggestions.length > 0 ? (
+            <Stack gap={4}>
+              <Text size="xs" c="dimmed">
+                Suggestions from name
+              </Text>
+              <Group gap="xs">
+                {abbreviationSuggestions.map(({ maxLen, text }) => (
+                  <Button
+                    key={maxLen}
+                    type="button"
+                    variant="light"
+                    size="compact-sm"
+                    onClick={() => set('abbreviation', text)}
+                  >
+                    {maxLen}: {text}
+                  </Button>
+                ))}
+              </Group>
+            </Stack>
+          ) : null}
           <Select
             label="Export name mode"
             description="How CPS export composes the channel name column"

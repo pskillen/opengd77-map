@@ -3,7 +3,7 @@ import { DISTANCE_FILTER_MARKS_KM } from '../lib/channels.ts';
 export const CHANNEL_LIST_COLUMN_STORAGE_KEY = 'channels-list-columns';
 export const CHANNEL_LIST_COLUMNS_SCHEMA_KEY = 'channels-list-columns-schema';
 /** Bump when adding optional columns that should be merged into existing saved prefs once. */
-export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 5;
+export const CHANNEL_LIST_COLUMNS_SCHEMA_VERSION = 6;
 
 export type ChannelSortMode = 'name' | 'distance';
 
@@ -18,6 +18,7 @@ export const CHANNEL_OPTIONAL_COLUMNS = [
   { key: 'power', header: 'Power', defaultVisible: true },
   { key: 'squelch', header: 'Squelch', defaultVisible: false },
   { key: 'comment', header: 'Comment', defaultVisible: false },
+  { key: 'abbreviation', header: 'Abbreviation', defaultVisible: false },
 ] as const;
 
 export function defaultChannelVisibleColumns(): string[] {
