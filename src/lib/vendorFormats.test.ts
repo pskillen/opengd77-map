@@ -4,8 +4,8 @@ import { defaultVendorFormatId, vendorFormatHref, vendorFormatNavGroups } from '
 describe('vendorFormatNavGroups', () => {
   it('lists shipped formats before planned', () => {
     const { shipped, planned } = vendorFormatNavGroups();
-    expect(shipped.map((o) => o.id)).toEqual(['opengd77', 'chirp', 'dm32']);
-    expect(planned.map((o) => o.id)).toEqual(['qdmr', 'native-yaml']);
+    expect(shipped.map((o) => o.id)).toEqual(['opengd77', 'chirp', 'dm32', 'native-yaml']);
+    expect(planned.map((o) => o.id)).toEqual(['qdmr']);
   });
 });
 

@@ -11,14 +11,14 @@ flowchart TD
   subgraph create [1_Create_or_load]
     Blank["Start fresh\n/codeplug/new"]
     ImportAny["Import CPS\n(any supported format)"]
-    ImportYaml["Import native YAML\n(planned #10)"]
+    ImportYaml["Import native YAML\n(#10 shipped)"]
   end
   subgraph work [2_Edit_and_persist]
     Edit["Map / CRUD / report"]
     LS["Browser persistence\n(LocalStorage)"]
   end
   subgraph interchange [3_Optional_interchange]
-    YamlFile["Native YAML file\n(planned #10)"]
+    YamlFile["Native YAML file\n(shipped #10)"]
     Cloud["Cloud sync\n(planned)"]
   end
   subgraph export [4_Export_to_radios]
@@ -47,7 +47,7 @@ flowchart TD
 | --- | --- | --- |
 | **Start fresh** | Home → **Start fresh** → `/codeplug/new` | Blank `Codeplug`; no persist until **Create** ([#102](https://github.com/pskillen/codeplug-tool/issues/102)) |
 | **Import CPS** | Home or Import & export → drop folder or files | Format detected or selected via `?format=`; creates new project (home) or merges into active (Import & export) |
-| **Import native YAML** | Planned ([#10](https://github.com/pskillen/codeplug-tool/issues/10)) | Lossless interchange format |
+| **Import native YAML** | Home or Import & export → drop `.yaml` file | Lossless interchange format ([#10](https://github.com/pskillen/codeplug-tool/issues/10)) |
 
 Import from **one** format does not lock the project to that format. The internal model is format-agnostic.
 
@@ -60,7 +60,7 @@ Edit channels, zones, contacts, and talk groups via map, CRUD, and report views.
 | Mechanism | Status | Role |
 | --- | --- | --- |
 | **LocalStorage** | Shipped | Session-to-session recall in the same browser |
-| **Native YAML file** | Planned ([#10](https://github.com/pskillen/codeplug-tool/issues/10)) | Portable source of truth; full internal model |
+| **Native YAML file** | Shipped ([#10](https://github.com/pskillen/codeplug-tool/issues/10)) | Portable source of truth; full internal model |
 | **Cloud provider** | Planned | Dropbox / OneDrive / Google Drive sync of YAML projects |
 
 YAML and cloud are **interchange** layers — not a replacement for CPS export. Operators still export to vendor CSV (or similar) to flash a radio.

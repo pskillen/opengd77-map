@@ -41,9 +41,11 @@ export default function ImportFormatDropzone({
   }
 
   const importHint =
-    importAdapter.capabilities.delivery === 'single-file'
-      ? `Drop a ${vendorFormat.label} memory CSV.`
-      : `Drop ${vendorFormat.label} export files or a folder.`;
+    importAdapter.capabilities.interchange === 'native-document'
+      ? `Drop a ${vendorFormat.label} file (.yaml).`
+      : importAdapter.capabilities.delivery === 'single-file'
+        ? `Drop a ${vendorFormat.label} memory CSV.`
+        : `Drop ${vendorFormat.label} export files or a folder.`;
 
   return (
     <ImportDropzone
