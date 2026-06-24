@@ -58,7 +58,7 @@ export function channelsImportEqual(a: Channel, b: Channel): boolean {
     a.txTone === b.txTone &&
     a.squelch === b.squelch &&
     a.power === b.power &&
-    a.rxOnly === b.rxOnly &&
+    a.forbidTransmit === b.forbidTransmit &&
     a.aprsConfigName === b.aprsConfigName &&
     a.voxEnabled === b.voxEnabled &&
     a.transmitTimeout === b.transmitTimeout &&

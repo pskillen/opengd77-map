@@ -96,7 +96,7 @@ export function coerceLegacyStringField(
     case 'rxTone':
     case 'txTone':
       return parseOpenGd77ToneWire(wire);
-    case 'rxOnly':
+    case 'forbidTransmit':
       return wire.trim().toLowerCase() === 'yes';
     default:
       return wire;

@@ -117,7 +117,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
           txTone: parseOpenGd77ToneWire(get(CHANNEL_COL.txTone)),
           squelch: parseOpenGd77SquelchWire(get(CHANNEL_COL.squelch)),
           power: parseOpenGd77PowerWire(get(CHANNEL_COL.power), profileId),
-          rxOnly: parseYesNo(get(CHANNEL_COL.rxOnly)),
+          forbidTransmit: parseYesNo(get(CHANNEL_COL.rxOnly)),
           aprsConfigName: get(CHANNEL_COL.aprs),
           voxEnabled: parseVoxEnabled(get(CHANNEL_COL.vox)),
           transmitTimeout: parseOpenGd77TransmitTimeoutWire(get(CHANNEL_COL.tot)),

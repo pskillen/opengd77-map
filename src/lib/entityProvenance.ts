@@ -8,7 +8,7 @@ export interface ImportedProvenance {
   contactWireName?: string;
   /** Original TG List column at import — merge/delta only; export uses rxGroupListId + mode rules. */
   rxGroupListWireName?: string;
-  /** CHIRP Duplex/Offset wire at import — merge/delta only; export uses txFrequency and rxOnly. */
+  /** CHIRP Duplex/Offset wire at import — merge/delta only; export uses txFrequency and forbidTransmit. */
   chirpDuplexWire?: string;
   chirpOffsetWire?: string;
   /** Per-profile wire names after multi-mode import merge — merge/delta only. */

@@ -78,7 +78,7 @@ export interface ExpandedChannelRow {
   location: Channel['location'];
   useLocation: boolean;
   power: number | null;
-  rxOnly: boolean;
+  forbidTransmit: boolean;
   aprsConfigName: string;
   voxEnabled: boolean;
   transmitTimeout: number | null;
@@ -269,7 +269,7 @@ function rowFromProfile(
     location: channel.location,
     useLocation: channel.useLocation,
     power: channel.power,
-    rxOnly: channel.rxOnly,
+    forbidTransmit: channel.forbidTransmit,
     aprsConfigName: channel.aprsConfigName,
     voxEnabled: channel.voxEnabled,
     transmitTimeout: channel.transmitTimeout,

@@ -55,7 +55,7 @@ const TYPED_CHANNEL_FIELDS = [
   'transmitTimeout',
   'rxTone',
   'txTone',
-  'rxOnly',
+  'forbidTransmit',
 ] as const;
 
 function migrateChannel(raw: Record<string, unknown>, projectImportedAt: string | null): Channel {
@@ -63,6 +63,9 @@ function migrateChannel(raw: Record<string, unknown>, projectImportedAt: string 
   const rest = { ...raw };
   delete rest.number;
   delete rest.vendorExtras;
+
+  const legacyRxOnly = raw.rxOnly;
+  delete rest.rxOnly;
 
   const legacyContactName =
     typeof raw.contactName === 'string' ? normaliseWireName(raw.contactName) : '';
@@ -114,9 +117,17 @@ function migrateChannel(raw: Record<string, unknown>, projectImportedAt: string 
 
   for (const field of TYPED_CHANNEL_FIELDS) {
     const current = partial[field];
-    if (typeof current === 'string' || (current != null && field === 'rxOnly')) {
+    if (typeof current === 'string' || (current != null && field === 'forbidTransmit')) {
       const coerced = coerceLegacyStringField(field, current);
       (migrated as Record<string, unknown>)[field] = coerced;
+    }
+  }
+
+  if (legacyRxOnly !== undefined) {
+    if (typeof legacyRxOnly === 'string') {
+      migrated.forbidTransmit = coerceLegacyStringField('forbidTransmit', legacyRxOnly) as boolean;
+    } else {
+      migrated.forbidTransmit = Boolean(legacyRxOnly);
     }
   }
 

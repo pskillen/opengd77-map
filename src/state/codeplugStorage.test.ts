@@ -251,7 +251,7 @@ describe('codeplugStorage', () => {
     expect(ch?.rxFrequency).toBe(430_000_000);
     expect(ch?.power).toBeNull();
     expect(ch?.squelch).toBe(75);
-    expect(ch?.rxOnly).toBe(true);
+    expect(ch?.forbidTransmit).toBe(true);
     expect(ch?.colourCode).toBe(2);
     expect(ch?.timeslot).toBe(1);
     expect(ch?.transmitTimeout).toBe(0);
@@ -496,6 +496,29 @@ describe('codeplugStorage', () => {
       number: '950',
     });
     expect(cp?.talkGroups[0].abbreviation).toBeUndefined();
+    expect(cp?.meta.schemaVersion).toBe(CODEPLUG_SCHEMA_VERSION);
+  });
+
+  it('migrates v14 rxOnly to forbidTransmit', () => {
+    const v14 = {
+      channels: [
+        {
+          id: 'ch-1',
+          name: 'Listen',
+          callsign: 'GB3CS',
+          mode: 'fm',
+          rxOnly: true,
+        },
+      ],
+      zones: [],
+      talkGroups: [],
+      contacts: [],
+      rxGroupLists: [],
+      meta: { schemaVersion: 14, importedAt: null, sourceFiles: [] },
+    };
+    const cp = migrateCodeplug(v14);
+    expect(cp?.channels[0].forbidTransmit).toBe(true);
+    expect(cp?.channels[0]).not.toHaveProperty('rxOnly');
     expect(cp?.meta.schemaVersion).toBe(CODEPLUG_SCHEMA_VERSION);
   });
 

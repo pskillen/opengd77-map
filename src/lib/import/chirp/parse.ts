@@ -65,7 +65,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
     const duplexWire = cell(row, idx.duplex);
     const offsetWire = cell(row, idx.offset);
     const offsetMhz = parseChirpOffsetMhz(offsetWire);
-    const { txFrequency, rxOnly } = parseChirpDuplex(duplexWire, rxFrequency, offsetMhz);
+    const { txFrequency, forbidTransmit } = parseChirpDuplex(duplexWire, rxFrequency, offsetMhz);
     const tones = parseChirpTones(
       cell(row, idx.tone),
       cell(row, idx.rToneFreq),
@@ -86,7 +86,7 @@ export function parseChannels(text: string, ctx?: ImportParseContext): Channel[]
       bandwidthKHz,
       power: parseChirpPowerWire(cell(row, idx.power), profileId),
       scanSkip: parseChirpScanSkip(cell(row, idx.skip)),
-      rxOnly,
+      forbidTransmit,
       comment: cell(row, idx.comment),
     };
 

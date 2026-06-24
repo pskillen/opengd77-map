@@ -53,7 +53,7 @@ describe('chirp channelWire', () => {
     expect(deriveChirpTxFrequencyHz(430_900_000, '+', 7.6)).toBe(438_500_000);
     expect(parseChirpDuplex('off', 145_500_000, 0)).toEqual({
       txFrequency: 145_500_000,
-      rxOnly: true,
+      forbidTransmit: true,
     });
     expect(deriveChirpDuplexAndOffset(145_500_000, 145_500_000, true)).toEqual({
       duplex: 'off',

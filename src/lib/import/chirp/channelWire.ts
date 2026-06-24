@@ -122,23 +122,23 @@ export function parseChirpDuplex(
   duplex: string,
   rxHz: number | null,
   offsetMhz: number,
-): { txFrequency: number | null; rxOnly: boolean } {
+): { txFrequency: number | null; forbidTransmit: boolean } {
   const d = duplex.trim().toLowerCase();
   if (d === 'off') {
-    return { txFrequency: rxHz, rxOnly: true };
+    return { txFrequency: rxHz, forbidTransmit: true };
   }
   return {
     txFrequency: deriveChirpTxFrequencyHz(rxHz, duplex, offsetMhz),
-    rxOnly: false,
+    forbidTransmit: false,
   };
 }
 
 export function deriveChirpDuplexAndOffset(
   rxHz: number | null,
   txHz: number | null,
-  rxOnly: boolean,
+  forbidTransmit: boolean,
 ): { duplex: string; offsetMhz: number } {
-  if (rxOnly) {
+  if (forbidTransmit) {
     return { duplex: 'off', offsetMhz: 0 };
   }
   if (rxHz == null || txHz == null || rxHz === txHz) {

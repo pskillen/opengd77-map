@@ -39,7 +39,7 @@ describe('parseChannels', () => {
       rxGroupListId: null,
       squelch: 75,
       power: null,
-      rxOnly: false,
+      forbidTransmit: false,
       voxEnabled: false,
       transmitTimeout: 0,
       scanSkip: false,

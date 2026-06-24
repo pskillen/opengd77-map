@@ -72,7 +72,7 @@ type ChannelFormValues = {
   txTone: ChannelTone;
   squelch: number | null;
   power: number | null;
-  rxOnly: boolean;
+  forbidTransmit: boolean;
   aprsConfigName: string;
   voxEnabled: boolean;
   transmitTimeout: string;
@@ -157,7 +157,7 @@ function channelToForm(ch: Channel): ChannelFormValues {
     txTone: ch.txTone,
     squelch: ch.squelch,
     power: ch.power,
-    rxOnly: ch.rxOnly,
+    forbidTransmit: ch.forbidTransmit,
     aprsConfigName: ch.aprsConfigName,
     voxEnabled: ch.voxEnabled,
     transmitTimeout: ch.transmitTimeout != null ? String(ch.transmitTimeout) : '',
@@ -194,7 +194,7 @@ function emptyForm(): ChannelFormValues {
     txTone: defaults.txTone,
     squelch: null,
     power: null,
-    rxOnly: defaults.rxOnly,
+    forbidTransmit: defaults.forbidTransmit,
     aprsConfigName: defaults.aprsConfigName,
     voxEnabled: defaults.voxEnabled,
     transmitTimeout: '',
@@ -235,7 +235,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
     rxFrequency: parseFrequencyHzFromMhzInput(values.rxFrequencyMhz),
     txFrequency: parseFrequencyHzFromMhzInput(values.txFrequencyMhz),
     power: values.power,
-    rxOnly: values.rxOnly,
+    forbidTransmit: values.forbidTransmit,
     aprsConfigName: values.aprsConfigName,
     voxEnabled: values.voxEnabled,
     transmitTimeout: tot != null && Number.isFinite(tot) && tot >= 0 ? tot : null,
@@ -280,7 +280,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
     txTone: values.txTone,
     squelch: values.squelch,
     power: values.power,
-    rxOnly: values.rxOnly,
+    forbidTransmit: values.forbidTransmit,
     aprsConfigName: values.aprsConfigName,
     voxEnabled: values.voxEnabled,
     transmitTimeout: tot != null && Number.isFinite(tot) && tot >= 0 ? tot : null,
@@ -682,8 +682,8 @@ export default function ChannelEdit() {
           ) : null}
           <Checkbox
             label="RX only"
-            checked={values.rxOnly}
-            onChange={(e) => set('rxOnly', e.currentTarget.checked)}
+            checked={values.forbidTransmit}
+            onChange={(e) => set('forbidTransmit', e.currentTarget.checked)}
           />
         </Stack>
 

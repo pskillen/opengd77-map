@@ -209,7 +209,7 @@ export default function ChannelDetail() {
                 : []),
               { label: 'Power', value: percentLabel(channel.power) },
             ]),
-        { label: 'RX only', value: channel.rxOnly ? 'Yes' : 'No' },
+        { label: 'RX only', value: channel.forbidTransmit ? 'Yes' : 'No' },
         ...(channel.multiMode ? [{ label: 'Power', value: percentLabel(channel.power) }] : []),
       ],
     },

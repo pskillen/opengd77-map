@@ -11,7 +11,7 @@ function testWireOptions(): ChirpChannelWireOptions {
 }
 
 describe('export/chirp/channelWire', () => {
-  it('exports simplex when rx equals tx and rxOnly is false', () => {
+  it('exports simplex when rx equals tx and forbidTransmit is false', () => {
     const row = channelToChirpRow(
       {
         ...channelFieldDefaults(),
@@ -21,7 +21,7 @@ describe('export/chirp/channelWire', () => {
         mode: 'fm',
         rxFrequency: 145_500_000,
         txFrequency: 145_500_000,
-        rxOnly: false,
+        forbidTransmit: false,
       },
       1,
       'baofeng-uv5r-mini',
@@ -31,7 +31,7 @@ describe('export/chirp/channelWire', () => {
     expect(row[4]).toBe('0.000000');
   });
 
-  it('exports off duplex when rxOnly is true', () => {
+  it('exports off duplex when forbidTransmit is true', () => {
     const row = channelToChirpRow(
       {
         ...channelFieldDefaults(),
@@ -41,7 +41,7 @@ describe('export/chirp/channelWire', () => {
         mode: 'fm',
         rxFrequency: 145_500_000,
         txFrequency: 145_500_000,
-        rxOnly: true,
+        forbidTransmit: true,
       },
       2,
       'baofeng-uv5r-mini',
@@ -63,7 +63,7 @@ describe('export/chirp/channelWire', () => {
         mode: 'fm',
         rxFrequency: 145_500_000,
         txFrequency: 145_500_000,
-        rxOnly: false,
+        forbidTransmit: false,
       },
       3,
       'baofeng-uv5r-mini',

@@ -66,7 +66,6 @@ export function channelFieldDefaults(): Omit<Channel, 'id' | 'name' | 'callsign'
     txTone: 'none',
     squelch: null,
     power: null,
-    rxOnly: false,
     aprsConfigName: '',
     voxEnabled: false,
     transmitTimeout: null,
@@ -118,7 +117,6 @@ export interface Channel {
   squelch: number | null;
   /** TX power 0–100 percent; null = radio default. */
   power: number | null;
-  rxOnly: boolean;
   aprsConfigName: string;
   voxEnabled: boolean;
   /** Transmit timeout in seconds; 0 = off; null when unset. */
@@ -132,6 +130,7 @@ export interface Channel {
   txAdmit: string;
   /** APRS report type wire label — e.g. Off, Digital. */
   aprsReportType: string;
+  /** Receive-only / TX forbidden — maps to DM-32 Forbid TX, OpenGD77 Rx Only, CHIRP Duplex off. */
   forbidTransmit: boolean;
   aprsReceiveEnabled: boolean;
   forbidTalkaround: boolean;
@@ -203,7 +202,7 @@ export interface Codeplug {
   meta: CodeplugMeta;
 }
 
-export const CODEPLUG_SCHEMA_VERSION = 14;
+export const CODEPLUG_SCHEMA_VERSION = 15;
 
 let idGenerator: () => string = () => crypto.randomUUID();
 
