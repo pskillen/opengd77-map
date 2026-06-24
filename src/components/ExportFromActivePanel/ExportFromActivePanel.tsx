@@ -200,6 +200,7 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
 
         <ExportNameSettingsFields
           profileNameLimit={profileNameLimitForFormat(vendorFormat.id, chirpProfileId)}
+          showMultiTalkGroupOptions={false}
         />
 
         <Button
