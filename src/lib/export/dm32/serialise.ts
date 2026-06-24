@@ -49,6 +49,7 @@ function dm32ExpandOptions(codeplug: Codeplug, options?: ExportOptions, warnings
       nameModeOverride: options?.nameModeOverride,
       useTalkGroupAbbreviation: options?.useTalkGroupAbbreviation,
       useChannelAbbreviation: options?.useChannelAbbreviation,
+      multiTalkGroupExportNameMode: options?.multiTalkGroupExportNameMode,
     },
     warnings,
   );

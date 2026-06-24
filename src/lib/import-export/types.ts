@@ -1,9 +1,8 @@
 import type { Codeplug } from '../../models/codeplug.ts';
 import type { ChannelExportNameMode } from '../../models/codeplug.ts';
+import type { MultiTalkGroupExportNameMode } from '../channelExpansion/multiTalkGroupWireName.ts';
 
-export type {
-  MultiTalkGroupExportNameMode,
-} from '../channelExpansion/multiTalkGroupWireName.ts';
+export type { MultiTalkGroupExportNameMode } from '../channelExpansion/multiTalkGroupWireName.ts';
 export { DEFAULT_MULTI_TG_EXPORT_NAME_MODE } from '../channelExpansion/multiTalkGroupWireName.ts';
 
 /** Canonical format ids — shared by UI, import registry, and export registry. */
@@ -56,6 +55,8 @@ export interface ExportOptions {
   useTalkGroupAbbreviation?: boolean;
   /** Use `Channel.abbreviation` for the name qualifier in composed wire names. */
   useChannelAbbreviation?: boolean;
+  /** How multi-TG expanded rows compose wire names. Default `callsign_tg_abbrev`. */
+  multiTalkGroupExportNameMode?: MultiTalkGroupExportNameMode;
 }
 
 export interface ExportResult {

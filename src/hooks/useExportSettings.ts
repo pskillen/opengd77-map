@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import type { ChannelExportNameMode } from '../models/codeplug.ts';
-import type { ExportOptions } from '../lib/import-export/types.ts';
+import type { ExportOptions, MultiTalkGroupExportNameMode } from '../lib/import-export/types.ts';
+import { DEFAULT_MULTI_TG_EXPORT_NAME_MODE } from '../lib/channelExpansion/multiTalkGroupWireName.ts';
 
 export const STORAGE_KEY_EXPORT_SHORTEN_NAMES = 'mm9pdy-codeplug-tool.export.shortenNames';
 export const STORAGE_KEY_EXPORT_MAX_NAME_LENGTH = 'mm9pdy-codeplug-tool.export.maxNameLength';
@@ -9,6 +10,8 @@ export const STORAGE_KEY_EXPORT_USE_TG_ABBREVIATION =
   'mm9pdy-codeplug-tool.export.useTalkGroupAbbreviation';
 export const STORAGE_KEY_EXPORT_USE_CHANNEL_ABBREVIATION =
   'mm9pdy-codeplug-tool.export.useChannelAbbreviation';
+export const STORAGE_KEY_EXPORT_MULTI_TG_NAME_MODE =
+  'mm9pdy-codeplug-tool.export.multiTalkGroupExportNameMode';
 
 /** Sentinel for "respect each channel's stored exportNameMode". */
 export const EXPORT_NAME_MODE_RESPECT_PER_CHANNEL = '';
@@ -23,6 +26,7 @@ export interface ExportSettings {
   nameModeOverride: ExportNameModeOverride;
   useTalkGroupAbbreviation: boolean;
   useChannelAbbreviation: boolean;
+  multiTalkGroupExportNameMode: MultiTalkGroupExportNameMode;
 }
 
 function readShortenNames(): boolean {
@@ -58,6 +62,23 @@ function readUseChannelAbbreviation(): boolean {
   return localStorage.getItem(STORAGE_KEY_EXPORT_USE_CHANNEL_ABBREVIATION) === 'true';
 }
 
+const MULTI_TG_EXPORT_NAME_MODES: MultiTalkGroupExportNameMode[] = [
+  'append',
+  'callsign_name_tg',
+  'callsign_tg',
+  'callsign_tg_abbrev',
+  'suffix_tg_abbrev',
+  'suffix_tg_number',
+];
+
+function readMultiTalkGroupExportNameMode(): MultiTalkGroupExportNameMode {
+  const saved = localStorage.getItem(STORAGE_KEY_EXPORT_MULTI_TG_NAME_MODE);
+  if (saved && MULTI_TG_EXPORT_NAME_MODES.includes(saved as MultiTalkGroupExportNameMode)) {
+    return saved as MultiTalkGroupExportNameMode;
+  }
+  return DEFAULT_MULTI_TG_EXPORT_NAME_MODE;
+}
+
 /** Merge persisted export settings with per-download options (profile id, etc.). */
 export function exportOptionsFromSettings(
   settings: ExportSettings,
@@ -70,6 +91,7 @@ export function exportOptionsFromSettings(
     ...(settings.nameModeOverride ? { nameModeOverride: settings.nameModeOverride } : {}),
     useTalkGroupAbbreviation: settings.useTalkGroupAbbreviation,
     useChannelAbbreviation: settings.useChannelAbbreviation,
+    multiTalkGroupExportNameMode: settings.multiTalkGroupExportNameMode,
   };
 }
 
@@ -83,6 +105,9 @@ export function useExportSettings() {
   );
   const [useChannelAbbreviation, setUseChannelAbbreviationState] = useState(
     readUseChannelAbbreviation,
+  );
+  const [multiTalkGroupExportNameMode, setMultiTalkGroupExportNameModeState] = useState(
+    readMultiTalkGroupExportNameMode,
   );
 
   const setShortenNames = useCallback((value: boolean) => {
@@ -118,12 +143,18 @@ export function useExportSettings() {
     localStorage.setItem(STORAGE_KEY_EXPORT_USE_CHANNEL_ABBREVIATION, String(value));
   }, []);
 
+  const setMultiTalkGroupExportNameMode = useCallback((value: MultiTalkGroupExportNameMode) => {
+    setMultiTalkGroupExportNameModeState(value);
+    localStorage.setItem(STORAGE_KEY_EXPORT_MULTI_TG_NAME_MODE, value);
+  }, []);
+
   const settings: ExportSettings = {
     shortenNames,
     maxNameLength,
     nameModeOverride,
     useTalkGroupAbbreviation,
     useChannelAbbreviation,
+    multiTalkGroupExportNameMode,
   };
 
   return {
@@ -138,6 +169,8 @@ export function useExportSettings() {
     setUseTalkGroupAbbreviation,
     useChannelAbbreviation,
     setUseChannelAbbreviation,
+    multiTalkGroupExportNameMode,
+    setMultiTalkGroupExportNameMode,
     exportOptionsFromSettings: (base: ExportOptions = {}) =>
       exportOptionsFromSettings(settings, base),
   };

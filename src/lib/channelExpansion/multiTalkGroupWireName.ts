@@ -17,6 +17,19 @@ export type MultiTalkGroupExportNameMode =
 
 export const DEFAULT_MULTI_TG_EXPORT_NAME_MODE: MultiTalkGroupExportNameMode = 'callsign_tg_abbrev';
 
+export const MULTI_TG_EXPORT_NAME_MODE_OPTIONS: {
+  value: MultiTalkGroupExportNameMode;
+  label: string;
+  example: string;
+}[] = [
+  { value: 'callsign_tg_abbrev', label: 'Callsign + TG abbrev', example: 'GB7GL Sco TS2' },
+  { value: 'callsign_tg', label: 'Callsign + TG name', example: 'GB7GL Scotland TS2' },
+  { value: 'callsign_name_tg', label: 'Callsign + name + TG', example: 'GB7GL Glasgow Scotland TS2' },
+  { value: 'suffix_tg_abbrev', label: '2-letter suffix + TG abbrev', example: 'GL Sco TS2' },
+  { value: 'suffix_tg_number', label: '2-letter suffix + TG number', example: 'GL 950/2' },
+  { value: 'append', label: 'Legacy (append TG to channel name)', example: 'GL Glas Scotland TS2' },
+];
+
 export interface MultiTalkGroupWireNameContext {
   talkGroups: TalkGroup[];
   contacts: Contact[];
