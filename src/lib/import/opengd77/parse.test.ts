@@ -136,6 +136,17 @@ describe('parseChannels', () => {
     expect(channels[0].name).toBe("L'gow");
   });
 
+  it('merges FM+DMR rows when qualifier spellings differ but callsign matches', () => {
+    const csv = `${header}
+1,GB7RG Stran'r-F,Analogue,430.93750,438.53750,12.5,,,,,,,,None,103.5,Disabled,Master,No,No,No,0,Off,No,No,None,54.9,-5.05,Yes
+2,GB7RG Stranr'r-D,Digital,430.93750,438.53750,,5,1,None,GB7RG,None,Off,Off,,,,Master,No,No,No,0,Off,No,No,None,54.9,-5.05,Yes`;
+
+    const channels = normalizeImportedChannelNaming(parseChannels(csv, OPGD77_CTX));
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
+    expect(channels[0].callsign).toBe('GB7RG');
+  });
+
   it('merges apostrophe -F/-D suffix rows into one multi-mode channel', () => {
     const csv = `${header}
 1,GB7DG Ppatrick-F,Analogue,430.90000,438.50000,12.5,,,,,,,,None,None,Disabled,Master,No,No,No,0,Off,No,No,None,54.69,-4.89,Yes

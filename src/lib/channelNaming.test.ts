@@ -1,11 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
   composeChannelWireName,
+  channelCallsignForMerge,
+  channelCallsignsMatch,
   findCallsignTokenIndex,
   isCallsignToken,
   parseChannelWireName,
   prepareWireForCallsignParse,
 } from './channelNaming.ts';
+import { buildChannel } from '../test/builders/codeplug.ts';
 
 describe('isCallsignToken', () => {
   it('accepts UK repeater callsigns', () => {
@@ -59,6 +62,21 @@ describe('parseChannelWireName', () => {
   it('uses leftmost matching token', () => {
     const tokens = ['Scotland', 'GB7GL', 'GB3DA'];
     expect(findCallsignTokenIndex(tokens)).toBe(1);
+  });
+});
+
+describe('channelCallsignsMatch', () => {
+  it('matches when callsign is parsed from import wire name', () => {
+    const fm = buildChannel({ id: '1', name: "GB7RG Stran'r-F", mode: 'fm' });
+    const dmr = buildChannel({ id: '2', name: "GB7RG Stranr'r-D", mode: 'dmr' });
+    expect(channelCallsignForMerge(fm)).toBe('GB7RG');
+    expect(channelCallsignsMatch(fm, dmr)).toBe(true);
+  });
+
+  it('matches when callsign is already on the model', () => {
+    const a = buildChannel({ id: 'a', callsign: 'GB3OH', name: "L'gow FM", mode: 'fm' });
+    const b = buildChannel({ id: 'b', callsign: 'GB3OH', name: "L'gow DMR", mode: 'dmr' });
+    expect(channelCallsignsMatch(a, b)).toBe(true);
   });
 });
 

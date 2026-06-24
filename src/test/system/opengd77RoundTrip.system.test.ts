@@ -84,6 +84,7 @@ describe('OpenGD77 file-level round-trip (test-data)', () => {
           nameColumn,
           excludeColumns,
           ...(normalizeColumn && Object.keys(normalizeColumn).length > 0 ? { normalizeColumn } : {}),
+          ...(fileName === 'Zones.csv' ? { sortColumnPattern: /^Channel\d+$/i } : {}),
         });
         expect(comparison.ok, `${fileName}:\n${formatCsvRecordCompareFailure(comparison)}`).toBe(
           true,

@@ -10,6 +10,7 @@ import {
   channelLocationsMatch,
   channelMergeNameStem,
   channelNameStem,
+  channelCallsignTypoMatch,
   channelsAreMultiModeMergeCandidates,
   channelsAreRelaxedImportMergeCandidates,
   expandAllChannelsForExport,
@@ -94,21 +95,21 @@ describe('channelExpansion', () => {
   });
 
   it('channelLocationsMatch allows small CPS coordinate drift between FM and DMR rows', () => {
-    const a = buildChannel({ location: { lat: 55.997, lon: -3.646 } });
-    const b = buildChannel({ location: { lat: 55.996, lon: -3.646 } });
+    const a = buildChannel({ id: 'a', name: 'a', location: { lat: 55.997, lon: -3.646 } });
+    const b = buildChannel({ id: 'b', name: 'b', location: { lat: 55.996, lon: -3.646 } });
     expect(channelLocationsMatch(a, b)).toBe(true);
   });
 
   it('channelLocationsMatch rejects clearly different sites', () => {
-    const a = buildChannel({ location: { lat: 55.997, lon: -3.646 } });
-    const b = buildChannel({ location: { lat: 55.9, lon: -3.646 } });
+    const a = buildChannel({ id: 'a', name: 'a', location: { lat: 55.997, lon: -3.646 } });
+    const b = buildChannel({ id: 'b', name: 'b', location: { lat: 55.9, lon: -3.646 } });
     expect(channelLocationsMatch(a, b)).toBe(false);
   });
 
   it('canonicalOpenGd77ChannelWireForCompare normalizes FM/DMR word suffix to -F/-D', () => {
-    expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan FM")).toBe("GB7GX P'pan-F");
-    expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan DMR")).toBe("GB7GX P'pan-D");
-    expect(canonicalOpenGd77ChannelWireForCompare("GB7DG Ppatrick-F")).toBe('GB7DG Ppatrick-F');
+    expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan FM")).toBe('GB7GX-F');
+    expect(canonicalOpenGd77ChannelWireForCompare("GB7GX P'pan DMR")).toBe('GB7GX-D');
+    expect(canonicalOpenGd77ChannelWireForCompare("GB7DG Ppatrick-F")).toBe('GB7DG-F');
     expect(canonicalOpenGd77ChannelWireForCompare("FIRE Serv Def'd")).toBe("FIRE Serv Def'd");
   });
 
@@ -116,6 +117,7 @@ describe('channelExpansion', () => {
     expect(channelMergeNameStem('GB7GL-F')).toBe('GB7GL');
     expect(channelMergeNameStem('GB123 Meep FM')).toBe('GB123 Meep');
     expect(channelMergeNameStem('GB123 Meep DMR')).toBe('GB123 Meep');
+    expect(channelMergeNameStem("GB7DM M'feith DM")).toBe("GB7DM M'feith");
     expect(channelMergeNameStem('GB7GL')).toBe('GB7GL');
   });
 
@@ -215,6 +217,69 @@ describe('channelExpansion', () => {
     expect(channels).toHaveLength(1);
     expect(channels[0].multiMode).toBe(true);
     expect(merged).toHaveLength(1);
+  });
+
+  it('mergeImportChannelsBestEffort merges when qualifier spellings differ but callsign matches', () => {
+    const loc = { lat: 54.9, lon: -5.05 };
+    const fm = buildChannel({
+      id: '1',
+      name: "GB7RG Stran'r-F",
+      mode: 'fm',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: loc,
+    });
+    const dmr = buildChannel({
+      id: '2',
+      name: "GB7RG Stranr'r-D",
+      mode: 'dmr',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: loc,
+    });
+    const { channels, merged } = mergeImportChannelsBestEffort([fm, dmr]);
+    expect(channels).toHaveLength(1);
+    expect(channels[0].multiMode).toBe(true);
+    expect(merged).toHaveLength(1);
+  });
+
+  it('channelsAreMultiModeMergeCandidates accepts matching callsign despite qualifier typo', () => {
+    const fm = buildChannel({
+      id: '1',
+      name: "Stran'r-F",
+      callsign: 'GB7RG',
+      mode: 'fm',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: { lat: 54.9, lon: -5.05 },
+    });
+    const dmr = buildChannel({
+      id: '2',
+      name: "Stranr'r-D",
+      callsign: 'GB7RG',
+      mode: 'dmr',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: { lat: 54.9, lon: -5.05 },
+    });
+    expect(
+      channelsAreMultiModeMergeCandidates(fm, dmr, {
+        nameFuzzyThreshold: 0,
+        stripTrailingModeLabel: true,
+      }),
+    ).toBe(true);
+  });
+
+  it('channelCallsignTypoMatch rejects same callsign with unrelated qualifiers', () => {
+    const fm = buildChannel({ id: '1', name: 'GB7AC Largs Scot West-F', mode: 'fm' });
+    const dmr = buildChannel({ id: '2', name: 'GB7AC Largs Sc-D', mode: 'dmr' });
+    expect(channelCallsignTypoMatch(fm, dmr, true)).toBe(false);
+  });
+
+  it('channelCallsignTypoMatch accepts qualifier typos when callsign matches', () => {
+    const fm = buildChannel({ id: '1', name: "GB7DM M'fieth FM", mode: 'fm' });
+    const dmr = buildChannel({ id: '2', name: "GB7DM M'feith DM", mode: 'dmr' });
+    expect(channelCallsignTypoMatch(fm, dmr, true)).toBe(true);
   });
 
   it('syncChannelFromPrimaryProfile mirrors primary profile to top-level', () => {

@@ -142,6 +142,34 @@ describe('channelMergeCandidates', () => {
     expect(groups[0].suggestedName).toBe("L'gow");
   });
 
+  it('findChannelMergeCandidates pairs FM+DMR when callsign matches but qualifier spellings differ', () => {
+    const fm = buildChannel({
+      id: 'fm',
+      name: "Stran'r-F",
+      callsign: 'GB7RG',
+      mode: 'fm',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: { lat: 54.9, lon: -5.05 },
+    });
+    const dmr = buildChannel({
+      id: 'dmr',
+      name: "Stranr'r-D",
+      callsign: 'GB7RG',
+      mode: 'dmr',
+      rxFrequency: 430_937_500,
+      txFrequency: 438_537_500,
+      location: { lat: 54.9, lon: -5.05 },
+    });
+    const groups = findChannelMergeCandidates(buildCodeplug({ channels: [fm, dmr] }), {
+      nameFuzzyThreshold: 0,
+      matchRxFrequency: true,
+      matchTxFrequency: true,
+    });
+    expect(groups).toHaveLength(1);
+    expect(groups[0].mergeKind).toBe('multiMode');
+  });
+
   it('findChannelMergeCandidates pairs FM+DMR when only RX must match', () => {
     const dmr = buildChannel({
       id: 'dmr',
