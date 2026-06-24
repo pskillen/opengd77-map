@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  defaultVendorFormatId,
-  vendorFormatHref,
-  vendorFormatNavGroups,
-} from './vendorFormats.ts';
+import { defaultVendorFormatId, vendorFormatHref, vendorFormatNavGroups } from './vendorFormats.ts';
 
 describe('vendorFormatNavGroups', () => {
   it('lists shipped formats before planned', () => {
