@@ -1,6 +1,11 @@
 import type { Codeplug } from '../../models/codeplug.ts';
 import type { ChannelExportNameMode } from '../../models/codeplug.ts';
 
+export type {
+  MultiTalkGroupExportNameMode,
+} from '../channelExpansion/multiTalkGroupWireName.ts';
+export { DEFAULT_MULTI_TG_EXPORT_NAME_MODE } from '../channelExpansion/multiTalkGroupWireName.ts';
+
 /** Canonical format ids — shared by UI, import registry, and export registry. */
 export type VendorFormatId = 'opengd77' | 'chirp' | 'qdmr' | 'native-yaml' | 'dm32';
 
