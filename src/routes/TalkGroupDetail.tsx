@@ -100,6 +100,7 @@ export default function TalkGroupDetail() {
                 { label: 'Name', value: talkGroup.name },
                 { label: 'DMR ID', value: talkGroup.number },
                 { label: 'Timeslot override', value: talkGroup.timeslotOverride },
+                { label: 'Abbreviation', value: talkGroup.abbreviation ?? '—' },
               ],
             },
           ]}

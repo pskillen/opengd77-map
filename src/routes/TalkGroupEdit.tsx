@@ -10,10 +10,10 @@ import type { TalkGroup } from '../models/codeplug.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
 
-type FormValues = Pick<TalkGroup, 'name' | 'number' | 'timeslotOverride'>;
+type FormValues = Pick<TalkGroup, 'name' | 'number' | 'timeslotOverride' | 'abbreviation'>;
 
 function emptyForm(): FormValues {
-  return { name: '', number: '', timeslotOverride: '' };
+  return { name: '', number: '', timeslotOverride: '', abbreviation: '' };
 }
 
 function talkGroupToForm(tg: TalkGroup): FormValues {
@@ -21,6 +21,7 @@ function talkGroupToForm(tg: TalkGroup): FormValues {
     name: tg.name,
     number: tg.number,
     timeslotOverride: tg.timeslotOverride,
+    abbreviation: tg.abbreviation ?? '',
   };
 }
 
@@ -57,10 +58,12 @@ export default function TalkGroupEdit() {
     e.preventDefault();
     setFormError(null);
 
+    const abbrev = values.abbreviation?.trim() ?? '';
     const input = {
       name: values.name.trim(),
       number: values.number.trim(),
       timeslotOverride: values.timeslotOverride.trim(),
+      ...(abbrev !== '' ? { abbreviation: abbrev } : {}),
     };
 
     const issues = validateTalkGroup(input, codeplug, existing?.id);
@@ -131,6 +134,12 @@ export default function TalkGroupEdit() {
             description="Optional slot hint for vendor export"
             value={values.timeslotOverride}
             onChange={(e) => set('timeslotOverride', e.currentTarget.value)}
+          />
+          <TextInput
+            label="Abbreviation"
+            description="Optional shorter label used when export names are shortened"
+            value={values.abbreviation ?? ''}
+            onChange={(e) => set('abbreviation', e.currentTarget.value)}
           />
         </FormSection>
       </Stack>
