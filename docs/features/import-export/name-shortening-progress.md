@@ -50,9 +50,22 @@
 
 ## Slice 3 — TalkGroup.abbreviation
 
+### Slice 3a — Model + migration
+
+**Status:** Complete (committed)
+**Commit:** `b5d4c80` — `feat: add TalkGroup.abbreviation model field + v13 migration`
+
+**Delivered**
+
+- `TalkGroup.abbreviation?: string` on internal model
+- `CODEPLUG_SCHEMA_VERSION` 12 → 13; `migrateTalkGroup` carries optional abbreviation
+- v12 fixture tests in `codeplugStorage.test.ts`
+- Persistence and data-model docs updated
+
 ### Slice 3b — CRUD UI
 
 **Status:** Complete (committed)
+**Commit:** `72c0b57` — `feat: edit/show talk group abbreviation in CRUD`
 
 **Delivered**
 
