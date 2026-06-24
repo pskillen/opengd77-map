@@ -25,4 +25,12 @@ export { default as FormSection } from './FormSection.tsx';
 export type { FormSectionProps } from './FormSection.tsx';
 export { default as AppHeader } from './AppHeader.tsx';
 export type { AppHeaderProps } from './AppHeader.tsx';
+export { default as PercentLevelSlider } from './PercentLevelSlider.tsx';
+export type { PercentLevelSliderProps } from './PercentLevelSlider.tsx';
+export {
+  PERCENT_LEVEL_MARKS,
+  PERCENT_LEVEL_STEP,
+  formatPercentLevelLabel,
+  snapPercentToStep,
+} from './PercentLevelSlider.tsx';
 export * from './tokens.ts';
