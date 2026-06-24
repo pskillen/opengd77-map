@@ -26,6 +26,7 @@ import {
   PageHeader,
   PageSection,
   PageSectionGrid,
+  PercentLevelSlider,
 } from '../components/ui/index.ts';
 import { UK_BANDS } from '../lib/bands.ts';
 import { channelFieldDefaults } from '../models/codeplug.ts';
@@ -56,6 +57,21 @@ const sampleChannel = {
   rxFrequency: 145_575_000,
   txFrequency: 145_175_000,
 };
+
+function PercentLevelSliderDemo({
+  label,
+  initial,
+  zeroLabel,
+}: {
+  label: string;
+  initial: number | null;
+  zeroLabel?: string;
+}) {
+  const [value, setValue] = useState(initial);
+  return (
+    <PercentLevelSlider label={label} value={value} onChange={setValue} zeroLabel={zeroLabel} />
+  );
+}
 
 export default function Styleguide() {
   const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
@@ -230,6 +246,16 @@ export default function Styleguide() {
             <TextInput label="Name" placeholder="Channel name" />
             <Select label="Mode" data={['FM', 'DMR', 'P25']} defaultValue="FM" />
           </FormSection>
+        </Stack>
+      </PageSection>
+
+      <PageSection
+        title="PercentLevelSlider"
+        description="5% step slider with marks — power and squelch on channel edit."
+      >
+        <Stack gap="lg" maw={480}>
+          <PercentLevelSliderDemo label="Power" initial={10} />
+          <PercentLevelSliderDemo label="Squelch" initial={null} zeroLabel="Open (0%)" />
         </Stack>
       </PageSection>
 

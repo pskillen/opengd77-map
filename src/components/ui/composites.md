@@ -33,6 +33,10 @@ Edit-route shell with sticky footer on mobile (`max-width: 48em`).
 
 Titled field group (`Title order={3}`). Accordion variant deferred to #69.
 
+## PercentLevelSlider
+
+Percent level control (power, squelch) — 5% step slider with marks, radio-default checkbox, value in label. See [PercentLevelSlider.md](PercentLevelSlider.md).
+
 ## Related
 
 - Layout primitives: [layout.md](layout.md)

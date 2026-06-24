@@ -1,9 +1,8 @@
 import { Group, NumberInput, Select, Stack, Tabs, Text } from '@mantine/core';
 import ModePill from './ModePill.tsx';
+import { PercentLevelSlider } from '../ui/index.ts';
 import {
   BANDWIDTH_KHZ_OPTIONS,
-  percentLabel,
-  SQUELCH_PERCENT_OPTIONS,
   toneSelectOptions,
   type ChannelTimeslot,
   type ChannelTone,
@@ -24,13 +23,8 @@ export type ModeProfileFormValues = {
   dmrId: string;
   rxTone: ChannelTone;
   txTone: ChannelTone;
-  squelch: string;
+  squelch: number | null;
 };
-
-const squelchSelectData = SQUELCH_PERCENT_OPTIONS.map((p) => ({
-  value: p === null ? 'default' : String(p),
-  label: p === 0 ? 'Open (0%)' : p == null ? 'Radio default' : percentLabel(p),
-}));
 
 const bandwidthSelectData = [
   { value: '', label: '—' },
@@ -49,7 +43,6 @@ export function formProfileToModel(form: ModeProfileFormValues): ChannelModeProf
   const timeslot: ChannelTimeslot | null = timeslotRaw === '1' ? 1 : timeslotRaw === '2' ? 2 : null;
   const dmrId = form.dmrId.trim() ? parseInt(form.dmrId, 10) : null;
   const bandwidth = form.bandwidthKHz.trim() ? parseFloat(form.bandwidthKHz) : null;
-  const squelch = form.squelch === 'default' ? null : parseInt(form.squelch, 10);
 
   return {
     mode: form.mode,
@@ -62,7 +55,7 @@ export function formProfileToModel(form: ModeProfileFormValues): ChannelModeProf
     dmrId: dmrId != null && Number.isFinite(dmrId) && dmrId > 0 ? dmrId : null,
     rxTone: form.rxTone,
     txTone: form.txTone,
-    squelch: squelch != null && Number.isFinite(squelch) ? squelch : null,
+    squelch: form.squelch,
     contactRef: parseEntityRefKey(form.contactRefKey),
     rxGroupListId: form.rxGroupListId || null,
   };
@@ -79,7 +72,7 @@ export function modeProfileToForm(profile: ChannelModeProfile): ModeProfileFormV
     dmrId: profile.dmrId != null ? String(profile.dmrId) : '',
     rxTone: profile.rxTone,
     txTone: profile.txTone,
-    squelch: profile.squelch != null ? String(profile.squelch) : 'default',
+    squelch: profile.squelch,
   };
 }
 
@@ -174,11 +167,11 @@ export default function ChannelModeProfilesEditor({
                     searchable
                   />
                 </Group>
-                <Select
+                <PercentLevelSlider
                   label="Squelch"
-                  data={squelchSelectData}
                   value={profile.squelch}
-                  onChange={(v) => updateProfile(index, { squelch: v ?? 'default' })}
+                  onChange={(v) => updateProfile(index, { squelch: v })}
+                  zeroLabel="Open (0%)"
                 />
               </>
             ) : null}

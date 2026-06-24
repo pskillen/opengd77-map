@@ -4,12 +4,7 @@ export {
   parseFrequencyHzFromMhzInput,
   parseFrequencyHzFromMhzWire,
 } from './frequencies.ts';
-export {
-  clampPercent,
-  percentLabel,
-  POWER_PERCENT_OPTIONS,
-  SQUELCH_PERCENT_OPTIONS,
-} from './percent.ts';
+export { clampPercent, percentLabel, formatSquelchListCell } from './percent.ts';
 export {
   CTCSS_TONE_OPTIONS,
   DCS_TONE_OPTIONS,

@@ -10,10 +10,6 @@ export function percentLabel(value: number | null): string {
   return `${value}%`;
 }
 
-export const POWER_PERCENT_OPTIONS: readonly (number | null)[] = [null, 25, 50, 75, 100];
-
-export const SQUELCH_PERCENT_OPTIONS: readonly (number | null)[] = [null, 0, 25, 50, 75, 100];
-
 export function formatSquelchListCell(squelch: number | null): string {
   if (squelch === 0) return 'Open (0%)';
   return percentLabel(squelch);

@@ -12,16 +12,13 @@ import {
 import { IconArrowLeft, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, useMemo, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FormPage } from '../../components/ui/index.ts';
+import { FormPage, PercentLevelSlider } from '../../components/ui/index.ts';
 import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
 import {
   BANDWIDTH_KHZ_OPTIONS,
   frequencyHzToMhz,
   parseFrequencyHzFromMhzInput,
-  percentLabel,
-  POWER_PERCENT_OPTIONS,
-  SQUELCH_PERCENT_OPTIONS,
   toneSelectOptions,
   type ChannelTimeslot,
   type ChannelTone,
@@ -71,8 +68,8 @@ type ChannelFormValues = {
   dmrId: string;
   rxTone: ChannelTone;
   txTone: ChannelTone;
-  squelch: string;
-  power: string;
+  squelch: number | null;
+  power: number | null;
   rxOnly: boolean;
   aprsConfigName: string;
   voxEnabled: boolean;
@@ -92,16 +89,6 @@ function hzToMhzInput(hz: number | null): string {
   if (hz == null || hz <= 0) return '';
   const mhz = frequencyHzToMhz(hz);
   return mhz != null ? formatMhzNumber(mhz) : '';
-}
-
-function percentToSelectValue(value: number | null): string {
-  return value == null ? 'default' : String(value);
-}
-
-function selectValueToPercent(value: string): number | null {
-  if (!value || value === 'default') return null;
-  const n = parseInt(value, 10);
-  return Number.isFinite(n) ? n : null;
 }
 
 function emptyModeProfileForm(mode: ChannelMode): ModeProfileFormValues {
@@ -165,8 +152,8 @@ function channelToForm(ch: Channel): ChannelFormValues {
     dmrId: ch.dmrId != null ? String(ch.dmrId) : '',
     rxTone: ch.rxTone,
     txTone: ch.txTone,
-    squelch: percentToSelectValue(ch.squelch),
-    power: percentToSelectValue(ch.power),
+    squelch: ch.squelch,
+    power: ch.power,
     rxOnly: ch.rxOnly,
     aprsConfigName: ch.aprsConfigName,
     voxEnabled: ch.voxEnabled,
@@ -201,8 +188,8 @@ function emptyForm(): ChannelFormValues {
     dmrId: '',
     rxTone: defaults.rxTone,
     txTone: defaults.txTone,
-    squelch: 'default',
-    power: 'default',
+    squelch: null,
+    power: null,
     rxOnly: defaults.rxOnly,
     aprsConfigName: defaults.aprsConfigName,
     voxEnabled: defaults.voxEnabled,
@@ -241,7 +228,7 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
     modeProfiles,
     rxFrequency: parseFrequencyHzFromMhzInput(values.rxFrequencyMhz),
     txFrequency: parseFrequencyHzFromMhzInput(values.txFrequencyMhz),
-    power: selectValueToPercent(values.power),
+    power: values.power,
     rxOnly: values.rxOnly,
     aprsConfigName: values.aprsConfigName,
     voxEnabled: values.voxEnabled,
@@ -283,8 +270,8 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
     dmrId: dmrId != null && Number.isFinite(dmrId) && dmrId > 0 ? dmrId : null,
     rxTone: values.rxTone,
     txTone: values.txTone,
-    squelch: selectValueToPercent(values.squelch),
-    power: selectValueToPercent(values.power),
+    squelch: values.squelch,
+    power: values.power,
     rxOnly: values.rxOnly,
     aprsConfigName: values.aprsConfigName,
     voxEnabled: values.voxEnabled,
@@ -297,16 +284,6 @@ function formToChannelInput(values: ChannelFormValues): Omit<Channel, 'id'> {
     opengd77Extras: {},
   };
 }
-
-const powerSelectData = POWER_PERCENT_OPTIONS.map((p) => ({
-  value: percentToSelectValue(p),
-  label: percentLabel(p),
-}));
-
-const squelchSelectData = SQUELCH_PERCENT_OPTIONS.map((p) => ({
-  value: percentToSelectValue(p),
-  label: p === 0 ? 'Open (0%)' : percentLabel(p),
-}));
 
 const bandwidthSelectData = [
   { value: '', label: '—' },
@@ -634,11 +611,10 @@ export default function ChannelEdit() {
               clearable
             />
           ) : null}
-          <Select
+          <PercentLevelSlider
             label="Power"
-            data={powerSelectData}
             value={values.power}
-            onChange={(v) => set('power', v ?? 'default')}
+            onChange={(v) => set('power', v)}
           />
           {showSingleModeAnalogFields ? (
             <Group grow>
@@ -659,11 +635,11 @@ export default function ChannelEdit() {
             </Group>
           ) : null}
           {showSingleModeAnalogFields ? (
-            <Select
+            <PercentLevelSlider
               label="Squelch"
-              data={squelchSelectData}
               value={values.squelch}
-              onChange={(v) => set('squelch', v ?? 'default')}
+              onChange={(v) => set('squelch', v)}
+              zeroLabel="Open (0%)"
             />
           ) : null}
           <Checkbox
