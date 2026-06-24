@@ -719,6 +719,91 @@ describe('channelExpansion', () => {
     expect(rows[0].wireName).not.toContain('Scotland TS1');
   });
 
+  it('preserves TG identity when shortening multi-TG fan-out (GB7GL Glasgow)', () => {
+    const tgScotland = buildTalkGroup({
+      id: 'tg1',
+      name: 'Scotland TS2',
+      abbreviation: 'Sco TS2',
+      number: '950',
+      timeslotOverride: 'Slot 2',
+    });
+    const tgWest = buildTalkGroup({
+      id: 'tg2',
+      name: 'Scot West TS1',
+      abbreviation: 'Sco W TS1',
+      number: '2355',
+      timeslotOverride: 'Slot 1',
+    });
+    const tgEast = buildTalkGroup({
+      id: 'tg3',
+      name: 'Scot East TS1',
+      abbreviation: 'Sco E TS1',
+      number: '2356',
+      timeslotOverride: 'Slot 1',
+    });
+    const tgNorth = buildTalkGroup({
+      id: 'tg4',
+      name: 'Scot North TS1',
+      abbreviation: 'Sco N TS1',
+      number: '2357',
+      timeslotOverride: 'Slot 1',
+    });
+    const rgl = buildRxGroupList({
+      id: 'rgl1',
+      name: 'GB7GL',
+      memberRefs: [
+        { kind: 'talkGroup', id: 'tg1' },
+        { kind: 'talkGroup', id: 'tg2' },
+        { kind: 'talkGroup', id: 'tg3' },
+        { kind: 'talkGroup', id: 'tg4' },
+      ],
+    });
+    const ch = buildChannel({
+      id: 'c1',
+      name: 'Glasgow',
+      abbreviation: 'Glas',
+      callsign: 'GB7GL',
+      exportNameMode: 'callsign_name',
+      mode: 'dmr',
+      rxGroupListId: 'rgl1',
+    });
+    const codeplug = buildCodeplug({
+      channels: [ch],
+      talkGroups: [tgScotland, tgWest, tgEast, tgNorth],
+      rxGroupLists: [rgl],
+    });
+    const expandOpts = {
+      expandTalkGroups: true as const,
+      codeplug,
+      channelById: new Map([[ch.id, ch]]),
+      shortenNames: true,
+      maxNameLength: 16,
+      useChannelAbbreviation: true,
+      useTalkGroupAbbreviation: true,
+    };
+    const rows = expandTalkGroupsForExport(
+      expandChannelForExport(ch, {
+        useChannelAbbreviation: true,
+        shortenNames: true,
+        maxNameLength: 16,
+      }),
+      expandOpts,
+    );
+    expect(rows).toHaveLength(4);
+    const names = rows.map((r) => r.wireName);
+    expect(new Set(names).size).toBe(4);
+    for (const name of names) {
+      expect(name.length).toBeLessThanOrEqual(16);
+      expect(name).not.toMatch(/ 2$| 3$| 4$/);
+    }
+    expect(names.some((n) => n.includes('Sco TS2') || n.includes('950'))).toBe(true);
+    expect(names.some((n) => n.includes('Sco W') || n.includes('2355'))).toBe(true);
+
+    const zone = buildZone({ id: 'z1', name: 'Zone', memberChannelIds: ['c1'] });
+    const { names: zoneNames } = expandZoneMemberWireNames(zone, [ch], expandOpts);
+    expect(zoneNames.sort()).toEqual(names.sort());
+  });
+
   it('expandTalkGroupsForExport shortens TG member suffix with abbreviation', () => {
     const tg1 = buildTalkGroup({
       id: 'tg1',

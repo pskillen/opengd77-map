@@ -33,6 +33,13 @@ import {
   type ShortenWireNameOptions,
   type TalkGroupMemberSuffixReplacement,
 } from './shortenName.ts';
+import {
+  composeMultiTalkGroupWireName,
+  DEFAULT_MULTI_TG_EXPORT_NAME_MODE,
+  escalateMultiTalkGroupExportNameMode,
+  multiTalkGroupProtectedSuffix,
+  type MultiTalkGroupExportNameMode,
+} from './multiTalkGroupWireName.ts';
 
 export {
   disambiguationSuffixLength,
@@ -42,6 +49,11 @@ export {
   type ShortenWireNameOptions,
   type TalkGroupMemberSuffixReplacement,
 } from './shortenName.ts';
+
+export {
+  DEFAULT_MULTI_TG_EXPORT_NAME_MODE,
+  type MultiTalkGroupExportNameMode,
+} from './multiTalkGroupWireName.ts';
 
 /** Resolved export row — shared channel fields merged with one mode profile. */
 export interface ExpandedChannelRow {
@@ -85,6 +97,8 @@ export interface ExpandChannelOptions {
   useTalkGroupAbbreviation?: boolean;
   /** Use `Channel.abbreviation` for the name qualifier in composed wire names. */
   useChannelAbbreviation?: boolean;
+  /** How multi-TG expanded rows compose wire names. Default `callsign_tg_abbrev`. */
+  multiTalkGroupExportNameMode?: MultiTalkGroupExportNameMode;
   warnings?: string[];
   /** When false, keep multi-mode channels on one wire name (DM32 native dual-mode). Default true. */
   expandModes?: boolean;
@@ -419,6 +433,36 @@ export function expandTalkGroupsForExport(
     for (const member of members) {
       const fullMemberName = entityRefDisplayName(member, codeplug.talkGroups, codeplug.contacts);
       if (!fullMemberName) continue;
+
+      const tgMode = options.multiTalkGroupExportNameMode ?? DEFAULT_MULTI_TG_EXPORT_NAME_MODE;
+      const wireCtx = {
+        talkGroups: codeplug.talkGroups,
+        contacts: codeplug.contacts,
+        useChannelAbbreviation: options.useChannelAbbreviation,
+        useTalkGroupAbbreviation: options.useTalkGroupAbbreviation,
+        nameModeOverride: options.nameModeOverride,
+        siteWireName: row.wireName,
+      };
+
+      let effectiveMode = tgMode;
+      let base: string;
+      let fixedSuffix: string | undefined;
+
+      if (tgMode === 'append') {
+        base = `${row.wireName} ${fullMemberName}`;
+      } else {
+        base = composeMultiTalkGroupWireName(sourceChannel, member, effectiveMode, wireCtx);
+        fixedSuffix = multiTalkGroupProtectedSuffix(sourceChannel, member, effectiveMode, wireCtx);
+        const maxLen = options.maxNameLength;
+        while (maxLen != null && base.length > maxLen) {
+          const next = escalateMultiTalkGroupExportNameMode(effectiveMode);
+          if (!next) break;
+          effectiveMode = next;
+          base = composeMultiTalkGroupWireName(sourceChannel, member, effectiveMode, wireCtx);
+          fixedSuffix = multiTalkGroupProtectedSuffix(sourceChannel, member, effectiveMode, wireCtx);
+        }
+      }
+
       const exportMemberLabel = entityRefExportLabel(
         member,
         codeplug.talkGroups,
@@ -427,19 +471,22 @@ export function expandTalkGroupsForExport(
           useAbbreviation: options.useTalkGroupAbbreviation,
         },
       );
-      const base = `${row.wireName} ${fullMemberName}`;
       const tgSuffix: TalkGroupMemberSuffixReplacement | undefined =
+        tgMode === 'append' &&
         options.useTalkGroupAbbreviation &&
         exportMemberLabel &&
         exportMemberLabel !== fullMemberName
           ? { full: fullMemberName, abbreviated: exportMemberLabel }
           : undefined;
+      const shortenExtra: Partial<ShortenWireNameOptions> = {};
+      if (tgSuffix) shortenExtra.talkGroupMemberSuffix = tgSuffix;
+      if (fixedSuffix) shortenExtra.fixedSuffix = fixedSuffix;
       const candidate = assignExportWireName(
         base,
         sourceChannel,
         reserved,
         options,
-        tgSuffix ? { talkGroupMemberSuffix: tgSuffix } : undefined,
+        Object.keys(shortenExtra).length > 0 ? shortenExtra : undefined,
       );
       result.push({
         ...row,

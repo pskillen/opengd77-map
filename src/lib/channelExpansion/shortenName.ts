@@ -22,6 +22,8 @@ export interface ShortenWireNameOptions {
   recomposeWithMode?: (mode: ChannelExportNameMode) => string;
   /** Replace a trailing multi-talkgroup member suffix before other strategies. */
   talkGroupMemberSuffix?: TalkGroupMemberSuffixReplacement;
+  /** Protected trailing suffix for multi-TG composed names — shorten the leading portion only. */
+  fixedSuffix?: string;
 }
 
 const MAX_DICTIONARY_LEVELS = 12;
@@ -147,22 +149,38 @@ export function shortenWireName(
 ): string {
   if (maxLen < 1 || name.length <= maxLen) return name;
 
-  const { stem, suffix } = peelModeSuffix(name);
+  let fixedSuffix = opts.fixedSuffix ?? '';
+  let peelTarget = name;
+  if (fixedSuffix && name.endsWith(fixedSuffix)) {
+    peelTarget = name.slice(0, -fixedSuffix.length);
+  } else {
+    fixedSuffix = '';
+  }
+
+  const { stem, suffix } = peelModeSuffix(peelTarget);
+  const fixedLen = fixedSuffix.length;
   let current = stem;
+  const stemBudget = (extra: number) => Math.max(0, maxLen - suffix.length - fixedLen - extra);
 
   if (opts.talkGroupMemberSuffix) {
     current = applyTalkGroupMemberSuffix(current, opts.talkGroupMemberSuffix);
-    if (`${current}${suffix}`.length <= maxLen) return `${current}${suffix}`;
+    if (`${current}${suffix}${fixedSuffix}`.length <= maxLen) {
+      return `${current}${suffix}${fixedSuffix}`;
+    }
   }
 
   if (opts.useDictionary !== false) {
-    current = applyDictionaryProgressive(current, maxLen - suffix.length);
-    if (`${current}${suffix}`.length <= maxLen) return `${current}${suffix}`;
+    current = applyDictionaryProgressive(current, stemBudget(0));
+    if (`${current}${suffix}${fixedSuffix}`.length <= maxLen) {
+      return `${current}${suffix}${fixedSuffix}`;
+    }
   }
 
   if (opts.useVowelSqueeze !== false) {
-    current = applyVowelSqueezeProgressive(current, maxLen - suffix.length);
-    if (`${current}${suffix}`.length <= maxLen) return `${current}${suffix}`;
+    current = applyVowelSqueezeProgressive(current, stemBudget(0));
+    if (`${current}${suffix}${fixedSuffix}`.length <= maxLen) {
+      return `${current}${suffix}${fixedSuffix}`;
+    }
   }
 
   if (
@@ -174,17 +192,17 @@ export function shortenWireName(
     if (downgraded.stem !== current || downgraded.suffix !== suffix) {
       current = downgraded.stem;
       const modeSuffix = downgraded.suffix || suffix;
-      const downgradedCombined = `${current}${modeSuffix}`;
+      const downgradedCombined = `${current}${modeSuffix}${fixedSuffix}`;
       if (downgradedCombined.length <= maxLen) return downgradedCombined;
-      const stemMax = Math.max(0, maxLen - modeSuffix.length);
-      return `${current.slice(0, stemMax)}${modeSuffix}`;
+      const stemMax = stemBudget(modeSuffix.length);
+      return `${current.slice(0, stemMax)}${modeSuffix}${fixedSuffix}`;
     }
   }
 
-  const combined = `${current}${suffix}`;
+  const combined = `${current}${suffix}${fixedSuffix}`;
   if (combined.length > maxLen) {
-    const stemMax = Math.max(0, maxLen - suffix.length);
-    return `${current.slice(0, stemMax)}${suffix}`;
+    const stemMax = stemBudget(suffix.length);
+    return `${current.slice(0, stemMax)}${suffix}${fixedSuffix}`;
   }
   return combined;
 }
