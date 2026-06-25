@@ -1,8 +1,8 @@
-import { Alert, Button, Group, Modal, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
-import { IconChevronLeft, IconFolder } from '@tabler/icons-react';
+import { Button, Modal, Stack, Text, TextInput } from '@mantine/core';
 import { useState } from 'react';
+import { createDriveFolder, getGoogleDriveAccessToken } from '../../lib/cloud/googleDrive/index.ts';
 import { useDriveFolderBrowser } from '../../hooks/useDriveFolderBrowser.ts';
-import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
+import DriveFolderPanel from './DriveFolderPanel.tsx';
 
 export interface CloudDriveSaveModalProps {
   opened: boolean;
@@ -30,12 +30,38 @@ export default function CloudDriveSaveModal({
   saving = false,
   onSave,
 }: CloudDriveSaveModalProps) {
-  const { folderStack, currentFolder, entries, loading, error, setError, enterFolder, goUp } =
-    useDriveFolderBrowser(opened);
+  const {
+    folderStack,
+    currentFolder,
+    entries,
+    loading,
+    error,
+    setError,
+    enterFolder,
+    goToFolder,
+    refresh,
+  } = useDriveFolderBrowser(opened);
   const [fileName, setFileName] = useState(defaultFileName);
   const [subfolderName, setSubfolderName] = useState(defaultSubfolderName);
+  const [creatingFolder, setCreatingFolder] = useState(false);
 
-  const folders = entries.filter((entry) => entry.isFolder);
+  const handleCreateFolder = async (name: string) => {
+    setCreatingFolder(true);
+    setError(null);
+    try {
+      const token = await getGoogleDriveAccessToken();
+      const folder = await createDriveFolder(token, {
+        name,
+        parentFolderId: currentFolder.id,
+      });
+      refresh();
+      enterFolder(folder.id, folder.name);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setCreatingFolder(false);
+    }
+  };
 
   const handleSave = () => {
     if (isMultiFile) {
@@ -68,13 +94,13 @@ export default function CloudDriveSaveModal({
     <Modal opened={opened} onClose={onClose} title="Save to Google Drive" size="lg">
       <Stack gap="sm">
         <Text size="sm" c="dimmed">
-          Choose a destination folder{isMultiFile ? ' — a dated subfolder will be created' : ''}.
+          Browse to a folder{isMultiFile ? ', or create one, then confirm the export subfolder' : ''}.
         </Text>
 
         {isMultiFile ? (
           <TextInput
-            label="Subfolder name"
-            description="CSV files are saved inside this new folder"
+            label="Export subfolder name"
+            description="CSV files are saved inside this new folder at the location below"
             value={subfolderName}
             onChange={(e) => setSubfolderName(e.currentTarget.value)}
           />
@@ -86,51 +112,18 @@ export default function CloudDriveSaveModal({
           />
         )}
 
-        <Group justify="space-between">
-          <Text size="sm" fw={500}>
-            {currentFolder.name}
-          </Text>
-          {folderStack.length > 1 ? (
-            <Button
-              variant="subtle"
-              size="compact-sm"
-              leftSection={<IconChevronLeft size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-              onClick={goUp}
-            >
-              Up
-            </Button>
-          ) : null}
-        </Group>
-
-        {error ? (
-          <Alert color="red" onClose={() => setError(null)} withCloseButton>
-            {error}
-          </Alert>
-        ) : null}
-
-        {loading ? <Text size="sm">Loading…</Text> : null}
-
-        {!loading ? (
-          <Stack gap={4}>
-            {folders.length === 0 ? (
-              <Text size="sm" c="dimmed">
-                No subfolders — save to this folder.
-              </Text>
-            ) : null}
-            {folders.map((entry) => (
-              <UnstyledButton
-                key={entry.ref.id}
-                onClick={() => enterFolder(entry.ref.id, entry.ref.name)}
-                style={{ padding: '8px 4px', borderRadius: 4 }}
-              >
-                <Group gap="xs">
-                  <IconFolder size={ICON_SIZE_NAV} stroke={ICON_STROKE} />
-                  <Text size="sm">{entry.ref.name}</Text>
-                </Group>
-              </UnstyledButton>
-            ))}
-          </Stack>
-        ) : null}
+        <DriveFolderPanel
+          folderStack={folderStack}
+          entries={entries}
+          loading={loading}
+          error={error}
+          onClearError={() => setError(null)}
+          onEnterFolder={enterFolder}
+          onGoToFolder={goToFolder}
+          onCreateFolder={handleCreateFolder}
+          foldersOnly
+          creatingFolder={creatingFolder}
+        />
 
         <Button loading={saving} onClick={handleSave}>
           {isMultiFile ? `Save to ${currentFolder.name}` : `Save file to ${currentFolder.name}`}

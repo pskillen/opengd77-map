@@ -15,6 +15,8 @@ export function useDriveFolderBrowser(opened: boolean) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const [refreshToken, setRefreshToken] = useState(0);
+
   const currentFolder = folderStack[folderStack.length - 1]!;
 
   useEffect(() => {
@@ -41,16 +43,25 @@ export function useDriveFolderBrowser(opened: boolean) {
     return () => {
       cancelled = true;
     };
-  }, [opened, currentFolder.id]);
+  }, [opened, currentFolder.id, refreshToken]);
 
   const enterFolder = (id: string, name: string) => {
     setFolderStack((stack) => [...stack, { id, name }]);
+  };
+
+  const goToFolder = (index: number) => {
+    if (index < 0 || index >= folderStack.length) return;
+    setFolderStack((stack) => stack.slice(0, index + 1));
   };
 
   const goUp = () => {
     if (folderStack.length <= 1) return;
     setFolderStack((stack) => stack.slice(0, -1));
   };
+
+  const refresh = useCallback(() => {
+    setRefreshToken((token) => token + 1);
+  }, []);
 
   const reset = useCallback(() => {
     setFolderStack([{ id: 'root', name: 'My Drive' }]);
@@ -67,7 +78,9 @@ export function useDriveFolderBrowser(opened: boolean) {
     error,
     setError,
     enterFolder,
+    goToFolder,
     goUp,
+    refresh,
     reset,
   };
 }
