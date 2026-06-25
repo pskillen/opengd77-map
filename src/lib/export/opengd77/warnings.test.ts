@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { addRxGroupList, addTalkGroup, addZone } from '../../codeplugMutations.ts';
 import { emptyCodeplug } from '../../../models/codeplug.ts';
 import { buildChannel } from '../../../test/builders/index.ts';
+import { buildRglMember } from '../../../test/builders/codeplug.ts';
 import { collectOpenGd77ExportWarnings } from './warnings.ts';
 import { DEFAULT_OPENGD77_PROFILE_ID } from '../../opengd77/profiles.ts';
 
@@ -20,11 +21,11 @@ describe('collectOpenGd77ExportWarnings', () => {
   it('warns when RX group list members exceed OpenGD77 profile cap', () => {
     let cp = emptyCodeplug();
     for (let i = 0; i < 40; i++) {
-      cp = addTalkGroup(cp, { name: `TG${i}`, number: String(i), timeslotOverride: '' });
+      cp = addTalkGroup(cp, { name: `TG${i}`, number: String(i) });
     }
     cp = addRxGroupList(cp, {
       name: 'BigList',
-      memberRefs: cp.talkGroups.map((tg) => ({ kind: 'talkGroup', id: tg.id })),
+      memberRefs: cp.talkGroups.map((tg) => buildRglMember({ kind: 'talkGroup', id: tg.id })),
     });
 
     const warnings = collectOpenGd77ExportWarnings(cp, { profileId: DEFAULT_OPENGD77_PROFILE_ID });

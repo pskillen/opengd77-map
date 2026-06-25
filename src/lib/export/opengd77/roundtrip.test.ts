@@ -2,12 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { importFiles } from '../../import/index.ts';
 import { applyImportToCodeplug } from '../../importMerge.ts';
 import { addRxGroupList, addTalkGroup } from '../../codeplugMutations.ts';
-import type { EntityMeta } from '../../entityProvenance.ts';
 import {
   emptyCodeplug,
   resetIdGenerator,
   setIdGenerator,
-  type Codeplug,
 } from '../../../models/codeplug.ts';
 import {
   CHANNEL_HEADERS,
@@ -16,59 +14,10 @@ import {
 } from '../../import/opengd77/columns.ts';
 import { serialiseOpenGd77Files } from './serialise.ts';
 import { DEFAULT_OPENGD77_PROFILE_ID } from '../../opengd77/profiles.ts';
-import { entityRefDisplayName } from '../../entityRefs.ts';
+import { buildRglMember } from '../../../test/builders/codeplug.ts';
+import { stripCodeplugForSemanticCompare } from '../../../test/opengd77/codeplugSemanticCompare.ts';
 
 const OPGD77_IMPORT = { profileId: DEFAULT_OPENGD77_PROFILE_ID };
-
-function withoutId<T extends { id: string; meta?: EntityMeta }>(item: T): Omit<T, 'id'> {
-  const copy = { ...item };
-  delete (copy as { id?: string }).id;
-  if (copy.meta?.imported) {
-    copy.meta = {
-      ...copy.meta,
-      imported: { ...copy.meta.imported, importedAt: 'stripped' },
-    };
-  }
-  return copy as Omit<T, 'id'>;
-}
-
-function withoutZoneIds(zone: Codeplug['zones'][number]) {
-  const copy = withoutId(zone) as Codeplug['zones'][number];
-  delete (copy as { memberChannelIds?: string[] }).memberChannelIds;
-  return copy;
-}
-
-function stripIds(cp: Codeplug) {
-  return {
-    meta: { ...cp.meta, importedAt: null, sourceFiles: [] },
-    channels: cp.channels.map((ch) => {
-      const copy = withoutId(ch) as Codeplug['channels'][number];
-      if (copy.contactRef) {
-        const name = entityRefDisplayName(copy.contactRef, cp.talkGroups, cp.contacts);
-        copy.contactRef = name ? { kind: copy.contactRef.kind, id: name } : null;
-      }
-      if (copy.rxGroupListId) {
-        const list = cp.rxGroupLists.find((r) => r.id === copy.rxGroupListId);
-        copy.rxGroupListId = list?.name ?? null;
-      }
-      return copy;
-    }),
-    zones: cp.zones.map(withoutZoneIds),
-    talkGroups: cp.talkGroups.map(withoutId),
-    rxGroupLists: cp.rxGroupLists.map((rgl) => {
-      const copy = withoutId(rgl) as Codeplug['rxGroupLists'][number];
-      copy.memberRefs = rgl.memberRefs.map((ref) => ({
-        kind: ref.kind,
-        id:
-          ref.kind === 'talkGroup'
-            ? (cp.talkGroups.find((tg) => tg.id === ref.id)?.name ?? ref.id)
-            : (cp.contacts.find((c) => c.id === ref.id)?.name ?? ref.id),
-      }));
-      return copy;
-    }),
-    contacts: cp.contacts.map(withoutId),
-  };
-}
 
 async function importFromExport(files: ReturnType<typeof serialiseOpenGd77Files>) {
   return importFiles(
@@ -119,9 +68,8 @@ Scotland,Scotland TS1,Local 9,,`;
     const secondParsed = await importFromExport(exported);
     const { codeplug: second } = applyImportToCodeplug(emptyCodeplug(), secondParsed, 'merge');
 
-    expect(stripIds(second)).toEqual(stripIds(first));
+    expect(stripCodeplugForSemanticCompare(second)).toEqual(stripCodeplugForSemanticCompare(first));
     expect(secondParsed.zones).toEqual(firstParsed.zones);
-    expect(secondParsed.rxGroupLists).toEqual(firstParsed.rxGroupLists);
   });
 
   it('export truncates RX group list members at OpenGD77 profile cap (boundary only)', async () => {
@@ -130,11 +78,11 @@ Scotland,Scotland TS1,Local 9,,`;
     for (let i = 0; i < 40; i++) {
       const name = `TG${i}`;
       memberNames.push(name);
-      cp = addTalkGroup(cp, { name, number: String(i), timeslotOverride: '' });
+      cp = addTalkGroup(cp, { name, number: String(i) });
     }
     cp = addRxGroupList(cp, {
       name: 'BigList',
-      memberRefs: cp.talkGroups.map((tg) => ({ kind: 'talkGroup', id: tg.id })),
+      memberRefs: cp.talkGroups.map((tg) => buildRglMember({ kind: 'talkGroup', id: tg.id })),
     });
 
     expect(cp.rxGroupLists[0].memberRefs).toHaveLength(40);

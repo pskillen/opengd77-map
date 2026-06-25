@@ -27,7 +27,13 @@ import {
   formatOpenGd77TransmitTimeoutWire,
 } from './channelWire.ts';
 import { contactRefWireNameForExport, rxGroupListWireNameForExport } from '../../entityRefs.ts';
-import { rxGroupListExportMemberNames, zoneExportMemberNames } from './listWire.ts';
+import {
+  channelContactWireNameForOpenGd77Export,
+  openGd77TalkGroupWireMap,
+  rxGroupListExportMemberNames,
+  serialiseTalkGroupContactsForExport,
+  zoneExportMemberNames,
+} from './listWire.ts';
 
 /** OpenGD77 CSV serialisers — wire format in docs/reference/opengd77/;
  *  1701 profile limits in docs/reference/opengd77/radios/baofeng-1701.md. */
@@ -57,6 +63,7 @@ function channelRowValues(
   codeplug: Codeplug,
   profile: OpenGd77RadioProfile,
   rowNumber: number,
+  talkGroupWireMap: ReturnType<typeof openGd77TalkGroupWireMap>,
 ): Record<string, string> {
   const values: Record<string, string> = {
     [CHANNEL_COL.number]: String(rowNumber),
@@ -67,7 +74,8 @@ function channelRowValues(
     [CHANNEL_COL.bandwidth]: formatOpenGd77BandwidthWire(row.bandwidthKHz),
     [CHANNEL_COL.colourCode]: formatOpenGd77ColourCodeWire(row.colourCode),
     [CHANNEL_COL.timeslot]: formatOpenGd77TimeslotWire(row.timeslot),
-    [CHANNEL_COL.contact]: contactRefWireNameForExport(row, codeplug),
+    [CHANNEL_COL.contact]: channelContactWireNameForOpenGd77Export(row, codeplug) ||
+      contactRefWireNameForExport(row, codeplug),
     [CHANNEL_COL.tgList]: rxGroupListWireNameForExport(row, codeplug),
     [CHANNEL_COL.dmrId]: formatOpenGd77DmrIdWire(row.mode, row.dmrId),
     [CHANNEL_COL.rxTone]: formatOpenGd77ToneWire(row.mode, row.rxTone),
@@ -94,12 +102,15 @@ function channelRowValues(
 export function serialiseChannels(codeplug: Codeplug, options?: ExportOptions): string {
   const profile = getOpenGd77Profile(options?.profileId ?? DEFAULT_OPENGD77_PROFILE_ID);
   const expandOpts = expandOptionsFromExport(codeplug, options);
+  const warnings: string[] = [];
+  const talkGroupWireMap = openGd77TalkGroupWireMap(codeplug, options, warnings);
   const expanded = expandAllChannelsForExport(codeplug.channels, {
     ...expandOpts,
     maxNameLength: effectiveMaxNameLength(options, profile.nameLimit),
+    warnings,
   });
   const rows = expanded.map((row, i) =>
-    padRow(CHANNEL_HEADERS, channelRowValues(row, codeplug, profile, i + 1)),
+    padRow(CHANNEL_HEADERS, channelRowValues(row, codeplug, profile, i + 1, talkGroupWireMap)),
   );
   return formatCsv(CHANNEL_HEADERS, rows);
 }
@@ -117,16 +128,20 @@ export function serialiseZones(codeplug: Codeplug, options?: ExportOptions): str
   return formatCsv(ZONE_HEADERS, rows);
 }
 
-export function serialiseContacts(codeplug: Codeplug): string {
+export function serialiseContacts(codeplug: Codeplug, options?: ExportOptions): string {
   const rows: string[][] = [];
+  const talkGroupWireMap = openGd77TalkGroupWireMap(codeplug, options);
 
-  for (const tg of codeplug.talkGroups) {
+  for (const { talkGroup, wireName, tsOverride } of serialiseTalkGroupContactsForExport(
+    codeplug.talkGroups,
+    talkGroupWireMap,
+  )) {
     rows.push(
       padRow(CONTACT_HEADERS, {
-        [CONTACT_COL.name]: tg.name,
-        [CONTACT_COL.id]: tg.number,
+        [CONTACT_COL.name]: wireName,
+        [CONTACT_COL.id]: talkGroup.number,
         [CONTACT_COL.idType]: 'Group',
-        [CONTACT_COL.tsOverride]: tg.timeslotOverride,
+        [CONTACT_COL.tsOverride]: tsOverride,
       }),
     );
   }
@@ -145,16 +160,19 @@ export function serialiseContacts(codeplug: Codeplug): string {
   return formatCsv(CONTACT_HEADERS, rows);
 }
 
-export function serialiseRxGroupLists(codeplug: Codeplug, profileId?: string): string {
+export function serialiseRxGroupLists(
+  codeplug: Codeplug,
+  profileId?: string,
+  options?: ExportOptions,
+): string {
   const profile = getOpenGd77Profile(profileId ?? DEFAULT_OPENGD77_PROFILE_ID);
   const memberHeaders = rxGroupListMemberHeaders(profile.tgListMembers);
+  const talkGroupWireMap = openGd77TalkGroupWireMap(codeplug, options);
   const rows = codeplug.rxGroupLists.map((list) => {
     const values: Record<string, string> = { [RX_GROUP_LIST_COL.name]: list.name };
-    rxGroupListExportMemberNames(list, codeplug.talkGroups, codeplug.contacts).forEach(
-      (name, i) => {
-        if (i < memberHeaders.length) values[memberHeaders[i]] = name;
-      },
-    );
+    rxGroupListExportMemberNames(list, codeplug, talkGroupWireMap).forEach((name, i) => {
+      if (i < memberHeaders.length) values[memberHeaders[i]] = name;
+    });
     return padRow(RX_GROUP_LIST_HEADERS, values);
   });
   return formatCsv(RX_GROUP_LIST_HEADERS, rows);
@@ -185,8 +203,8 @@ export function serialiseOpenGd77Files(
   return {
     'Channels.csv': serialiseChannels(codeplug, options),
     'Zones.csv': serialiseZones(codeplug, options),
-    'Contacts.csv': serialiseContacts(codeplug),
-    'TG_Lists.csv': serialiseRxGroupLists(codeplug, profileId),
+    'Contacts.csv': serialiseContacts(codeplug, options),
+    'TG_Lists.csv': serialiseRxGroupLists(codeplug, profileId, options),
     'DTMF.csv': serialiseDtmfHeaderOnly(),
     'APRS.csv': serialiseAprsHeaderOnly(),
   };

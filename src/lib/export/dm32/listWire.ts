@@ -15,8 +15,8 @@ export function rxGroupListExportMemberNames(
     return memberRefsToWireNames(list.memberRefs, codeplug.talkGroups, codeplug.contacts);
   }
   const names: string[] = [];
-  for (const ref of list.memberRefs) {
-    const name = dm32RxGroupListMemberWireName(ref, codeplug, talkGroupWireNames);
+  for (const member of list.memberRefs) {
+    const name = dm32RxGroupListMemberWireName(member, codeplug, talkGroupWireNames);
     if (name) names.push(name);
   }
   return names;

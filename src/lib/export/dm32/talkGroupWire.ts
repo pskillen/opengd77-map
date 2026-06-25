@@ -1,4 +1,4 @@
-import type { Codeplug, EntityRef, TalkGroup } from '../../../models/codeplug.ts';
+import type { Codeplug, RxGroupListMember, TalkGroup } from '../../../models/codeplug.ts';
 import type { ExportOptions } from '../../import-export/types.ts';
 import { effectiveMaxNameLength } from '../../channelExpansion/exportOptions.ts';
 import { finalizeWireName } from '../../channelExpansion/shortenName.ts';
@@ -81,10 +81,11 @@ export function dm32ContactRefWireNameForExport(
 }
 
 export function dm32RxGroupListMemberWireName(
-  ref: EntityRef,
+  member: RxGroupListMember,
   codeplug: Codeplug,
   talkGroupWireNames: Dm32TalkGroupWireNameMap,
 ): string | null {
+  const ref = member.ref;
   if (ref.kind === 'talkGroup') {
     return talkGroupWireNames.get(ref.id) ?? null;
   }

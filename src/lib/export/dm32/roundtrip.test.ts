@@ -10,6 +10,7 @@ import {
   buildChannel,
   buildCodeplug,
   buildRxGroupList,
+  buildRglMember,
   buildTalkGroup,
 } from '../../../test/builders/codeplug.ts';
 
@@ -61,25 +62,23 @@ describe('DM32 synthetic round-trip', () => {
     expect(exported['Channels.csv'].match(/GB3FE Stirling/g)?.length).toBe(1);
   });
 
-  it('TG-expanded rows carry per-member Time Slot from timeslotOverride', () => {
+  it('TG-expanded rows carry per-member Time Slot from RGL member timeslot', () => {
     const tgTs2 = buildTalkGroup({
       id: 'tg1',
       name: 'Scotland TS2',
       number: '950',
-      timeslotOverride: 'Slot 2',
     });
     const tgTs1 = buildTalkGroup({
       id: 'tg2',
       name: 'Scot West TS1',
       number: '2355',
-      timeslotOverride: 'Slot 1',
     });
     const rgl = buildRxGroupList({
       id: 'rgl1',
       name: 'GB7GL',
       memberRefs: [
-        { kind: 'talkGroup', id: 'tg1' },
-        { kind: 'talkGroup', id: 'tg2' },
+        buildRglMember({ kind: 'talkGroup', id: 'tg1' }, 2),
+        buildRglMember({ kind: 'talkGroup', id: 'tg2' }, 1),
       ],
     });
     const ch = buildChannel({
