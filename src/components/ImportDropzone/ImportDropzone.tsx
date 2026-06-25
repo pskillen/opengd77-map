@@ -21,6 +21,18 @@ export interface ImportDropzoneProps {
   profileId?: string;
 }
 
+function fileAcceptForFormat(vendorFormatId: VendorFormatId): string {
+  if (vendorFormatId === 'native-yaml') return '.yaml,.yml,application/yaml,text/yaml';
+  return '.csv,text/csv';
+}
+
+function dropzoneLabelForFormat(vendorFormatId: VendorFormatId): string {
+  if (vendorFormatId === 'native-yaml') {
+    return 'Drop a YAML file here, or click to choose a file';
+  }
+  return 'Drop CSV files or a folder here, or click to choose files';
+}
+
 export default function ImportDropzone({
   onResult,
   persistenceError,
@@ -29,6 +41,8 @@ export default function ImportDropzone({
   vendorFormatId,
   profileId,
 }: ImportDropzoneProps) {
+  const accept = fileAcceptForFormat(vendorFormatId);
+  const isNativeYaml = vendorFormatId === 'native-yaml';
   const [dragover, setDragover] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -115,13 +129,13 @@ export default function ImportDropzone({
       >
         <Stack gap="xs" align="center">
           <IconUpload size={ICON_SIZE_ACTION} stroke={ICON_STROKE} />
-          <Text size="sm">Drop CSV files or a folder here, or click to choose files</Text>
+          <Text size="sm">{dropzoneLabelForFormat(vendorFormatId)}</Text>
         </Stack>
         <input
           ref={filesInputRef}
           type="file"
-          accept=".csv,text/csv"
-          multiple
+          accept={accept}
+          multiple={!isNativeYaml}
           hidden
           onChange={(e) => {
             const list = e.target.files ? [...e.target.files] : [];
@@ -139,28 +153,35 @@ export default function ImportDropzone({
         >
           Choose files
         </Button>
-        <Button
-          variant="default"
-          leftSection={<IconFolder size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          onClick={() => folderInputRef.current?.click()}
-        >
-          Choose folder
-        </Button>
+        {!isNativeYaml ? (
+          <Button
+            variant="default"
+            leftSection={<IconFolder size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+            onClick={() => folderInputRef.current?.click()}
+          >
+            Choose folder
+          </Button>
+        ) : null}
       </Group>
 
-      <input
-        ref={folderInputRef}
-        type="file"
-        accept=".csv,text/csv"
-        hidden
-        multiple
-        {...({ webkitdirectory: '', directory: '' } as React.InputHTMLAttributes<HTMLInputElement>)}
-        onChange={(e) => {
-          const list = e.target.files ? [...e.target.files] : [];
-          void handleFiles(list);
-          e.target.value = '';
-        }}
-      />
+      {!isNativeYaml ? (
+        <input
+          ref={folderInputRef}
+          type="file"
+          accept={accept}
+          hidden
+          multiple
+          {...({
+            webkitdirectory: '',
+            directory: '',
+          } as React.InputHTMLAttributes<HTMLInputElement>)}
+          onChange={(e) => {
+            const list = e.target.files ? [...e.target.files] : [];
+            void handleFiles(list);
+            e.target.value = '';
+          }}
+        />
+      ) : null}
     </Stack>
   );
 }

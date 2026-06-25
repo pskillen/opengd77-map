@@ -26,6 +26,7 @@ export const opengd77Adapter = {
   projectNameLabel: 'OpenGD77',
   capabilities: {
     delivery: 'multi-file' as const,
+    interchange: 'cps-wire' as const,
     entityKinds: ['channels', 'zones', 'contacts', 'rxGroupLists'] as const,
   },
   detectKind,

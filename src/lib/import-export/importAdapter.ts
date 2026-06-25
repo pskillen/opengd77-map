@@ -1,4 +1,5 @@
 import type { Channel, Contact, TalkGroup } from '../../models/codeplug.ts';
+import type { CodeplugProject } from '../../models/codeplugProject.ts';
 import type { ParsedRxGroupList, ParsedZone } from '../import/types.ts';
 import type {
   ImportAdapterCapabilities,
@@ -28,6 +29,17 @@ export interface ImportAdapter {
   parseTalkGroups?(text: string, ctx?: ImportParseContext): TalkGroup[];
   parseDtmfContacts?(text: string, ctx?: ImportParseContext): Contact[];
   parseRxGroupLists?(text: string, ctx?: ImportParseContext): ParsedRxGroupList[];
+  /** Full project parse for native-document interchange formats. */
+  parseDocument?(text: string): CodeplugProject;
+}
+
+export function isNativeDocumentAdapter(
+  adapter: ImportAdapter,
+): adapter is ImportAdapter & { parseDocument: (text: string) => CodeplugProject } {
+  return (
+    adapter.capabilities.interchange === 'native-document' &&
+    typeof adapter.parseDocument === 'function'
+  );
 }
 
 export function adapterSupportsKind(

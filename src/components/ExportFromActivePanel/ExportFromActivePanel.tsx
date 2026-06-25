@@ -3,6 +3,7 @@ import { IconDownload, IconPackage } from '@tabler/icons-react';
 import { useState } from 'react';
 import ExportNameSettingsFields from '../ExportNameSettingsFields/ExportNameSettingsFields.tsx';
 import { useExportSettings } from '../../hooks/useExportSettings.ts';
+import CloudFileActions from '../CloudFileActions/CloudFileActions.tsx';
 import {
   chirpProfileSelectData,
   DEFAULT_CHIRP_PROFILE_ID,
@@ -25,7 +26,7 @@ import {
 } from '../../lib/import-export/exportAdapter.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import type { VendorFormatOption } from '../../lib/vendorFormats.ts';
-import { useCodeplug } from '../../state/codeplugStore.tsx';
+import { useCodeplug, useProjects } from '../../state/codeplugStore.tsx';
 
 export interface ExportFromActivePanelProps {
   vendorFormat: VendorFormatOption;
@@ -48,6 +49,7 @@ function profileNameLimitForFormat(
 
 export default function ExportFromActivePanel({ vendorFormat }: ExportFromActivePanelProps) {
   const { codeplug } = useCodeplug();
+  const { activeProject } = useProjects();
   const { exportOptionsFromSettings } = useExportSettings();
   const hasData = codeplug.channels.length > 0;
   const [chirpProfileId, setChirpProfileId] = useState(DEFAULT_CHIRP_PROFILE_ID);
@@ -166,15 +168,27 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
             those files if your radio needs them.
           </Text>
         ) : null}
+
+        <CloudFileActions
+          mode="export"
+          vendorFormatId={vendorFormat.id}
+          codeplug={codeplug}
+          project={activeProject}
+          exportOptions={exportOptions}
+        />
       </Stack>
     );
   }
 
   if (isSingleFileExportAdapter(adapter)) {
+    const isNativeYaml = vendorFormat.id === 'native-yaml';
     const handleDownload = () => {
       const result = adapter.download({
         codeplug,
-        options: exportOptionsFromSettings({ profileId: chirpProfileId }),
+        project: activeProject ?? undefined,
+        options: exportOptionsFromSettings(
+          vendorFormat.id === 'chirp' ? { profileId: chirpProfileId } : {},
+        ),
       });
       setExportWarnings(result.warnings);
     };
@@ -198,10 +212,16 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
           />
         ) : null}
 
-        <ExportNameSettingsFields
-          profileNameLimit={profileNameLimitForFormat(vendorFormat.id, chirpProfileId)}
-          showMultiTalkGroupOptions={false}
-        />
+        {!isNativeYaml ? (
+          <ExportNameSettingsFields
+            profileNameLimit={profileNameLimitForFormat(vendorFormat.id, chirpProfileId)}
+            showMultiTalkGroupOptions={false}
+          />
+        ) : (
+          <Text size="sm" c="dimmed">
+            Exports the full project (metadata + codeplug) as a portable YAML file.
+          </Text>
+        )}
 
         <Button
           disabled={!hasData}
@@ -225,7 +245,21 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
           <Text size="sm" c="dimmed">
             Only analogue FM/AM channels are exported. Digital modes are skipped with a warning.
           </Text>
+        ) : isNativeYaml ? (
+          <Text size="sm" c="dimmed">
+            Lossless interchange — import in another browser to restore identical project state.
+          </Text>
         ) : null}
+
+        <CloudFileActions
+          mode="export"
+          vendorFormatId={vendorFormat.id}
+          codeplug={codeplug}
+          project={activeProject}
+          exportOptions={exportOptionsFromSettings(
+            vendorFormat.id === 'chirp' ? { profileId: chirpProfileId } : {},
+          )}
+        />
       </Stack>
     );
   }

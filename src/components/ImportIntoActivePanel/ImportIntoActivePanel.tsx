@@ -9,6 +9,7 @@ import { formatImportFileSummary, formatMergeReportLines } from '../../lib/impor
 import type { VendorFormatOption } from '../../lib/vendorFormats.ts';
 import { useCodeplug, useProjects } from '../../state/codeplugStore.tsx';
 import ImportFormatDropzone from '../ImportFormatDropzone/ImportFormatDropzone.tsx';
+import CloudFileActions from '../CloudFileActions/CloudFileActions.tsx';
 
 export interface ImportIntoActivePanelProps {
   vendorFormat: VendorFormatOption;
@@ -116,6 +117,13 @@ export default function ImportIntoActivePanel({ vendorFormat }: ImportIntoActive
         onResult={onParsed}
         persistenceError={persistenceError}
         onDismissPersistenceError={clearPersistenceError}
+      />
+
+      <CloudFileActions
+        mode="import"
+        vendorFormatId={vendorFormat.id}
+        profileId={activeProfileId}
+        onImportResult={onParsed}
       />
 
       {appliedSummary ? (

@@ -5,9 +5,11 @@ import { DEFAULT_OPENGD77_PROFILE_ID, opengd77ProfileSelectData } from '../openg
 import { opengd77Adapter } from '../import/opengd77/adapter.ts';
 import { chirpAdapter } from '../import/chirp/adapter.ts';
 import { dm32Adapter } from '../import/dm32/adapter.ts';
+import { detectNativeDocument, nativeYamlAdapter } from '../import/native-yaml/adapter.ts';
 import { opengd77ExportAdapter } from '../export/opengd77/adapter.ts';
 import { chirpExportAdapter } from '../export/chirp/adapter.ts';
 import { dm32ExportAdapter } from '../export/dm32/adapter.ts';
+import { nativeYamlExportAdapter } from '../export/native-yaml/adapter.ts';
 import type { ImportAdapter } from './importAdapter.ts';
 import type { ExportAdapter } from './exportAdapter.ts';
 import type { VendorFormatId } from './types.ts';
@@ -22,12 +24,14 @@ export const importAdapters: readonly ImportAdapter[] = [
   opengd77Adapter,
   chirpAdapter,
   dm32Adapter,
+  nativeYamlAdapter,
 ];
 
 export const exportAdapters: readonly ExportAdapter[] = [
   opengd77ExportAdapter,
   chirpExportAdapter,
   dm32ExportAdapter,
+  nativeYamlExportAdapter,
 ];
 
 export function getImportAdapter(id: VendorFormatId): ImportAdapter {
@@ -83,6 +87,13 @@ export async function detectImportAdapter(
 
   for (const file of files) {
     const text = await file.text();
+    const lower = file.name.toLowerCase();
+    if (lower.endsWith('.yaml') || lower.endsWith('.yml')) {
+      if (detectNativeDocument(text, file.name)) {
+        matchedFormats.add('native-yaml');
+      }
+      continue;
+    }
     const headers = headerRow(text);
     for (const adapter of importAdapters) {
       if (adapter.detectKind(file.name, headers) !== 'unknown') {

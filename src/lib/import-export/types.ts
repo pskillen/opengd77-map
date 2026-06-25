@@ -1,4 +1,5 @@
 import type { Codeplug } from '../../models/codeplug.ts';
+import type { CodeplugProject } from '../../models/codeplugProject.ts';
 import type { ChannelExportNameMode } from '../../models/codeplug.ts';
 import type { MultiTalkGroupExportNameMode } from '../channelExpansion/multiTalkGroupWireName.ts';
 
@@ -20,10 +21,13 @@ export type ImportFileKind = ImportEntityKind | 'unknown';
 
 export type ImportDelivery = 'single-file' | 'multi-file';
 
+export type ImportInterchange = 'cps-wire' | 'native-document';
+
 export type ExportDelivery = 'single-file' | 'multi-file';
 
 export interface ImportAdapterCapabilities {
   delivery: ImportDelivery;
+  interchange: ImportInterchange;
   /** Entity kinds this adapter can parse (excluding `unknown`). */
   entityKinds: readonly ImportEntityKind[];
 }
@@ -65,5 +69,7 @@ export interface ExportResult {
 
 export type ExportDownloadContext = {
   codeplug: Codeplug;
+  /** Active project wrapper — required for native YAML export metadata. */
+  project?: CodeplugProject;
   options?: ExportOptions;
 };

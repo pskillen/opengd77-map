@@ -77,8 +77,11 @@ Neither variable is a runtime environment variable in the browser — they are i
 | --- | --- | --- | --- |
 | `BUILD_ENV` | `prod` | `local` | Passed to `vite.config.ts`; becomes `__BUILD_ENV__` |
 | `BUILD_VERSION` | Tag name minus leading `v` | `local` | From `github.event.release.tag_name` |
+| `GOOGLE_OAUTH_CLIENT_ID` | Repository secret `GOOGLE_OAUTH_CLIENT_ID` | empty string | Injected as `__GOOGLE_OAUTH_CLIENT_ID__`; enables Google Drive connect on Pages |
 
 Agent skill: [`.cursor/skills/version-number/SKILL.md`](../../.cursor/skills/version-number/SKILL.md).
+
+Google Drive setup: [cloud-storage/google-drive](../features/cloud-storage/google-drive/README.md).
 
 ### One-time repository setup
 

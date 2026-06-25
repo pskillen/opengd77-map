@@ -1,6 +1,7 @@
 import { Alert, Button, Group, PasswordInput, Select } from '@mantine/core';
 import { Page, PageHeader, PageSection } from '../components/ui/index.ts';
 import ExportNameSettingsFields from '../components/ExportNameSettingsFields/ExportNameSettingsFields.tsx';
+import GoogleDriveSettingsSection from '../components/GoogleDriveSettingsSection/GoogleDriveSettingsSection.tsx';
 import { useMapSettings } from '../hooks/useMapSettings.ts';
 import type { MaidenheadGridMode } from '../lib/maidenheadGrid.ts';
 import type { TileProvider } from '../lib/mapTiles.ts';
@@ -78,6 +79,8 @@ export default function Settings() {
           }}
         />
       </PageSection>
+
+      <GoogleDriveSettingsSection />
 
       <PageSection
         title="Export name shortening"

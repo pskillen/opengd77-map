@@ -42,20 +42,20 @@ export const vendorFormatOptions: VendorFormatOption[] = [
     issue: '#37',
   },
   {
-    id: 'native-yaml',
-    label: 'Native YAML',
-    hint: 'Codeplug Tool native interchange format',
-    importStatus: 'planned',
-    exportStatus: 'planned',
-    issue: '#10',
-  },
-  {
     id: 'dm32',
     label: 'Baofeng DM-32 CPS',
     hint: 'Baofeng DM-32UV customer programming export',
     importStatus: 'shipped',
     exportStatus: 'shipped',
     issue: '#67',
+  },
+  {
+    id: 'native-yaml',
+    label: 'Native YAML',
+    hint: 'Codeplug Tool native interchange format',
+    importStatus: 'shipped',
+    exportStatus: 'shipped',
+    issue: '#10',
   },
 ];
 

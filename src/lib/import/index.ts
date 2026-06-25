@@ -1,6 +1,6 @@
 import { parseCsv } from '../csv.ts';
 import { deriveProjectNameFromImportFiles } from '../../models/codeplugProject.ts';
-import { adapterSupportsKind } from '../import-export/importAdapter.ts';
+import { adapterSupportsKind, isNativeDocumentAdapter } from '../import-export/importAdapter.ts';
 import {
   detectImportAdapter,
   getFormatProfiles,
@@ -10,6 +10,8 @@ import type { ImportParseContext } from '../import-export/importAdapter.ts';
 import type { VendorFormatId } from '../import-export/types.ts';
 import type { ImportEntityKind } from '../import-export/types.ts';
 import type { ImportResult } from './types.ts';
+import { importResultFromNativeProject } from './native-yaml/importResult.ts';
+import { detectNativeDocument } from './native-yaml/adapter.ts';
 import { APRS_HEADERS, DTMF_HEADERS } from './opengd77/columns.ts';
 
 function headerRow(text: string): string[] {
@@ -131,6 +133,49 @@ export async function importFiles(
       return result;
     }
     parseCtx = { profileId: options.profileId };
+  }
+
+  if (isNativeDocumentAdapter(adapter)) {
+    if (files.length !== 1) {
+      result.errors.push({
+        fileName: '(batch)',
+        message: `${adapter.label} import expects a single YAML file`,
+      });
+      return result;
+    }
+
+    const file = files[0]!;
+    const fileName = file.name;
+    let text: string;
+    try {
+      text = await file.text();
+    } catch (err) {
+      result.errors.push({
+        fileName,
+        message: err instanceof Error ? err.message : String(err),
+      });
+      return result;
+    }
+
+    if (!detectNativeDocument(text, fileName)) {
+      result.errors.push({
+        fileName,
+        message: `File is not a recognised ${adapter.label} document`,
+      });
+      return result;
+    }
+
+    try {
+      const project = adapter.parseDocument(text);
+      const parsed = importResultFromNativeProject(project, fileName, adapter.id);
+      return { ...result, ...parsed };
+    } catch (err) {
+      result.errors.push({
+        fileName,
+        message: err instanceof Error ? err.message : String(err),
+      });
+      return result;
+    }
   }
 
   for (const file of files) {
@@ -265,8 +310,13 @@ export async function collectFilesFromDataTransfer(
 
     const files = (await Promise.all(entries.map(readEntryFiles))).flat();
     const csvFiles = files.filter((f) => f.name.toLowerCase().endsWith('.csv'));
+    const yamlFiles = files.filter((f) => /\.ya?ml$/i.test(f.name));
+    if (yamlFiles.length) return { files: yamlFiles, directoryName };
     if (csvFiles.length) return { files: csvFiles, directoryName };
   }
+
+  const yamlFromList = [...dt.files].filter((f) => /\.ya?ml$/i.test(f.name));
+  if (yamlFromList.length) return { files: yamlFromList };
 
   return {
     files: [...dt.files].filter((f) => f.name.toLowerCase().endsWith('.csv')),

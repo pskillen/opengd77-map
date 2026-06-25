@@ -121,6 +121,17 @@ function importNewProjectState(
   name?: string,
   mode: ImportApplyMode = 'merge',
 ): ProjectsState {
+  if (result.nativeProject) {
+    const project = touchProject({
+      ...result.nativeProject,
+      name: name ?? result.nativeProject.name,
+    });
+    return {
+      projects: [...state.projects, project],
+      activeProjectId: project.id,
+    };
+  }
+
   const projectName = name ?? result.suggestedProjectName ?? defaultProjectName(result.recognised);
   const project = touchProject({
     ...newProject(projectName),
@@ -161,6 +172,18 @@ function projectsReducer(state: ProjectsState, action: ProjectsAction): Projects
         return importNewProjectState(state, action.result, undefined, mode);
       }
       const activeId = state.activeProjectId;
+      if (action.result.nativeProject && mode === 'overwrite') {
+        return {
+          ...state,
+          projects: state.projects.map((project) => {
+            if (project.id !== activeId) return project;
+            return touchProject({
+              ...project,
+              codeplug: action.result.nativeProject!.codeplug,
+            });
+          }),
+        };
+      }
       return {
         ...state,
         projects: state.projects.map((project) => {

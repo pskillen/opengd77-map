@@ -2,3 +2,4 @@
 
 declare const __BUILD_ENV__: string;
 declare const __BUILD_VERSION__: string;
+declare const __GOOGLE_OAUTH_CLIENT_ID__: string;

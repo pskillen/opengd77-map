@@ -14,7 +14,8 @@ Agent skills for documentation and execution tracking:
 | Data model | `src/models/codeplug.ts` | [data-model/](data-model/) | Shipped; multi-mode channels ([#46](https://github.com/pskillen/codeplug-tool/issues/46)) — [progress](data-model/expandable-channels-progress.md); vendor-neutral refactor ([#52](https://github.com/pskillen/codeplug-tool/issues/52), [#91](https://github.com/pskillen/codeplug-tool/issues/91)) — [progress](data-model/pristine-model-refactor-progress.md) |
 | Codeplug projects | `src/models/codeplugProject.ts`, `src/state/codeplugStore.tsx` | [codeplug-project/](codeplug-project/) | Shipped (nascent) |
 | Persistence | `src/state/codeplugStorage.ts` | [persistence/](persistence/) | Shipped |
-| Import / export | `src/lib/import/`, `src/lib/export/`, `src/lib/import-export/`, `src/routes/ImportExport.tsx` | [import-export/](import-export/) | Shipped ([#38](https://github.com/pskillen/codeplug-tool/issues/38), [#58](https://github.com/pskillen/codeplug-tool/issues/58), [#103](https://github.com/pskillen/codeplug-tool/issues/103) CHIRP, [#130](https://github.com/pskillen/codeplug-tool/issues/130) name shortening) |
+| Import / export | `src/lib/import/`, `src/lib/export/`, `src/lib/import-export/`, `src/routes/ImportExport.tsx` | [import-export/](import-export/) | Shipped ([#38](https://github.com/pskillen/codeplug-tool/issues/38), [#58](https://github.com/pskillen/codeplug-tool/issues/58), [#103](https://github.com/pskillen/codeplug-tool/issues/103) CHIRP, [#130](https://github.com/pskillen/codeplug-tool/issues/130) name shortening, [#10](https://github.com/pskillen/codeplug-tool/issues/10) native YAML) |
+| Cloud storage | `src/lib/cloud/`, `src/lib/fileDelivery/` | [cloud-storage/](cloud-storage/) | Shipped — Google Drive [#17](https://github.com/pskillen/codeplug-tool/issues/17) |
 | Operator lifecycle | — | [workflows/operator-lifecycle.md](workflows/operator-lifecycle.md) | Shipped (docs) |
 | Map | `src/components/CodeplugMap/` | [map/](map/) | Shipped |
 | Report | `src/routes/`, `src/components/report/` | [report/](report/) | Shipped ([#6](https://github.com/pskillen/codeplug-tool/issues/6)) |
@@ -36,6 +37,6 @@ Agent skills for documentation and execution tracking:
 | Channel modes | [reference/channel-modes.md](../reference/channel-modes.md) |
 | OpenGD77 CPS CSV (one format of several) | [reference/opengd77/](../reference/opengd77/README.md) — generic wire format + per-radio [variant profiles](../reference/opengd77/radios/README.md) |
 | CHIRP CSV (analogue FM/AM) | [reference/chirp/](../reference/chirp/README.md) — shipped ([#103](https://github.com/pskillen/codeplug-tool/issues/103)) |
-| Sibling formats (planned) | DM32 CSV, qDMR YAML, native YAML — each gets its own `reference/<format>/` tree; see [import-export hub](import-export/README.md) |
+| Sibling formats (planned) | DM32 CSV, qDMR YAML — each gets its own `reference/<format>/` tree; native YAML [#10](https://github.com/pskillen/codeplug-tool/issues/10) — [reference/native-yaml/](../reference/native-yaml/README.md); see [import-export hub](import-export/README.md) |
 
 Add a row when a new feature is created. Reference trees are **per format** (OpenGD77, DM32, …); OpenGD77 is the first, not the default.

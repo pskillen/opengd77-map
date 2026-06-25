@@ -9,6 +9,7 @@ import {
   type VendorFormatId,
 } from '../../lib/vendorFormats.ts';
 import ImportFormatDropzone from '../ImportFormatDropzone/ImportFormatDropzone.tsx';
+import CloudFileActions from '../CloudFileActions/CloudFileActions.tsx';
 
 export interface ImportNewProjectPanelProps {
   onImported: (result: ImportResult) => void;
@@ -70,6 +71,12 @@ export default function ImportNewProjectPanel({
         onResult={onImported}
         persistenceError={persistenceError}
         onDismissPersistenceError={onDismissPersistenceError}
+      />
+      <CloudFileActions
+        mode="import"
+        vendorFormatId={vendorFormatId}
+        profileId={activeProfileId}
+        onImportResult={onImported}
       />
     </Stack>
   );

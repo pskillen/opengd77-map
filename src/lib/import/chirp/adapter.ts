@@ -13,6 +13,7 @@ export const chirpAdapter = {
   projectNameLabel: 'CHIRP',
   capabilities: {
     delivery: 'single-file' as const,
+    interchange: 'cps-wire' as const,
     entityKinds: ['channels'] as const,
   },
   detectKind,

@@ -5,6 +5,8 @@ import { dm32Adapter } from '../import/dm32/adapter.ts';
 import { opengd77ExportAdapter } from '../export/opengd77/adapter.ts';
 import { chirpExportAdapter } from '../export/chirp/adapter.ts';
 import { dm32ExportAdapter } from '../export/dm32/adapter.ts';
+import { nativeYamlAdapter } from '../import/native-yaml/adapter.ts';
+import { nativeYamlExportAdapter } from '../export/native-yaml/adapter.ts';
 import { isMultiFileExportAdapter, isSingleFileExportAdapter } from './exportAdapter.ts';
 import { adapterSupportsKind } from './importAdapter.ts';
 
@@ -55,5 +57,15 @@ describe('adapter contracts', () => {
   it('dm32 export adapter is multi-file', () => {
     expect(isMultiFileExportAdapter(dm32ExportAdapter)).toBe(true);
     expect(dm32ExportAdapter.fileNames).toContain('Channels.csv');
+  });
+
+  it('native-yaml import adapter is native-document', () => {
+    expect(nativeYamlAdapter.capabilities.interchange).toBe('native-document');
+    expect(typeof nativeYamlAdapter.parseDocument).toBe('function');
+  });
+
+  it('native-yaml export adapter is single-file', () => {
+    expect(isSingleFileExportAdapter(nativeYamlExportAdapter)).toBe(true);
+    expect(nativeYamlExportAdapter.defaultFileName).toBe('codeplug.yaml');
   });
 });

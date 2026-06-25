@@ -33,7 +33,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | Multi-project import | Shipped | Home creates project; Import & export merges into active — [codeplug-project/](../codeplug-project/) |
 | OpenGD77 radio-variant picker | Planned | Apply per-radio (1701, MD9600, …) limits within OpenGD77 export — [#72](https://github.com/pskillen/codeplug-tool/issues/72); OpenGD77-only, not cross-format |
 | qDMR YAML | Deferred | [#37](https://github.com/pskillen/codeplug-tool/issues/37) — UI placeholder |
-| Native YAML | Deferred | [#10](https://github.com/pskillen/codeplug-tool/issues/10) — UI placeholder |
+| Native YAML | Shipped | [#10](https://github.com/pskillen/codeplug-tool/issues/10) — [native-yaml/](native-yaml/README.md) |
 | Baofeng DM32 CPS | Shipped | [#67](https://github.com/pskillen/codeplug-tool/issues/67) — [dm32/](dm32/README.md); `expandModes: false`, RX list fan-out |
 | Multi-talkgroup expansion (shared lib) | Shipped | [#36](https://github.com/pskillen/codeplug-tool/issues/36) — `channelExpansion/`; OpenGD77 export unchanged |
 | CHIRP CSV (analogue FM/AM) | Shipped | [#103](https://github.com/pskillen/codeplug-tool/issues/103) — [chirp/](chirp/README.md) |

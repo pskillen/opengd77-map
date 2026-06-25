@@ -86,6 +86,10 @@ On load, persisted v6 codeplugs are upgraded:
 - A medium codeplug (hundreds of channels, dozens of zones) is usually well under 1 MB as JSON.
 - Multiple projects share the same quota. Very large codeplugs or many projects may need [#32](https://github.com/pskillen/codeplug-tool/issues/32) (IndexedDB / OPFS).
 
+## Cloud interchange (not the edit store)
+
+Google Drive ([#17](https://github.com/pskillen/codeplug-tool/issues/17)) provides **explicit open/save** of native YAML and CPS files. The working edit store remains this LocalStorage envelope — cloud is an optional interchange layer alongside file download. See [cloud-storage](../cloud-storage/README.md).
+
 ## Privacy
 
 - All project data is browser-local only.

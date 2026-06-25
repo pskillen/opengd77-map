@@ -1,4 +1,5 @@
 import type { Channel, Contact, TalkGroup } from '../../models/codeplug.ts';
+import type { CodeplugProject } from '../../models/codeplugProject.ts';
 import type { VendorFormatId } from '../import-export/types.ts';
 
 export interface ImportMessage {
@@ -31,4 +32,6 @@ export interface ImportResult {
   suggestedProjectName?: string;
   /** Format adapter that produced this result. */
   formatId?: VendorFormatId;
+  /** Full project from native-document import — preserves ids and metadata. */
+  nativeProject?: CodeplugProject;
 }
