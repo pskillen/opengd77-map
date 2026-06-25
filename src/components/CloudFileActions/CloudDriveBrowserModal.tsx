@@ -23,16 +23,8 @@ export default function CloudDriveBrowserModal({
   fileFilter,
   allowFolderImport = false,
 }: CloudDriveBrowserModalProps) {
-  const {
-    folderStack,
-    currentFolder,
-    entries,
-    loading,
-    error,
-    setError,
-    enterFolder,
-    goToFolder,
-  } = useDriveFolderBrowser(opened);
+  const { folderStack, currentFolder, entries, loading, error, setError, enterFolder, goToFolder } =
+    useDriveFolderBrowser(opened);
 
   return (
     <Modal opened={opened} onClose={onClose} title={title} size="lg">

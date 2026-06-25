@@ -235,75 +235,70 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
         labelPosition="left"
       />
       <Stack gap="xs">
-      {!connected ? (
-        <Button
-          variant="light"
-          leftSection={driveLogo}
-          loading={connectBusy}
-          onClick={() => void connect()}
-        >
-          Connect Google Drive
-        </Button>
-      ) : props.mode === 'import' ? (
-        <Button
-          variant="light"
-          leftSection={driveLogo}
-          loading={loading}
-          onClick={openPicker}
-        >
-          Open from Google Drive
-        </Button>
-      ) : (
-        <Button variant="light" leftSection={driveLogo} loading={loading} onClick={openSave}>
-          Save to Google Drive
-        </Button>
-      )}
+        {!connected ? (
+          <Button
+            variant="light"
+            leftSection={driveLogo}
+            loading={connectBusy}
+            onClick={() => void connect()}
+          >
+            Connect Google Drive
+          </Button>
+        ) : props.mode === 'import' ? (
+          <Button variant="light" leftSection={driveLogo} loading={loading} onClick={openPicker}>
+            Open from Google Drive
+          </Button>
+        ) : (
+          <Button variant="light" leftSection={driveLogo} loading={loading} onClick={openSave}>
+            Save to Google Drive
+          </Button>
+        )}
 
-      {status ? (
-        <Text size="sm" c="dimmed">
-          {status}
-        </Text>
-      ) : null}
-      {error ? (
-        <Alert color="red" onClose={() => setError(null)} withCloseButton>
-          {error}
-        </Alert>
-      ) : null}
+        {status ? (
+          <Text size="sm" c="dimmed">
+            {status}
+          </Text>
+        ) : null}
+        {error ? (
+          <Alert color="red" onClose={() => setError(null)} withCloseButton>
+            {error}
+          </Alert>
+        ) : null}
 
-      {props.mode === 'import' && connected ? (
-        <CloudDriveBrowserModal
-          opened={pickerOpen}
-          onClose={closePicker}
-          title="Open from Google Drive"
-          onPickFile={(id) => void handleImportFile(id)}
-          onPickFolder={
-            isMultiFileCps(importFormatId)
-              ? (folderId, folderName) => void handleImportFolder(folderId, folderName)
-              : undefined
-          }
-          allowFolderImport={isMultiFileCps(importFormatId)}
-          fileFilter={(name) => {
-            const lower = name.toLowerCase();
-            if (isYamlFormat(importFormatId)) {
-              return lower.endsWith('.yaml') || lower.endsWith('.yml');
+        {props.mode === 'import' && connected ? (
+          <CloudDriveBrowserModal
+            opened={pickerOpen}
+            onClose={closePicker}
+            title="Open from Google Drive"
+            onPickFile={(id) => void handleImportFile(id)}
+            onPickFolder={
+              isMultiFileCps(importFormatId)
+                ? (folderId, folderName) => void handleImportFolder(folderId, folderName)
+                : undefined
             }
-            return lower.endsWith('.csv');
-          }}
-        />
-      ) : null}
+            allowFolderImport={isMultiFileCps(importFormatId)}
+            fileFilter={(name) => {
+              const lower = name.toLowerCase();
+              if (isYamlFormat(importFormatId)) {
+                return lower.endsWith('.yaml') || lower.endsWith('.yml');
+              }
+              return lower.endsWith('.csv');
+            }}
+          />
+        ) : null}
 
-      {props.mode === 'export' && connected && exportDefaults ? (
-        <CloudDriveSaveModal
-          key={saveSession}
-          opened={saveOpen}
-          onClose={closeSave}
-          isMultiFile={isMultiFileCps(props.vendorFormatId)}
-          defaultFileName={exportDefaults.defaultFileName}
-          defaultSubfolderName={exportDefaults.defaultSubfolderName}
-          saving={loading}
-          onSave={(input) => void handleDriveSave(input)}
-        />
-      ) : null}
+        {props.mode === 'export' && connected && exportDefaults ? (
+          <CloudDriveSaveModal
+            key={saveSession}
+            opened={saveOpen}
+            onClose={closeSave}
+            isMultiFile={isMultiFileCps(props.vendorFormatId)}
+            defaultFileName={exportDefaults.defaultFileName}
+            defaultSubfolderName={exportDefaults.defaultSubfolderName}
+            saving={loading}
+            onSave={(input) => void handleDriveSave(input)}
+          />
+        ) : null}
       </Stack>
     </>
   );

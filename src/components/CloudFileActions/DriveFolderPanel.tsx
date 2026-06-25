@@ -132,7 +132,9 @@ export default function DriveFolderPanel({
         <Stack gap={4}>
           {folders.length === 0 && files.length === 0 ? (
             <Text size="sm" c="dimmed">
-              {foldersOnly ? 'No subfolders in this location.' : 'No matching files in this folder.'}
+              {foldersOnly
+                ? 'No subfolders in this location.'
+                : 'No matching files in this folder.'}
             </Text>
           ) : null}
           {folders.map((entry) => (

@@ -94,7 +94,8 @@ export default function CloudDriveSaveModal({
     <Modal opened={opened} onClose={onClose} title="Save to Google Drive" size="lg">
       <Stack gap="sm">
         <Text size="sm" c="dimmed">
-          Browse to a folder{isMultiFile ? ', or create one, then confirm the export subfolder' : ''}.
+          Browse to a folder
+          {isMultiFile ? ', or create one, then confirm the export subfolder' : ''}.
         </Text>
 
         {isMultiFile ? (

@@ -16,7 +16,10 @@ export function sanitizeExportBaseName(name: string): string {
 }
 
 /** Insert `-YYYY-MM-DD` before the file extension. */
-export function stampExportFileName(fileName: string, dateStamp: string = exportDateStamp()): string {
+export function stampExportFileName(
+  fileName: string,
+  dateStamp: string = exportDateStamp(),
+): string {
   const match = /^(.+?)(\.[^.]+)?$/.exec(fileName);
   if (!match) return `${fileName}-${dateStamp}`;
   const base = match[1] ?? fileName;
