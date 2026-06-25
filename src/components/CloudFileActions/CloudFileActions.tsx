@@ -1,7 +1,7 @@
-import { Alert, Button, Stack, Text } from '@mantine/core';
-import { IconBrandGoogleDrive, IconCloudUpload } from '@tabler/icons-react';
+import { Alert, Button, Divider, Group, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import { useDisclosure } from '@mantine/hooks';
+import GoogleDriveLogo from '../GoogleDriveLogo/GoogleDriveLogo.tsx';
 import { DEFAULT_CHIRP_PROFILE_ID, getChirpProfile } from '../../lib/chirp/profiles.ts';
 import {
   defaultMultiFileCpsFolderName,
@@ -24,7 +24,6 @@ import type { VendorFormatId } from '../../lib/import-export/types.ts';
 import { isGoogleDriveConfigured } from '../../lib/cloud/googleDrive/config.ts';
 import { isGoogleDriveConnected } from '../../lib/cloud/googleDrive/auth.ts';
 import { useGoogleDriveConnection } from '../../hooks/useGoogleDriveConnection.ts';
-import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
 import type { CodeplugProject } from '../../models/codeplugProject.ts';
 import type { Codeplug } from '../../models/codeplug.ts';
 import CloudDriveBrowserModal from './CloudDriveBrowserModal.tsx';
@@ -221,12 +220,25 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
 
   const importFormatId = props.mode === 'import' ? props.vendorFormatId : 'native-yaml';
 
+  const driveLogo = <GoogleDriveLogo size={18} />;
+
   return (
-    <Stack gap="xs">
+    <>
+      <Divider
+        my="md"
+        label={
+          <Group gap={6}>
+            {driveLogo}
+            <Text size="sm">Google Drive</Text>
+          </Group>
+        }
+        labelPosition="left"
+      />
+      <Stack gap="xs">
       {!connected ? (
         <Button
           variant="light"
-          leftSection={<IconBrandGoogleDrive size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+          leftSection={driveLogo}
           loading={connectBusy}
           onClick={() => void connect()}
         >
@@ -235,19 +247,14 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
       ) : props.mode === 'import' ? (
         <Button
           variant="light"
-          leftSection={<IconBrandGoogleDrive size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
+          leftSection={driveLogo}
           loading={loading}
           onClick={openPicker}
         >
           Open from Google Drive
         </Button>
       ) : (
-        <Button
-          variant="light"
-          leftSection={<IconCloudUpload size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
-          loading={loading}
-          onClick={openSave}
-        >
+        <Button variant="light" leftSection={driveLogo} loading={loading} onClick={openSave}>
           Save to Google Drive
         </Button>
       )}
@@ -297,7 +304,8 @@ export default function CloudFileActions(props: CloudFileActionsProps) {
           onSave={(input) => void handleDriveSave(input)}
         />
       ) : null}
-    </Stack>
+      </Stack>
+    </>
   );
 }
 

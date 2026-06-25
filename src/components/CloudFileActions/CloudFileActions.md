@@ -35,8 +35,9 @@ Google Drive **open** (import) and **save** (export) actions for Home and Import
 
 ## Behaviour
 
+- Shown below a **Google Drive** divider so it is visually separate from local file actions.
+- Buttons use the multicolor Google Drive product icon.
 - Hidden when `GOOGLE_OAUTH_CLIENT_ID` was not injected at build time.
-- **Connect** uses Google Identity Services token client (`drive.file` scope).
 - Import: YAML single-file pick; CPS multi-file via folder CSV batch.
 - Export: opens a save modal — pick destination folder, edit dated file/subfolder name, then upload.
 
