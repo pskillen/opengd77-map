@@ -15,11 +15,15 @@ Checklist for contributors adding a CPS import/export format to codeplug-tool. T
 
 Do **not** bake radio profile caps into internal models, mutations, validation, or CRUD UI. See [AGENTS.md Vendor boundaries](../../../AGENTS.md#vendor-boundaries).
 
-### Round-trip fidelity (no wire stash)
+### Round-trip fidelity
 
-Import maps CPS wire values into the **internal model**; export serialises **from model fields** only. The model must round-trip columns that matter — including for channels created in the app, not only re-exports of imports.
+**Authoritative contract:** [import-export-fidelity-contract.md](import-export-fidelity-contract.md) — what adapters guarantee (semantic round-trip) and what we deliberately let slip (byte/file reproduction). Read it before designing import collapse, export expansion, or system tests.
 
-**Forbidden:** stashing raw wire cells in provenance/meta (e.g. `meta.imported.wireColumns`) and preferring them on export to pass round-trip tests. That is stash-and-replay, not conversion. If fidelity fails, add or fix first-class fields and boundary mappers, or document the column as lossy in reference docs.
+Import maps CPS wire values into the **internal model**; export serialises **from model fields** only. The model is the source of truth between those steps — including for entities created in the app with no import provenance.
+
+**Guaranteed:** import fidelity, export validity, and **semantic round-trip** (model → export → re-import yields the same logical model). **Not guaranteed:** byte-for-byte reproduction of an arbitrary imported file. Import may normalise (collapse duplicates, relocate relationships); export emits a canonical representation of the model.
+
+**Forbidden:** stashing raw wire cells in provenance/meta (e.g. `meta.imported.wireColumns`, `contactTsOverrideWire`, `collapsedTimeslots` used on export) and preferring them on export to pass round-trip tests. That is stash-and-replay, not conversion. If fidelity fails, add or fix first-class model fields and boundary mappers, or document the column as lossy in reference docs.
 
 **Do not add** new per-format wire bags (`chirpExtras`, `wireColumns`, …) for round-trip. Legacy `opengd77Extras` is the only approved opaque escape — prefer modelling fields instead. See [AGENTS.md — Round-trip fidelity](../../../AGENTS.md#round-trip-fidelity) and [`.cursor/rules/no-wire-stash-roundtrip.mdc`](../../../.cursor/rules/no-wire-stash-roundtrip.mdc).
 
@@ -155,7 +159,7 @@ Extend the internal model only when a field is **shared across vendors** or need
 | Talk group, contact, RX group list semantics | Columns that round-trip but have no UI yet |
 
 - [ ] Read [data-model/README.md](../data-model/README.md) before adding fields
-- [ ] Round-trip via **model fields**, not wire stash — see [Round-trip fidelity](#round-trip-fidelity-no-wire-stash) above
+- [ ] Round-trip via **model fields**, not wire stash — see [Round-trip fidelity](#round-trip-fidelity) and the [fidelity contract](import-export-fidelity-contract.md)
 - [ ] Bump schema version + migration if entity shape changes
 - [ ] Preserve **internal FK rules**: wire-name uniqueness where channels resolve contacts or RX lists by name; case-sensitive channel names (OpenGD77)
 - [ ] Do not cap entity counts in mutations — defer to export with warnings/truncation
@@ -164,16 +168,22 @@ Extend the internal model only when a field is **shared across vendors** or need
 
 ## 4. Tests
 
-Follow [format-fidelity.md](../../build/testing/format-fidelity.md). Every import/export change should cover applicable scenarios:
+Follow the [import/export fidelity contract](import-export-fidelity-contract.md) and [format-fidelity.md](../../build/testing/format-fidelity.md). Every import/export change should cover applicable **tiers** from the contract:
+
+| Tier | What it proves | Layer | Required for new vendor |
+| --- | --- | --- | --- |
+| 1 Import fidelity | Vendor row → correct internal fields | Unit beside `parse.ts` | Yes |
+| 2 Export validity | Well-formed export; profile caps/warnings | Unit beside `serialise.ts` | Yes |
+| 3 Semantic round-trip | model → export → re-import == model | `roundtrip.test.ts` | Yes |
+| 4 Cross-format | Shared subset across formats | Adapter matrix golden | When second vendor ships |
+| 5 Byte reproduction | Imported file re-emitted identically | — | **No** — not a promise |
+
+Additional scenarios:
 
 | Scenario | Layer | Required for new vendor |
 | --- | --- | --- |
-| Import fidelity | Unit beside `parse.ts` | Yes |
-| Export fidelity | Unit beside `serialise.ts` | Yes |
-| Same-format round-trip | `roundtrip.test.ts` | Yes |
-| File-level round-trip (test-data) | `src/test/system/*RoundTrip.system.test.ts` + `compareCsvRecords` | Yes — multiset row diff; exclude export-reassigned columns (`Location` for CHIRP) |
+| Real-world import + semantic round-trip | `src/test/system/*RoundTrip.system.test.ts` | Yes — normalised model + export→re-import stability; **not** byte-for-byte diff against source file |
 | Re-import / merge | System (`importMerge.test.ts`, `runActiveImportWorkflow`) | When merge interaction matters |
-| Cross-format | Adapter matrix golden | When second vendor ships (OpenGD77 ↔ CHIRP shipped) |
 | Lossy fields | Reference + fidelity assert | Document + test header-only / skipped files |
 
 Checklist:
@@ -181,9 +191,9 @@ Checklist:
 - [ ] Parse by **header name**, never column index
 - [ ] `adapterContract.test.ts`: required metadata, `capabilities`, delivery type guards
 - [ ] Add committed synthetic bundle under `src/test/<vendor>/` — see [fixtures.md](../../build/testing/fixtures.md)
-- [ ] `roundtrip.test.ts`: deterministic ids via `setIdGenerator`; `stripIds()` before semantic compare
-- [x] File-level round-trip system test against committed `test-data/<vendor>/` fixtures: import → internal `Codeplug` → export → multiset row diff (`compareCsvRecords`); exclude columns documented as export-reassigned or lossy (CHIRP: `Location`; OpenGD77: `Channel Number` — see `src/test/system/chirpRoundTrip.system.test.ts` and `opengd77RoundTrip.system.test.ts`).
-- [ ] Fill a row/column in the adapter fidelity matrix in format-fidelity.md
+- [ ] `roundtrip.test.ts`: deterministic ids via `setIdGenerator`; `stripIds()` before semantic compare — assert **model equality**, not CSV bytes
+- [ ] System test against committed `test-data/<vendor>/` fixtures: import → model assertions → export → re-import model stability. Use hand-authored canonical fixtures for tight wire assertions; use real operator exports as import torture tests only (see [fidelity contract](import-export-fidelity-contract.md)).
+- [ ] Fill a row/column in the adapter fidelity matrix in [format-fidelity.md](../../build/testing/format-fidelity.md)
 - [ ] System test via [`runActiveImportWorkflow`](../../../src/test/system/importWorkflow.ts) for multi-file batch scenarios
 
 ```bash
@@ -231,6 +241,7 @@ Document and test known non-round-trip behaviour:
 - [ ] `docs/features/import-export/<vendor>/README.md` — adapter behaviour (not column tables)
 - [ ] `docs/features/import-export/adding-a-new-vendor.md` — expandable-channel row if the format introduces a new pattern (mode vs TG expansion)
 - [ ] `docs/features/README.md` — index row if new top-level vendor subtree
+- [ ] `docs/features/import-export/import-export-fidelity-contract.md` — update if the format introduces new acceptable slippage or lossy edges
 - [ ] `docs/build/testing/format-fidelity.md` — fidelity matrix row/column
 - [ ] `docs/build/testing/fixtures.md` — bundle layout if new pattern
 - [ ] [`AGENTS.md`](../../../AGENTS.md) — repository layout table if warranted
@@ -330,6 +341,7 @@ Second shipped vendor — analogue single-file CSV ([#103](https://github.com/ps
 ## Related
 
 - [Import / export hub](README.md)
+- [Import / export fidelity contract](import-export-fidelity-contract.md) — **authoritative** tier promises and acceptable slippage
 - [Format fidelity](../../build/testing/format-fidelity.md)
 - [Fixtures](../../build/testing/fixtures.md)
 - [Data model](../data-model/README.md)

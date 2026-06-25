@@ -2,6 +2,8 @@
 
 **Purpose:** Define how we prove vendor ↔ internal model conversions are correct. This is the **primary** testing concern for import/export work. For layer boundaries and npm scripts, see the [testing hub](README.md).
 
+**Authoritative contract:** [import-export-fidelity-contract.md](../../features/import-export/import-export-fidelity-contract.md) — tier promises (import, export validity, semantic round-trip, cross-format) and what we deliberately let slip (byte/file reproduction). This doc describes *how* to test those tiers.
+
 ## Internal model as hub
 
 All vendor formats convert through the radio-agnostic [codeplug model](../../features/data-model/README.md) (`src/models/codeplug.ts`). Import adapters parse vendor files into entities; export adapters serialise entities back to vendor columns. Feature code (map, CRUD, store) works on the internal model only.
@@ -71,9 +73,9 @@ Every import/export change should consider which scenarios apply:
 | **Cross-format** | A → internal → B | Adapter matrix | `crossFormat.test.ts` (OpenGD77 → CHIRP) |
 | **Lossy fields** | Known non-round-trip columns documented | Reference + fidelity tests | DTMF/APRS header-only; `vendorExtras` |
 
-### Same-format round-trip
+### Same-format round-trip (Tier 3)
 
-The canonical integration test: import a fixture bundle → serialise → re-import → compare semantics.
+The canonical integration test: import a fixture bundle → serialise → re-import → compare **semantic model equality**. Byte-identical CSV is not required — see the [fidelity contract](../../features/import-export/import-export-fidelity-contract.md).
 
 Pattern in [`roundtrip.test.ts`](../../../src/lib/export/opengd77/roundtrip.test.ts):
 
@@ -97,8 +99,8 @@ Extend this table as vendors ship. Each **cell** lists required test types for t
 
 | Import ↓ / Export → | OpenGD77 CSV | CHIRP CSV | DM32 CSV | qDMR YAML (future) |
 | --- | --- | --- | --- | --- |
-| **OpenGD77 CSV** | Unit parse/serialise, `roundtrip.test.ts`, `opengd77RoundTrip.system.test.ts` (test-data file diff), system merge scenarios | `crossFormat.test.ts` — analogue channels only | Cross-format golden (future) | Cross-format golden (future) |
-| **CHIRP CSV** | `roundtrip.test.ts`, `chirpRoundTrip.system.test.ts` (test-data file diff) | Cross-format golden (future) | Cross-format golden (future) | Cross-format golden (future) |
+| **OpenGD77 CSV** | Unit parse/serialise, `roundtrip.test.ts` (semantic), `opengd77RoundTrip.system.test.ts` (import torture + semantic round-trip on `test-data/`), system merge scenarios | `crossFormat.test.ts` — analogue channels only | Cross-format golden (future) | Cross-format golden (future) |
+| **CHIRP CSV** | `roundtrip.test.ts` (semantic), `chirpRoundTrip.system.test.ts` (file diff with documented exclusions) | Cross-format golden (future) | Cross-format golden (future) | Cross-format golden (future) |
 | **DM32 CSV** | Cross-format golden (future) | Cross-format golden (future) | `parse.test.ts`, `roundtrip.test.ts` (synthetic), `dm32RoundTrip.system.test.ts` (v1.60) | Cross-format golden (future) |
 | **qDMR YAML (future)** | Cross-format golden (future) | Cross-format golden (future) | Cross-format golden (future) | Vendor-specific round-trip |
 
@@ -146,6 +148,7 @@ Format-fidelity tests must **not** duplicate:
 ## Related
 
 - [Testing hub](README.md)
+- [Import / export fidelity contract](../../features/import-export/import-export-fidelity-contract.md)
 - [Import / export feature](../../features/import-export/README.md)
 - [System tests](system.md) — merge, persistence, CRUD paths
 - [Fixtures](fixtures.md) — bundles and diff rules

@@ -71,7 +71,7 @@ Full skip/error table: [reference hub](../../../reference/opengd77/README.md#ski
 - **ZIP:** all six CPS files; `DTMF.csv` and `APRS.csv` are header-only (not modelled)
 - **`Channel Number`:** assigned sequentially (1..n in channel list order) when serialising `Channels.csv` — not stored in the internal model. Original import numbers are not preserved on round-trip.
 
-Round-trip test: [`roundtrip.test.ts`](../../../../src/lib/export/opengd77/roundtrip.test.ts).
+Round-trip test: [`roundtrip.test.ts`](../../../../src/lib/export/opengd77/roundtrip.test.ts) (semantic model equality). Fidelity tiers: [import-export-fidelity-contract.md](../import-export-fidelity-contract.md).
 
 ## Wire format reference
 

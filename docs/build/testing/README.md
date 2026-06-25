@@ -89,6 +89,7 @@ Every pull request and push to `main` runs [`.github/workflows/checks.yaml`](../
 | Doc | Contents |
 | --- | --- |
 | [format-fidelity.md](format-fidelity.md) | **Primary** — scenario taxonomy, adapter matrix, lossy fields |
+| [import-export-fidelity-contract.md](../../features/import-export/import-export-fidelity-contract.md) | **Authoritative** — tier promises and acceptable slippage |
 | [unit.md](unit.md) | Colocated Vitest, jsdom setup, unit vs integration |
 | [fixtures.md](fixtures.md) | Committed bundles, normalisation, `sample-exports/` policy |
 | [system.md](system.md) | Workflow harness, merge scenarios, persistence |

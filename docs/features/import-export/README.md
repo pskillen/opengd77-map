@@ -44,6 +44,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 
 | Doc | Contents |
 | --- | --- |
+| [import-export-fidelity-contract.md](import-export-fidelity-contract.md) | **Authoritative** — what fidelity adapters and tests guarantee, and what we deliberately let slip |
 | [channel-name-parsing.md](channel-name-parsing.md) | CPS wire name → `callsign` + `name` split ([#54](https://github.com/pskillen/codeplug-tool/issues/54)) |
 | [name-shortening.md](name-shortening.md) | Export-time channel/zone name shortening ([#130](https://github.com/pskillen/codeplug-tool/issues/130), [#150](https://github.com/pskillen/codeplug-tool/issues/150)) |
 | [name-shortening-progress.md](name-shortening-progress.md) | Execution log for #130 and #150 |
@@ -169,7 +170,7 @@ npm run test:system       # workflow harness + ImportIntoActivePanel UI flow
 
 Synthetic CSV bundles: [`src/test/opengd77/bundles.ts`](../../../src/test/opengd77/bundles.ts).
 
-Format fidelity strategy: [format-fidelity.md](../../build/testing/format-fidelity.md).
+Format fidelity strategy: [format-fidelity.md](../../build/testing/format-fidelity.md). Authoritative tier promises: [import-export-fidelity-contract.md](import-export-fidelity-contract.md).
 
 ## Manual verify
 
