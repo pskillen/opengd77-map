@@ -34,7 +34,7 @@ Export order: all talk groups first, then private contacts (order within each gr
 
 ## Naming conventions
 
-One TG ID may appear as **two contacts** with timeslot suffixes in the name (e.g. `Scotland TS1`, `Scotland TS2`) — CPS uses separate names per slot.
+One TG ID may appear as **two contacts** with timeslot suffixes in the name (e.g. `Scotland TS1`, `Scotland TS2`) — CPS uses separate names per slot. The app models **one logical talk group** internally and expands to slot-suffixed wire contacts at export ([#142](https://github.com/pskillen/codeplug-tool/issues/142)); full wire rules in [multi-timeslot-talkgroups.md](multi-timeslot-talkgroups.md) (when shipped).
 
 Member names in `TG_Lists.csv` reference `Contact Name` here — group and private names both resolve.
 

@@ -147,13 +147,15 @@ Import may best-effort collapse flat per-TG rows into one logical channel + RGL.
 
 ### `TalkGroup`
 
-DMR group call.
+DMR group call — one logical entity per DMR ID. Per-repeater time slot lives on **RX group list membership**, not on the talk group ([#142](https://github.com/pskillen/codeplug-tool/issues/142)).
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `id`, `name`, `number`, `timeslotOverride` | | (`number` is the DMR ID) |
+| `id`, `name`, `number` | | (`number` is the DMR ID) |
 | `abbreviation` | `string` | Optional shorter export label for name shortening at export |
 | `meta` | `EntityMeta` | Optional import provenance |
+
+CPS formats that require separate wire contacts per slot (e.g. OpenGD77 `Scotland T1` / `Scotland T2`) expand at **export** from logical talk groups + RGL member slots — see [OpenGD77 contacts reference](../../reference/opengd77/contacts.md).
 
 ### `Contact`
 
@@ -167,21 +169,30 @@ DMR private call or DTMF signalling contact.
 | `timeslotOverride` | `string` | Optional slot hint for vendor export |
 | `meta` | `EntityMeta` | Optional import provenance |
 
+### `RxGroupListMember`
+
+One entry in an RX group list — entity reference plus optional per-member time slot.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `ref` | `EntityRef` | Talk group or private contact id |
+| `timeslot` | `1 \| 2 \| null` | Optional; which TS variant this membership resolves to on CPS export. `null` = unset (export decides / inherits channel context) |
+
 ### `RxGroupList`
 
-Named RX (receive) group list driving promiscuous receive. Members are ordered `EntityRef[]` ids (talk groups and/or private contacts). Many-to-many: one list has many members; one member can appear on many lists.
+Named RX (receive) group list driving promiscuous receive. Members are ordered `RxGroupListMember[]` (talk groups and/or private contacts). Many-to-many: one list has many members; one member can appear on many lists.
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id`, `name` | | |
-| `memberRefs` | `EntityRef[]` | Ordered membership by id |
+| `memberRefs` | `RxGroupListMember[]` | Ordered membership by id + optional slot |
 | `meta` | `EntityMeta` | `meta.imported.memberWireNames` for merge/delta |
 
 ### `CodeplugMeta`
 
 | Field | Type | Notes |
 | --- | --- | --- |
-| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (13) after migration |
+| `schemaVersion` | `number` | Must match `CODEPLUG_SCHEMA_VERSION` (17) after migration |
 | `importedAt` | `string \| null` | |
 | `sourceFiles` | `string[]` | |
 
