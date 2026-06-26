@@ -7,6 +7,8 @@ import { channelSectionAnchorId } from '../../lib/channelPageSections.ts';
 export interface DetailField {
   label: string;
   value: ReactNode;
+  /** Span all columns in the section grid (e.g. embedded tables). */
+  span?: 'full';
 }
 
 export interface DetailSection {
@@ -29,7 +31,11 @@ export default function DetailSections({ sections }: DetailSectionsProps) {
             id={channelSectionAnchorId(section.title)}
           >
             {section.fields.map((field) => (
-              <Stack key={field.label} gap={2}>
+              <Stack
+                key={field.label}
+                gap={2}
+                style={field.span === 'full' ? { gridColumn: '1 / -1' } : undefined}
+              >
                 <Text size="sm" c="dimmed">
                   {field.label}
                 </Text>

@@ -1,4 +1,4 @@
-import { Anchor, Badge, Button, Group, Stack, Text, Title } from '@mantine/core';
+import { Anchor, Button, Group, Stack, Text, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconArrowLeft, IconPencil, IconTrash } from '@tabler/icons-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
@@ -8,15 +8,14 @@ import ModePill from '../components/crud/ModePill.tsx';
 import { DataTable, Page, PageHeader } from '../components/ui/index.ts';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
+import RxGroupListMembersTable from '../components/report/RxGroupListMembersTable.tsx';
 import BrandMeisterRxListVerify from '../components/BrandMeisterVerify/BrandMeisterRxListVerify.tsx';
 
 import {
   channelsReferencingRxGroupListId,
   findEntityById,
-  formatRglMemberTimeslot,
   resolveRxGroupListMembers,
 } from '../lib/reportLookup.ts';
-import type { Contact, TalkGroup } from '../models/codeplug.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
 
@@ -93,60 +92,10 @@ export default function RxGroupListDetail() {
 
         <Stack gap="sm">
           <Title order={3}>Members</Title>
-          <DataTable
-            variant="embedded"
-            rows={members}
-            rowKey={(m) => `${m.kind}:${m.name}:${m.timeslot ?? ''}`}
-            nameColumn={{
-              header: 'Name',
-              getName: (m) => m.name,
-              getPath: (m) => {
-                if (m.kind === 'talkGroup' && m.entity) {
-                  return `/talk-groups/${(m.entity as TalkGroup).id}`;
-                }
-                if (m.kind === 'contact' && m.entity) {
-                  return `/contacts/${(m.entity as Contact).id}`;
-                }
-                return `/rx-group-lists/${rgl.id}`;
-              },
-            }}
-            columns={[
-              {
-                key: 'kind',
-                header: 'Type',
-                render: (m) => {
-                  if (m.kind === 'talkGroup') return <Badge size="sm">Talk group</Badge>;
-                  if (m.kind === 'contact')
-                    return (
-                      <Badge size="sm" color="grape">
-                        Private
-                      </Badge>
-                    );
-                  return (
-                    <Badge size="sm" color="yellow">
-                      Unresolved
-                    </Badge>
-                  );
-                },
-                sortValue: (m) => m.kind,
-              },
-              {
-                key: 'timeslot',
-                header: 'Timeslot',
-                render: (m) => {
-                  if (m.kind === 'talkGroup') return formatRglMemberTimeslot(m.timeslot);
-                  if (m.kind === 'contact' && m.entity) {
-                    const override = (m.entity as Contact).timeslotOverride?.trim();
-                    return override || '—';
-                  }
-                  return '—';
-                },
-                sortValue: (m) =>
-                  m.kind === 'talkGroup'
-                    ? (m.timeslot ?? 0)
-                    : ((m.entity as Contact | null)?.timeslotOverride ?? ''),
-              },
-            ]}
+          <RxGroupListMembersTable
+            rxGroupList={rgl}
+            talkGroups={codeplug.talkGroups}
+            contacts={codeplug.contacts}
           />
         </Stack>
 

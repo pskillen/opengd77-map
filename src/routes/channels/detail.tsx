@@ -6,6 +6,7 @@ import CodeplugMap from '../../components/CodeplugMap/CodeplugMap.tsx';
 import ConfirmDeleteModal from '../../components/crud/ConfirmDeleteModal.tsx';
 import { BandPillForChannel } from '../../components/crud/BandPill.tsx';
 import DetailSections, { DetailLinkList } from '../../components/report/DetailSections.tsx';
+import { RxGroupListDetailValue } from '../../components/report/RxGroupListMembersTable.tsx';
 import NotFoundEntity from '../../components/report/NotFoundEntity.tsx';
 import { Page, PageHeader } from '../../components/ui/index.ts';
 import UseMyLocationButton from '../../components/UseMyLocationButton/UseMyLocationButton.tsx';
@@ -77,9 +78,20 @@ export default function ChannelDetail() {
     channel.contactRef?.kind === 'talkGroup'
       ? findEntityById(codeplug.talkGroups, channel.contactRef.id)
       : null;
-  const rxList = channel.rxGroupListId
-    ? findEntityById(codeplug.rxGroupLists, channel.rxGroupListId)
-    : null;
+
+  const renderRxGroupListValue = (rxGroupListId: string | null | undefined) => {
+    if (!rxGroupListId) return '—';
+    const list = findEntityById(codeplug.rxGroupLists, rxGroupListId);
+    if (!list) return '—';
+    return (
+      <RxGroupListDetailValue
+        rxGroupList={list}
+        talkGroups={codeplug.talkGroups}
+        contacts={codeplug.contacts}
+        compact
+      />
+    );
+  };
 
   const vendorExtraFields = Object.entries(channel.opengd77Extras).map(([label, value]) => ({
     label,
@@ -260,10 +272,8 @@ export default function ChannelDetail() {
                   },
                   {
                     label: 'RX group list',
-                    value: profile.rxGroupListId
-                      ? (codeplug.rxGroupLists.find((r) => r.id === profile.rxGroupListId)?.name ??
-                        '—')
-                      : '—',
+                    span: 'full' as const,
+                    value: renderRxGroupListValue(profile.rxGroupListId),
                   },
                 ]
               : []),
@@ -305,13 +315,8 @@ export default function ChannelDetail() {
               },
               {
                 label: 'RX group list',
-                value: rxList ? (
-                  <Anchor component={Link} to={`/rx-group-lists/${rxList.id}`}>
-                    {rxList.name}
-                  </Anchor>
-                ) : (
-                  '—'
-                ),
+                span: 'full' as const,
+                value: renderRxGroupListValue(channel.rxGroupListId),
               },
             ],
           },
