@@ -360,6 +360,24 @@ function applySchemaV17Migration(
   return { talkGroups: migratedTalkGroups, rxGroupLists: migratedLists };
 }
 
+/** Last schema where model FK fields may be absent; wire provenance is resolved once on uplift. */
+const LEGACY_WIRE_RESOLVE_MAX_SCHEMA = 6;
+
+function applyLegacyWireToIdUplift(
+  channels: Channel[],
+  rxGroupLists: RxGroupList[],
+  talkGroups: TalkGroup[],
+  contacts: Contact[],
+): { channels: Channel[]; rxGroupLists: RxGroupList[] } {
+  const resolvedLists = resolveRxGroupListMemberRefs(rxGroupLists, talkGroups, contacts);
+  const resolvedChannels = resolveChannelContactRefs(
+    resolveChannelRxGroupListIds(channels, resolvedLists),
+    talkGroups,
+    contacts,
+  );
+  return { channels: resolvedChannels, rxGroupLists: resolvedLists };
+}
+
 /** Normalise a persisted codeplug (v1–v6) to the current schema. */
 export function migrateCodeplug(value: unknown): Codeplug | null {
   if (!value || typeof value !== 'object') return null;
@@ -385,11 +403,17 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
     ? (raw.contacts as Record<string, unknown>[]).map(migrateContact)
     : [];
 
-  let rxGroupLists = resolveRxGroupListMemberRefs(
-    migrateRxGroupLists(raw, projectImportedAt),
-    talkGroups,
-    contacts,
-  );
+  let rxGroupLists = migrateRxGroupLists(raw, projectImportedAt);
+  let migratedChannels = channels;
+
+  if (meta.schemaVersion <= LEGACY_WIRE_RESOLVE_MAX_SCHEMA) {
+    ({ channels: migratedChannels, rxGroupLists } = applyLegacyWireToIdUplift(
+      channels,
+      rxGroupLists,
+      talkGroups,
+      contacts,
+    ));
+  }
 
   let migratedTalkGroups = talkGroups;
   if (meta.schemaVersion < 17) {
@@ -399,11 +423,7 @@ export function migrateCodeplug(value: unknown): Codeplug | null {
   }
 
   return {
-    channels: resolveChannelContactRefs(
-      resolveChannelRxGroupListIds(channels, rxGroupLists),
-      migratedTalkGroups,
-      contacts,
-    ),
+    channels: migratedChannels,
     zones,
     talkGroups: migratedTalkGroups,
     rxGroupLists,

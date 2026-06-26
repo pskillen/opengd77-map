@@ -7,12 +7,12 @@ import { DataTable, Page, PageHeader } from '../components/ui/index.ts';
 import DetailSections from '../components/report/DetailSections.tsx';
 import NotFoundEntity from '../components/report/NotFoundEntity.tsx';
 
-import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { formatFrequencyHz } from '../lib/formatFrequency.ts';
 import {
   channelsReferencingContactId,
   findEntityById,
   formatReferenceCount,
+  rxGroupListMemberCount,
   rxGroupListsContainingMemberRef,
 } from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
@@ -158,8 +158,8 @@ export default function ContactDetail() {
                 {
                   key: 'members',
                   header: 'Members',
-                  render: (rgl) => formatReferenceCount(getMemberWireNames(rgl).length),
-                  sortValue: (rgl) => getMemberWireNames(rgl).length,
+                  render: (rgl) => formatReferenceCount(rxGroupListMemberCount(rgl)),
+                  sortValue: (rgl) => rxGroupListMemberCount(rgl),
                 },
               ]}
             />

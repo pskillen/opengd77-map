@@ -1,3 +1,14 @@
+/**
+ * Per-entity import provenance — merge/delta metadata for re-import, not model FKs.
+ *
+ * Allowed readers:
+ * - importMerge / parsers — initial wire→id resolution and merge comparison
+ * - migrateCodeplug — one-time legacy uplift only (schemaVersion ≤ 6)
+ * - import merge identity helpers (channelImportMergeKeys, memberNamesEqual)
+ *
+ * Must NOT be read to overwrite model FK fields on storage load (v7+) or on export.
+ * Accessors: getMemberWireNames / setMemberWireNames in this module.
+ */
 export interface ImportedProvenance {
   formatId: string;
   sourceFile: string | null;

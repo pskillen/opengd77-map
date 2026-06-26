@@ -52,6 +52,24 @@ When the model cannot produce a column faithfully, the answer is to **extend the
 
 ---
 
+## Provenance is not re-applied on load
+
+`meta.imported` holds **merge/delta metadata** for re-import comparison (original wire strings, member name lists, multi-mode collapse identity). It is **not** a shadow model and must not be re-swept on every persistence load.
+
+| Phase | May read `meta.imported` wire strings? | May write model FK fields? |
+| --- | --- | --- |
+| **Import / merge** (`importMerge`, parsers) | Yes — parse + merge delta | Yes — initial population |
+| **One-time legacy uplift** (`schemaVersion` ≤ 6 on first load) | Yes — v6 `contactName` / empty `memberRefs` | Yes — once, then schema bumps to current |
+| **Storage load** (`migrateCodeplug` at v7+) | No — shape/normalise only | **No** — never re-derive FKs from provenance |
+| **CRUD mutations** | May update provenance for merge hints | Yes — model fields are source of truth |
+| **Export** | **Never** | N/A — serialise from model fields only |
+
+**Anti-pattern:** calling `resolve*FromWireName` helpers inside `migrateCodeplug` for current-schema payloads. That overwrites operator edits when provenance wire strings are stale (e.g. RGL member timeslots, channel `contactRef` after CRUD). Wire→id resolution belongs at the **import boundary** and in **one-time schema migration** for legacy payloads only.
+
+See [persistence](../persistence/README.md) and [provenance boundary progress](provenance-boundary-progress.md).
+
+---
+
 ## The fidelity tiers
 
 Fidelity is layered. Each tier is a distinct promise with a distinct test obligation.

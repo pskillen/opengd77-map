@@ -1,10 +1,13 @@
 import { useMemo } from 'react';
 import { DataTable, ListPage } from '../components/ui/index.ts';
-import { getMemberWireNames } from '../lib/entityProvenance.ts';
 import { filterRowsByName, useListNameQuery } from '../hooks/useListNameQuery.ts';
 import { usePersistedEntityListSort } from '../hooks/usePersistedEntityListSort.ts';
 import { DATATABLE_NAME_SORT_KEY } from '../lib/dataTable/sort.ts';
-import { channelsWithRxGroupListId, formatReferenceCount } from '../lib/reportLookup.ts';
+import {
+  channelsWithRxGroupListId,
+  formatReferenceCount,
+  rxGroupListMemberCount,
+} from '../lib/reportLookup.ts';
 import { useCodeplug } from '../state/codeplugStore.tsx';
 
 export default function RxGroupListsList() {
@@ -39,8 +42,8 @@ export default function RxGroupListsList() {
           {
             key: 'members',
             header: 'Members',
-            render: (r) => formatReferenceCount(getMemberWireNames(r).length),
-            sortValue: (r) => getMemberWireNames(r).length,
+            render: (r) => formatReferenceCount(rxGroupListMemberCount(r)),
+            sortValue: (r) => rxGroupListMemberCount(r),
           },
           {
             key: 'channels',

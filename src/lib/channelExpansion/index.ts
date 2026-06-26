@@ -241,11 +241,7 @@ function profileOpenGd77Extras(
   if (profile.opengd77Extras && Object.keys(profile.opengd77Extras).length > 0) {
     return { ...profile.opengd77Extras };
   }
-  const wire = channel.meta?.imported?.multiModeProfileWire?.find((w) => w.mode === profile.mode);
-  if (wire?.opengd77Extras) {
-    return { ...channel.opengd77Extras, ...wire.opengd77Extras };
-  }
-  return channel.opengd77Extras;
+  return { ...channel.opengd77Extras };
 }
 
 function rowFromProfile(
@@ -1169,7 +1165,16 @@ export function resolveMultiModeChannelProfiles(
         rxGroupListId = resolveRxGroupListIdByName(wire.rxGroupListWireName, rxGroupLists);
       }
 
-      return { ...profile, contactRef, rxGroupListId };
+      let opengd77Extras = profile.opengd77Extras;
+      if (wire.opengd77Extras && Object.keys(wire.opengd77Extras).length > 0) {
+        opengd77Extras = {
+          ...ch.opengd77Extras,
+          ...wire.opengd77Extras,
+          ...profile.opengd77Extras,
+        };
+      }
+
+      return { ...profile, contactRef, rxGroupListId, opengd77Extras };
     });
 
     return syncChannelFromPrimaryProfile({ ...ch, modeProfiles });

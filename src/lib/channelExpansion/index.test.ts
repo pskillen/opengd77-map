@@ -25,6 +25,7 @@ import {
   mergeImportChannelsMultiTalkgroupBestEffort,
   modeExportNameSuffix,
   resolveChannelModeProfiles,
+  resolveMultiModeChannelProfiles,
   stripModeExportSuffix,
   stripTalkGroupExportSuffix,
   syncChannelFromPrimaryProfile,
@@ -436,6 +437,42 @@ describe('channelExpansion', () => {
     });
     expect(merged.modeProfiles.find((p) => p.mode === 'dmr')?.colourCode).toBe(1);
     expect(merged.meta?.imported).toBeUndefined();
+  });
+
+  it('resolveMultiModeChannelProfiles promotes opengd77Extras from import provenance to profiles', () => {
+    const fmDefaults = channelModeProfileDefaults('fm');
+    const dmrDefaults = channelModeProfileDefaults('dmr');
+    const ch = buildChannel({
+      id: 'c1',
+      name: 'GB7GL',
+      multiMode: true,
+      mode: 'fm',
+      modeProfiles: [
+        { ...fmDefaults, mode: 'fm', opengd77Extras: {} },
+        { ...dmrDefaults, mode: 'dmr', opengd77Extras: {} },
+      ],
+      meta: {
+        imported: {
+          formatId: 'opengd77',
+          sourceFile: 'Channels.csv',
+          importedAt: '2026-01-01T00:00:00.000Z',
+          multiModeProfileWire: [
+            { mode: 'fm', opengd77Extras: { 'Scan List': 'Z1' } },
+            { mode: 'dmr', opengd77Extras: { 'DMR ID': '123' } },
+          ],
+        },
+      },
+    });
+    const [resolved] = resolveMultiModeChannelProfiles([ch], [], [], []);
+    expect(resolved.modeProfiles.find((p) => p.mode === 'fm')?.opengd77Extras).toEqual({
+      'Scan List': 'Z1',
+    });
+    expect(resolved.modeProfiles.find((p) => p.mode === 'dmr')?.opengd77Extras).toEqual({
+      'DMR ID': '123',
+    });
+    const rows = expandChannelForExport(resolved);
+    const fmRow = rows.find((r) => r.mode === 'fm');
+    expect(fmRow?.opengd77Extras).toEqual({ 'Scan List': 'Z1' });
   });
 
   it('expandTalkGroupsForExport emits one row per RGL talk group on DMR channels', () => {

@@ -113,6 +113,11 @@ export function formatTalkGroupTimeslotsInList(slots: ChannelTimeslot[]): string
   return slots.map((slot) => String(slot)).join(' & ');
 }
 
+/** Member count from model `memberRefs` (not provenance wire names). */
+export function rxGroupListMemberCount(rgl: RxGroupList): number {
+  return rgl.memberRefs.length;
+}
+
 export function resolveRxGroupListMembers(
   rgl: RxGroupList,
   talkGroups: TalkGroup[],
@@ -141,6 +146,7 @@ export function resolveRxGroupListMembers(
   const tgByName = new Map(talkGroups.map((tg) => [tg.name, tg]));
   const contactByName = new Map(contacts.map((c) => [c.name, c]));
 
+  // Legacy v6 display only — memberRefs empty until one-time uplift; see provenance-boundary docs.
   return getMemberWireNames(rgl).map((name) => {
     const tg = tgByName.get(name);
     if (tg) return { name, kind: 'talkGroup' as const, entity: tg, timeslot: null };
