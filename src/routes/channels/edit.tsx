@@ -56,6 +56,8 @@ import { findEntityById } from '../../lib/reportLookup.ts';
 import BrandMeisterChannelLookup, {
   type BrandMeisterFormPatch,
 } from '../../components/BrandMeisterChannelLookup/BrandMeisterChannelLookup.tsx';
+import BrandMeisterVerify from '../../components/BrandMeisterVerify/BrandMeisterVerify.tsx';
+import type { ChannelInput } from '../../lib/codeplugMutations.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 type ChannelFormValues = {
@@ -493,6 +495,45 @@ export default function ChannelEdit() {
       existing?.name ||
       'channel';
 
+  const verifyChannel = useMemo((): Channel => {
+    const input = formToChannelInput(values);
+    return {
+      ...input,
+      id: existing?.id ?? '__draft__',
+      meta: { ...existing?.meta, ...pendingMeta },
+    };
+  }, [values, existing, pendingMeta]);
+
+  const applyVerifyChannelPatch = (patch: Partial<ChannelInput>, meta?: EntityMeta) => {
+    setValues((prev) => ({
+      ...prev,
+      callsign: patch.callsign ?? prev.callsign,
+      name: patch.name ?? prev.name,
+      rxFrequencyMhz:
+        patch.rxFrequency != null ? hzToMhzInput(patch.rxFrequency) : prev.rxFrequencyMhz,
+      txFrequencyMhz:
+        patch.txFrequency != null ? hzToMhzInput(patch.txFrequency) : prev.txFrequencyMhz,
+      colourCode: patch.colourCode != null ? String(patch.colourCode) : prev.colourCode,
+      comment: patch.comment ?? prev.comment,
+      lat:
+        patch.location?.lat != null && Number.isFinite(patch.location.lat)
+          ? String(patch.location.lat)
+          : prev.lat,
+      lon:
+        patch.location?.lon != null && Number.isFinite(patch.location.lon)
+          ? String(patch.location.lon)
+          : prev.lon,
+      useLocation: patch.useLocation ?? prev.useLocation,
+      locator:
+        patch.location?.lat != null && patch.location?.lon != null
+          ? coordsToLocator(patch.location.lat, patch.location.lon)
+          : prev.locator,
+    }));
+    if (meta) {
+      setPendingMeta((prev) => ({ ...prev, ...meta }));
+    }
+  };
+
   return (
     <FormPage
       title={isNew ? 'New channel' : `Edit ${pageTitle}`}
@@ -850,6 +891,14 @@ export default function ChannelEdit() {
               onChange={(v) => set('rxGroupListId', v ?? '')}
               searchable
               clearable
+            />
+            <BrandMeisterVerify
+              channel={verifyChannel}
+              editBindings={{
+                rxGroupListId: values.rxGroupListId || null,
+                onChannelPatch: applyVerifyChannelPatch,
+                onRxGroupListIdChange: (id) => set('rxGroupListId', id),
+              }}
             />
           </Stack>
         ) : null}

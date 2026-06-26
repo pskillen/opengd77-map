@@ -1,8 +1,19 @@
+import type { ChannelTimeslot } from '../../channelFields/index.ts';
 import type { Codeplug, RxGroupList } from '../../../models/codeplug.ts';
 import type { BrandMeisterStaticTalkgroup } from './types.ts';
-import { staticTalkgroupSlots } from './mapTalkGroups.ts';
-import { entityRefDisplayName } from '../../entityRefs.ts';
+import { normalizeTalkGroupNumber, staticTalkgroupSlots } from './mapTalkGroups.ts';
 import type { EntityDiffRow } from './entityDiff.ts';
+
+function formatTimeslot(timeslot: ChannelTimeslot | null): string {
+  return timeslot != null ? `TS${timeslot}` : '—';
+}
+
+function formatSlotSummary(
+  slots: Array<{ number: string; timeslot: ChannelTimeslot | null }>,
+): string {
+  if (slots.length === 0) return '—';
+  return slots.map((s) => `TG ${s.number} ${formatTimeslot(s.timeslot)}`).join(', ');
+}
 
 export function findBrandMeisterDeviceIdForRxList(
   rgl: RxGroupList,
@@ -23,40 +34,69 @@ export function diffRxGroupListFromBrandMeister(
   codeplug: Codeplug,
 ): EntityDiffRow[] {
   const remoteSlots = staticTalkgroupSlots(staticTalkgroups);
-  const localMembers = rgl.memberRefs
-    .filter((m) => m.ref.kind === 'talkGroup')
-    .map((m) => {
-      const tg = codeplug.talkGroups.find((t) => t.id === m.ref.id);
-      return {
-        number: tg?.number.trim() ?? '?',
-        timeslot: m.timeslot ?? null,
-        name: entityRefDisplayName(m.ref, codeplug.talkGroups, codeplug.contacts),
-      };
-    });
+  const localByNumber = new Map<string, { timeslot: ChannelTimeslot | null }>();
 
-  const remoteLabel = remoteSlots
-    .map((s) => `TG ${s.number}${s.timeslot ? ` TS${s.timeslot}` : ''}`)
-    .join(', ');
-  const localLabel =
-    localMembers
-      .map((m) => `${m.name} (${m.number})${m.timeslot ? ` TS${m.timeslot}` : ''}`)
-      .join(', ') || '—';
+  for (const member of rgl.memberRefs) {
+    if (member.ref.kind !== 'talkGroup') continue;
+    const tg = codeplug.talkGroups.find((t) => t.id === member.ref.id);
+    const number = normalizeTalkGroupNumber(tg?.number ?? '');
+    if (!number) continue;
+    localByNumber.set(number, { timeslot: member.timeslot ?? null });
+  }
 
-  const remoteSet = new Set(remoteSlots.map((s) => `${s.number}:${s.timeslot ?? ''}`));
-  const localSet = new Set(localMembers.map((m) => `${m.number}:${m.timeslot ?? ''}`));
+  const rows: EntityDiffRow[] = [];
+  const remoteNumbers = new Set<string>();
 
-  const changed =
-    remoteSet.size !== localSet.size ||
-    [...remoteSet].some((k) => !localSet.has(k)) ||
-    [...localSet].some((k) => !remoteSet.has(k));
+  for (const { number, timeslot } of remoteSlots) {
+    remoteNumbers.add(number);
+    const local = localByNumber.get(number);
+    if (!local) {
+      rows.push({
+        field: `tg-${number}-missing`,
+        label: `TG ${number}`,
+        local: '—',
+        remote: formatTimeslot(timeslot),
+        changed: true,
+      });
+      continue;
+    }
 
-  return [
-    {
-      field: 'members',
-      label: 'Members',
-      local: localLabel,
-      remote: remoteLabel || '—',
-      changed,
-    },
-  ];
+    if ((local.timeslot ?? null) !== (timeslot ?? null)) {
+      rows.push({
+        field: `tg-${number}-timeslot`,
+        label: `TG ${number} timeslot`,
+        local: formatTimeslot(local.timeslot),
+        remote: formatTimeslot(timeslot),
+        changed: true,
+      });
+    }
+  }
+
+  for (const [number, local] of localByNumber) {
+    if (!remoteNumbers.has(number)) {
+      rows.push({
+        field: `tg-${number}-extra`,
+        label: `TG ${number}`,
+        local: formatTimeslot(local.timeslot),
+        remote: '—',
+        changed: true,
+      });
+    }
+  }
+
+  if (rows.length === 0) {
+    return [
+      {
+        field: 'members',
+        label: 'Static talk groups',
+        local: formatSlotSummary(
+          [...localByNumber.entries()].map(([number, { timeslot }]) => ({ number, timeslot })),
+        ),
+        remote: formatSlotSummary(remoteSlots),
+        changed: false,
+      },
+    ];
+  }
+
+  return rows;
 }

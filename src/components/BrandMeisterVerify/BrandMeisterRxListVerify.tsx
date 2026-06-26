@@ -9,9 +9,9 @@ import {
   findBrandMeisterDeviceIdForRxList,
 } from '../../lib/repeaterDirectories/brandmeister/rxListDiff.ts';
 import { entityDiffHasChanges } from '../../lib/repeaterDirectories/brandmeister/entityDiff.ts';
-import { resolveTalkGroupsFromStatic } from '../../lib/repeaterDirectories/brandmeister/mapTalkGroups.ts';
 import { staticTalkgroupSlots } from '../../lib/repeaterDirectories/brandmeister/mapTalkGroups.ts';
-import type { RxGroupList, RxGroupListMember } from '../../models/codeplug.ts';
+import { prepareRxListCorrection } from '../../lib/repeaterDirectories/brandmeister/prepareRxListCorrection.ts';
+import type { RxGroupList } from '../../models/codeplug.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
 
 export interface BrandMeisterRxListVerifyProps {
@@ -19,16 +19,31 @@ export interface BrandMeisterRxListVerifyProps {
 }
 
 export default function BrandMeisterRxListVerify({ rxGroupList }: BrandMeisterRxListVerifyProps) {
-  const { codeplug, setRxGroupListMembers } = useCodeplug();
+  const { codeplug, applyBrandMeisterRxListCorrection } = useCodeplug();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [diffOpen, setDiffOpen] = useState(false);
   const [diffRows, setDiffRows] = useState<ReturnType<typeof diffRxGroupListFromBrandMeister>>([]);
-  const [pendingMemberRefs, setPendingMemberRefs] = useState<RxGroupListMember[] | null>(null);
+  const [correctionPlan, setCorrectionPlan] = useState<
+    Awaited<ReturnType<typeof prepareRxListCorrection>>
+  >(null);
+  const [staticSlots, setStaticSlots] = useState<
+    ReturnType<typeof staticTalkgroupSlots>
+  >([]);
 
   const deviceId = useMemo(
     () => findBrandMeisterDeviceIdForRxList(rxGroupList, codeplug),
     [rxGroupList, codeplug],
+  );
+
+  const linkedChannel = useMemo(
+    () =>
+      codeplug.channels.find(
+        (ch) =>
+          ch.rxGroupListId === rxGroupList.id &&
+          ch.meta?.repeaterDirectory?.sourceId === 'brandmeister',
+      ),
+    [codeplug.channels, rxGroupList.id],
   );
 
   const handleCheck = async () => {
@@ -43,33 +58,25 @@ export default function BrandMeisterRxListVerify({ rxGroupList }: BrandMeisterRx
       const staticTgs = await fetchStaticTalkgroups(deviceId);
       const rows = diffRxGroupListFromBrandMeister(rxGroupList, staticTgs, codeplug);
       setDiffRows(rows);
+      setStaticSlots(staticTalkgroupSlots(staticTgs));
 
       if (!entityDiffHasChanges(rows)) {
-        setPendingMemberRefs(null);
+        setCorrectionPlan(null);
         setDiffOpen(true);
         return;
       }
 
-      const resolved = await resolveTalkGroupsFromStatic(staticTgs, codeplug.talkGroups);
-      const idByNumber = new Map(resolved.idByNumber);
-      for (const tg of codeplug.talkGroups) {
-        const key = tg.number.trim();
-        if (key) idByNumber.set(key, tg.id);
-      }
-
-      const refs: RxGroupListMember[] = [];
-      for (const { number, timeslot } of staticTalkgroupSlots(staticTgs)) {
-        const id = idByNumber.get(number);
-        if (!id) continue;
-        refs.push({ ref: { kind: 'talkGroup', id }, timeslot });
-      }
-
-      if (refs.length === 0) {
-        setError('Remote talk groups are not present in this codeplug — add them first.');
+      const device = {
+        id: deviceId,
+        callsign: linkedChannel?.callsign ?? '',
+      };
+      const plan = await prepareRxListCorrection(codeplug, device, rxGroupList);
+      if (!plan || (plan.memberRefs.length === 0 && plan.newTalkGroups.length === 0)) {
+        setError(plan?.warnings[0] ?? 'Cannot build RX list correction.');
         return;
       }
 
-      setPendingMemberRefs(refs);
+      setCorrectionPlan(plan);
       setDiffOpen(true);
     } catch (err) {
       if (err instanceof BrandMeisterDirectoryError) {
@@ -83,9 +90,22 @@ export default function BrandMeisterRxListVerify({ rxGroupList }: BrandMeisterRx
   };
 
   const handleApply = () => {
-    if (pendingMemberRefs) {
-      setRxGroupListMembers(rxGroupList.id, pendingMemberRefs);
+    if (!correctionPlan) {
+      setDiffOpen(false);
+      return;
     }
+
+    const memberSpecs = staticSlots.map(({ number, timeslot }) => ({ number, timeslot }));
+    applyBrandMeisterRxListCorrection(
+      {
+        newTalkGroups: correctionPlan.newTalkGroups,
+        rxListMembers: memberSpecs,
+        action: 'update',
+        existingRxGroupListId: rxGroupList.id,
+        newListName: rxGroupList.name,
+      },
+      undefined,
+    );
     setDiffOpen(false);
   };
 
@@ -143,16 +163,24 @@ export default function BrandMeisterRxListVerify({ rxGroupList }: BrandMeisterRx
                   ))}
               </Table.Tbody>
             </Table>
-            <Text size="xs" c="dimmed">
-              Apply replaces membership with the repeater static talk group set.
-            </Text>
+            {correctionPlan?.newTalkGroups.length ? (
+              <Text size="xs" c="dimmed">
+                Apply creates talk group(s){' '}
+                {correctionPlan.newTalkGroups.map((tg) => tg.number).join(', ')} by DMR ID, then
+                updates membership and timeslots.
+              </Text>
+            ) : (
+              <Text size="xs" c="dimmed">
+                Apply updates membership and timeslots for matching DMR talk group IDs.
+              </Text>
+            )}
           </Stack>
         )}
         <Group justify="flex-end" mt="md">
           <Button variant="default" onClick={() => setDiffOpen(false)}>
             Close
           </Button>
-          {pendingMemberRefs ? <Button onClick={handleApply}>Apply membership</Button> : null}
+          {correctionPlan ? <Button onClick={handleApply}>Apply correction</Button> : null}
         </Group>
       </Modal>
     </>

@@ -1,8 +1,28 @@
 import type { TalkGroup } from '../../../models/codeplug.ts';
 import type { TalkGroupInput } from '../../codeplugMutations.ts';
 import type { ChannelTimeslot } from '../../channelFields/index.ts';
-import { fetchTalkgroupMeta } from './client.ts';
 import type { BrandMeisterStaticTalkgroup } from './types.ts';
+
+/** DMR talk group ID for identity matching (numeric; ignores leading zeros). */
+export function normalizeTalkGroupNumber(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  if (/^\d+$/.test(trimmed)) {
+    const n = Number.parseInt(trimmed, 10);
+    if (Number.isFinite(n) && n >= 0) return String(n);
+  }
+  return trimmed;
+}
+
+/** Map normalized DMR talk group number → internal talk group id (first wins). */
+export function talkGroupIdByNormalizedNumber(talkGroups: TalkGroup[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const tg of talkGroups) {
+    const key = normalizeTalkGroupNumber(tg.number);
+    if (key && !map.has(key)) map.set(key, tg.id);
+  }
+  return map;
+}
 
 export interface ResolvedTalkGroups {
   /** Talk groups to create — existing numbers omitted. */
@@ -18,48 +38,30 @@ function parseSlot(slot: string): ChannelTimeslot | null {
   return null;
 }
 
-function talkGroupNameForNumber(number: string, metaName: string | undefined): string {
-  const trimmed = metaName?.trim();
-  if (trimmed) return trimmed;
-  return `TG ${number}`;
-}
-
 export async function resolveTalkGroupsFromStatic(
   staticTalkgroups: BrandMeisterStaticTalkgroup[],
   existingTalkGroups: TalkGroup[],
 ): Promise<ResolvedTalkGroups> {
   const warnings: string[] = [];
-  const byNumber = new Map<string, TalkGroup>();
-  for (const tg of existingTalkGroups) {
-    const key = tg.number.trim();
-    if (key) byNumber.set(key, tg);
-  }
+  const byNumber = talkGroupIdByNormalizedNumber(existingTalkGroups);
 
   const newTalkGroups: TalkGroupInput[] = [];
   const idByNumber = new Map<string, string>();
 
   const seen = new Set<string>();
   for (const entry of staticTalkgroups) {
-    const number = entry.talkgroup.trim();
+    const number = normalizeTalkGroupNumber(entry.talkgroup);
     if (!number || seen.has(number)) continue;
     seen.add(number);
 
-    const existing = byNumber.get(number);
-    if (existing) {
-      idByNumber.set(number, existing.id);
+    const existingId = byNumber.get(number);
+    if (existingId) {
+      idByNumber.set(number, existingId);
       continue;
     }
 
-    let metaName: string | undefined;
-    try {
-      const meta = await fetchTalkgroupMeta(number);
-      metaName = meta?.Name;
-    } catch {
-      warnings.push(`Could not fetch name for talk group ${number}`);
-    }
-
     newTalkGroups.push({
-      name: talkGroupNameForNumber(number, metaName),
+      name: `TG ${number}`,
       number,
       callType: 'group',
     });
@@ -86,7 +88,7 @@ export function staticTalkgroupSlots(
   const seen = new Set<string>();
   const result: Array<{ number: string; timeslot: ChannelTimeslot | null }> = [];
   for (const entry of staticTalkgroups) {
-    const number = entry.talkgroup.trim();
+    const number = normalizeTalkGroupNumber(entry.talkgroup);
     if (!number || seen.has(number)) continue;
     seen.add(number);
     result.push({ number, timeslot: parseSlot(entry.slot) });
