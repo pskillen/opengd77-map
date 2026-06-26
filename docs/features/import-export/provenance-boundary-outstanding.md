@@ -2,12 +2,15 @@
 
 **Branch:** `142/pskillen/provenance-boundary-fix`
 
-Debt discovered during execution — not scheduled plan slices.
+## Deferred
+
+### CRUD provenance wire-name sync (slice 6)
+
+Not required for reload fix (v7+ no longer re-resolves from provenance). Would improve re-import merge delta accuracy:
+
+- `updateChannel`: refresh `meta.imported.contactWireName` / `rxGroupListWireName` when operator edits refs
+- `setRxGroupListMembers` / `syncRglMemberWireNames`: encode TG timeslots via `composeTalkGroupTimeslotWireName` in provenance wire names
 
 ## Open
 
-- (none yet)
-
-## Deferred from plan
-
-- Slice 6: sync `contactWireName` / `rxGroupListWireName` on channel CRUD; slot-suffixed wire names in `syncRglMemberWireNames` — improves re-import merge, not required for reload fix.
+- (none)
