@@ -46,18 +46,20 @@ Legacy (migrated on read): `channels-list-columns`, `channels-list-columns-schem
 | Constant | Value | Gates |
 | --- | --- | --- |
 | `CODEPLUG_STORAGE_VERSION` | `1` | On-disk envelope shape |
-| `CODEPLUG_SCHEMA_VERSION` | `13` | Inner `Codeplug` model shape (`meta.schemaVersion`); older codeplugs migrate on load |
+| `CODEPLUG_SCHEMA_VERSION` | `17` | Inner `Codeplug` model shape (`meta.schemaVersion`); older codeplugs migrate on load |
 
 Unknown or future envelope `version` → boot with an empty project set (no crash).
 
-### Schema v7 migration (v6 → v7)
+### Schema v7 migration (v6 → v7) — one-time uplift
 
-On load, persisted v6 codeplugs are upgraded:
+On the **first** load of a persisted v6 codeplug, wire names are resolved to id FKs once; subsequent loads at v7+ trust persisted model fields and do **not** re-resolve from provenance:
 
 - `Channel.contactName` → `contactRef` (`EntityRef | null`); wire string preserved in `meta.imported.contactWireName`
 - `Channel.rxGroupListName` → `rxGroupListId`; wire string in `meta.imported.rxGroupListWireName`
-- `RxGroupList` provenance `memberWireNames` → resolved `memberRefs` when talk groups/contacts are available
+- `RxGroupList` provenance `memberWireNames` → `memberRefs` when talk groups/contacts are available and `memberRefs` is still empty
 - Dangling legacy wire names become `null` refs (not errors)
+
+At schema v7 and above, `migrateCodeplug` normalises shape only — operator edits to `contactRef`, `rxGroupListId`, and `memberRefs` survive reload. See [import-export fidelity contract — Provenance is not re-applied on load](../import-export/import-export-fidelity-contract.md#provenance-is-not-re-applied-on-load).
 
 **Code:** [`migrateCodeplug`](../../src/state/codeplugStorage.ts) · fixture in [`codeplugStorage.test.ts`](../../src/state/codeplugStorage.test.ts).
 

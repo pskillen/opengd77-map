@@ -25,7 +25,7 @@ erDiagram
   RxGroupList }o--o{ Contact : "memberRefs"
 ```
 
-Internal relationships use **UUID id** foreign keys. `EntityRef` is a discriminated ref `{ kind: 'talkGroup' | 'contact'; id }` for dual-kind targets (channel TX contact, RX group list members). Wire names from CPS imports live in per-entity import provenance (`meta.imported`) and are resolved to ids at import/merge; export adapters derive wire strings from ids (with provenance fallback for round-trip fidelity). See [import/export](../import-export/README.md) for format-specific column mapping.
+Internal relationships use **UUID id** foreign keys. `EntityRef` is a discriminated ref `{ kind: 'talkGroup' | 'contact'; id }` for dual-kind targets (channel TX contact, RX group list members). Wire names from CPS imports live in per-entity import provenance (`meta.imported`) and are resolved to ids at **import/merge** and during **one-time legacy schema uplift**; export adapters derive wire strings from model id fields only. See [import/export](../import-export/README.md) for format-specific column mapping.
 
 **Exception (transitional):** `Channel.aprsConfigName` remains a string FK until APRS/DTMF entities are modelled.
 
@@ -40,9 +40,9 @@ Wire-format mapping lives in the [import/export hub](../import-export/README.md)
 | **Radio-agnostic models** | Channels, zones, contacts, etc. have no radio hardware fields. Target radio constraints are applied at export (see [radio profiles](../../reference/opengd77/radios/README.md)). |
 | **Stable internal ids** | Every entity has `id: string` (`crypto.randomUUID()` via `newId()`). Relationships use id FKs: `Zone.memberChannelIds`, `Channel.contactRef`, `Channel.rxGroupListId`, `RxGroupList.memberRefs`. |
 | **Names are display fields, not FKs** | `Channel.name`, `Zone.name`, etc. are preserved for UI and export labels. `TalkGroup.name` / `Contact.name` uniqueness is a project invariant, not an FK mechanism. |
-| **Wire names at import/export only** | Zone and RGL member wire names, channel contact/RGL wire strings live in `meta.imported` provenance. Resolved to ids in `importMerge` / migration; export adapters derive wire strings from ids. |
+| **Wire names at import/export only** | Zone and RGL member wire names, channel contact/RGL wire strings live in `meta.imported` provenance. Resolved to ids in `importMerge` and one-time legacy uplift; export adapters derive wire strings from ids. |
 | **JSON-serialisable** | Plain data objects for persistence and export. |
-| **Schema versioned** | `CODEPLUG_SCHEMA_VERSION = 7`; v1–v6 codeplugs migrate on load. |
+| **Schema versioned** | `CODEPLUG_SCHEMA_VERSION = 17`; v1–v16 codeplugs migrate on load. |
 | **CRUD is vendor-neutral** | Create/edit/delete in the SPA does not enforce radio cardinality (e.g. RX group list member count). Limits apply at import/export per [radio profiles](../../reference/opengd77/radios/README.md). |
 | **Vendor-specific fields are additive** | e.g. `opengd77Extras`, import provenance in `meta.imported` — store when useful; importer/exporter decides drop, warn, truncate, or round-trip. Do not reject or cap in CRUD because export might not round-trip. |
 
@@ -228,9 +228,11 @@ Project-level `CodeplugMeta.importedAt` / `sourceFiles` remain for dashboard and
 
 ```mermaid
 flowchart LR
-  Prov["meta.imported wire names"] --> Resolve["importMerge / migration"]
+  Prov["meta.imported wire names"] --> Resolve["importMerge / legacy uplift only"]
   Entities["talkGroups, contacts, channels, rxGroupLists"] --> Resolve
   Resolve --> Ids["memberChannelIds, contactRef, rxGroupListId, memberRefs"]
+  Ids --> Persist["persisted model"]
+  Persist --> Load["migrateCodeplug: shape only"]
   Ids --> Export["export adapter derives wire strings"]
 ```
 
