@@ -1,4 +1,4 @@
-import type { EntityMeta } from '../../lib/entityProvenance.ts';
+import type { EntityMeta, ImportedProvenance } from '../../lib/entityProvenance.ts';
 import { canonicalOpenGd77ChannelWireForCompare } from '../../lib/channelExpansion/index.ts';
 import { entityRefDisplayName } from '../../lib/entityRefs.ts';
 import type { Codeplug } from '../../models/codeplug.ts';
@@ -15,12 +15,21 @@ function withoutId<T extends { id: string; meta?: EntityMeta }>(item: T): Omit<T
   return copy as Omit<T, 'id'>;
 }
 
+function stripImportedWireProvenance(
+  imported: ImportedProvenance,
+): Pick<ImportedProvenance, 'formatId' | 'sourceFile'> & { importedAt: string } {
+  return {
+    formatId: imported.formatId,
+    sourceFile: imported.sourceFile,
+    importedAt: 'stripped',
+  };
+}
+
 function withoutZoneIds(zone: Codeplug['zones'][number]) {
   const copy = withoutId(zone) as Codeplug['zones'][number];
   delete (copy as { memberChannelIds?: string[] }).memberChannelIds;
   if (copy.meta?.imported) {
-    const { memberWireNames: _wire, ...importedRest } = copy.meta.imported;
-    copy.meta = { ...copy.meta, imported: importedRest };
+    copy.meta = { ...copy.meta, imported: stripImportedWireProvenance(copy.meta.imported) };
   }
   return copy;
 }
@@ -58,15 +67,10 @@ export function stripCodeplugForSemanticCompare(cp: Codeplug) {
           }));
         }
         if (copy.meta?.imported) {
-          const {
-            contactWireName: _cw,
-            rxGroupListWireName: _rgl,
-            channelWireName: _ch,
-            channelWireNames: _chn,
-            multiModeProfileWire: _mm,
-            ...importedRest
-          } = copy.meta.imported;
-          copy.meta = { ...copy.meta, imported: importedRest };
+          copy.meta = {
+            ...copy.meta,
+            imported: stripImportedWireProvenance(copy.meta.imported),
+          };
         }
         return copy;
       })
@@ -93,8 +97,10 @@ export function stripCodeplugForSemanticCompare(cp: Codeplug) {
             return (a.timeslot ?? 0) - (b.timeslot ?? 0);
           });
         if (copy.meta?.imported) {
-          const { memberWireNames: _wire, ...importedRest } = copy.meta.imported;
-          copy.meta = { ...copy.meta, imported: importedRest };
+          copy.meta = {
+            ...copy.meta,
+            imported: stripImportedWireProvenance(copy.meta.imported),
+          };
         }
         return copy;
       })

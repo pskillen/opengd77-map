@@ -63,7 +63,6 @@ function channelRowValues(
   codeplug: Codeplug,
   profile: OpenGd77RadioProfile,
   rowNumber: number,
-  talkGroupWireMap: ReturnType<typeof openGd77TalkGroupWireMap>,
 ): Record<string, string> {
   const values: Record<string, string> = {
     [CHANNEL_COL.number]: String(rowNumber),
@@ -104,14 +103,13 @@ export function serialiseChannels(codeplug: Codeplug, options?: ExportOptions): 
   const profile = getOpenGd77Profile(options?.profileId ?? DEFAULT_OPENGD77_PROFILE_ID);
   const expandOpts = expandOptionsFromExport(codeplug, options);
   const warnings: string[] = [];
-  const talkGroupWireMap = openGd77TalkGroupWireMap(codeplug, options, warnings);
   const expanded = expandAllChannelsForExport(codeplug.channels, {
     ...expandOpts,
     maxNameLength: effectiveMaxNameLength(options, profile.nameLimit),
     warnings,
   });
   const rows = expanded.map((row, i) =>
-    padRow(CHANNEL_HEADERS, channelRowValues(row, codeplug, profile, i + 1, talkGroupWireMap)),
+    padRow(CHANNEL_HEADERS, channelRowValues(row, codeplug, profile, i + 1)),
   );
   return formatCsv(CHANNEL_HEADERS, rows);
 }

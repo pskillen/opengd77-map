@@ -2,7 +2,7 @@ import type { ChannelTimeslot } from '../channelFields/index.ts';
 import { finalizeWireName } from './shortenName.ts';
 import type { Codeplug, RxGroupListMember, TalkGroup } from '../../models/codeplug.ts';
 import type { EntityRef } from '../entityRefs.ts';
-import { entityRefKey, findContactById, findTalkGroupById } from '../entityRefs.ts';
+import { findContactById, findTalkGroupById } from '../entityRefs.ts';
 
 export interface ExpandedTalkGroupWireContact {
   talkGroupId: string;
@@ -58,7 +58,6 @@ export interface BuildTalkGroupWireContactMapOptions {
  */
 export function buildTalkGroupWireContactMap(
   codeplug: Codeplug,
-  _channelTimeslotByContactRef: ReadonlyMap<string, ChannelTimeslot | null> = new Map(),
   options: BuildTalkGroupWireContactMapOptions = {},
 ): TalkGroupWireContactMap {
   const demand = collectSlotDemand(codeplug);

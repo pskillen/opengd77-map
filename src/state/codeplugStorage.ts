@@ -351,9 +351,11 @@ function applySchemaV17Migration(
     }),
   }));
 
-  const migratedTalkGroups: TalkGroup[] = talkGroups.map(
-    ({ timeslotOverride: _removed, ...tg }) => tg,
-  );
+  const migratedTalkGroups: TalkGroup[] = talkGroups.map((tg) => {
+    const { timeslotOverride, ...rest } = tg;
+    void timeslotOverride;
+    return rest;
+  });
 
   return { talkGroups: migratedTalkGroups, rxGroupLists: migratedLists };
 }

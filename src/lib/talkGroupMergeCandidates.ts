@@ -1,7 +1,8 @@
 import { mergeTalkGroupsIntoOne } from './codeplugMutations.ts';
 import { parseTalkGroupSlotWireName } from './import/opengd77/collapseTalkGroupTimeslotDuplicates.ts';
-import type { Channel, Codeplug, RxGroupList, TalkGroup } from '../models/codeplug.ts';
-import { validateTalkGroup, type ValidationIssue } from './validation/talkGroup.ts';
+import type { Channel, Codeplug, TalkGroup } from '../models/codeplug.ts';
+import { validateTalkGroup } from './validation/talkGroup.ts';
+import type { ValidationIssue } from './validation/channel.ts';
 
 export type TalkGroupMergeKind = 'timeslotFamily' | 'ambiguous';
 
@@ -201,7 +202,6 @@ export function previewTalkGroupMerges(
     const survivor = pickSurvivor(sources, stem);
     const resultName = selection.resultName.trim() || stem;
     const mergedTalkGroup = buildMergedTalkGroup(sources, survivor.id, resultName);
-    const absorbedIds = sources.filter((tg) => tg.id !== survivor.id).map((tg) => tg.id);
 
     previews.push({
       groupId: selection.groupId,

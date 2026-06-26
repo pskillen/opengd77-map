@@ -28,7 +28,7 @@ export function openGd77TalkGroupWireMap(
   for (const c of codeplug.contacts) {
     if (c.name.trim()) reserved.add(c.name.trim());
   }
-  return buildTalkGroupWireContactMap(codeplug, new Map(), {
+  return buildTalkGroupWireContactMap(codeplug, {
     maxNameLength: effectiveMaxNameLength(options, profile.nameLimit),
     reservedWireNames: reserved,
     warnings,
