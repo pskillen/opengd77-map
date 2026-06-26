@@ -294,6 +294,27 @@ describe('importMerge', () => {
     expect(emptyEntityStats()).toEqual({ added: 0, updated: 0, unchanged: 0, removed: 0 });
   });
 
+  it('resolves channel contactRef from import provenance wire name', () => {
+    const incoming = stampImported(
+      buildChannel({ id: 'ch-new', name: 'Test', mode: 'dmr', contactRef: null }),
+      {
+        formatId: 'opengd77',
+        sourceFile: 'Channels.csv',
+        importedAt: '2026-01-01T00:00:00.000Z',
+        contactWireName: 'Scotland',
+      },
+    );
+    const { codeplug } = applyImportToCodeplug(
+      {
+        ...emptyCodeplug(),
+        talkGroups: [{ id: 'tg-1', name: 'Scotland', number: '950' }],
+      },
+      channelsResult([incoming]),
+      'merge',
+    );
+    expect(codeplug.channels[0].contactRef).toEqual({ kind: 'talkGroup', id: 'tg-1' });
+  });
+
   it('merges CHIRP channels-only import without touching zones', () => {
     const chirpChannels = parseChirpChannels(chirpMinimalBundle['chirp-minimal.csv']!, {
       profileId: 'baofeng-uv5r-mini',
