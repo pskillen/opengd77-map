@@ -134,6 +134,24 @@ describe('useChannelListQuery', () => {
     const stored = JSON.parse(localStorage.getItem(channelListPrefsKey(projectId))!);
     expect(stored.band).toEqual(['70cm']);
   });
+
+  it('does not restore stale localStorage q when clearing the name filter', async () => {
+    saveChannelListPrefs(projectId, { q: 'stored' });
+
+    const { result } = renderHook(() => useChannelListQuery(), {
+      wrapper: makeWrapper(['/channels']),
+    });
+
+    await waitFor(() => expect(result.current.nameFilter).toBe('stored'));
+
+    act(() => {
+      result.current.setNameFilter('');
+    });
+    await waitFor(() => expect(result.current.nameFilter).toBe(''));
+
+    const stored = JSON.parse(localStorage.getItem(channelListPrefsKey(projectId))!);
+    expect(stored.q).toBe('');
+  });
 });
 
 describe('useListNameQuery', () => {
@@ -203,5 +221,23 @@ describe('useListNameQuery', () => {
       );
       expect(stored.q).toBe('local');
     });
+  });
+
+  it('does not restore stale localStorage q when clearing the name filter', async () => {
+    saveEntityListPrefs('zones', projectId, { q: 'north' });
+
+    const { result } = renderHook(() => useListNameQuery('zones'), {
+      wrapper: makeWrapper(['/zones']),
+    });
+
+    await waitFor(() => expect(result.current.nameFilter).toBe('north'));
+
+    act(() => {
+      result.current.setNameFilter('');
+    });
+    await waitFor(() => expect(result.current.nameFilter).toBe(''));
+
+    const stored = JSON.parse(localStorage.getItem(entityListPrefsKey('zones', projectId))!);
+    expect(stored.q).toBe('');
   });
 });

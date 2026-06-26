@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import { useSearchParams, useLocation } from 'react-router-dom';
+import { useHydrateListPrefsOnce } from '../lib/listPrefs/hydration.ts';
 import type { EntityListEntity } from '../lib/listPrefs/types.ts';
 import {
   debouncedMergeEntityListPrefs,
@@ -18,20 +19,9 @@ export function useListNameQuery(entity: EntityListEntity): {
   const { activeProjectId } = useProjects();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
-  const hydratedKey = useRef<string | null>(null);
 
-  useEffect(() => {
+  const hydrateFromStorage = useCallback(() => {
     if (!activeProjectId) return;
-
-    const visitKey = `${entity}:${activeProjectId}:${location.search}`;
-    if (hydratedKey.current === visitKey) return;
-
-    const currentParams = new URLSearchParams(location.search);
-    if (hasEntityListUrlParams(currentParams)) {
-      hydratedKey.current = visitKey;
-      return;
-    }
-
     const stored = loadEntityListPrefs(entity, activeProjectId);
     if (stored?.q) {
       const next = entityListPrefsToSearchParams(stored);
@@ -39,8 +29,14 @@ export function useListNameQuery(entity: EntityListEntity): {
         replace: true,
       });
     }
-    hydratedKey.current = visitKey;
-  }, [activeProjectId, entity, location.search, setSearchParams]);
+  }, [activeProjectId, entity, setSearchParams]);
+
+  useHydrateListPrefsOnce(
+    activeProjectId,
+    location.search,
+    hasEntityListUrlParams,
+    hydrateFromStorage,
+  );
 
   const nameFilter = searchParams.get('q') ?? '';
 
@@ -56,7 +52,8 @@ export function useListNameQuery(entity: EntityListEntity): {
         { replace: true },
       );
       if (!activeProjectId) return;
-      debouncedMergeEntityListPrefs(entity, activeProjectId, { q: value });
+      if (value) debouncedMergeEntityListPrefs(entity, activeProjectId, { q: value });
+      else mergeEntityListPrefs(entity, activeProjectId, { q: value });
     },
     [activeProjectId, entity, setSearchParams],
   );
