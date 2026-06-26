@@ -21,6 +21,9 @@ import {
   isMapDeviceSkip,
   mapDeviceToChannelInput,
 } from '../../lib/repeaterDirectories/brandmeister/mapToChannel.ts';
+import { buildBrandMeisterBundlePlan } from '../../lib/repeaterDirectories/brandmeister/orchestrateAdd.ts';
+import { addBrandMeisterRepeaterBundle } from '../../lib/codeplugMutations.ts';
+import type { Codeplug } from '../../models/codeplug.ts';
 import type { BrandMeisterDevice } from '../../lib/repeaterDirectories/registry.ts';
 import { useBrandMeisterSearch } from '../../hooks/useBrandMeisterSearch.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
@@ -31,11 +34,13 @@ function deviceKey(device: BrandMeisterDevice): string {
 
 export default function BrandMeisterSearch() {
   const navigate = useNavigate();
-  const { codeplug, addChannel } = useCodeplug();
+  const { codeplug, addChannel, addBrandMeisterBundle } = useCodeplug();
   const search = useBrandMeisterSearch();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [addMessage, setAddMessage] = useState<string | null>(null);
   const [titleCaseNames, setTitleCaseNames] = useState(true);
+  const [includeTalkGroups, setIncludeTalkGroups] = useState(true);
+  const [adding, setAdding] = useState(false);
 
   const mapOptions = useMemo(() => ({ titleCaseText: titleCaseNames }), [titleCaseNames]);
 
@@ -79,26 +84,48 @@ export default function BrandMeisterSearch() {
     setSelected(new Set(keys));
   };
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     let added = 0;
     let skipped = 0;
-    for (const row of rows) {
-      if (!selected.has(row.key)) continue;
-      if (!row.mappable || row.nameCollision) {
-        skipped++;
-        continue;
+    const warningNotes: string[] = [];
+    setAdding(true);
+    try {
+      let workingCodeplug: Codeplug = codeplug;
+      for (const row of rows) {
+        if (!selected.has(row.key)) continue;
+        if (!row.mappable || row.nameCollision) {
+          skipped++;
+          continue;
+        }
+        const mapped = mapDeviceToChannelInput(row.device, undefined, mapOptions);
+        if (isMapDeviceSkip(mapped)) {
+          skipped++;
+          continue;
+        }
+
+        if (includeTalkGroups) {
+          const plan = await buildBrandMeisterBundlePlan(
+            workingCodeplug,
+            row.device,
+            mapped.input,
+            mapped.meta,
+            true,
+          );
+          warningNotes.push(...plan.warnings);
+          addBrandMeisterBundle(plan.bundle);
+          workingCodeplug = addBrandMeisterRepeaterBundle(workingCodeplug, plan.bundle);
+        } else {
+          addChannel({ ...mapped.input, meta: mapped.meta });
+        }
+        added++;
       }
-      const mapped = mapDeviceToChannelInput(row.device, undefined, mapOptions);
-      if (isMapDeviceSkip(mapped)) {
-        skipped++;
-        continue;
-      }
-      addChannel({ ...mapped.input, meta: mapped.meta });
-      added++;
+    } finally {
+      setAdding(false);
     }
+
     setAddMessage(
       added > 0
-        ? `Added ${added} channel${added === 1 ? '' : 's'}${skipped ? ` (${skipped} skipped)` : ''}.`
+        ? `Added ${added} channel${added === 1 ? '' : 's'}${skipped ? ` (${skipped} skipped)` : ''}.${warningNotes.length ? ` ${warningNotes[0]}` : ''}`
         : 'No channels were added.',
     );
     setSelected(new Set());
@@ -142,6 +169,11 @@ export default function BrandMeisterSearch() {
             label="Title case names"
             checked={titleCaseNames}
             onChange={(e) => setTitleCaseNames(e.currentTarget.checked)}
+          />
+          <Checkbox
+            label="Also create talk groups and RX list"
+            checked={includeTalkGroups}
+            onChange={(e) => setIncludeTalkGroups(e.currentTarget.checked)}
           />
           <Button
             leftSection={<IconSearch size={ICON_SIZE_NAV} stroke={ICON_STROKE} />}
@@ -272,7 +304,7 @@ export default function BrandMeisterSearch() {
             ) : null}
 
             <Group justify="space-between">
-              <Button disabled={selected.size === 0} onClick={handleAdd}>
+              <Button disabled={selected.size === 0 || adding} loading={adding} onClick={() => void handleAdd()}>
                 Add selected ({selected.size})
               </Button>
             </Group>

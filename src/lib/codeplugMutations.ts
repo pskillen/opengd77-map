@@ -534,3 +534,53 @@ export function setRxGroupListMembers(
   });
   return { ...codeplug, rxGroupLists };
 }
+
+export interface BrandMeisterRxListMemberSpec {
+  number: string;
+  timeslot: import('./channelFields/index.ts').ChannelTimeslot | null;
+}
+
+export interface BrandMeisterRepeaterBundleInput {
+  newTalkGroups: TalkGroupInput[];
+  rxListName: string;
+  rxListMembers: BrandMeisterRxListMemberSpec[];
+  channel: ChannelInput;
+}
+
+/** Atomically add talk groups, optional RX list, and channel for BrandMeister import. */
+export function addBrandMeisterRepeaterBundle(
+  codeplug: Codeplug,
+  input: BrandMeisterRepeaterBundleInput,
+): Codeplug {
+  let cp = codeplug;
+  const idByNumber = new Map<string, string>();
+  for (const tg of cp.talkGroups) {
+    const key = tg.number.trim();
+    if (key) idByNumber.set(key, tg.id);
+  }
+
+  for (const tgInput of input.newTalkGroups) {
+    cp = addTalkGroup(cp, tgInput);
+    const added = cp.talkGroups[cp.talkGroups.length - 1];
+    idByNumber.set(added.number.trim(), added.id);
+  }
+
+  let rxGroupListId: string | null = null;
+  if (input.rxListMembers.length > 0) {
+    const memberRefs: RxGroupListMember[] = [];
+    for (const spec of input.rxListMembers) {
+      const id = idByNumber.get(spec.number.trim());
+      if (!id) continue;
+      memberRefs.push({
+        ref: { kind: 'talkGroup', id },
+        timeslot: spec.timeslot,
+      });
+    }
+    if (memberRefs.length > 0) {
+      cp = addRxGroupList(cp, { name: input.rxListName, memberRefs });
+      rxGroupListId = cp.rxGroupLists[cp.rxGroupLists.length - 1]?.id ?? null;
+    }
+  }
+
+  return addChannel(cp, { ...input.channel, rxGroupListId });
+}
