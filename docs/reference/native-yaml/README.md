@@ -47,7 +47,7 @@ Top-level keys (order not significant on import; export uses stable ordering):
 | `channels` | `Channel[]` | Full channel objects including `modeProfiles`, `meta`, etc. |
 | `zones` | `Zone[]` | `memberChannelIds` by UUID |
 | `talkGroups` | `TalkGroup[]` | |
-| `rxGroupLists` | `RxGroupList[]` | `memberRefs` as `{ kind, id }` |
+| `rxGroupLists` | `RxGroupList[]` | `memberRefs` as `RxGroupListMember`: `{ ref: { kind, id }, timeslot?: 1 \| 2 }` |
 | `contacts` | `Contact[]` | |
 | `meta` | `CodeplugMeta` | `importedAt`, `sourceFiles`, etc. |
 

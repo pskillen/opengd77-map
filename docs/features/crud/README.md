@@ -16,6 +16,8 @@ Create, edit, and delete codeplug entities against the internal vendor-neutral m
 | Store mutations | Complete | `codeplugMutations.ts`, `codeplugStore` |
 | Validation | Complete | `src/lib/validation/` |
 | Channel merge candidates | Complete | [#116](https://github.com/pskillen/codeplug-tool/issues/116) — post-hoc multi-mode merge detection and apply |
+| Talk group merge candidates | Complete | [#142](https://github.com/pskillen/codeplug-tool/issues/142) — collapse per-slot TG duplicates import missed |
+| RX group list member timeslots | Complete | [#142](https://github.com/pskillen/codeplug-tool/issues/142) — per-member slot on `RxGroupListMember` |
 
 ## Vendor boundaries
 

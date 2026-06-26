@@ -7,7 +7,7 @@
 
 ## Overall status
 
-**Status:** In progress (slices 7–9 outstanding)
+**Status:** Complete
 
 **Branch:** `142/pskillen/talk-group-timeslot-expansion`
 
@@ -21,54 +21,52 @@
 
 ## Slice 2: Model + migration
 
-**Status:** Complete — `feat(model): store talk-group timeslots on RGL members (#142)`
+**Status:** Complete
 
 ---
 
 ## Slice 3: TG×TS export expansion lib
 
-**Status:** Complete — `feat(channelExpansion): expand talk groups by RGL slot demand (#142)`
+**Status:** Complete
 
 ---
 
 ## Slice 4: OpenGD77 export + DM32 follow-through
 
-**Status:** Complete — `feat(export): emit expanded talk-group contacts from RGL slots (#142)`
+**Status:** Complete
 
 ---
 
 ## Slice 5: CRUD + validation
 
-**Status:** Complete — `feat(crud): edit talk-group timeslots on RX group list members (#142)`
+**Status:** Complete
 
 ---
 
 ## Slice 6: Import collapse (OpenGD77 boundary)
 
-**Status:** Complete — `feat(import): collapse slot-suffixed talk groups on OpenGD77 import (#142)`
-
----
-
-## Semantic round-trip tests
-
-**Status:** Complete — `test: assert OpenGD77 semantic round-trip on test-data (#142)`
-
-Fidelity contract wired in `docs: add import/export fidelity contract and wire into guides`.
+**Status:** Complete
 
 ---
 
 ## Slice 7: Talk group merge candidates (lib + mutations)
 
-**Status:** Pending
+**Status:** Complete
 
 ---
 
 ## Slice 8: Talk group merge UI
 
-**Status:** Pending
+**Status:** Complete
 
 ---
 
 ## Slice 9: Documentation completion
 
-**Status:** Pending
+**Status:** Complete — [`multi-timeslot-talkgroups.md`](../../reference/opengd77/multi-timeslot-talkgroups.md), CRUD README, native YAML field table.
+
+---
+
+## Semantic round-trip tests
+
+**Status:** Complete — fidelity contract wired; `opengd77RoundTrip.system.test.ts` asserts Tier 3 model stability.

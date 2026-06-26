@@ -69,6 +69,7 @@ See [file-format.md](file-format.md) for header-name parsing, case-sensitive for
 | [dtmf-aprs.md](dtmf-aprs.md) | Deferred files + radio availability |
 | [multi-talkgroup.md](multi-talkgroup.md) | N/A — native RGL; see [multi-talkgroup-expansion.md](../../reference/multi-talkgroup-expansion.md) |
 | [multi-mode.md](multi-mode.md) | Multi-mode channel expansion ([#46](https://github.com/pskillen/codeplug-tool/issues/46)) |
+| [multi-timeslot-talkgroups.md](multi-timeslot-talkgroups.md) | Per-slot talk group wire names, import collapse, export expansion ([#142](https://github.com/pskillen/codeplug-tool/issues/142)) |
 | [radios/README.md](radios/README.md) | Radio profile concept and index |
 
 ## Sources
