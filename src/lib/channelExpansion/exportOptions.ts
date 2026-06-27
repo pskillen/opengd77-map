@@ -27,6 +27,7 @@ export function expandOptionsFromExport(
     useTalkGroupAbbreviation: options?.useTalkGroupAbbreviation ?? false,
     useChannelAbbreviation: options?.useChannelAbbreviation ?? false,
     multiTalkGroupExportNameMode: options?.multiTalkGroupExportNameMode,
+    exportScratchChannels: options?.exportScratchChannels,
     codeplug,
     warnings,
   };

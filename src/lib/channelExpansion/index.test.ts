@@ -1017,3 +1017,80 @@ describe('channelExpansion', () => {
     expect(merged).toHaveLength(1);
   });
 });
+
+describe('scratch channel export', () => {
+  it('appends scratch row when zone.exportScratchChannel and master toggle on', () => {
+    const tg = buildTalkGroup({ id: 'tg1', name: 'Scotland', number: '950' });
+    const rgl = buildRxGroupList({
+      id: 'rgl1',
+      name: 'Scotland',
+      memberRefs: [buildRglMember({ kind: 'talkGroup', id: 'tg1' })],
+    });
+    const ch = buildChannel({
+      id: 'c1',
+      name: 'Glasgow',
+      callsign: 'GB7GL',
+      mode: 'dmr',
+      rxFrequency: 430_987_500,
+      txFrequency: 438_987_500,
+      colourCode: 1,
+      timeslot: 1,
+      rxGroupListId: 'rgl1',
+    });
+    const zone = buildZone({
+      id: 'z1',
+      name: 'Local',
+      members: [{ channelId: 'c1' }],
+      exportScratchChannel: true,
+    });
+    const codeplug = buildCodeplug({
+      channels: [ch],
+      talkGroups: [tg],
+      rxGroupLists: [rgl],
+      zones: [zone],
+    });
+    const rows = expandAllChannelsForExport([ch], {
+      expandTalkGroups: true,
+      exportScratchChannels: true,
+      codeplug,
+    });
+    const scratch = rows.find((r) => r.wireName === 'GB7GL Scratch');
+    expect(scratch).toBeDefined();
+    expect(scratch?.rxGroupListId).toBeNull();
+    expect(scratch?.contactRef).toEqual({ kind: 'talkGroup', id: 'tg1' });
+  });
+
+  it('skips scratch when exportScratchChannels is false', () => {
+    const tg = buildTalkGroup({ id: 'tg1', name: 'Scotland', number: '950' });
+    const rgl = buildRxGroupList({
+      id: 'rgl1',
+      name: 'Scotland',
+      memberRefs: [buildRglMember({ kind: 'talkGroup', id: 'tg1' })],
+    });
+    const ch = buildChannel({
+      id: 'c1',
+      name: 'Glasgow',
+      callsign: 'GB7GL',
+      mode: 'dmr',
+      rxGroupListId: 'rgl1',
+    });
+    const zone = buildZone({
+      id: 'z1',
+      name: 'Local',
+      members: [{ channelId: 'c1' }],
+      exportScratchChannel: true,
+    });
+    const codeplug = buildCodeplug({
+      channels: [ch],
+      talkGroups: [tg],
+      rxGroupLists: [rgl],
+      zones: [zone],
+    });
+    const rows = expandAllChannelsForExport([ch], {
+      expandTalkGroups: true,
+      exportScratchChannels: false,
+      codeplug,
+    });
+    expect(rows.some((r) => r.wireName.includes('Scratch'))).toBe(false);
+  });
+});

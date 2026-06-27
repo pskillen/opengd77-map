@@ -118,6 +118,8 @@ export interface ExpandChannelOptions {
   talkGroupMembers?: TalkGroupMemberFilter;
   /** Required when expandTalkGroups is true — resolves RGL member refs. */
   codeplug?: Codeplug;
+  /** When false, skip scratch channel synthesis. Default true. */
+  exportScratchChannels?: boolean;
   /** Channel lookup for TG expansion shortening — defaults to `codeplug.channels`. */
   channelById?: ReadonlyMap<string, Channel>;
 }
@@ -519,6 +521,107 @@ export function expandTalkGroupsForExport(
   return result;
 }
 
+function channelRfFingerprint(
+  ch: Pick<Channel, 'rxFrequency' | 'txFrequency' | 'colourCode' | 'timeslot'>,
+): string {
+  return `${ch.rxFrequency ?? ''}|${ch.txFrequency ?? ''}|${ch.colourCode ?? ''}|${ch.timeslot ?? ''}`;
+}
+
+function scratchWireNameBase(channel: Channel): string {
+  const callsign = channel.callsign.trim();
+  if (callsign) return `${callsign} Scratch`;
+  return `${channel.name} Scratch`;
+}
+
+/** Emit companion scratch rows for zones with exportScratchChannel (DM32-style export). */
+export function appendScratchChannelsForExport(
+  rows: ExpandedChannelRow[],
+  options: ExpandChannelOptions = {},
+): ExpandedChannelRow[] {
+  if (options.exportScratchChannels === false || !options.expandTalkGroups || !options.codeplug) {
+    return rows;
+  }
+
+  const codeplug = options.codeplug;
+  const reserved = new Set([...rows.map((r) => r.wireName), ...(options.reservedWireNames ?? [])]);
+  const seen = new Set<string>();
+  const result = [...rows];
+  const channelById = new Map(options.channelById ?? channelByIdFromChannels(codeplug.channels));
+
+  for (const zone of codeplug.zones) {
+    if (!zone.exportScratchChannel) continue;
+
+    for (const member of zone.members) {
+      const ch = channelById.get(member.channelId);
+      if (!ch || !isDmrMode(ch.mode) || !ch.rxGroupListId) continue;
+
+      const rgl = codeplug.rxGroupLists.find((r) => r.id === ch.rxGroupListId);
+      if (!rgl) continue;
+      if (options.nonExpandableRxGroupListNames?.includes(rgl.name)) continue;
+
+      const dedupKey = `${zone.id}|${channelRfFingerprint(ch)}`;
+      if (seen.has(dedupKey)) continue;
+      seen.add(dedupKey);
+
+      const withLookup = { ...options, channelById, reservedWireNames: reserved };
+      const modeRows = expandChannelForExport(ch, withLookup);
+      const baseRow = modeRows.find((r) => isDmrMode(r.mode)) ?? modeRows[0];
+      if (!baseRow) continue;
+
+      const firstTg = rgl.memberRefs.find((m) => m.ref.kind === 'talkGroup');
+      const contactRef = firstTg?.ref ?? null;
+      const wireName = assignExportWireName(scratchWireNameBase(ch), ch, reserved, options);
+
+      result.push({
+        ...baseRow,
+        wireName,
+        contactRef,
+        rxGroupListId: null,
+      });
+      reserved.add(wireName);
+    }
+  }
+
+  return result;
+}
+
+function scratchWireNamesForZone(
+  zone: Zone,
+  channels: Channel[],
+  options: ExpandChannelOptions,
+  reserved: Set<string>,
+): string[] {
+  if (options.exportScratchChannels === false || !options.expandTalkGroups || !options.codeplug) {
+    return [];
+  }
+  if (!zone.exportScratchChannel) return [];
+
+  const codeplug = options.codeplug;
+  const byId = new Map(channels.map((ch) => [ch.id, ch]));
+  const channelById = new Map(options.channelById ?? byId);
+  const seen = new Set<string>();
+  const names: string[] = [];
+
+  for (const member of zone.members) {
+    const ch = byId.get(member.channelId);
+    if (!ch || !isDmrMode(ch.mode) || !ch.rxGroupListId) continue;
+
+    const rgl = codeplug.rxGroupLists.find((r) => r.id === ch.rxGroupListId);
+    if (!rgl) continue;
+    if (options.nonExpandableRxGroupListNames?.includes(rgl.name)) continue;
+
+    const dedupKey = channelRfFingerprint(ch);
+    if (seen.has(dedupKey)) continue;
+    seen.add(dedupKey);
+
+    const wireName = assignExportWireName(scratchWireNameBase(ch), ch, reserved, options);
+    names.push(wireName);
+    reserved.add(wireName);
+  }
+
+  return names;
+}
+
 function expandChannelRowsForExport(
   channel: Channel,
   options: ExpandChannelOptions,
@@ -556,7 +659,7 @@ export function expandAllChannelsForExport(
     channelById.set(ch.id, ch);
     rows.push(...expandChannelRowsForExport(ch, withLookup, reserved));
   }
-  return rows;
+  return appendScratchChannelsForExport(rows, { ...withLookup, reservedWireNames: reserved });
 }
 
 export interface ExpandZoneMembersOptions extends ExpandChannelOptions {
@@ -591,6 +694,16 @@ export function expandZoneMemberWireNames(
       }
       names.push(row.wireName);
     }
+  }
+
+  for (const scratchName of scratchWireNamesForZone(zone, channels, withLookup, reserved)) {
+    if (options.maxMembers != null && names.length >= options.maxMembers) {
+      warnings.push(
+        `Zone "${zone.name}" exceeds ${options.maxMembers} members after channel expansion`,
+      );
+      break;
+    }
+    names.push(scratchName);
   }
 
   return { names, warnings };
