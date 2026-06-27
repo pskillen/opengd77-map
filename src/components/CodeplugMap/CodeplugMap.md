@@ -17,6 +17,8 @@ Embeddable Leaflet map for plotting codeplug channels and zone hulls inside repo
 | `defaultShowZones`       | `boolean`              | `true`     | Initial state for zone hull visibility                                |
 | `highlightChannelId`     | `string`               | —          | Emphasise one channel marker (detail pages)                           |
 | `operatorPosition`       | `{ lat, lon } \| null` | `null`     | Session operator position — distinct “You” marker; included in bounds |
+| `referencePosition`      | `{ lat, lon } \| null` | `null`     | Optional search centre (e.g. zone-from-distance); square marker       |
+| `referenceLabel`         | `string`               | `Search centre` | Popup/label for `referencePosition`                            |
 
 ## Usage
 

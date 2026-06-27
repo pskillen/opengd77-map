@@ -96,18 +96,54 @@
 .operator-marker-label {
   margin-top: 2px;
   font-size: 11px;
-  font-weight: 700;
-  line-height: 1.15;
-  text-align: center;
+  font-weight: 600;
   color: #228be6;
   text-shadow:
-    -1px -1px 0 #fff,
-    1px -1px 0 #fff,
-    -1px 1px 0 #fff,
-    1px 1px 0 #fff,
-    0 0 3px #fff;
-  pointer-events: none;
+    0 0 3px #000,
+    0 0 3px #000;
   white-space: nowrap;
+  pointer-events: none;
+}
+
+.reference-marker-wrap {
+  background: transparent;
+  border: none;
+}
+
+.reference-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.reference-marker-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: #fab005;
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 0 2px #fab005,
+    0 1px 4px rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.reference-marker-label {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fab005;
+  text-shadow:
+    0 0 3px #000,
+    0 0 3px #000;
+  white-space: nowrap;
+  pointer-events: none;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .zone-tooltip {

@@ -378,7 +378,7 @@ interface CodeplugContextValue {
   updateChannel: (channelId: string, patch: Partial<ChannelInput>) => void;
   deleteChannel: (channelId: string) => void;
   duplicateChannel: (channelId: string) => string | null;
-  addZone: (input: ZoneInput) => void;
+  addZone: (input: ZoneInput) => string | null;
   updateZone: (zoneId: string, patch: Partial<ZoneInput>) => void;
   deleteZone: (zoneId: string) => void;
   duplicateZone: (zoneId: string) => string | null;
@@ -528,10 +528,19 @@ export function CodeplugProvider({ children }: { children: ReactNode }) {
     [projectsState],
   );
 
-  const addZone = useCallback((input: ZoneInput) => {
-    setPersistenceError(null);
-    dispatch({ type: 'ADD_ZONE', input });
-  }, []);
+  const addZone = useCallback(
+    (input: ZoneInput): string | null => {
+      const project = activeProject(projectsState);
+      if (!project) return null;
+      const next = addZoneMutation(project.codeplug, input);
+      const added = next.zones[next.zones.length - 1];
+      if (!added) return null;
+      setPersistenceError(null);
+      dispatch({ type: 'REPLACE_ACTIVE_CODEPLUG', codeplug: next });
+      return added.id;
+    },
+    [projectsState],
+  );
 
   const updateZone = useCallback((zoneId: string, patch: Partial<ZoneInput>) => {
     setPersistenceError(null);

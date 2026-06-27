@@ -87,6 +87,18 @@ function operatorDivIcon(): L.DivIcon {
   });
 }
 
+function referenceDivIcon(label: string): L.DivIcon {
+  const safe = escapeHtml(label);
+  return L.divIcon({
+    className: 'reference-marker-wrap',
+    html: `<div class="reference-marker">
+      <div class="reference-marker-dot"></div>
+      <div class="reference-marker-label">${safe}</div>
+    </div>`,
+    iconAnchor: [0, 0],
+  });
+}
+
 function ChannelPopup({
   group,
   talkGroups,
@@ -150,22 +162,33 @@ function FitMapBounds({
   zoneHulls,
   showZoneHulls,
   operatorPosition,
+  referencePosition,
 }: {
   groups: Channel[][];
   zoneHulls: ZoneHullData[];
   showZoneHulls: boolean;
   operatorPosition?: { lat: number; lon: number } | null;
+  referencePosition?: { lat: number; lon: number } | null;
 }) {
   const map = useMap();
 
   useEffect(() => {
     const zonePoints = showZoneHulls ? zoneHulls.flatMap((zh) => zh.points) : [];
-    const extraPoints: LatLon[] =
+    const extraPoints: LatLon[] = [];
+    if (
       operatorPosition != null &&
       Number.isFinite(operatorPosition.lat) &&
       Number.isFinite(operatorPosition.lon)
-        ? [[operatorPosition.lat, operatorPosition.lon]]
-        : [];
+    ) {
+      extraPoints.push([operatorPosition.lat, operatorPosition.lon]);
+    }
+    if (
+      referencePosition != null &&
+      Number.isFinite(referencePosition.lat) &&
+      Number.isFinite(referencePosition.lon)
+    ) {
+      extraPoints.push([referencePosition.lat, referencePosition.lon]);
+    }
     const points = collectMapPoints(groups, zonePoints, showZoneHulls, extraPoints);
     const action = computeMapView(points, {
       padding: [48, 48],
@@ -184,7 +207,7 @@ function FitMapBounds({
       padding: action.padding,
       maxZoom: action.maxZoom,
     });
-  }, [map, groups, zoneHulls, showZoneHulls, operatorPosition]);
+  }, [map, groups, zoneHulls, showZoneHulls, operatorPosition, referencePosition]);
 
   return null;
 }
@@ -245,6 +268,8 @@ export interface CodeplugMapProps {
   compactMode?: boolean;
   onLocationPick?: (lat: number, lon: number) => void;
   operatorPosition?: { lat: number; lon: number } | null;
+  referencePosition?: { lat: number; lon: number } | null;
+  referenceLabel?: string;
 }
 
 export default function CodeplugMap({
@@ -262,6 +287,8 @@ export default function CodeplugMap({
   compactMode = false,
   onLocationPick,
   operatorPosition = null,
+  referencePosition = null,
+  referenceLabel = 'Search centre',
 }: CodeplugMapProps) {
   const mapLayoutReady = useDocumentLayoutReady();
   const { tileProvider, mapboxToken, tileConfig, maidenheadGrid } = useMapSettings();
@@ -490,14 +517,31 @@ export default function CodeplugMap({
               </Marker>
             ) : null}
 
+            {referencePosition != null &&
+            Number.isFinite(referencePosition.lat) &&
+            Number.isFinite(referencePosition.lon) ? (
+              <Marker
+                key="reference-position"
+                position={[referencePosition.lat, referencePosition.lon]}
+                icon={referenceDivIcon(referenceLabel)}
+                zIndexOffset={1001}
+              >
+                <Popup>
+                  <strong>{referenceLabel}</strong>
+                </Popup>
+              </Marker>
+            ) : null}
+
             {groups.length > 0 ||
             operatorPosition != null ||
+            referencePosition != null ||
             (showZoneHulls && zoneHulls.some((zh) => zh.geometry !== 'none')) ? (
               <FitMapBounds
                 groups={groups}
                 zoneHulls={zoneHulls}
                 showZoneHulls={showZoneHulls}
                 operatorPosition={operatorPosition}
+                referencePosition={referencePosition}
               />
             ) : null}
           </MapContainer>
