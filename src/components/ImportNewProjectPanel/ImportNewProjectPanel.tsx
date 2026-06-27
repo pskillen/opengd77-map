@@ -10,6 +10,7 @@ import {
 } from '../../lib/vendorFormats.ts';
 import ImportFormatDropzone from '../ImportFormatDropzone/ImportFormatDropzone.tsx';
 import CloudFileActions from '../CloudFileActions/CloudFileActions.tsx';
+import { getHelpShort } from '../../content/help/manifest.ts';
 
 export interface ImportNewProjectPanelProps {
   onImported: (result: ImportResult) => void;
@@ -43,7 +44,7 @@ export default function ImportNewProjectPanel({
       ) : null}
       <Select
         label="Vendor format"
-        description="Choose the CPS export format you are importing — files are not auto-detected."
+        description={getHelpShort('importExport.formatPicker')}
         data={vendorFormatSelectData()}
         value={vendorFormatId}
         onChange={(value) => {

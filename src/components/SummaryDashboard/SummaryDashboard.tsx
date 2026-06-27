@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import CodeplugMap from '../CodeplugMap/CodeplugMap.tsx';
+import { HelpAlert } from '../help/index.ts';
 import { Page, PageHeader } from '../ui/index.ts';
 import SummaryCard from '../report/SummaryCard.tsx';
 import { applyFilters } from '../../lib/channels.ts';
@@ -55,6 +56,7 @@ export default function SummaryDashboard({ project, codeplug }: SummaryDashboard
     <Page>
       <PageHeader title={project.name} />
       <Stack gap="lg">
+        <HelpAlert helpId="project.dashboard" color="gray" />
         <Group justify="space-between" align="flex-start" wrap="wrap">
           <Stack gap="xs" style={{ flex: 1, minWidth: 0 }}>
             {project.description ? (

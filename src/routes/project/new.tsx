@@ -3,6 +3,7 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ProjectMetadataForm from '../../components/ProjectMetadataForm/ProjectMetadataForm.tsx';
 import { Page, PageHeader } from '../../components/ui/index.ts';
+import { getHelpShort } from '../../content/help/manifest.ts';
 import { blankProjectMetadataFormValues } from '../../models/codeplugProject.ts';
 import { useProjects } from '../../state/codeplugStore.tsx';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../../lib/iconSizes.ts';
@@ -15,7 +16,7 @@ export default function NewCodeplug() {
     <Page width="narrow">
       <PageHeader
         title="New codeplug"
-        description="Create an empty codeplug layout. Add channels, zones, and contacts after you save."
+        description={getHelpShort('import.newProjectOnly')}
       />
       <Stack gap="lg">
         <Button

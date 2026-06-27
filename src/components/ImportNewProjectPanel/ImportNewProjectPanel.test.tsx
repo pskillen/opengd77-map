@@ -25,7 +25,7 @@ describe('ImportNewProjectPanel', () => {
   it('requires explicit vendor format selection', () => {
     renderPanel();
     expect(screen.getByRole('combobox', { name: 'Vendor format' })).toBeInTheDocument();
-    expect(screen.getByText(/files are not auto-detected/i)).toBeInTheDocument();
+    expect(screen.getByText(/do not auto-detect/i)).toBeInTheDocument();
   });
 
   it('shows OpenGD77 dropzone by default', () => {

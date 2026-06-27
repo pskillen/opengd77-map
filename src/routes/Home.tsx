@@ -2,6 +2,7 @@ import { Button } from '@mantine/core';
 import { IconFilePlus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import ImportNewProjectPanel from '../components/ImportNewProjectPanel/ImportNewProjectPanel.tsx';
+import { HelpAlert } from '../components/help/index.ts';
 import ProjectList from '../components/ProjectList/ProjectList.tsx';
 import { Page, PageHeader, PageSection } from '../components/ui/index.ts';
 import { ICON_SIZE_NAV, ICON_STROKE } from '../lib/iconSizes.ts';
@@ -17,6 +18,7 @@ export default function Home() {
         title="MM9PDY Codeplug Tool"
         description="Your codeplugs are stored in this browser. Import a CPS export, start a blank codeplug, or open an existing one below."
       />
+      <HelpAlert helpId="gettingStarted.privacy" />
 
       {projects.length > 0 ? (
         <PageSection title="Your codeplugs">

@@ -3,6 +3,7 @@ import { IconDeviceFloppy } from '@tabler/icons-react';
 import { useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import TargetRadiosEditor from '../TargetRadiosEditor/TargetRadiosEditor.tsx';
+import { getHelpShort } from '../../content/help/manifest.ts';
 import { hasValidationErrors } from '../../lib/validation/channel.ts';
 import {
   sanitizeProjectMetadataPatch,
@@ -84,7 +85,7 @@ export default function ProjectMetadataForm({
         />
         <TextInput
           label="Description"
-          description="Short one-line summary"
+          description={getHelpShort('project.metadata')}
           value={values.description}
           onChange={(e) => set('description', e.currentTarget.value)}
         />
@@ -97,6 +98,7 @@ export default function ProjectMetadataForm({
         <TargetRadiosEditor
           value={values.targetRadios}
           onChange={(targetRadios) => set('targetRadios', targetRadios)}
+          description={getHelpShort('project.targetRadios')}
         />
         <Textarea
           label="Notes"
