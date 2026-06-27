@@ -3,6 +3,8 @@ import { IconDownload, IconPackage } from '@tabler/icons-react';
 import { useState } from 'react';
 import ExportNameSettingsFields from '../ExportNameSettingsFields/ExportNameSettingsFields.tsx';
 import Dm32ZoneExportSettingsFields from '../Dm32ZoneExportSettingsFields/Dm32ZoneExportSettingsFields.tsx';
+import FormatVarianceTable from '../help/FormatVarianceTable.tsx';
+import { getHelpShort } from '../../content/help/manifest.ts';
 import { useExportSettings } from '../../hooks/useExportSettings.ts';
 import CloudFileActions from '../CloudFileActions/CloudFileActions.tsx';
 import {
@@ -105,7 +107,7 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
         {formatProfiles ? (
           <Select
             label="Radio profile"
-            description="Power ladder and export limits for target hardware"
+            description={getHelpShort('importExport.exportOptions.radioProfile')}
             data={profileSelectData}
             value={profileId}
             onChange={(value) => {
@@ -123,6 +125,10 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
         />
 
         {vendorFormat.id === 'dm32' ? <Dm32ZoneExportSettingsFields /> : null}
+
+        {vendorFormat.id === 'opengd77' || vendorFormat.id === 'dm32' ? (
+          <FormatVarianceTable varianceId="rxGroupListExport" />
+        ) : null}
 
         <Stack gap="xs">
           {adapter.fileNames.map((fileName) => (
@@ -153,6 +159,9 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
 
         {exportWarnings.length > 0 ? (
           <Alert color="yellow" title="Export notes">
+            <Text size="sm" mb="xs">
+              {getHelpShort('importExport.lossyBoundary')}
+            </Text>
             {exportWarnings.map((warning) => (
               <Text key={warning} size="sm">
                 {warning}
@@ -237,6 +246,9 @@ export default function ExportFromActivePanel({ vendorFormat }: ExportFromActive
 
         {exportWarnings.length > 0 ? (
           <Alert color="yellow" title="Export notes">
+            <Text size="sm" mb="xs">
+              {getHelpShort('importExport.lossyBoundary')}
+            </Text>
             {exportWarnings.map((warning) => (
               <Text key={warning} size="sm">
                 {warning}

@@ -10,6 +10,7 @@ import type { VendorFormatOption } from '../../lib/vendorFormats.ts';
 import { useCodeplug, useProjects } from '../../state/codeplugStore.tsx';
 import ImportFormatDropzone from '../ImportFormatDropzone/ImportFormatDropzone.tsx';
 import CloudFileActions from '../CloudFileActions/CloudFileActions.tsx';
+import { getHelpShort } from '../../content/help/manifest.ts';
 
 export interface ImportIntoActivePanelProps {
   vendorFormat: VendorFormatOption;
@@ -172,6 +173,9 @@ export default function ImportIntoActivePanel({ vendorFormat }: ImportIntoActive
 
             {pendingReport.unresolvedZoneMembers.length ? (
               <Alert color="orange" title="Unresolved zone members">
+                <Text size="sm" mb="xs">
+                  {getHelpShort('importExport.unresolvedZoneMembers')}
+                </Text>
                 {pendingReport.unresolvedZoneMembers.map(({ zoneName, memberNames }) => (
                   <Text key={zoneName} size="sm">
                     {zoneName}: {memberNames.join(', ')}

@@ -1,4 +1,5 @@
 import { NumberInput, Select, Stack, Switch, Text } from '@mantine/core';
+import { getHelpShort } from '../../content/help/manifest.ts';
 import {
   EXPORT_NAME_MODE_RESPECT_PER_CHANNEL,
   useExportSettings,
@@ -47,7 +48,7 @@ export default function ExportNameSettingsFields({
     <Stack gap="sm">
       <Switch
         label="Shorten long channel names"
-        description="Abbreviate names that exceed the target length at export time"
+        description={getHelpShort('importExport.exportOptions.shortenNames')}
         checked={shortenNames}
         onChange={(e) => setShortenNames(e.currentTarget.checked)}
       />
@@ -55,8 +56,8 @@ export default function ExportNameSettingsFields({
         label="Target name length"
         description={
           profileNameLimit != null
-            ? `Leave empty to use the radio profile default (${profileNameLimit} characters)`
-            : 'Leave empty to use the radio profile default'
+            ? `${getHelpShort('importExport.exportOptions.maxNameLength')} (profile default: ${profileNameLimit})`
+            : getHelpShort('importExport.exportOptions.maxNameLength')
         }
         placeholder={profileNameLimit != null ? String(profileNameLimit) : 'Profile default'}
         min={1}
@@ -74,7 +75,7 @@ export default function ExportNameSettingsFields({
       />
       <Select
         label="Export name mode override"
-        description="Force all channels to one name style for this export (optional)"
+        description={getHelpShort('importExport.exportOptions.nameModeOverride')}
         data={nameModeData}
         value={nameModeOverride}
         onChange={(value) => {
@@ -87,7 +88,7 @@ export default function ExportNameSettingsFields({
       {showMultiTalkGroupOptions ? (
         <Switch
           label="Use talk group abbreviations"
-          description="Prefer TalkGroup.abbreviation for multi-talkgroup channel suffixes"
+          description={getHelpShort('importExport.exportOptions.useTalkGroupAbbreviation')}
           checked={useTalkGroupAbbreviation}
           onChange={(e) => setUseTalkGroupAbbreviation(e.currentTarget.checked)}
           disabled={!shortenNames}
@@ -95,7 +96,7 @@ export default function ExportNameSettingsFields({
       ) : null}
       <Switch
         label="Use channel abbreviations"
-        description="Prefer Channel.abbreviation for the name qualifier in export wire names"
+        description={getHelpShort('importExport.exportOptions.useChannelAbbreviation')}
         checked={useChannelAbbreviation}
         onChange={(e) => setUseChannelAbbreviation(e.currentTarget.checked)}
         disabled={!shortenNames}
@@ -103,7 +104,7 @@ export default function ExportNameSettingsFields({
       {showMultiTalkGroupOptions ? (
         <Select
           label="Multi-talkgroup export name style"
-          description="How expanded RX-list rows name channels on the radio LCD. Tightens automatically if still too long."
+          description={getHelpShort('importExport.exportOptions.multiTalkGroupExportNameMode')}
           data={multiTgNameModeData}
           value={multiTalkGroupExportNameMode}
           onChange={(value) => {
@@ -115,7 +116,7 @@ export default function ExportNameSettingsFields({
         />
       ) : null}
       <Text size="xs" c="dimmed">
-        Preferences are saved in browser localStorage.
+        {getHelpShort('importExport.exportOrder')} Preferences save in browser localStorage.
       </Text>
     </Stack>
   );
