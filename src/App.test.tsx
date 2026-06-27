@@ -112,7 +112,9 @@ describe('App', () => {
     renderApp('/');
 
     expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Help' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Reference' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Help' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Debug' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Summary' })).not.toBeInTheDocument();
@@ -228,6 +230,7 @@ describe('App', () => {
     expect(screen.getByRole('link', { name: 'Channels' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Settings' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Reference' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Help' })).toBeInTheDocument();
   });
 
   it('renders the import and export page on /export', () => {
@@ -312,6 +315,14 @@ describe('App', () => {
     expect(screen.getByRole('heading', { name: 'Reference' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Band plan/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Maidenhead converter/ })).toBeInTheDocument();
+  });
+
+  it('renders the help hub on /help', () => {
+    renderApp('/help');
+
+    expect(screen.getByRole('heading', { name: 'Help' })).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: /Getting started/ }).length).toBeGreaterThan(0);
+    expect(screen.getAllByRole('link', { name: /Glossary/ }).length).toBeGreaterThan(0);
   });
 
   it('renders the maidenhead converter on /reference/maidenhead', () => {
