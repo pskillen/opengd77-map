@@ -18,7 +18,7 @@ import UkRepeaterSearch from '../components/UkRepeaterSearch/UkRepeaterSearch.ts
 - Location modes geocode via Mapbox (when Settings token set) or Photon, then query `/locator/`; shows resolved address and locator square.
 - Operational-only filter on by default.
 - Title case names on by default (DERBY → Derby for channel qualifier and comment).
-- Skips listings without FM/DMR; blocks duplicate **callsigns** (not channel name qualifiers).
+- Skips listings without FM/DMR; blocks duplicate **callsigns** (not channel name qualifiers). Results table **Status** column shows add eligibility (Ready, duplicate callsign, skip reason).
 - Multi-mode FM+DMR listings map to one `multiMode` channel.
 
 ## Related

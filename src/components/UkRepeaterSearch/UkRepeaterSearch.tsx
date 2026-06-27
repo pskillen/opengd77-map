@@ -29,6 +29,7 @@ import {
 import type { EtccListing } from '../../lib/repeaterDirectories/registry.ts';
 import { useUkRepeaterSearch } from '../../hooks/useUkRepeaterSearch.ts';
 import { useCodeplug } from '../../state/codeplugStore.tsx';
+import { rowAddStatus } from './rowAddStatus.ts';
 
 const BAND_OPTIONS = [
   { value: '2M', label: '2 m' },
@@ -274,6 +275,7 @@ export default function UkRepeaterSearch() {
                     <Table.Th>Callsign</Table.Th>
                     <Table.Th>Band</Table.Th>
                     <Table.Th>Town</Table.Th>
+                    <Table.Th>Repeater status</Table.Th>
                     <Table.Th>Status</Table.Th>
                     <Table.Th>Modes</Table.Th>
                     <Table.Th>RX</Table.Th>
@@ -283,6 +285,7 @@ export default function UkRepeaterSearch() {
                 <Table.Tbody>
                   {rows.map((row) => {
                     const disabled = !row.mappable || row.callsignCollision;
+                    const addStatus = rowAddStatus(row);
                     return (
                       <Table.Tr key={row.key} opacity={disabled ? 0.6 : 1}>
                         <Table.Td>
@@ -310,6 +313,11 @@ export default function UkRepeaterSearch() {
                             {titleCaseNames ? toTitleCase(row.listing.status) : row.listing.status}
                           </Text>
                         </Table.Td>
+                        <Table.Td>
+                          <Text size="sm" c={addStatus.color}>
+                            {addStatus.label}
+                          </Text>
+                        </Table.Td>
                         <Table.Td>{formatModeCodesSummary(row.listing.modeCodes ?? [])}</Table.Td>
                         <Table.Td>
                           {formatFrequencyHz(row.listing.tx).replace(' MHz', '') || '—'}
@@ -321,25 +329,6 @@ export default function UkRepeaterSearch() {
                 </Table.Tbody>
               </Table>
             </ScrollArea>
-
-            {rows.some((r) => r.skipReason || r.callsignCollision) ? (
-              <Stack gap={4}>
-                {rows
-                  .filter((r) => r.skipReason)
-                  .map((r) => (
-                    <Text key={r.key} size="xs" c="dimmed">
-                      {r.listing.repeater}: {r.skipReason}
-                    </Text>
-                  ))}
-                {rows
-                  .filter((r) => r.callsignCollision)
-                  .map((r) => (
-                    <Text key={`dup-${r.key}`} size="xs" c="orange">
-                      {r.listing.repeater}: callsign already exists in this codeplug
-                    </Text>
-                  ))}
-              </Stack>
-            ) : null}
 
             <Group justify="space-between">
               <Button disabled={selected.size === 0} onClick={handleAdd}>
