@@ -148,6 +148,15 @@ describe('routeQuery', () => {
     expect(result.listings).toHaveLength(0);
   });
 
+  it('records geocoder no-match in pipeline when geocode returns null', async () => {
+    vi.mocked(geocodeQuery).mockResolvedValue(null);
+    const result = await routeQuery('bt412an', { mode: 'auto' });
+    expect(result.listings).toHaveLength(0);
+    expect(result.resolvedLocation).toBeUndefined();
+    expect(result.pipeline.some((s) => s.text.includes('no match for "bt412an"'))).toBe(true);
+    expect(fetchByLocator).not.toHaveBeenCalled();
+  });
+
   it('geocodes postcode mode and returns resolvedLocation with pipeline', async () => {
     const result = await routeQuery('DE1 1AA', { mode: 'postcode' });
     expect(geocodeQuery).toHaveBeenCalled();

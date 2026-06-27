@@ -34,9 +34,22 @@ export function pipelineInputStep(query: string, mode: UkRepeaterSearchMode): Se
 
 export function pipelineGeocoderStep(
   provider: GeocodeProvider,
-  reason: string,
+  reason?: string,
 ): SearchPipelineStep {
-  return { text: `Geocoder: ${geocodeProviderLabel(provider)} — ${reason}` };
+  const label = geocodeProviderLabel(provider);
+  const detail = reason?.trim();
+  return {
+    text: detail ? `Geocoder: ${label} (${detail})` : `Geocoder: ${label}`,
+  };
+}
+
+export function pipelineGeocodeNoResultsStep(
+  provider: GeocodeProvider,
+  query: string,
+): SearchPipelineStep {
+  return {
+    text: `${geocodeProviderLabel(provider)} response: no match for "${query}"`,
+  };
 }
 
 export function pipelineGeocodeResponseStep(

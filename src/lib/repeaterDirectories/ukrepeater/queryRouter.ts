@@ -11,6 +11,7 @@ import {
   pipelineEtccCallsignStep,
   pipelineEtccKeeperStep,
   pipelineEtccLocatorStep,
+  pipelineGeocodeNoResultsStep,
   pipelineGeocodeResponseStep,
   pipelineGeocoderStep,
   pipelineInputStep,
@@ -112,12 +113,7 @@ function resolveAutoKind(query: string): QueryKind {
 
 function effectiveKindForMode(mode: UkRepeaterSearchMode, query: string): QueryKind {
   if (mode === 'auto') return resolveAutoKind(query);
-  if (
-    mode === 'postcode' ||
-    mode === 'address' ||
-    mode === 'town' ||
-    mode === 'myLocation'
-  ) {
+  if (mode === 'postcode' || mode === 'address' || mode === 'town' || mode === 'myLocation') {
     return 'location';
   }
   return mode;
@@ -144,6 +140,7 @@ async function geocodeToListings(
     mapboxToken: opts?.mapboxToken,
   });
   if (!geo) {
+    pipeline.push(pipelineGeocodeNoResultsStep(providerChoice.provider, query));
     return { listings: [], pipeline };
   }
 

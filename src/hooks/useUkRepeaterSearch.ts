@@ -76,7 +76,7 @@ export function useUkRepeaterSearch() {
         if (result.resolvedLocation) {
           setError(`No repeaters found in locator square ${result.resolvedLocation.locator}.`);
         } else if (result.kind === 'location') {
-          setError('No location found for that search.');
+          setError('Geocoder returned no match — see steps above.');
         } else {
           setError('No repeaters matched your search.');
         }

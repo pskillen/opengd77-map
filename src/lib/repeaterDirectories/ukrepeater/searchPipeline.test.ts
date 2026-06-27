@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   formatLatLon,
+  pipelineGeocodeNoResultsStep,
   pipelineGeocodeResponseStep,
   pipelineGeocoderStep,
   pipelineLocatorStep,
@@ -11,9 +12,20 @@ describe('searchPipeline', () => {
     expect(formatLatLon(52.9225, -1.4746)).toBe('52.9225° N, 1.4746° W');
   });
 
-  it('builds geocoder step with provider name', () => {
-    expect(pipelineGeocoderStep('photon', 'no Mapbox token').text).toContain('Photon');
-    expect(pipelineGeocoderStep('photon', 'no Mapbox token').text).toContain('no Mapbox token');
+  it('builds geocoder step with provider name only when default', () => {
+    expect(pipelineGeocoderStep('photon').text).toBe('Geocoder: Photon (OpenStreetMap)');
+  });
+
+  it('builds geocoder step with optional detail', () => {
+    expect(pipelineGeocoderStep('mapbox', 'token from Settings').text).toBe(
+      'Geocoder: Mapbox (token from Settings)',
+    );
+  });
+
+  it('builds geocode no-results step', () => {
+    expect(pipelineGeocodeNoResultsStep('photon', 'bt412an').text).toBe(
+      'Photon (OpenStreetMap) response: no match for "bt412an"',
+    );
   });
 
   it('builds geocode response step', () => {

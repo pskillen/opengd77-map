@@ -2,7 +2,8 @@ import type { GeocodeProvider } from './geocode.ts';
 
 export interface GeocodeProviderChoice {
   provider: GeocodeProvider;
-  reason: string;
+  /** Short note for the pipeline — never repeats the provider name. */
+  reason?: string;
 }
 
 export function resolveGeocodeProviderChoice(opts?: {
@@ -10,16 +11,12 @@ export function resolveGeocodeProviderChoice(opts?: {
   provider?: GeocodeProvider;
 }): GeocodeProviderChoice {
   if (opts?.provider) {
-    const name = opts.provider === 'mapbox' ? 'Mapbox' : 'Photon (OpenStreetMap)';
-    return { provider: opts.provider, reason: `${name} selected explicitly` };
+    return { provider: opts.provider, reason: 'explicitly selected' };
   }
   if (opts?.mapboxToken?.trim()) {
-    return { provider: 'mapbox', reason: 'Mapbox — token set in Settings' };
+    return { provider: 'mapbox', reason: 'token from Settings' };
   }
-  return {
-    provider: 'photon',
-    reason: 'Photon (OpenStreetMap) — no Mapbox token in Settings',
-  };
+  return { provider: 'photon' };
 }
 
 export function geocodeProviderLabel(provider: GeocodeProvider): string {
