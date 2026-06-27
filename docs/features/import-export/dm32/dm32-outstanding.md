@@ -14,7 +14,7 @@
 
 ## Deferred (by design in #67)
 
-- [ ] **Scan lists** — [#125](https://github.com/pskillen/codeplug-tool/issues/125): generic `ScanList` entity + `Scan.csv` + channel `Scan List` column
+- [ ] **Manual scan lists** — [#125](https://github.com/pskillen/codeplug-tool/issues/125): generic `ScanList` entity + import round-trip. **Zone-derived** `Scan.csv` export shipped ([#164](https://github.com/pskillen/codeplug-tool/issues/164)); import still skipped.
 - [ ] **`DMR-ID.csv`** and channel `DMR ID` column — accepted lossy gap (export uses profile default label)
 - [ ] **CRUD UI for DTMF contacts** — import/export + merge only in v1
 

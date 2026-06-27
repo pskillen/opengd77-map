@@ -18,7 +18,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 
 | Area | Status | Notes |
 | --- | --- | --- |
-| Internal models | Shipped | [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) — schema v14 |
+| Internal models | Shipped | [`src/models/codeplug.ts`](../../../src/models/codeplug.ts) — schema v18 |
 | Adapter interface contracts | Shipped | [`src/lib/import-export/`](../../../src/lib/import-export/) — `ImportAdapter`, `ExportAdapter` |
 | Export format registry | Shipped | [`src/lib/export/`](../../../src/lib/export/) |
 | OpenGD77 import | Shipped | Channels, Zones, Contacts, TG_Lists ([#38](https://github.com/pskillen/codeplug-tool/issues/38)) |
@@ -39,6 +39,7 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | CHIRP CSV (analogue FM/AM) | Shipped | [#103](https://github.com/pskillen/codeplug-tool/issues/103) — [chirp/](chirp/README.md) |
 | Channel wire name split + export composition | Shipped | [#54](https://github.com/pskillen/codeplug-tool/issues/54) — [channel-name-parsing.md](channel-name-parsing.md) |
 | Export name shortening | Shipped | [#130](https://github.com/pskillen/codeplug-tool/issues/130), [#150](https://github.com/pskillen/codeplug-tool/issues/150) — [name-shortening.md](name-shortening.md) |
+| Zone-derived scan lists + scratch (DM32) | Shipped | [#164](https://github.com/pskillen/codeplug-tool/issues/164), [#163](https://github.com/pskillen/codeplug-tool/issues/163) — [zone-derived-scan-lists-progress.md](zone-derived-scan-lists-progress.md) |
 
 ## Documentation map
 
@@ -56,6 +57,9 @@ The internal model is **format- and radio-agnostic**. Format specifics — colum
 | [outstanding.md](outstanding.md) | Collated open debt |
 | [opengd77/progress.md](opengd77/progress.md) | OpenGD77 execution log |
 | [dm32/README.md](dm32/README.md) | DM32 adapter behaviour ([#67](https://github.com/pskillen/codeplug-tool/issues/67)) |
+| [zone-derived-scan-lists-progress.md](zone-derived-scan-lists-progress.md) | Zone-derived scan + scratch execution log ([#164](https://github.com/pskillen/codeplug-tool/issues/164), [#163](https://github.com/pskillen/codeplug-tool/issues/163)) |
+| [zone-derived-scan-lists-outstanding.md](zone-derived-scan-lists-outstanding.md) | Debt from zone-derived scan work |
+| [../../reference/zone-derived-scan-lists.md](../../reference/zone-derived-scan-lists.md) | Tier-2 policy — gating, format matrix, scratch/carrier semantics |
 | [chirp/README.md](chirp/README.md) | CHIRP adapter behaviour ([#103](https://github.com/pskillen/codeplug-tool/issues/103)) |
 | [operator-lifecycle.md](../workflows/operator-lifecycle.md) | Multi-format operator workflow |
 | [Testing strategy](../../build/testing/README.md) | Format fidelity, layers, CI |

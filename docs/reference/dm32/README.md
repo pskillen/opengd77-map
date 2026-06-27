@@ -14,7 +14,7 @@ Authoritative reference for **Baofeng DM-32UV stock CPS** CSV exports (v1.60+). 
 | `Contacts.csv` | [contacts.md](contacts.md) | Yes | Yes | `Contact[]` (`signalingMode: dmr`) |
 | `RXGroupLists.csv` | [rx-group-lists.md](rx-group-lists.md) | Yes | Yes | `RxGroupList[]` |
 | `DTMFContacts.csv` | [dtmf-contacts.md](dtmf-contacts.md) | Yes | Yes | `Contact[]` (`signalingMode: dtmf`) |
-| `Scan.csv` | [scan-lists.md](scan-lists.md) | **Skip** | **Skip** | Deferred — [#125](https://github.com/pskillen/codeplug-tool/issues/125) |
+| `Scan.csv` | [scan-lists.md](scan-lists.md) | **Skip** | Zone-derived ([#164](https://github.com/pskillen/codeplug-tool/issues/164)) | Zone flags — manual CRUD [#125](https://github.com/pskillen/codeplug-tool/issues/125) |
 | `DMR-ID.csv` | — | **Skip** | **Skip** | Accepted gap |
 
 Committed fixture: [`test-data/baofeng-dm32/v1.60/`](../../../test-data/baofeng-dm32/v1.60/).

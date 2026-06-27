@@ -17,7 +17,7 @@ erDiagram
   Codeplug ||--o{ TalkGroup : contains
   Codeplug ||--o{ RxGroupList : contains
   Codeplug ||--o{ Contact : contains
-  Zone }o--o{ Channel : "memberChannelIds"
+  Zone }o--o{ Channel : "members.channelId"
   Channel }o--o| TalkGroup : "contactRef"
   Channel }o--o| Contact : "contactRef"
   Channel }o--o| RxGroupList : "rxGroupListId"
@@ -38,7 +38,7 @@ Wire-format mapping lives in the [import/export hub](../import-export/README.md)
 | Principle | Detail |
 | --- | --- |
 | **Radio-agnostic models** | Channels, zones, contacts, etc. have no radio hardware fields. Target radio constraints are applied at export (see [radio profiles](../../reference/opengd77/radios/README.md)). |
-| **Stable internal ids** | Every entity has `id: string` (`crypto.randomUUID()` via `newId()`). Relationships use id FKs: `Zone.memberChannelIds`, `Channel.contactRef`, `Channel.rxGroupListId`, `RxGroupList.memberRefs`. |
+| **Stable internal ids** | Every entity has `id: string` (`crypto.randomUUID()` via `newId()`). Relationships use id FKs: `Zone.members[].channelId`, `Channel.contactRef`, `Channel.rxGroupListId`, `RxGroupList.memberRefs`. |
 | **Names are display fields, not FKs** | `Channel.name`, `Zone.name`, etc. are preserved for UI and export labels. `TalkGroup.name` / `Contact.name` uniqueness is a project invariant, not an FK mechanism. |
 | **Wire names at import/export only** | Zone and RGL member wire names, channel contact/RGL wire strings live in `meta.imported` provenance. Resolved to ids in `importMerge` and one-time legacy uplift; export adapters derive wire strings from ids. |
 | **JSON-serialisable** | Plain data objects for persistence and export. |
@@ -142,8 +142,15 @@ Import may best-effort collapse flat per-TG rows into one logical channel + RGL.
 | --- | --- | --- |
 | `id` | `string` | Internal |
 | `name` | `string` | |
-| `memberChannelIds` | `string[]` | Resolved channel ids — authoritative membership |
+| `members` | `ZoneMemberEntry[]` | Ordered channel membership |
+| `members[].channelId` | `string` | Channel id FK |
+| `members[].includeInScanList` | `boolean?` | When `false`, omitted from zone-derived scan lists on export. Default true |
+| `exportScratchChannel` | `boolean?` | DM32-style export may emit scratch rows when true ([#163](https://github.com/pskillen/codeplug-tool/issues/163)) |
+| `exportScanList` | `boolean?` | DM32-style export may emit scan list + carrier when true ([#164](https://github.com/pskillen/codeplug-tool/issues/164)) |
+| `scanCarrierFrequencyHz` | `number \| null` | Optional scan carrier RF; export default 145.500 MHz simplex |
 | `meta` | `EntityMeta` | Optional; `meta.imported.memberWireNames` holds imported zone member channel names |
+
+Zone-derived scan/scratch policy: [zone-derived-scan-lists.md](../../reference/zone-derived-scan-lists.md).
 
 ### `TalkGroup`
 

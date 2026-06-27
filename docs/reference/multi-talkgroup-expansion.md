@@ -103,6 +103,7 @@ Operators can also run **Find merge candidates** ([#116](https://github.com/pski
 ## Related
 
 - [Multi-mode expansion](channel-modes.md) — orthogonal axis ([#46](https://github.com/pskillen/codeplug-tool/issues/46))
+- [Zone-derived scan lists and scratch channels](zone-derived-scan-lists.md) — DM32 export synthesis ([#164](https://github.com/pskillen/codeplug-tool/issues/164), [#163](https://github.com/pskillen/codeplug-tool/issues/163))
 - [Adding a new vendor](../features/import-export/adding-a-new-vendor.md) — design-time checklist
 - [OpenGD77 multi-talkgroup](opengd77/multi-talkgroup.md) — N/A for OpenGD77
 - [DM32 stub](../features/import-export/dm32/README.md) — next consumer ([#67](https://github.com/pskillen/codeplug-tool/issues/67))
