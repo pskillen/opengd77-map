@@ -72,6 +72,11 @@ export async function fetchByBand(band: string): Promise<EtccListing[]> {
   return fetchEtccListings(`band/${q}`);
 }
 
+export async function fetchByKeeper(callsign: string): Promise<EtccListing[]> {
+  const q = encodeURIComponent(callsign.trim().toLowerCase());
+  return fetchEtccListings(`keeper/${q}`);
+}
+
 export async function fetchListingById(
   listingId: number,
   callsignHint?: string,

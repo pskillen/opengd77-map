@@ -4,6 +4,7 @@ export interface GeocodeResult {
   lat: number;
   lon: number;
   label: string;
+  provider: GeocodeProvider;
 }
 
 export class GeocodeError extends Error {
@@ -27,7 +28,7 @@ async function geocodeMapbox(query: string, token: string): Promise<GeocodeResul
   if (!feature) return null;
 
   const [lon, lat] = feature.center;
-  return { lat, lon, label: feature.place_name };
+  return { lat, lon, label: feature.place_name, provider: 'mapbox' };
 }
 
 async function geocodePhoton(query: string): Promise<GeocodeResult | null> {
@@ -49,7 +50,7 @@ async function geocodePhoton(query: string): Promise<GeocodeResult | null> {
   const [lon, lat] = feature.geometry.coordinates;
   const { name, city, country } = feature.properties;
   const label = [name, city, country].filter(Boolean).join(', ') || query;
-  return { lat, lon, label };
+  return { lat, lon, label, provider: 'photon' };
 }
 
 export async function geocodeQuery(

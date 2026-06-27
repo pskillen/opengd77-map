@@ -25,6 +25,7 @@ describe('geocodeQuery', () => {
       lat: 55.86,
       lon: -4.25,
       label: 'Glasgow, Glasgow, United Kingdom',
+      provider: 'photon',
     });
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('photon.komoot.io'));
   });
@@ -46,6 +47,7 @@ describe('geocodeQuery', () => {
       lat: 55.86,
       lon: -4.25,
       label: 'Glasgow, Scotland',
+      provider: 'mapbox',
     });
     expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining('api.mapbox.com'));
   });

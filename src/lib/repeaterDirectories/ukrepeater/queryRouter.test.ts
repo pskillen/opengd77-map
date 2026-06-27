@@ -17,14 +17,14 @@ describe('detectQueryKind', () => {
     expect(detectQueryKind('70cm')).toBe('band');
   });
 
-  it('defaults to town for free text', () => {
-    expect(detectQueryKind('Derby')).toBe('town');
+  it('defaults to location for free text', () => {
+    expect(detectQueryKind('Derby')).toBe('location');
   });
 
-  it('detects UK postcodes as town (geocode path), not callsign', () => {
-    expect(detectQueryKind('DE1 1AA')).toBe('town');
-    expect(detectQueryKind('SW1A 1AA')).toBe('town');
-    expect(detectQueryKind('M1 1AE')).toBe('town');
+  it('detects UK postcodes as location (geocode path), not callsign', () => {
+    expect(detectQueryKind('DE1 1AA')).toBe('location');
+    expect(detectQueryKind('SW1A 1AA')).toBe('location');
+    expect(detectQueryKind('M1 1AE')).toBe('location');
   });
 });
 

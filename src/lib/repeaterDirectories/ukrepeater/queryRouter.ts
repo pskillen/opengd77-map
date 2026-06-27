@@ -3,10 +3,20 @@ import { coordsToLocator } from '../../maidenhead.ts';
 import { geocodeQuery } from '../../geocode.ts';
 import type { GeocodeProvider } from '../../geocode.ts';
 import { looksLikeTownName, looksLikeUkPostcode } from '../../ukPostcode.ts';
-import { fetchByBand, fetchByCallsign, fetchByLocator } from './client.ts';
+import { fetchByBand, fetchByCallsign, fetchByKeeper, fetchByLocator } from './client.ts';
 import type { EtccListing } from './types.ts';
 
-export type QueryKind = 'callsign' | 'locator' | 'band' | 'town';
+export type UkRepeaterSearchMode =
+  | 'auto'
+  | 'postcode'
+  | 'address'
+  | 'town'
+  | 'callsign'
+  | 'keeper'
+  | 'locator'
+  | 'band';
+
+export type QueryKind = 'callsign' | 'keeper' | 'locator' | 'band' | 'location';
 
 const BAND_TOKENS = new Set(['2m', '4m', '6m', '10m', '23cm', '70cm', '13cm', '3cm', '9cm', '40m']);
 
@@ -19,9 +29,18 @@ function looksLikeCallsign(query: string): boolean {
   return /\d/.test(compact);
 }
 
+export interface ResolvedLocation {
+  provider: GeocodeProvider;
+  label: string;
+  lat: number;
+  lon: number;
+  locator: string;
+}
+
 export interface QueryRouteResult {
   kind: QueryKind;
   listings: EtccListing[];
+  resolvedLocation?: ResolvedLocation;
 }
 
 export interface SearchFilters {
@@ -30,16 +49,32 @@ export interface SearchFilters {
   band?: string;
 }
 
+export interface RouteQueryOptions {
+  mode?: UkRepeaterSearchMode;
+  geocodeProvider?: GeocodeProvider;
+  mapboxToken?: string;
+}
+
 export function detectQueryKind(query: string): QueryKind {
   const trimmed = query.trim();
-  if (!trimmed) return 'town';
+  if (!trimmed) return 'location';
   const lower = trimmed.toLowerCase();
   if (BAND_TOKENS.has(lower)) return 'band';
-  if (/\s/.test(trimmed) && looksLikeUkPostcode(trimmed)) return 'town';
+  if (/\s/.test(trimmed) && looksLikeUkPostcode(trimmed)) return 'location';
   if (isValidLocator(trimmed)) return 'locator';
-  if (looksLikeUkPostcode(trimmed)) return 'town';
+  if (looksLikeUkPostcode(trimmed)) return 'location';
   if (looksLikeCallsign(trimmed)) return 'callsign';
-  return 'town';
+  return 'location';
+}
+
+/** Whether geocode results should be narrowed by listing town substring. */
+export function shouldApplyTownSubstring(
+  query: string,
+  mode: UkRepeaterSearchMode,
+): boolean {
+  if (mode === 'town') return true;
+  if (mode !== 'auto') return false;
+  return shouldApplyTownSubstringForAuto(query);
 }
 
 /** Whether auto-mode geocode results should be narrowed by listing town substring. */
@@ -48,6 +83,41 @@ export function shouldApplyTownSubstringForAuto(query: string): boolean {
   if (!trimmed) return false;
   if (looksLikeUkPostcode(trimmed)) return false;
   return looksLikeTownName(trimmed);
+}
+
+function resolveAutoKind(query: string): QueryKind {
+  return detectQueryKind(query);
+}
+
+function effectiveKindForMode(mode: UkRepeaterSearchMode, query: string): QueryKind {
+  if (mode === 'auto') return resolveAutoKind(query);
+  if (mode === 'postcode' || mode === 'address' || mode === 'town') return 'location';
+  return mode;
+}
+
+async function geocodeToListings(
+  query: string,
+  opts?: RouteQueryOptions,
+): Promise<{ listings: EtccListing[]; resolvedLocation?: ResolvedLocation }> {
+  const geo = await geocodeQuery(query, {
+    provider: opts?.geocodeProvider,
+    mapboxToken: opts?.mapboxToken,
+  });
+  if (!geo) {
+    return { listings: [] };
+  }
+  const locator = coordsToLocator(geo.lat, geo.lon, 4);
+  const listings = await fetchByLocator(locator);
+  return {
+    listings,
+    resolvedLocation: {
+      provider: geo.provider,
+      label: geo.label,
+      lat: geo.lat,
+      lon: geo.lon,
+      locator,
+    },
+  };
 }
 
 export function filterListings(
@@ -71,46 +141,49 @@ export function filterListings(
 
 export async function routeQuery(
   query: string,
-  opts?: { geocodeProvider?: GeocodeProvider; mapboxToken?: string },
+  opts?: RouteQueryOptions,
 ): Promise<QueryRouteResult> {
   const trimmed = query.trim();
+  const mode = opts?.mode ?? 'auto';
+
   if (!trimmed) {
-    return { kind: 'town', listings: [] };
+    return { kind: 'location', listings: [] };
   }
 
-  const kind = detectQueryKind(trimmed);
+  const kind = effectiveKindForMode(mode, trimmed);
 
   if (kind === 'callsign') {
     return { kind, listings: await fetchByCallsign(trimmed) };
   }
+  if (kind === 'keeper') {
+    return { kind, listings: await fetchByKeeper(trimmed) };
+  }
   if (kind === 'locator') {
+    if (!isValidLocator(trimmed)) {
+      return { kind, listings: [] };
+    }
     return { kind, listings: await fetchByLocator(trimmed) };
   }
   if (kind === 'band') {
     return { kind, listings: await fetchByBand(trimmed) };
   }
 
-  const geo = await geocodeQuery(trimmed, {
-    provider: opts?.geocodeProvider,
-    mapboxToken: opts?.mapboxToken,
-  });
-  if (!geo) {
-    return { kind: 'town', listings: [] };
-  }
-  const locator = coordsToLocator(geo.lat, geo.lon, 4);
-  const listings = await fetchByLocator(locator);
-  return { kind: 'town', listings };
+  const { listings, resolvedLocation } = await geocodeToListings(trimmed, opts);
+  return { kind: 'location', listings, resolvedLocation };
 }
 
 export async function searchUkRepeaters(
   query: string,
   filters: SearchFilters = {},
-  opts?: { geocodeProvider?: GeocodeProvider; mapboxToken?: string },
-): Promise<{ kind: QueryKind; listings: EtccListing[] }> {
-  const { kind, listings } = await routeQuery(query, opts);
-  const townNeedle = kind === 'town' ? query.trim() : filters.townSubstring;
+  opts?: RouteQueryOptions,
+): Promise<QueryRouteResult> {
+  const mode = opts?.mode ?? 'auto';
+  const { kind, listings, resolvedLocation } = await routeQuery(query, opts);
+  const townNeedle =
+    shouldApplyTownSubstring(query, mode) ? query.trim() : filters.townSubstring;
   return {
     kind,
+    resolvedLocation,
     listings: filterListings(listings, { ...filters, townSubstring: townNeedle }),
   };
 }

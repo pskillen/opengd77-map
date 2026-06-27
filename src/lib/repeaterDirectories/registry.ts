@@ -55,6 +55,11 @@ export function getRepeaterDirectorySource(id: RepeaterDirectorySourceId): Repea
 }
 
 export { searchUkRepeaters, filterListings, detectQueryKind } from './ukrepeater/queryRouter.ts';
+export type {
+  UkRepeaterSearchMode,
+  QueryKind,
+  ResolvedLocation,
+} from './ukrepeater/queryRouter.ts';
 export { mapListingToChannelInput, isMapListingSkip } from './ukrepeater/mapToChannel.ts';
 export type {
   MapListingResult,
@@ -63,7 +68,7 @@ export type {
 } from './ukrepeater/mapToChannel.ts';
 export { diffChannelFromListing, buildPatchFromDiff, diffHasChanges } from './channelDiff.ts';
 export type { ChannelDiffRow, ChannelDiffField } from './channelDiff.ts';
-export { EtccDirectoryError, fetchByCallsign, fetchListingById } from './ukrepeater/client.ts';
+export { EtccDirectoryError, fetchByCallsign, fetchByKeeper, fetchListingById } from './ukrepeater/client.ts';
 export type { EtccListing } from './ukrepeater/types.ts';
 export {
   parseModeCodes,
